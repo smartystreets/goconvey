@@ -1,0 +1,46 @@
+// Equality
+So(thing, ShouldEqual, thing2)
+So(thing, ShouldNotEqual, thing2)
+So(thing, ShouldMarshalLike, thing2)
+
+// Sameness
+So(thing, ShouldBe, thing2)  // for comparing against true, false, and nil.
+So(thing, ShouldNotBe, thing2) // for comparing against true, false, and nil.
+So(thing, ShouldPointTo, thing2)
+So(thing, ShouldNotPointTo, thing2)
+
+// Interfaces
+So(1, ShouldImplement, Interface)
+So(1, ShouldNotImplement, OtherInterface)
+
+// Type checking
+So(1, ShouldBeAn, int)
+So(1, ShouldNotBeAn, int)
+So("1", ShouldBeA, string)
+So("1", ShouldNotBeA, string)
+
+// Quantity comparison
+So(1, ShouldBeGreaterThan, 0)
+So(1, ShouldBeGreaterThanOrEqualTo, 0)
+So(1, ShouldBeLessThan, 2)
+So(1, ShouldBeLessThanOrEqualTo, 2)
+
+// Tolerences
+So(1.1, ShouldBeWithin(.1).Of, 1)
+So(1.1, ShouldNotBeWithin(.1).Of, 2)
+
+// Collections
+So([]int{}, ShouldBeEmpty)  // TODO: is it ok that this doesn't have a third parameter?
+So([]int{1}, ShouldNotBeEmpty)
+So([]int{1, 2, 3}, ShouldContain, 1)
+So([]int{1, 2, 3}, ShouldNotContain, 4)
+So(1, ShouldBeIn, []int{1, 2, 3})
+So(4, ShouldNotBeIn, []int{1, 2, 3})
+
+// Strings
+So("asdf", ShouldStartWith, "as")
+So("asdf", ShouldNotStartWith, "df")
+So("asdf", ShouldEndWith, "df")
+So("asdf", ShouldNotEndWith, "df")
+So("(asdf)", ShouldBeSurroundedWith, "()")
+So("(asdf)", ShouldNotBeSurroundedWith, "[]")
