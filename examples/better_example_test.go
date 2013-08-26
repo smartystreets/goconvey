@@ -34,13 +34,8 @@ func init() {
 				})
 			})
 		})
-
-		reset("", func() {
-
-		})
 	})
 }
-
 
 /*
 Output:
