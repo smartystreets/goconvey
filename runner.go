@@ -1,14 +1,13 @@
 package goconvey
 
 import (
-	"runtime"
-	"reflect"
 	"fmt"
+	"reflect"
+	"runtime"
 )
 
-func (self *runner) Convey(situation string, action func()) {
+func (self *runner) Register(situation string, action func()) {
 	fmt.Sprintf("")
-	// fmt.Println("--------")
 	childScope := functionName(action)
 	parentScope := resolveExternalCaller()
 
@@ -22,54 +21,41 @@ func (self *runner) Convey(situation string, action func()) {
 		self.chain[childScope] = parentScope
 	}
 
-	// imprint
-	parent := self.accessConveyedScope(parentScope)
-	// fmt.Println("parent:", parent.subject)
-	parent.Convey(NewScope(situation, action))
+	parent := self.accessScope(parentScope)
+	child := NewScope(situation, action)
+	parent.Adopt(child)
 }
 
-func (self *runner) accessConveyedScope(current string) *scope {
+func (self *runner) accessScope(current string) *scope {
 	if self.chain[current] == "TOP" {
 		return self.top
 	}
 
 	breadCrumbs := []string{current, self.chain[current]}
 	for {
-		next := self.chain[breadCrumbs[len(breadCrumbs) - 1]]
+		next := self.chain[breadCrumbs[len(breadCrumbs)-1]]
 		if next == "TOP" {
 			break
 		} else {
 			breadCrumbs = append(breadCrumbs, next)
 		}
 	}
-	accessed := self.top.convey[breadCrumbs[len(breadCrumbs) - 2]] // why do I have to start at "- 2"?
+	accessed := self.top.children[breadCrumbs[len(breadCrumbs)-2]] // why do I have to start at "- 2"?
 
-	for x := len(breadCrumbs) - 3; x >=0; x-- {
-		accessed = accessed.convey[breadCrumbs[x]]
+	for x := len(breadCrumbs) - 3; x >= 0; x-- {
+		accessed = accessed.children[breadCrumbs[x]]
 	}
 	return accessed
 }
 
-func (self *runner) Reset(what string, action func()) {
-	childScope := functionName(action)
-	parentScope := resolveExternalCaller()
-
-	if self.chain[childScope] == "" {
-		self.chain[childScope] = parentScope
-	}
-
-	// TODO: self.accessConveyedScope doesn't know how to deal with resets yet (or so I think)... Need to drive this out with a test. (reset at a nested level)
-	parent := self.accessConveyedScope(parentScope)
-	parent.reset[what] = NewScope(what, action)
-}
-
 func (self *runner) Run() {
-	for !self.top.Run() {
+	for !self.top.Visited() {
+		self.top.Visit()
 	}
 }
 
 type runner struct {
-	top *scope
+	top   *scope
 	chain map[string]string
 }
 

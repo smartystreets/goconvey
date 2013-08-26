@@ -1,15 +1,14 @@
 package goconvey_test
 
 import (
-	"testing"
 	"github.com/mdwhatcott/goconvey"
-
+	"testing"
 )
 
 func TestNothingInScope(t *testing.T) {
 	runner := goconvey.NewRunner()
 	output := ""
-	
+
 	runner.Run()
 
 	expect(t, "", output)
@@ -19,7 +18,7 @@ func TestSingleScopeWithConvey(t *testing.T) {
 	runner := goconvey.NewRunner()
 	output := ""
 
-	runner.Convey("hi", func() {
+	runner.Register("hi", func() {
 		output += "done"
 	})
 
@@ -32,7 +31,7 @@ func TestSingleScopeWithConvey(t *testing.T) {
 // 	runner := goconvey.NewRunner()
 // 	output := ""
 
-// 	runner.Convey("1", func() {
+// 	runner.Register("1", func() {
 // 		output += "1"
 // 	})
 
@@ -49,11 +48,11 @@ func TestSingleScopeWithMultipleConveys(t *testing.T) {
 	runner := goconvey.NewRunner()
 	output := ""
 
-	runner.Convey("1", func() {
+	runner.Register("1", func() {
 		output += "1"
 	})
 
-	runner.Convey("2", func() {
+	runner.Register("2", func() {
 		output += "2"
 	})
 
@@ -66,11 +65,11 @@ func TestSingleScopeWithMultipleConveys(t *testing.T) {
 // 	runner := goconvey.NewRunner()
 // 	output := ""
 
-// 	runner.Convey("1", func() {
+// 	runner.Register("1", func() {
 // 		output += "1"
 // 	})
 
-// 	runner.Convey("2 again", func() {
+// 	runner.Register("2 again", func() {
 // 		output += "2"
 // 	})
 
@@ -87,11 +86,11 @@ func TestSingleScopeWithMultipleConveys(t *testing.T) {
 // 	runner := goconvey.NewRunner()
 // 	output := ""
 
-// 	runner.Convey("1", func() {
+// 	runner.Register("1", func() {
 // 		output += "1"
 // 	})
 
-// 	runner.Convey("2", func() {
+// 	runner.Register("2", func() {
 // 		output += "2"
 // 	})
 
@@ -112,13 +111,13 @@ func TestNestedScopes(t *testing.T) {
 	runner := goconvey.NewRunner()
 	output := ""
 
-	runner.Convey("a", func() {
+	runner.Register("a", func() {
 		output += "a "
 
-		runner.Convey("aa", func() {
+		runner.Register("aa", func() {
 			output += "aa "
 
-			runner.Convey("aaa", func() {
+			runner.Register("aaa", func() {
 				output += "aaa | "
 			})
 		})
@@ -133,25 +132,25 @@ func TestNestedScopesWithIsolatedExecution(t *testing.T) {
 	runner := goconvey.NewRunner()
 	output := ""
 
-	runner.Convey("a", func() {
+	runner.Register("a", func() {
 		output += "a "
 
-		runner.Convey("aa", func() {
+		runner.Register("aa", func() {
 			output += "aa "
 
-			runner.Convey("aaa", func() {
+			runner.Register("aaa", func() {
 				output += "aaa | "
 			})
 
-			runner.Convey("aaa1", func() {
+			runner.Register("aaa1", func() {
 				output += "aaa1 | "
 			})
 		})
 
-		runner.Convey("ab", func() {
+		runner.Register("ab", func() {
 			output += "ab "
 
-			runner.Convey("abb", func() {
+			runner.Register("abb", func() {
 				output += "abb | "
 			})
 		})

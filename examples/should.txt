@@ -30,7 +30,7 @@ So(1.1, ShouldBeWithin(.1).Of, 1)
 So(1.1, ShouldNotBeWithin(.1).Of, 2)
 
 // Collections
-So([]int{}, ShouldBeEmpty)  // TODO: is it ok that this doesn't have a third parameter?
+So([]int{}, ShouldBeEmpty)
 So([]int{1}, ShouldNotBeEmpty)
 So([]int{1, 2, 3}, ShouldContain, 1)
 So([]int{1, 2, 3}, ShouldNotContain, 4)

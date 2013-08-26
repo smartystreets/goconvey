@@ -10,10 +10,6 @@ func main() {
 	runner.Run()
 }
 
-func Convey(situation string, action func()) {
+func convey(situation string, action func()) {
 	runner.Convey(situation, action)
-}
-
-func Reset(action func()) {
-	runner.Reset(action)
 }

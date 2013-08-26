@@ -1,8 +1,8 @@
 package goconvey
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 func So(actual interface{}, match constraint, expected ...interface{}) func() {

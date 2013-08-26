@@ -5,37 +5,38 @@ import (
 )
 
 func init() {
-	Convey("one equals one", So(1, ShouldEqual, 1))
+	// convey("one equals one", so(1, ShouldEqual, 1))  // single 'so()', wrapping func() optional. (requires that this be wired to the runner...)
 
-	Convey("Subject: Integer incrementation and decrementation", func() {
+	convey("Subject: Integer incrementation and decrementation", func() {
 		x := 0
 
-		Convey("Given a starting integer value", func() {
+		convey("Given a starting integer value", func() {
 			x = 42
 
-			Convey("When incremented", func() {
+			convey("When incremented", func() {
 				x++
 
-				Convey("The value should be greater by one", func() {
-					So(x, ShouldEqual, 43) 
+				convey("The value should be greater by one", func() {
+					so(x, ShouldEqual, 43) 
 				})
-				Convey("The value should NOT be what it used to be", func() {
-					So(x, ShouldNotEqual, 42)
+				convey("The value should NOT be what it used to be", func() {
+					so(x, ShouldNotEqual, 42)
 				})
 			})
-			Convey("When decremented", func() {
+			convey("When decremented", func() {
 				x--
 
-				Convey("The value should be lesser by one", func() {
-					So(x, ShouldEqual, 41)
+				convey("The value should be lesser by one", func() {
+					so(x, ShouldEqual, 41)
 				})
-				Convey("The value should NOT be what it used to be", func() {
-					So(x, ShouldNotEqual, 42)
+				convey("The value should NOT be what it used to be", func() {
+					so(x, ShouldNotEqual, 42)
 				})
 			})
-			Reset(func() {
-				x = 0
-			})
+		})
+
+		reset("", func() {
+
 		})
 	})
 }
