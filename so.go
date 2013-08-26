@@ -1,19 +1,31 @@
 package goconvey
 
-import "fmt"
+import (
+	"fmt"
+	"errors"
+)
 
-func So(actual interface{}, match constraint, expected interface{}) {
-	if !match(actual, expected) {
-		panic(fmt.Sprintf("Doesn't match: '%v' vs '%v'", actual, expected))
+func So(actual interface{}, match constraint, expected ...interface{}) func() {
+	assertion := func() {
+		err := match(actual, expected)
+		fmt.Println(err)
 	}
+	return assertion
 }
 
-func ShouldEqual(actual interface{}, expected interface{}) bool {
-	return actual == expected
+type constraint func(actual interface{}, expected []interface{}) error
+
+func ShouldEqual(actual interface{}, expected []interface{}) error {
+	if actual != expected[0] {
+		message := fmt.Sprintf("'%v' should equal '%v' (but it doesn't)!", actual, expected[0])
+		return errors.New(message)
+	}
+	return nil
 }
 
-func ShouldNotEqual(actual interface{}, expected interface{}) bool {
-	return !ShouldEqual(actual, expected)
+func ShouldBeNil(actual interface{}, expected []interface{}) error {
+	if actual != nil {
+		return errors.New(fmt.Sprintf("'%v' should have been nil!", actual))
+	}
+	return nil
 }
-
-type constraint func(actual interface{}, expected interface{}) bool
