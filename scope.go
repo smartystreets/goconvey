@@ -2,7 +2,7 @@ package goconvey
 
 import "fmt"
 
-func (parent *scope) Visit() {
+func (parent *scope) visit() {
 	parent.action()
 	parent.visitNextChild()
 }
@@ -11,16 +11,19 @@ func (parent *scope) visitNextChild() {
 		return
 	}
 	child := parent.children[parent.birthOrder[parent.child]]
-	child.Visit()
-	if child.Visited() {
+	child.visit()
+	if child.visited() {
 		parent.child++
 	}
 }
 
-func (parent *scope) Adopt(child *scope) {
-	if !parent.hasChild(child) {
-		parent.adopt(child)
+func (parent *scope) adopt(child *scope) {
+	if parent.hasChild(child) {
+		return
 	}
+	name := functionName(child.action)
+	parent.birthOrder = append(parent.birthOrder, name)
+	parent.children[name] = child
 }
 func (parent *scope) hasChild(child *scope) bool {
 	for _, name := range parent.birthOrder {
@@ -30,17 +33,12 @@ func (parent *scope) hasChild(child *scope) bool {
 	}
 	return false
 }
-func (parent *scope) adopt(child *scope) {
-	name := functionName(child.action)
-	parent.birthOrder = append(parent.birthOrder, name)
-	parent.children[name] = child
-}
 
-func (self *scope) Visited() bool {
+func (self *scope) visited() bool {
 	return self.child >= len(self.birthOrder)
 }
 
-func NewScope(name string, action func()) *scope {
+func newScope(name string, action func()) *scope {
 	fmt.Sprintf("")
 
 	self := scope{name: name, action: action}

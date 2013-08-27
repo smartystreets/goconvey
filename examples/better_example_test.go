@@ -1,37 +1,38 @@
-package main
+package something
 
 import (
 	. "github.com/mdwhatcott/goconvey"
 )
 
-func init() {
-	// convey("one equals one", so(1, ShouldEqual, 1))  // single 'so()', wrapping func() optional. (requires that this be wired to the runner...)
-
-	convey("Subject: Integer incrementation and decrementation", func() {
+func Test(t *testing.T) {
+	Convey("Subject: Integer incrementation and decrementation", t, func() {
 		x := 0
 
-		convey("Given a starting integer value", func() {
+		Convey("Given a starting integer value", func() {
 			x = 42
 
-			convey("When incremented", func() {
+			Convey("When incremented", func() {
 				x++
 
-				convey("The value should be greater by one", func() {
-					so(x, ShouldEqual, 43) 
+				Convey("The value should be greater by one", func() {
+					So(x, ShouldEqual, 43)
 				})
-				convey("The value should NOT be what it used to be", func() {
-					so(x, ShouldNotEqual, 42)
+				Convey("The value should NOT be what it used to be", func() {
+					So(x, ShouldNotEqual, 42)
 				})
 			})
-			convey("When decremented", func() {
+			Convey("When decremented", func() {
 				x--
 
-				convey("The value should be lesser by one", func() {
-					so(x, ShouldEqual, 41)
+				Convey("The value should be lesser by one", func() {
+					So(x, ShouldEqual, 41)
 				})
-				convey("The value should NOT be what it used to be", func() {
-					so(x, ShouldNotEqual, 42)
+				Convey("The value should NOT be what it used to be", func() {
+					So(x, ShouldNotEqual, 42)
 				})
+			})
+			Cleanup(func() {
+				x = 0
 			})
 		})
 	})

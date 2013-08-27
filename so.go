@@ -5,14 +5,6 @@ import (
 	"fmt"
 )
 
-func So(actual interface{}, match constraint, expected ...interface{}) func() {
-	assertion := func() {
-		err := match(actual, expected)
-		fmt.Println(err)
-	}
-	return assertion
-}
-
 type constraint func(actual interface{}, expected []interface{}) error
 
 func ShouldEqual(actual interface{}, expected []interface{}) error {

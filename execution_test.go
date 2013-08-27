@@ -1,37 +1,42 @@
-package goconvey_test
+package goconvey
 
 import (
-	"github.com/mdwhatcott/goconvey"
 	"testing"
 )
 
+type FakeTest struct{}
+
+func (self FakeTest) Fail() {}
+
+var test = FakeTest{}
+
 func TestNothingInScope(t *testing.T) {
-	runner := goconvey.NewRunner()
+	runner := newSpecRunner()
 	output := ""
 
-	runner.Run()
+	runner.run()
 
 	expect(t, "", output)
 }
 
 func TestSingleScopeWithConvey(t *testing.T) {
-	runner := goconvey.NewRunner()
+	runner := newSpecRunner()
 	output := ""
 
-	runner.Register("hi", func() {
+	runner.register("hi", func() {
 		output += "done"
 	})
 
-	runner.Run()
+	runner.run()
 
 	expect(t, "done", output)
 }
 
 // func TestSingleScopeWithConveyAndReset(t *testing.T) {
-// 	runner := goconvey.NewRunner()
+// 	runner := newSpecRunner()
 // 	output := ""
 
-// 	runner.Register("1", func() {
+// 	runner.register("1", func() {
 // 		output += "1"
 // 	})
 
@@ -39,37 +44,37 @@ func TestSingleScopeWithConvey(t *testing.T) {
 // 		output += "a"
 // 	})
 
-// 	runner.Run()
+// 	runner.run()
 
 // 	expect(t, "1a", output)
 // }
 
 func TestSingleScopeWithMultipleConveys(t *testing.T) {
-	runner := goconvey.NewRunner()
+	runner := newSpecRunner()
 	output := ""
 
-	runner.Register("1", func() {
+	runner.register("1", func() {
 		output += "1"
 	})
 
-	runner.Register("2", func() {
+	runner.register("2", func() {
 		output += "2"
 	})
 
-	runner.Run()
+	runner.run()
 
 	expect(t, "12", output)
 }
 
 // func TestSingleScopeWithMultipleConveysAndReset(t *testing.T) {
-// 	runner := goconvey.NewRunner()
+// 	runner := newSpecRunner()
 // 	output := ""
 
-// 	runner.Register("1", func() {
+// 	runner.register("1", func() {
 // 		output += "1"
 // 	})
 
-// 	runner.Register("2 again", func() {
+// 	runner.register("2 again", func() {
 // 		output += "2"
 // 	})
 
@@ -77,20 +82,20 @@ func TestSingleScopeWithMultipleConveys(t *testing.T) {
 // 		output += "a"
 // 	})
 
-// 	runner.Run()
+// 	runner.run()
 
 // 	expect(t, "12a", output)
 // }
 
 // func TestSingleScopeWithMultipleConveysAndMultipleResets(t *testing.T) {
-// 	runner := goconvey.NewRunner()
+// 	runner := newSpecRunner()
 // 	output := ""
 
-// 	runner.Register("1", func() {
+// 	runner.register("1", func() {
 // 		output += "1"
 // 	})
 
-// 	runner.Register("2", func() {
+// 	runner.register("2", func() {
 // 		output += "2"
 // 	})
 
@@ -102,61 +107,61 @@ func TestSingleScopeWithMultipleConveys(t *testing.T) {
 // 		output += "b"
 // 	})
 
-// 	runner.Run()
+// 	runner.run()
 
 // 	expect(t, "12ab", output)
 // }
 
 func TestNestedScopes(t *testing.T) {
-	runner := goconvey.NewRunner()
+	runner := newSpecRunner()
 	output := ""
 
-	runner.Register("a", func() {
+	runner.register("a", func() {
 		output += "a "
 
-		runner.Register("aa", func() {
+		runner.register("aa", func() {
 			output += "aa "
 
-			runner.Register("aaa", func() {
+			runner.register("aaa", func() {
 				output += "aaa | "
 			})
 		})
 	})
 
-	runner.Run()
+	runner.run()
 
 	expect(t, "a aa aaa | ", output)
 }
 
 func TestNestedScopesWithIsolatedExecution(t *testing.T) {
-	runner := goconvey.NewRunner()
+	runner := newSpecRunner()
 	output := ""
 
-	runner.Register("a", func() {
+	runner.register("a", func() {
 		output += "a "
 
-		runner.Register("aa", func() {
+		runner.register("aa", func() {
 			output += "aa "
 
-			runner.Register("aaa", func() {
+			runner.register("aaa", func() {
 				output += "aaa | "
 			})
 
-			runner.Register("aaa1", func() {
+			runner.register("aaa1", func() {
 				output += "aaa1 | "
 			})
 		})
 
-		runner.Register("ab", func() {
+		runner.register("ab", func() {
 			output += "ab "
 
-			runner.Register("abb", func() {
+			runner.register("abb", func() {
 				output += "abb | "
 			})
 		})
 	})
 
-	runner.Run()
+	runner.run()
 
 	expect(t, "a aa aaa | a aa aaa1 | a ab abb | ", output)
 }
