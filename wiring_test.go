@@ -2,7 +2,6 @@
 
 Problems:
 	- tester forgets to pass in *testing.T the first time. How do we know it's the first time?
-	- do we enforce order of registration arguments?
 
 */
 
@@ -33,13 +32,12 @@ func TestParseRegistration(t *testing.T) {
 		t.Errorf("Situation should have been '%s', was '%s'.", situation, myRunner.situation)
 	}
 
-	myRunner.action()
 	if !executed {
 		t.Error("Action should have been captured but was not.")
 	}
 }
 
-func TestParseRegistrationWithoutTest(t *testing.T) {
+func TestParseRegistrationWithoutIncludingTestObject(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	specRunner = myRunner
@@ -58,7 +56,6 @@ func TestParseRegistrationWithoutTest(t *testing.T) {
 		t.Errorf("Situation should have been '%s', was '%s'.", situation, myRunner.situation)
 	}
 
-	myRunner.action()
 	if !executed {
 		t.Error("Action should have been captured but was not.")
 	}
@@ -78,12 +75,67 @@ func TestParseRegistrationMissingRequiredElements(t *testing.T) {
 	t.Errorf("Test should have panicked in Convey(...) and then recovered in the defer func().")
 }
 
-func TestParseRegistration_ArgumentsOutOfOrder(t *testing.T) {
-	t.Errorf("TODO") // is this an expected failure?
+func TestParseRegistration_MissingNameString(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != parseError {
+				t.Errorf("Incorrect panic message.")
+			}
+		}
+	}()
+
+	myRunner := newFakeRunner()
+	specRunner = myRunner
+	action := func() {}
+
+	Convey(action)
+
+	t.Errorf("Test should have panicked in Convey(...) and then recovered in the defer func().")
 }
 
-func TestParseFirstAndNestedScopes_PreservesTest(t *testing.T) {
-	t.Errorf("TODO")
+func TestParseRegistration_MissingActionFunc(t *testing.T) {
+	myRunner := newFakeRunner()
+
+	defer func() {
+		if r := recover(); r != nil {
+			if r != parseError {
+				t.Errorf("Incorrect panic message: '%s'", r)
+			}
+		}
+	}()
+
+	specRunner = myRunner
+
+	Convey("Hi there", 12345)
+
+	t.Errorf("Test should have panicked in Convey(...) and then recovered in the defer func().")
+}
+
+func TestParseFirstRegistrationAndNextRegistration_PreservesTest(t *testing.T) {
+	myRunner := newFakeRunner()
+	situation := "Hello, World!"
+	nextSituation := "Goodbye, World!"
+	specRunner = myRunner
+	var test Test = &fakeTest{}
+	executed := 0
+	action := func() {
+		executed++
+	}
+
+	Convey(situation, test, action)
+	Convey(nextSituation, action)
+
+	if myRunner.test == nil {
+		t.Errorf("Test object should NOT havebeen nil, but was.")
+	}
+
+	if myRunner.situation != nextSituation {
+		t.Errorf("Situation should have been '%s', was '%s'.", nextSituation, myRunner.situation)
+	}
+
+	if executed != 2 {
+		t.Error("Action should have been captured but was not.")
+	}
 }
 
 type fakeRunner struct {
@@ -105,6 +157,9 @@ func (self *fakeRunner) begin(test Test) {
 func (self *fakeRunner) register(situation string, action func()) {
 	self.situation = situation
 	self.action = action
+	if self.action != nil {
+		self.action()
+	}
 }
 func (self *fakeRunner) run() {
 	self.executed = true
