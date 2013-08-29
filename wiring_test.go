@@ -16,7 +16,7 @@ func TestParseRegistration(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	specRunner = myRunner
-	var test Test = &fakeTest{}
+	var test goTest = &fakeGoTest{}
 	executed := false
 	action := func() {
 		executed = true
@@ -37,7 +37,7 @@ func TestParseRegistration(t *testing.T) {
 	}
 }
 
-func TestParseRegistrationWithoutIncludingTestObject(t *testing.T) {
+func TestParseRegistrationWithoutIncludinggoTestObject(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	specRunner = myRunner
@@ -49,7 +49,7 @@ func TestParseRegistrationWithoutIncludingTestObject(t *testing.T) {
 	Convey(situation, action)
 
 	if myRunner.test != nil {
-		t.Errorf("Test object should have been nil (was '%v').", myRunner.test)
+		t.Errorf("goTest object should have been nil (was '%v').", myRunner.test)
 	}
 
 	if myRunner.situation != situation {
@@ -72,7 +72,7 @@ func TestParseRegistrationMissingRequiredElements(t *testing.T) {
 
 	Convey()
 
-	t.Errorf("Test should have panicked in Convey(...) and then recovered in the defer func().")
+	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
 }
 
 func TestParseRegistration_MissingNameString(t *testing.T) {
@@ -90,7 +90,7 @@ func TestParseRegistration_MissingNameString(t *testing.T) {
 
 	Convey(action)
 
-	t.Errorf("Test should have panicked in Convey(...) and then recovered in the defer func().")
+	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
 }
 
 func TestParseRegistration_MissingActionFunc(t *testing.T) {
@@ -108,15 +108,15 @@ func TestParseRegistration_MissingActionFunc(t *testing.T) {
 
 	Convey("Hi there", 12345)
 
-	t.Errorf("Test should have panicked in Convey(...) and then recovered in the defer func().")
+	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
 }
 
-func TestParseFirstRegistrationAndNextRegistration_PreservesTest(t *testing.T) {
+func TestParseFirstRegistrationAndNextRegistration_PreservesgoTest(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	nextSituation := "Goodbye, World!"
 	specRunner = myRunner
-	var test Test = &fakeTest{}
+	var test goTest = &fakeGoTest{}
 	executed := 0
 	action := func() {
 		executed++
@@ -126,7 +126,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesTest(t *testing.T) {
 	Convey(nextSituation, action)
 
 	if myRunner.test == nil {
-		t.Errorf("Test object should NOT havebeen nil, but was.")
+		t.Errorf("goTest object should NOT havebeen nil, but was.")
 	}
 
 	if myRunner.situation != nextSituation {
@@ -139,7 +139,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesTest(t *testing.T) {
 }
 
 type fakeRunner struct {
-	test      Test
+	test      goTest
 	situation string
 	action    func()
 	executed  bool
@@ -151,7 +151,7 @@ func newFakeRunner() *fakeRunner {
 	return &f
 }
 
-func (self *fakeRunner) begin(test Test) {
+func (self *fakeRunner) begin(test goTest) {
 	self.test = test
 }
 func (self *fakeRunner) register(situation string, action func()) {
@@ -165,6 +165,6 @@ func (self *fakeRunner) run() {
 	self.executed = true
 }
 
-type fakeTest struct{}
+type fakeGoTest struct{}
 
-func (self *fakeTest) Fail() {}
+func (self *fakeGoTest) Fail() {}

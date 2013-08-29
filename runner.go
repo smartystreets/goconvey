@@ -6,7 +6,7 @@ import (
 	"runtime"
 )
 
-func (self *SpecRunner) begin(test Test) {
+func (self *SpecRunner) begin(test goTest) {
 	self.currentTest = test
 }
 
@@ -64,7 +64,7 @@ func (self *SpecRunner) run() {
 type SpecRunner struct {
 	top         *scope
 	chain       map[string]string
-	currentTest Test
+	currentTest goTest
 }
 
 func newSpecRunner() *SpecRunner {
