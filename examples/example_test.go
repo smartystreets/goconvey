@@ -1,7 +1,7 @@
 package something
 
 import (
-	. "github.com/mdwhatcott/goconvey"
+	. "github.com/mdwhatcott/goconvey/convey"
 	"testing"
 )
 

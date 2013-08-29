@@ -5,7 +5,7 @@ import time
 
 
 def main():
-    working = os.path.abspath(os.getcwd())
+    working = os.path.abspath(os.path.join(os.getcwd(), 'convey'))
     repetitions = 0
     state = 0
     while True:
@@ -38,13 +38,6 @@ def _run_tests(working):
     _run_test()
     for root, dirs, files in os.walk(working):
         for d in dirs:
-            dir_path = os.path.join(root, d)
-            if '.git' in dir_path:
-                continue
-
-            if dir_path.endswith('examples'):
-                continue
-
             os.chdir(os.path.join(root, d))
             _run_test()
 

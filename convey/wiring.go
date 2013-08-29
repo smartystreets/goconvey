@@ -2,7 +2,7 @@ package goconvey
 
 import (
 	"fmt"
-	"github.com/mdwhatcott/goconvey/execution"
+	"github.com/mdwhatcott/goconvey/convey/execution"
 )
 
 func Convey(items ...interface{}) {
@@ -27,4 +27,3 @@ func So(actual interface{}, match constraint, expected ...interface{}) func() {
 	}
 	return assertion
 }
-

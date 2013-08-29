@@ -1,7 +1,7 @@
 package goconvey
 
 import (
-	"github.com/mdwhatcott/goconvey/execution"
+	"github.com/mdwhatcott/goconvey/convey/execution"
 )
 
 func parseRegistration(items []interface{}) (name string, action func(), test execution.GoTest) {
