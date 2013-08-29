@@ -48,7 +48,7 @@ def _run_tests(working):
 
 def _run_test():
     os.system('go test -i')
-    os.system('go test -v')
+    os.system('go test {0}'.format(sys.argv[-1] if sys.argv[-1] == '-v' else ''))
     print
 
 

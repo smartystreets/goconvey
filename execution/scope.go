@@ -1,20 +1,33 @@
 package execution
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func (parent *scope) visit() {
 	parent.action()
-	parent.visitNextChild()
-}
-func (parent *scope) visitNextChild() {
-	if parent.child >= len(parent.birthOrder) {
-		return
+
+	if len(parent.children) == 0 {
+		parent.cleanup()
+	} else {
+		parent.visitChild()
 	}
+}
+func (parent *scope) allChildrenVisited() bool {
+	return parent.child >= len(parent.birthOrder)
+}
+func (parent *scope) visitChild() {
 	child := parent.children[parent.birthOrder[parent.child]]
 	child.visit()
 	if child.visited() {
 		parent.child++
-		// TODO: run resets
+		parent.cleanup()
+	}
+}
+func (parent *scope) cleanup() {
+	for _, reset := range parent.resets {
+		reset()
 	}
 }
 
@@ -39,12 +52,17 @@ func (self *scope) visited() bool {
 	return self.child >= len(self.birthOrder)
 }
 
+func (self *scope) registerReset(action func()) {
+	self.resets[functionId(action)] = action
+}
+
 func newScope(name string, action func()) *scope {
 	fmt.Sprintf("")
 
 	self := scope{name: name, action: action}
 	self.children = make(map[string]*scope)
 	self.birthOrder = []string{}
+	self.resets = make(map[uintptr]func())
 	return &self
 }
 
@@ -54,4 +72,9 @@ type scope struct {
 	children   map[string]*scope
 	birthOrder []string
 	child      int
+	resets     map[uintptr]func()
+}
+
+func functionId(action func()) uintptr {
+	return reflect.ValueOf(action).Pointer()
 }

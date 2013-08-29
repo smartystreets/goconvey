@@ -97,72 +97,72 @@ func TestNestedScopesWithIsolatedExecution(t *testing.T) {
 	expect(t, "a aa aaa | a aa aaa1 | a ab abb | ", output)
 }
 
-// func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
-// 	specRunner := NewSpecRunner()
-// 	output := ""
+func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
+	specRunner := NewSpecRunner()
+	output := ""
 
-// 	specRunner.Register("1", func() {
-// 		output += "1"
+	specRunner.Register("1", func() {
+		output += "1"
 
-// 		specRunner.RegisterReset(func() {
-// 			output += "a"
-// 		})
-// 	})
+		specRunner.RegisterReset(func() {
+			output += "a"
+		})
+	})
 
-// 	specRunner.Run()
+	specRunner.Run()
 
-// 	expect(t, "1a", output)
-// }
+	expect(t, "1a", output)
+}
 
-// func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
-// 	specRunner := NewSpecRunner()
-// 	output := ""
+func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
+	specRunner := NewSpecRunner()
+	output := ""
 
-// 	specRunner.Register("reset after each nested convey", func() {
-// 		specRunner.Register("first output", func() {
-// 			output += "1"
-// 		})
+	specRunner.Register("reset after each nested convey", func() {
+		specRunner.Register("first output", func() {
+			output += "1"
+		})
 
-// 		specRunner.Register("second output", func() {
-// 			output += "2"
-// 		})
+		specRunner.Register("second output", func() {
+			output += "2"
+		})
 
-// 		specRunner.RegisterReset(func() {
-// 			output += "a"
-// 		})
-// 	})
+		specRunner.RegisterReset(func() {
+			output += "a"
+		})
+	})
 
-// 	specRunner.Run()
+	specRunner.Run()
 
-// 	expect(t, "1a2a", output)
-// }
+	expect(t, "1a2a", output)
+}
 
-// func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
-// 	specRunner := NewSpecRunner()
-// 	output := ""
+func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
+	specRunner := NewSpecRunner()
+	output := ""
 
-// 	specRunner.Register("each reset is run at end of each nested convey", func() {
-// 		specRunner.Register("1", func() {
-// 			output += "1"
-// 		})
+	specRunner.Register("each reset is run at end of each nested convey", func() {
+		specRunner.Register("1", func() {
+			output += "1"
+		})
 
-// 		specRunner.Register("2", func() {
-// 			output += "2"
-// 		})
+		specRunner.Register("2", func() {
+			output += "2"
+		})
 
-// 		specRunner.RegisterReset(func() {
-// 			output += "a"
-// 		})
+		specRunner.RegisterReset(func() {
+			output += "a"
+		})
 
-// 		specRunner.RegisterReset(func() {
-// 			output += "b"
-// 		})
-// 	})
+		specRunner.RegisterReset(func() {
+			output += "b"
+		})
+	})
 
-// 	specRunner.Run()
+	specRunner.Run()
 
-// 	expect(t, "1ab2ab", output)
-// }
+	expect(t, "1ab2ab", output)
+}
 
 func expect(t *testing.T, expected, actual string) {
 	if actual != expected {

@@ -55,8 +55,10 @@ func (self *runner) follow(trail []string) *scope {
 	return accessed
 }
 
-func (self *runner) RegisterReset(func()) {
-
+func (self *runner) RegisterReset(action func()) {
+	parentAction := self.link(action)
+	parent := self.accessScope(parentAction)
+	parent.registerReset(action)
 }
 
 func (self *runner) Run() {
