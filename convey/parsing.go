@@ -1,4 +1,4 @@
-package goconvey
+package convey
 
 import (
 	"github.com/mdwhatcott/goconvey/convey/execution"
