@@ -6,29 +6,34 @@ import (
 )
 
 func (parent *scope) visit() {
+	defer parent.recover()
 	parent.action()
-
+	parent.visitChildren()
+}
+func (parent *scope) recover() {
+	if r := recover(); r != nil {
+		parent.panicked = true
+	}
+}
+func (parent *scope) visitChildren() {
 	if len(parent.children) == 0 {
 		parent.cleanup()
 	} else {
 		parent.visitChild()
 	}
 }
-func (parent *scope) allChildrenVisited() bool {
-	return parent.child >= len(parent.birthOrder)
-}
 func (parent *scope) visitChild() {
 	child := parent.children[parent.birthOrder[parent.child]]
 	child.visit()
 	if child.visited() {
 		parent.cleanup()
+		parent.child++
 	}
 }
 func (parent *scope) cleanup() {
 	for _, reset := range parent.resets {
 		reset()
 	}
-	parent.child++
 }
 
 func (parent *scope) adopt(child *scope) {
@@ -49,7 +54,7 @@ func (parent *scope) hasChild(child *scope) bool {
 }
 
 func (self *scope) visited() bool {
-	return self.child >= len(self.birthOrder)
+	return self.panicked || self.child >= len(self.birthOrder)
 }
 
 func (self *scope) registerReset(action func()) {
@@ -73,6 +78,7 @@ type scope struct {
 	birthOrder []string
 	child      int
 	resets     map[uintptr]func()
+	panicked   bool
 }
 
 func functionId(action func()) uintptr {

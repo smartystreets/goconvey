@@ -5,8 +5,7 @@ import (
 )
 
 func TestNothingInScope(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Run()
 
@@ -14,8 +13,7 @@ func TestNothingInScope(t *testing.T) {
 }
 
 func TestSingleScope(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Register("hi", func() {
 		output += "done"
@@ -27,8 +25,7 @@ func TestSingleScope(t *testing.T) {
 }
 
 func TestSingleScopeWithMultipleConveys(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Register("1", func() {
 		output += "1"
@@ -44,8 +41,7 @@ func TestSingleScopeWithMultipleConveys(t *testing.T) {
 }
 
 func TestNestedScopes(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Register("a", func() {
 		output += "a "
@@ -65,8 +61,7 @@ func TestNestedScopes(t *testing.T) {
 }
 
 func TestNestedScopesWithIsolatedExecution(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Register("a", func() {
 		output += "a "
@@ -98,8 +93,7 @@ func TestNestedScopesWithIsolatedExecution(t *testing.T) {
 }
 
 func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Register("1", func() {
 		output += "1"
@@ -115,8 +109,7 @@ func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
 }
 
 func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Register("reset after each nested convey", func() {
 		specRunner.Register("first output", func() {
@@ -138,8 +131,7 @@ func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
 }
 
 func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
-	specRunner := NewSpecRunner()
-	output := ""
+	specRunner, output := prepare()
 
 	specRunner.Register("each reset is run at end of each nested convey", func() {
 		specRunner.Register("1", func() {
@@ -162,6 +154,72 @@ func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
 	specRunner.Run()
 
 	expect(t, "1ab2ab", output)
+}
+
+func TestPanicAtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
+	specRunner, output := prepare()
+
+	specRunner.Register("This step panics", func() {
+		specRunner.Register("this should NOT be executed", func() {
+			output += "1"
+		})
+
+		panic("Hi")
+	})
+
+	specRunner.Run()
+
+	expect(t, "", output)
+}
+
+func TestPanicInChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {
+	specRunner, output := prepare()
+
+	specRunner.Register("This is the parent", func() {
+		specRunner.Register("This step panics", func() {
+			panic("Hi")
+			output += "1"
+		})
+
+		specRunner.Register("This sibling should execute", func() {
+			output += "2"
+		})
+	})
+
+	specRunner.Run()
+
+	expect(t, "2", output)
+}
+
+func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
+	specRunner, output := prepare()
+
+	specRunner.Register("This is the parent", func() {
+		specRunner.Register("This step panics", func() {
+			panic("Hi")
+			output += "1"
+		})
+
+		specRunner.Register("This sibling step does not panic", func() {
+			output += "a"
+
+			specRunner.RegisterReset(func() {
+				output += "b"
+			})
+		})
+
+		specRunner.RegisterReset(func() {
+			output += "2"
+		})
+	})
+
+	specRunner.Run()
+
+	expect(t, "2ab2", output)
+}
+
+func prepare() (*runner, string) {
+	return NewSpecRunner(), ""
 }
 
 func expect(t *testing.T, expected, actual string) {
