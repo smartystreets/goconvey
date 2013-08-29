@@ -9,7 +9,7 @@ package convey
 
 import (
 	// "fmt"
-	"github.com/mdwhatcott/goconvey/convey/execution"
+	"github.com/smartystreets/goconvey/convey/execution"
 	"testing"
 )
 
