@@ -6,35 +6,35 @@ import (
 	"runtime"
 )
 
-func (self *runner) Begin(test GoTest) {
+func (self *scopeRunner) Begin(test GoTest) {
 	self.currentTest = test
 }
 
-func (self *runner) Register(situation string, action func()) {
+func (self *scopeRunner) Register(situation string, action func()) {
 	parentAction := self.link(action)
 	parent := self.accessScope(parentAction)
 	child := newScope(situation, action)
 	parent.adopt(child)
 }
-func (self *runner) link(action func()) (parentAction string) {
+func (self *scopeRunner) link(action func()) (parentAction string) {
 	parentAction, childAction := resolveParentChild(action)
 	self.linkTo(topLevel, parentAction)
 	self.linkTo(parentAction, childAction)
 	return
 }
-func (self *runner) linkTo(value, name string) {
+func (self *scopeRunner) linkTo(value, name string) {
 	if self.chain[name] == "" {
 		self.chain[name] = value
 	}
 }
-func (self *runner) accessScope(current string) *scope {
+func (self *scopeRunner) accessScope(current string) *scope {
 	if self.chain[current] == topLevel {
 		return self.top
 	}
 	breadCrumbs := self.trail(current)
 	return self.follow(breadCrumbs)
 }
-func (self *runner) trail(start string) []string {
+func (self *scopeRunner) trail(start string) []string {
 	breadCrumbs := []string{start, self.chain[start]}
 	for {
 		next := self.chain[last(breadCrumbs)]
@@ -46,7 +46,7 @@ func (self *runner) trail(start string) []string {
 	}
 	return breadCrumbs[:len(breadCrumbs)-1]
 }
-func (self *runner) follow(trail []string) *scope {
+func (self *scopeRunner) follow(trail []string) *scope {
 	var accessed = self.top
 
 	for x := len(trail) - 1; x >= 0; x-- {
@@ -55,28 +55,28 @@ func (self *runner) follow(trail []string) *scope {
 	return accessed
 }
 
-func (self *runner) RegisterReset(action func()) {
+func (self *scopeRunner) RegisterReset(action func()) {
 	parentAction := self.link(action)
 	parent := self.accessScope(parentAction)
 	parent.registerReset(action)
 }
 
-func (self *runner) Run() {
+func (self *scopeRunner) Run() {
 	for !self.top.visited() {
 		self.top.visit()
 	}
 }
 
-type runner struct {
+type scopeRunner struct {
 	top         *scope
 	chain       map[string]string
 	currentTest GoTest
 }
 
-func NewSpecRunner() *runner {
+func NewScopeRunner() *scopeRunner {
 	fmt.Sprintf("")
 
-	self := runner{}
+	self := scopeRunner{}
 	self.top = newScope(topLevel, func() {})
 	self.chain = make(map[string]string)
 	return &self
@@ -92,7 +92,7 @@ func functionName(function func()) string {
 	return runtime.FuncForPC(reflect.ValueOf(function).Pointer()).Name()
 }
 func resolveExternalCaller() string {
-	caller_id, _, _, _ := runtime.Caller(4) // TODO: how to better encapsulate this magic number (move it closer to user code)
+	caller_id, _, _, _ := runtime.Caller(5)
 	return runtime.FuncForPC(caller_id).Name()
 }
 

@@ -16,7 +16,7 @@ import (
 func TestParseRegistration(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
-	specRunner = myRunner
+	execution.SpecRunner = myRunner
 	var test execution.GoTest = &fakeGoTest{}
 	executed := false
 	action := func() {
@@ -41,7 +41,7 @@ func TestParseRegistration(t *testing.T) {
 func TestParseRegistrationWithoutIncludinggoTestObject(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
-	specRunner = myRunner
+	execution.SpecRunner = myRunner
 	executed := false
 	action := func() {
 		executed = true
@@ -86,7 +86,7 @@ func TestParseRegistration_MissingNameString(t *testing.T) {
 	}()
 
 	myRunner := newFakeRunner()
-	specRunner = myRunner
+	execution.SpecRunner = myRunner
 	action := func() {}
 
 	Convey(action)
@@ -105,7 +105,7 @@ func TestParseRegistration_MissingActionFunc(t *testing.T) {
 		}
 	}()
 
-	specRunner = myRunner
+	execution.SpecRunner = myRunner
 
 	Convey("Hi there", 12345)
 
@@ -116,7 +116,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesgoTest(t *testing.T)
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	nextSituation := "Goodbye, World!"
-	specRunner = myRunner
+	execution.SpecRunner = myRunner
 	var test execution.GoTest = &fakeGoTest{}
 	executed := 0
 	action := func() {
@@ -162,6 +162,7 @@ func (self *fakeRunner) Register(situation string, action func()) {
 		self.action()
 	}
 }
+func (self *fakeRunner) RegisterReset(action func()) {}
 func (self *fakeRunner) Run() {
 	self.executed = true
 }
