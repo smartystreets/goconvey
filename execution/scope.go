@@ -21,7 +21,6 @@ func (parent *scope) visitChild() {
 	child := parent.children[parent.birthOrder[parent.child]]
 	child.visit()
 	if child.visited() {
-		parent.child++
 		parent.cleanup()
 	}
 }
@@ -29,6 +28,7 @@ func (parent *scope) cleanup() {
 	for _, reset := range parent.resets {
 		reset()
 	}
+	parent.child++
 }
 
 func (parent *scope) adopt(child *scope) {

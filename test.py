@@ -42,6 +42,9 @@ def _run_tests(working):
             if '.git' in dir_path:
                 continue
 
+            if dir_path.endswith('examples'):
+                continue
+
             os.chdir(os.path.join(root, d))
             _run_test()
 
