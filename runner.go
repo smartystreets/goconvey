@@ -86,7 +86,7 @@ func functionName(function func()) string {
 	return runtime.FuncForPC(reflect.ValueOf(function).Pointer()).Name()
 }
 func resolveExternalCaller() string {
-	caller_id, _, _, _ := runtime.Caller(4) // TODO: how to better encapsulate this magic number (move it closer to user code)
+	caller_id, _, _, _ := runtime.Caller(5) // TODO: how to better encapsulate this magic number (move it closer to user code)
 	return runtime.FuncForPC(caller_id).Name()
 }
 

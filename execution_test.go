@@ -4,164 +4,162 @@ import (
 	"testing"
 )
 
-type FakeTest struct{}
-
-func (self FakeTest) Fail() {}
-
-var test = FakeTest{}
-
 func TestNothingInScope(t *testing.T) {
-	runner := newSpecRunner()
+	specRunner = newSpecRunner()
 	output := ""
 
-	runner.run()
+	specRunner.run()
 
 	expect(t, "", output)
 }
 
 func TestSingleScopeWithConvey(t *testing.T) {
-	runner := newSpecRunner()
+	specRunner = newSpecRunner()
 	output := ""
 
-	runner.register("hi", func() {
+	Convey("hi", t, func() {
 		output += "done"
 	})
 
-	runner.run()
+	specRunner.run()
 
 	expect(t, "done", output)
 }
 
-// func TestSingleScopeWithConveyAndReset(t *testing.T) {
-// 	runner := newSpecRunner()
+// func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
+// 	specRunner = newSpecRunner()
 // 	output := ""
 
-// 	runner.register("1", func() {
+// 	Convey("1", t, func() {
 // 		output += "1"
+
+// 		Reset("a", func() {
+// 			output += "a"
+// 		})
 // 	})
 
-// 	runner.Reset("a", func() {
-// 		output += "a"
-// 	})
-
-// 	runner.run()
+// 	specRunner.run()
 
 // 	expect(t, "1a", output)
 // }
 
 func TestSingleScopeWithMultipleConveys(t *testing.T) {
-	runner := newSpecRunner()
+	specRunner = newSpecRunner()
 	output := ""
 
-	runner.register("1", func() {
+	Convey("1", t, func() {
 		output += "1"
 	})
 
-	runner.register("2", func() {
+	Convey("2", t, func() {
 		output += "2"
 	})
 
-	runner.run()
+	specRunner.run()
 
 	expect(t, "12", output)
 }
 
 // func TestSingleScopeWithMultipleConveysAndReset(t *testing.T) {
-// 	runner := newSpecRunner()
+// 	specRunner = newSpecRunner()
 // 	output := ""
 
-// 	runner.register("1", func() {
-// 		output += "1"
+// 	Convey("reset after each nested convey", t, func() {
+// 		Convey("first output", func() {
+// 			output += "1"
+// 		})
+
+// 		Convey("second output", t, func() {
+// 			output += "2"
+// 		})
+
+// 		Reset("a", func() {
+// 			output += "a"
+// 		})
 // 	})
 
-// 	runner.register("2 again", func() {
-// 		output += "2"
-// 	})
+// 	specRunner.run()
 
-// 	runner.Reset("a", func() {
-// 		output += "a"
-// 	})
-
-// 	runner.run()
-
-// 	expect(t, "12a", output)
+// 	expect(t, "1a2a", output)
 // }
 
 // func TestSingleScopeWithMultipleConveysAndMultipleResets(t *testing.T) {
-// 	runner := newSpecRunner()
+// 	specRunner = newSpecRunner()
 // 	output := ""
 
-// 	runner.register("1", func() {
-// 		output += "1"
+// 	Convey("each reset is run at end of each nested convey", t, func() {
+// 		Convey("1", func() {
+// 			output += "1"
+// 		})
+
+// 		Convey("2", func() {
+// 			output += "2"
+// 		})
+
+// 		Reset("a", func() {
+// 			output += "a"
+// 		})
+
+// 		Reset("b", func() {
+// 			output += "b"
+// 		})
 // 	})
 
-// 	runner.register("2", func() {
-// 		output += "2"
-// 	})
+// 	specRunner.run()
 
-// 	runner.Reset("a", func() {
-// 		output += "a"
-// 	})
-
-// 	runner.Reset("b", func() {
-// 		output += "b"
-// 	})
-
-// 	runner.run()
-
-// 	expect(t, "12ab", output)
+// 	expect(t, "1ab2ab", output)
 // }
 
 func TestNestedScopes(t *testing.T) {
-	runner := newSpecRunner()
+	specRunner = newSpecRunner()
 	output := ""
 
-	runner.register("a", func() {
+	Convey("a", func() {
 		output += "a "
 
-		runner.register("aa", func() {
+		Convey("aa", func() {
 			output += "aa "
 
-			runner.register("aaa", func() {
+			Convey("aaa", func() {
 				output += "aaa | "
 			})
 		})
 	})
 
-	runner.run()
+	specRunner.run()
 
 	expect(t, "a aa aaa | ", output)
 }
 
 func TestNestedScopesWithIsolatedExecution(t *testing.T) {
-	runner := newSpecRunner()
+	specRunner = newSpecRunner()
 	output := ""
 
-	runner.register("a", func() {
+	Convey("a", func() {
 		output += "a "
 
-		runner.register("aa", func() {
+		Convey("aa", func() {
 			output += "aa "
 
-			runner.register("aaa", func() {
+			Convey("aaa", func() {
 				output += "aaa | "
 			})
 
-			runner.register("aaa1", func() {
+			Convey("aaa1", func() {
 				output += "aaa1 | "
 			})
 		})
 
-		runner.register("ab", func() {
+		Convey("ab", func() {
 			output += "ab "
 
-			runner.register("abb", func() {
+			Convey("abb", func() {
 				output += "abb | "
 			})
 		})
 	})
 
-	runner.run()
+	specRunner.run()
 
 	expect(t, "a aa aaa | a aa aaa1 | a ab abb | ", output)
 }
