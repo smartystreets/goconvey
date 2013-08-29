@@ -1,4 +1,4 @@
-package goconvey
+package execution
 
 import "fmt"
 
@@ -14,6 +14,7 @@ func (parent *scope) visitNextChild() {
 	child.visit()
 	if child.visited() {
 		parent.child++
+		// TODO: run resets
 	}
 }
 

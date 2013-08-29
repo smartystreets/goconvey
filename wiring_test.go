@@ -9,6 +9,7 @@ package goconvey
 
 import (
 	// "fmt"
+	"github.com/mdwhatcott/goconvey/execution"
 	"testing"
 )
 
@@ -16,7 +17,7 @@ func TestParseRegistration(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	specRunner = myRunner
-	var test goTest = &fakeGoTest{}
+	var test execution.GoTest = &fakeGoTest{}
 	executed := false
 	action := func() {
 		executed = true
@@ -116,7 +117,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesgoTest(t *testing.T)
 	situation := "Hello, World!"
 	nextSituation := "Goodbye, World!"
 	specRunner = myRunner
-	var test goTest = &fakeGoTest{}
+	var test execution.GoTest = &fakeGoTest{}
 	executed := 0
 	action := func() {
 		executed++
@@ -139,7 +140,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesgoTest(t *testing.T)
 }
 
 type fakeRunner struct {
-	test      goTest
+	test      execution.GoTest
 	situation string
 	action    func()
 	executed  bool
@@ -151,17 +152,17 @@ func newFakeRunner() *fakeRunner {
 	return &f
 }
 
-func (self *fakeRunner) begin(test goTest) {
+func (self *fakeRunner) Begin(test execution.GoTest) {
 	self.test = test
 }
-func (self *fakeRunner) register(situation string, action func()) {
+func (self *fakeRunner) Register(situation string, action func()) {
 	self.situation = situation
 	self.action = action
 	if self.action != nil {
 		self.action()
 	}
 }
-func (self *fakeRunner) run() {
+func (self *fakeRunner) Run() {
 	self.executed = true
 }
 

@@ -1,6 +1,10 @@
 package goconvey
 
-func parseRegistration(items []interface{}) (name string, action func(), test goTest) {
+import (
+	"github.com/mdwhatcott/goconvey/execution"
+)
+
+func parseRegistration(items []interface{}) (name string, action func(), test execution.GoTest) {
 	if len(items) < 2 {
 		panic(parseError)
 	}
@@ -17,13 +21,13 @@ func parseName(items []interface{}) string {
 	}
 	panic(parseError)
 }
-func parseGoTest(items []interface{}) goTest {
-	if test, parsed := items[1].(goTest); parsed {
+func parseGoTest(items []interface{}) execution.GoTest {
+	if test, parsed := items[1].(execution.GoTest); parsed {
 		return test
 	}
 	return nil
 }
-func parseAction(items []interface{}, test goTest) func() {
+func parseAction(items []interface{}, test execution.GoTest) func() {
 	var index = 1
 	if test != nil {
 		index = 2

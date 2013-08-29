@@ -2,6 +2,7 @@ package something
 
 import (
 	. "github.com/mdwhatcott/goconvey"
+	"testing"
 )
 
 func Test(t *testing.T) {
@@ -18,7 +19,7 @@ func Test(t *testing.T) {
 					So(x, ShouldEqual, 43)
 				})
 				Convey("The value should NOT be what it used to be", func() {
-					So(x, ShouldNotEqual, 42)
+					// So(x, ShouldNotEqual, 42)
 				})
 			})
 			Convey("When decremented", func() {
@@ -28,10 +29,10 @@ func Test(t *testing.T) {
 					So(x, ShouldEqual, 41)
 				})
 				Convey("The value should NOT be what it used to be", func() {
-					So(x, ShouldNotEqual, 42)
+					// So(x, ShouldNotEqual, 42)
 				})
 			})
-			Cleanup(func() {
+			Reset(func() {
 				x = 0
 			})
 		})

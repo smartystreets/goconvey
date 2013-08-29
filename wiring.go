@@ -2,20 +2,21 @@ package goconvey
 
 import (
 	"fmt"
+	"github.com/mdwhatcott/goconvey/execution"
 )
 
 func Convey(items ...interface{}) {
 	name, action, test := parseRegistration(items)
 
 	if test != nil {
-		specRunner.begin(test)
+		specRunner.Begin(test)
 	}
 
-	specRunner.register(name, action)
+	specRunner.Register(name, action)
 }
 
 func Reset(action func()) {
-	// TODO: hook into runner
+	//specRunner.RegisterReset(action)
 }
 
 // TODO: hook into runner
@@ -27,14 +28,10 @@ func So(actual interface{}, match constraint, expected ...interface{}) func() {
 	return assertion
 }
 
-type goTest interface {
-	Fail()
-}
-
 type runner interface {
-	begin(test goTest)
-	register(situation string, action func())
-	run()
+	Begin(test execution.GoTest)
+	Register(situation string, action func())
+	Run()
 }
 
-var specRunner runner = newSpecRunner()
+var specRunner runner = execution.NewSpecRunner()
