@@ -76,14 +76,7 @@ type scopeRunner struct {
 	top         *scope
 	chain       map[string]string
 	currentTest GoTest
-	out         reporter
-}
-
-type reporter interface {
-	Success(scope string)
-	Failure(scope string, problem error)
-	Error(scope string, problem error)
-	End(scope string)
+	out         Reporter
 }
 
 func NewScopeRunner() *scopeRunner {
@@ -92,7 +85,13 @@ func NewScopeRunner() *scopeRunner {
 	self := scopeRunner{}
 	self.top = newScope(topLevel, func() {})
 	self.chain = make(map[string]string)
+	var out Reporter = &nilReporter{}
+	self.out = out
 	return &self
+}
+
+func (self *scopeRunner) UpgradeReporter(out Reporter) {
+	self.out = out
 }
 
 const topLevel = "TOP"

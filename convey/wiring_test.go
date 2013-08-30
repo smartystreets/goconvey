@@ -1,10 +1,3 @@
-/*
-
-Problems:
-	- tester forgets to pass in *testing.T the first time. How do we know it's the first time?
-
-*/
-
 package convey
 
 import (
@@ -174,6 +167,7 @@ func (self *fakeRunner) RegisterReset(action func()) {}
 func (self *fakeRunner) Run() {
 	self.runnerStarted = true
 }
+func (self *fakeRunner) UpgradeReporter(out execution.Reporter) {}
 
 type fakeGoTest struct{}
 

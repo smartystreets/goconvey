@@ -21,12 +21,37 @@ Errors will have to be passed to the reporter in the defer recovery method
 */
 
 import (
-	//"github.com/smartystreets/goconvey/convey/execution"
+	"github.com/smartystreets/goconvey/convey/execution"
 	"testing"
 )
 
 func TestSuccessesLogged(t *testing.T) {
-	//notifier
-	//execution.SpecRunner = execution.NewSpecRunner()
+	// reporter := setupFakeReporter()
 	t.Skip()
+}
+
+func setupFakeReporter() *fakeReporter {
+	reporter := fakeReporter{}
+	execution.SpecRunner = execution.NewScopeRunner()
+	execution.SpecRunner.UpgradeReporter(&reporter)
+	return &reporter
+}
+
+type fakeReporter struct {
+}
+
+func (self *fakeReporter) Success(scope string) {
+
+}
+
+func (self *fakeReporter) Failure(scope string, problem error) {
+
+}
+
+func (self *fakeReporter) Error(scope string, problem error) {
+
+}
+
+func (self *fakeReporter) End(scope string) {
+
 }
