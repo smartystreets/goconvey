@@ -161,6 +161,7 @@ func newFakeRunner() *fakeRunner {
 
 func (self *fakeRunner) Begin(test execution.GoTest, situation string, action func()) {
 	self.test = test
+	self.Register(situation, action)
 }
 func (self *fakeRunner) Register(situation string, action func()) {
 	self.situation = situation
