@@ -22,3 +22,12 @@ Errors will have to be passed to the reporter in the defer recovery method
   to the top-level scope registrations.
 
 */
+
+import (
+	"github.com/smartystreets/goconvey/convey/execution"
+	"testing"
+)
+
+func TestSuccessesLogged(t *testing.T) {
+	t.Skip()
+}
