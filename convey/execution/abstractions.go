@@ -36,7 +36,7 @@ func resolveExternalCaller() string {
 
 	for x := 0; x < callers; x++ {
 		caller_id, file, _, _ := runtime.Caller(x)
-		if strings.HasSuffix(file, "test.go") || strings.HasSuffix(file, "tests.go") {
+		if strings.HasSuffix(file, "test.go") {
 			return runtime.FuncForPC(caller_id).Name()
 		}
 	}
@@ -47,6 +47,6 @@ func last(group []string) string {
 	return group[len(group)-1]
 }
 
-const maxStackDepth = 10
+const maxStackDepth = 100 // This had better be enough...
 
 var callStack []uintptr = make([]uintptr, maxStackDepth, maxStackDepth)
