@@ -8,18 +8,14 @@ import (
 func TestNothingInScope(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {})
-
 	expect(t, "", output)
 }
 
 func TestSingleScope(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("hi", func() {
-			output += "done"
-		})
+	Convey("hi", t, func() {
+		output += "done"
 	})
 
 	expect(t, "done", output)
@@ -28,32 +24,26 @@ func TestSingleScope(t *testing.T) {
 func TestSingleScopeWithMultipleConveys(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("1", func() {
-			output += "1"
-		})
-
-		Convey("2", func() {
-			output += "2"
-		})
+	Convey("1", t, func() {
+		output += "1"
 	})
 
-	expect(t, "12", output)
+	Convey("2", t, func() {
+		output += "2"
+	})
 }
 
 func TestNestedScopes(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("a", func() {
-			output += "a "
+	Convey("a", t, func() {
+		output += "a "
 
-			Convey("aa", func() {
-				output += "aa "
+		Convey("aa", func() {
+			output += "aa "
 
-				Convey("aaa", func() {
-					output += "aaa | "
-				})
+			Convey("aaa", func() {
+				output += "aaa | "
 			})
 		})
 	})
@@ -64,28 +54,26 @@ func TestNestedScopes(t *testing.T) {
 func TestNestedScopesWithIsolatedExecution(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("a", func() {
-			output += "a "
+	Convey("a", t, func() {
+		output += "a "
 
-			Convey("aa", func() {
-				output += "aa "
+		Convey("aa", func() {
+			output += "aa "
 
-				Convey("aaa", func() {
-					output += "aaa | "
-				})
-
-				Convey("aaa1", func() {
-					output += "aaa1 | "
-				})
+			Convey("aaa", func() {
+				output += "aaa | "
 			})
 
-			Convey("ab", func() {
-				output += "ab "
+			Convey("aaa1", func() {
+				output += "aaa1 | "
+			})
+		})
 
-				Convey("abb", func() {
-					output += "abb | "
-				})
+		Convey("ab", func() {
+			output += "ab "
+
+			Convey("abb", func() {
+				output += "abb | "
 			})
 		})
 	})
@@ -96,13 +84,11 @@ func TestNestedScopesWithIsolatedExecution(t *testing.T) {
 func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("1", func() {
-			output += "1"
+	Convey("1", t, func() {
+		output += "1"
 
-			Reset(func() {
-				output += "a"
-			})
+		Reset(func() {
+			output += "a"
 		})
 	})
 
@@ -112,19 +98,17 @@ func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
 func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("reset after each nested convey", func() {
-			Convey("first output", func() {
-				output += "1"
-			})
+	Convey("reset after each nested convey", t, func() {
+		Convey("first output", func() {
+			output += "1"
+		})
 
-			Convey("second output", func() {
-				output += "2"
-			})
+		Convey("second output", func() {
+			output += "2"
+		})
 
-			Reset(func() {
-				output += "a"
-			})
+		Reset(func() {
+			output += "a"
 		})
 	})
 
@@ -134,23 +118,21 @@ func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
 func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("each reset is run at end of each nested convey", func() {
-			Convey("1", func() {
-				output += "1"
-			})
+	Convey("each reset is run at end of each nested convey", t, func() {
+		Convey("1", func() {
+			output += "1"
+		})
 
-			Convey("2", func() {
-				output += "2"
-			})
+		Convey("2", func() {
+			output += "2"
+		})
 
-			Reset(func() {
-				output += "a"
-			})
+		Reset(func() {
+			output += "a"
+		})
 
-			Reset(func() {
-				output += "b"
-			})
+		Reset(func() {
+			output += "b"
 		})
 	})
 
@@ -160,14 +142,12 @@ func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
 func TestPanicAtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("This step panics", func() {
-			Convey("this should NOT be executed", func() {
-				output += "1"
-			})
-
-			panic("Hi")
+	Convey("This step panics", t, func() {
+		Convey("this should NOT be executed", func() {
+			output += "1"
 		})
+
+		panic("Hi")
 	})
 
 	expect(t, "", output)
@@ -176,16 +156,14 @@ func TestPanicAtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
 func TestPanicInChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("This is the parent", func() {
-			Convey("This step panics", func() {
-				panic("Hi")
-				output += "1"
-			})
+	Convey("This is the parent", t, func() {
+		Convey("This step panics", func() {
+			panic("Hi")
+			output += "1"
+		})
 
-			Convey("This sibling should execute", func() {
-				output += "2"
-			})
+		Convey("This sibling should execute", func() {
+			output += "2"
 		})
 	})
 
@@ -195,24 +173,22 @@ func TestPanicInChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T)
 func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
 	output := prepare()
 
-	Run(t, func() {
-		Convey("This is the parent", func() {
-			Convey("This step panics", func() {
-				panic("Hi")
-				output += "1"
-			})
+	Convey("This is the parent", t, func() {
+		Convey("This step panics", func() {
+			panic("Hi")
+			output += "1"
+		})
 
-			Convey("This sibling step does not panic", func() {
-				output += "a"
-
-				Reset(func() {
-					output += "b"
-				})
-			})
+		Convey("This sibling step does not panic", func() {
+			output += "a"
 
 			Reset(func() {
-				output += "2"
+				output += "b"
 			})
+		})
+
+		Reset(func() {
+			output += "2"
 		})
 	})
 

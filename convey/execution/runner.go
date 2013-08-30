@@ -2,25 +2,30 @@ package execution
 
 import (
 	"fmt"
-	"reflect"
-	"runtime"
 )
 
-func (self *scopeRunner) Begin(test GoTest) {
+func (self *scopeRunner) Begin(test GoTest, situation string, action func()) {
 	self.currentTest = test
+	/*child := */ self.registerChildScope(situation, action)
+	// child.aggregate = true
 }
 
-func (self *scopeRunner) Register(situation string, action func()) {
+func (parent *scopeRunner) Register(situation string, action func()) {
+	parent.registerChildScope(situation, action)
+}
+func (self *scopeRunner) registerChildScope(situation string, action func()) *scope {
 	parentAction := self.link(action)
 	parent := self.accessScope(parentAction)
 	child := newScope(situation, action)
 	parent.adopt(child)
+	return child
 }
-func (self *scopeRunner) link(action func()) (parentAction string) {
-	parentAction, childAction := resolveParentChild(action)
+func (self *scopeRunner) link(action func()) string {
+	parentAction := resolveExternalCaller()
+	childAction := functionName(action)
 	self.linkTo(topLevel, parentAction)
 	self.linkTo(parentAction, childAction)
-	return
+	return parentAction
 }
 func (self *scopeRunner) linkTo(value, name string) {
 	if self.chain[name] == "" {
@@ -71,6 +76,14 @@ type scopeRunner struct {
 	top         *scope
 	chain       map[string]string
 	currentTest GoTest
+	out         reporter
+}
+
+type reporter interface {
+	Success(scope string)
+	Failure(scope string, problem error)
+	Error(scope string, problem error)
+	End(scope string)
 }
 
 func NewScopeRunner() *scopeRunner {
@@ -82,22 +95,4 @@ func NewScopeRunner() *scopeRunner {
 	return &self
 }
 
-func resolveParentChild(function func()) (parent, child string) {
-	parent = resolveExternalCaller()
-	child = functionName(function)
-	return
-}
-
-func functionName(function func()) string {
-	return runtime.FuncForPC(reflect.ValueOf(function).Pointer()).Name()
-}
-func resolveExternalCaller() string {
-	caller_id, _, _, _ := runtime.Caller(5)
-	return runtime.FuncForPC(caller_id).Name()
-}
-
-func last(group []string) string {
-	return group[len(group)-1]
-}
-
-var topLevel = "TOP"
+const topLevel = "TOP"

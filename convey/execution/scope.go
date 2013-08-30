@@ -2,17 +2,19 @@ package execution
 
 import (
 	"fmt"
-	"reflect"
 )
 
 func (parent *scope) visit() {
 	defer parent.recover()
 	parent.action()
+	// TODO: Reporting hook
+
 	parent.visitChildren()
 }
 func (parent *scope) recover() {
-	if r := recover(); r != nil {
+	if problem := recover(); problem != nil {
 		parent.panicked = true
+		// TODO: Reporting hook
 	}
 }
 func (parent *scope) visitChildren() {
@@ -79,8 +81,4 @@ type scope struct {
 	child      int
 	resets     map[uintptr]func()
 	panicked   bool
-}
-
-func functionId(action func()) uintptr {
-	return reflect.ValueOf(action).Pointer()
 }

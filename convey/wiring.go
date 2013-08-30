@@ -9,21 +9,22 @@ func init() {
 	// TODO: hook the notifier up to the spec runner...
 }
 
-func Run(t execution.GoTest, action func()) {
-	execution.SpecRunner.Begin(t)
-	action()
-	execution.SpecRunner.Run()
-}
+func Convey(items ...interface{}) {
+	name, action, test := parseRegistration(items)
 
-func Convey(name string, action func()) {
-	execution.SpecRunner.Register(name, action)
+	if test != nil {
+		execution.SpecRunner.Begin(test, name, action)
+		execution.SpecRunner.Run()
+	} else {
+		execution.SpecRunner.Register(name, action)
+	}
 }
 
 func Reset(action func()) {
 	execution.SpecRunner.RegisterReset(action)
 }
 
-// TODO: hook into runner
+// TODO: hook into runner (or reporter?)
 func So(actual interface{}, match constraint, expected ...interface{}) func() {
 	assertion := func() {
 		err := match(actual, expected)

@@ -14,7 +14,7 @@ type reporter interface {
 	Success(scope string)
 	Failure(scope string, problem error)
 	Error(scope string, problem error)
-	Finished(scope string)
+	End(scope string)
 }
 
 func (self *Reporter) Success(scope string) {
@@ -29,7 +29,7 @@ func (self *Reporter) Error(scope string, problem error) {
 
 }
 
-func (self *Reporter) Finished(scope string) {
+func (self *Reporter) End(scope string) {
 
 }
 
