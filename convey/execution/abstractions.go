@@ -1,5 +1,11 @@
 package execution
 
+var SpecRunner runner
+
+func init() {
+	SpecRunner = NewScopeRunner()
+}
+
 type runner interface {
 	Begin(test GoTest)
 	Register(situation string, action func())
@@ -7,7 +13,6 @@ type runner interface {
 	Run()
 }
 
-var SpecRunner runner = NewScopeRunner()
 
 type GoTest interface {
 	Fail()

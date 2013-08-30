@@ -5,13 +5,17 @@ import (
 	"github.com/smartystreets/goconvey/convey/execution"
 )
 
-func Convey(items ...interface{}) {
-	name, action, test := parseRegistration(items)
+func init() {
+	// TODO: hook the notifier up to the spec runner...
+}
 
-	if test != nil {
-		execution.SpecRunner.Begin(test)
-	}
+func Run(t execution.GoTest, action func()) {
+	execution.SpecRunner.Begin(t)
+	action()
+	execution.SpecRunner.Run()
+}
 
+func Convey(name string, action func()) {
 	execution.SpecRunner.Register(name, action)
 }
 

@@ -24,10 +24,12 @@ Errors will have to be passed to the reporter in the defer recovery method
 */
 
 import (
-	"github.com/smartystreets/goconvey/convey/execution"
+	//"github.com/smartystreets/goconvey/convey/execution"
 	"testing"
 )
 
 func TestSuccessesLogged(t *testing.T) {
+	//notifier
+	//execution.SpecRunner = execution.NewSpecRunner()
 	t.Skip()
 }

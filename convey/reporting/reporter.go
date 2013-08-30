@@ -4,6 +4,41 @@ import (
 	"time"
 )
 
+var DefaultReporter reporter
+
+func init() {
+	reporter = NewReporter()
+}
+
+type reporter interface {
+	Success(scope string)
+	Failure(scope string, problem error)
+	Error(scope string, problem error)
+	Finished(scope string)
+}
+
+func (self *Reporter) Success(scope string) {
+
+}
+
+func (self *Reporter) Failure(scope string, problem error) {
+
+}
+
+func (self *Reporter) Error(scope string, problem error) {
+
+}
+
+func (self *Reporter) Finished(scope string) {
+
+}
+
+func NewReporter() *Reporter {
+	self := Reporter{}
+	self.Reports = make(map[string]*Report)
+	return &self
+}
+
 type Reporter struct {
 	Successes int
 	Failures  int
