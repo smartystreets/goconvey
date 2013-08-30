@@ -1,57 +1,111 @@
 package convey
 
-/*
-
-These tests will assert that the runner reports failures, errors and
-successes to some reporting abstraction.  They will probably be similar
-in feeling to the execution_tests.
-
-So, the trick is to hook up the various scope instances to the runner
-so the runner knows which scope is currently executing (enter, exit, etc..).
-
-Then, the So method can be hooked up to the runner so that a success or
-failure will make it to the reporter via the runner.
-
-Errors will have to be passed to the reporter in the defer recovery method
-(probably...).
-
-* The reporter will depend on the accurate 'Convey'-ing of the *testing.T
-  to the top-level scope registrations.
-
-*/
-
 import (
 	"github.com/smartystreets/goconvey/convey/execution"
+	"path"
+	"runtime"
+	"strings"
 	"testing"
 )
 
-func TestSuccessesLogged(t *testing.T) {
-	// reporter := setupFakeReporter()
-	t.Skip()
+func TestSingleScopeReported(t *testing.T) {
+	reporter, expected := setupFakeReporter()
+
+	Convey("A", t, func() {
+		expected.File, expected.Line = currentFileAndNextLine()
+		So(1, ShouldEqual, 1)
+	})
+
+	expectEqual(t, true, reporter.stories["A"])
+	expectEqual(t, 1, len(reporter.stories))
+
+	expectEqual(t, expected, reporter.reports[0])
+	expectEqual(t, 1, len(reporter.reports))
 }
 
-func setupFakeReporter() *fakeReporter {
-	reporter := fakeReporter{}
+func TestNestedScopeReported(t *testing.T) {
+	reporter, expected := setupFakeReporter()
+
+	Convey("A", t, func() {
+		Convey("B", func() {
+			expected.File, expected.Line = currentFileAndNextLine()
+			So(1, ShouldEqual, 1)
+		})
+	})
+
+	expectEqual(t, true, reporter.stories["AB"])
+	expectEqual(t, 1, len(reporter.stories))
+
+	expectEqual(t, expected, reporter.reports[0])
+	expectEqual(t, 1, len(reporter.reports))
+}
+
+// TODO: test failures, errors, nested failures, nested errors, (ensure cleanup is happening?)
+
+func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
+	if expected != actual {
+		_, file, line, _ := runtime.Caller(1)
+		t.Errorf("Expected '%v' to be '%v' but it wasn't. See '%s' at line %d.",
+			actual, expected, path.Base(file), line)
+	}
+}
+
+func expectGreaterThan(t *testing.T, minimum int, higher int) {
+	if !(higher > minimum) {
+		_, file, line, _ := runtime.Caller(1)
+		t.Errorf("Expected '%v' to be greater than '%v' but it wasn't. See '%s' at line %d.",
+			higher, minimum, path.Base(file), line)
+	}
+}
+
+func setupFakeReporter() (*fakeReporter, execution.Report) {
+	r := fakeReporter{}
+	r.scopes = make([]string, 20, 20)
+	r.stories = make(map[string]bool)
+	r.reports = []execution.Report{}
 	execution.SpecRunner = execution.NewScopeRunner()
-	execution.SpecRunner.UpgradeReporter(&reporter)
-	return &reporter
+	execution.SpecRunner.UpgradeReporter(&r)
+	execution.SpecReporter = &r
+	return &r, execution.Report{}
 }
 
 type fakeReporter struct {
+	scopeIndex int
+	scopes     []string
+	reports    []execution.Report
+	stories    map[string]bool
 }
 
-func (self *fakeReporter) Success(scope string) {
-
+func (self *fakeReporter) Enter(scope string) {
+	self.scopes[self.scopeIndex] = scope
+	self.scopeIndex++
 }
 
-func (self *fakeReporter) Failure(scope string, problem error) {
-
+func (self *fakeReporter) Success(r execution.Report) {
+	self.reports = append(self.reports, r)
 }
 
-func (self *fakeReporter) Error(scope string, problem error) {
-
+func (self *fakeReporter) Failure(r execution.Report) {
+	self.reports = append(self.reports, r)
 }
 
-func (self *fakeReporter) End(scope string) {
+func (self *fakeReporter) Error(r execution.Report) {
+	self.reports = append(self.reports, r)
+}
 
+func (self *fakeReporter) Exit() {
+	self.scopeIndex--
+	if self.scopeIndex == 0 {
+		self.stories[self.wholeStory()] = true
+		self.scopes = make([]string, 20, 20)
+	}
+}
+
+func (self *fakeReporter) wholeStory() string {
+	return strings.Join(self.scopes, "")
+}
+
+func currentFileAndNextLine() (string, int) {
+	_, file, line, _ := runtime.Caller(1)
+	return file, line + 1
 }

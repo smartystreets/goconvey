@@ -4,42 +4,42 @@ import (
 	"time"
 )
 
-func (self *statistics) Success(scope string) {
+func (self *statistics) Enter(scope string) {
 
 }
 
-func (self *statistics) Failure(scope string, problem error) {
+func (self *statistics) Success(r Report) {
 
 }
 
-func (self *statistics) Error(scope string, problem error) {
+func (self *statistics) Failure(r Report) {
 
 }
 
-func (self *statistics) End(scope string) {
+func (self *statistics) Error(r Report) {
+
+}
+
+func (self *statistics) Exit() {
 
 }
 
 func NewStatisticsReporter() *statistics {
 	self := statistics{}
-	self.Reports = make(map[string]*report)
+	self.Reports = make(map[string]*scopeReport)
 	return &self
 }
 
 type statistics struct {
-	Successes int
-	Failures  int
-	Errors    int
-	Duration  time.Duration
-	Reports   map[string]*report
-	innert    Reporter
+	Reports map[string]*scopeReport
+	inner   Reporter
 }
 
-type report struct {
-	Name       string
-	SubReports []*report
-	Successes  int
-	Failures   []error
-	Errors     []error
-	Duration   time.Duration
+type scopeReport struct {
+	name      string
+	children  []*scopeReport
+	successes []Report
+	failures  []Report
+	errors    []Report
+	duration  time.Duration
 }

@@ -2,7 +2,8 @@ package execution
 
 type nilReporter struct{}
 
-func (self *nilReporter) Success(scope string)                {}
-func (self *nilReporter) Failure(scope string, problem error) {}
-func (self *nilReporter) Error(scope string, problem error)   {}
-func (self *nilReporter) End(scope string)                    {}
+func (self *nilReporter) Enter(scope string) {}
+func (self *nilReporter) Success(r Report)   {}
+func (self *nilReporter) Failure(r Report)   {}
+func (self *nilReporter) Error(r Report)     {}
+func (self *nilReporter) Exit()              {}

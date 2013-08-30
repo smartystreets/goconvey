@@ -1,18 +1,22 @@
 package execution
 
-func (self *dot) Success(scope string) {
+func (self *dot) Enter(scope string) {
 
 }
 
-func (self *dot) Failure(scope string, problem error) {
+func (self *dot) Success(r Report) {
 
 }
 
-func (self *dot) Error(scope string, problem error) {
+func (self *dot) Failure(r Report) {
 
 }
 
-func (self *dot) End(scope string) {
+func (self *dot) Error(r Report) {
+
+}
+
+func (self *dot) Exit() {
 
 }
 

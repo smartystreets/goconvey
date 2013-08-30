@@ -8,7 +8,7 @@ import (
 func TestNothingInScope(t *testing.T) {
 	output := prepare()
 
-	expect(t, "", output)
+	expectEqual(t, "", output)
 }
 
 func TestSingleScope(t *testing.T) {
@@ -18,7 +18,7 @@ func TestSingleScope(t *testing.T) {
 		output += "done"
 	})
 
-	expect(t, "done", output)
+	expectEqual(t, "done", output)
 }
 
 func TestSingleScopeWithMultipleConveys(t *testing.T) {
@@ -48,7 +48,7 @@ func TestNestedScopes(t *testing.T) {
 		})
 	})
 
-	expect(t, "a aa aaa | ", output)
+	expectEqual(t, "a aa aaa | ", output)
 }
 
 func TestNestedScopesWithIsolatedExecution(t *testing.T) {
@@ -78,7 +78,7 @@ func TestNestedScopesWithIsolatedExecution(t *testing.T) {
 		})
 	})
 
-	expect(t, "a aa aaa | a aa aaa1 | a ab abb | ", output)
+	expectEqual(t, "a aa aaa | a aa aaa1 | a ab abb | ", output)
 }
 
 func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
@@ -92,7 +92,7 @@ func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
 		})
 	})
 
-	expect(t, "1a", output)
+	expectEqual(t, "1a", output)
 }
 
 func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
@@ -112,7 +112,7 @@ func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
 		})
 	})
 
-	expect(t, "1a2a", output)
+	expectEqual(t, "1a2a", output)
 }
 
 func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
@@ -136,7 +136,7 @@ func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
 		})
 	})
 
-	expect(t, "1ab2ab", output)
+	expectEqual(t, "1ab2ab", output)
 }
 
 func TestPanicAtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
@@ -150,7 +150,7 @@ func TestPanicAtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
 		panic("Hi")
 	})
 
-	expect(t, "", output)
+	expectEqual(t, "", output)
 }
 
 func TestPanicInChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {
@@ -167,7 +167,7 @@ func TestPanicInChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T)
 		})
 	})
 
-	expect(t, "2", output)
+	expectEqual(t, "2", output)
 }
 
 func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
@@ -192,16 +192,10 @@ func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
 		})
 	})
 
-	expect(t, "2ab2", output)
+	expectEqual(t, "2ab2", output)
 }
 
 func prepare() string {
 	execution.SpecRunner = execution.NewScopeRunner()
 	return ""
-}
-
-func expect(t *testing.T, expected, actual string) {
-	if actual != expected {
-		t.Errorf("Expected '%s', got '%s'", expected, actual)
-	}
 }

@@ -1,24 +1,15 @@
 package execution
 
-import (
-	"fmt"
-)
-
 func (self *scopeRunner) Begin(test GoTest, situation string, action func()) {
-	self.currentTest = test
-	/*child := */ self.registerChildScope(situation, action)
-	// child.aggregate = true
+	self.currentTest = test // TODO: remember to call .Fail() on this thing...
+	self.Register(situation, action)
 }
 
-func (parent *scopeRunner) Register(situation string, action func()) {
-	parent.registerChildScope(situation, action)
-}
-func (self *scopeRunner) registerChildScope(situation string, action func()) *scope {
+func (self *scopeRunner) Register(situation string, action func()) {
 	parentAction := self.link(action)
 	parent := self.accessScope(parentAction)
-	child := newScope(situation, action)
+	child := newScope(situation, action, self.out)
 	parent.adopt(child)
-	return child
 }
 func (self *scopeRunner) link(action func()) string {
 	parentAction := resolveExternalCaller()
@@ -80,12 +71,10 @@ type scopeRunner struct {
 }
 
 func NewScopeRunner() *scopeRunner {
-	fmt.Sprintf("")
-
-	self := scopeRunner{}
-	self.top = newScope(topLevel, func() {})
-	self.chain = make(map[string]string)
 	var out Reporter = &nilReporter{}
+	self := scopeRunner{}
+	self.top = newScope(topLevel, func() {}, out)
+	self.chain = make(map[string]string)
 	self.out = out
 	return &self
 }

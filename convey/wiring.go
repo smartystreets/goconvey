@@ -1,13 +1,9 @@
 package convey
 
 import (
-	"fmt"
 	"github.com/smartystreets/goconvey/convey/execution"
+	"runtime"
 )
-
-func init() {
-	// TODO: hook the notifier up to the spec runner...
-}
 
 func Convey(items ...interface{}) {
 	name, action, test := parseRegistration(items)
@@ -24,11 +20,11 @@ func Reset(action func()) {
 	execution.SpecRunner.RegisterReset(action)
 }
 
-// TODO: hook into runner (or reporter?)
-func So(actual interface{}, match constraint, expected ...interface{}) func() {
-	assertion := func() {
-		err := match(actual, expected)
-		fmt.Println(err)
-	}
-	return assertion
+func So(actual interface{}, match constraint, expected ...interface{}) {
+	// TODO: what if they have extracted the So() call into a helper method?
+	//       (runtime.Caller(1) will not yield the correct stack entry!)
+	failure := match(actual, expected)
+	_, file, line, _ := runtime.Caller(1)
+	report := execution.Report{file, line, failure, nil}
+	execution.SpecReporter.Success(report)
 }

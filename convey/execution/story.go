@@ -1,18 +1,22 @@
 package execution
 
-func (self *story) Success(scope string) {
+func (self *story) Enter(scope string) {
 
 }
 
-func (self *story) Failure(scope string, problem error) {
+func (self *story) Success(r Report) {
 
 }
 
-func (self *story) Error(scope string, problem error) {
+func (self *story) Failure(r Report) {
 
 }
 
-func (self *story) End(scope string) {
+func (self *story) Error(r Report) {
+
+}
+
+func (self *story) Exit() {
 
 }
 
