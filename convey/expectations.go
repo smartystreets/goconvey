@@ -5,9 +5,13 @@ import "fmt"
 type expectation func(actual interface{}, expected []interface{}) string
 
 func ShouldEqual(actual interface{}, expected []interface{}) string {
-	if actual != expected[0] {
-		message := fmt.Sprintf("'%v' should equal '%v' (but it doesn't)!", actual, expected[0])
-		return message
+	switch {
+	case len(expected) == 0:
+		return fmt.Sprintf("This expectation requires a second value (only one provided: '%v').", actual)
+	case len(expected) > 1:
+		return fmt.Sprintf("This expectation only accepts 2 values to be compared (and %v were provided).", len(expected)+1)
+	case actual != expected[0]:
+		return fmt.Sprintf("'%v' should equal '%v' (but it doesn't)!", actual, expected[0])
 	}
 	return ""
 }
