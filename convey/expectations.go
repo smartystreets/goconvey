@@ -2,7 +2,7 @@ package convey
 
 import "fmt"
 
-type constraint func(actual interface{}, expected []interface{}) string
+type expectation func(actual interface{}, expected []interface{}) string
 
 func ShouldEqual(actual interface{}, expected []interface{}) string {
 	if actual != expected[0] {

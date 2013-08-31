@@ -20,7 +20,7 @@ func Reset(action func()) {
 	execution.SpecRunner.RegisterReset(action)
 }
 
-func So(actual interface{}, match constraint, expected ...interface{}) {
+func So(actual interface{}, match expectation, expected ...interface{}) {
 	// TODO: what if they have extracted the So() call into a helper method?
 	//       (runtime.Caller(1) will not yield the correct stack entry!)
 	failure := match(actual, expected)
