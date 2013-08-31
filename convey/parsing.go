@@ -1,19 +1,20 @@
 package convey
 
-import (
-	"github.com/smartystreets/goconvey/convey/execution"
-)
+import "github.com/smartystreets/goconvey/convey/execution"
 
 func parseRegistration(items []interface{}) (name string, action func(), test execution.GoTest) {
-	if len(items) < 2 {
-		panic(parseError)
-	}
+	ensureEnough(items)
 
 	name = parseName(items)
 	test = parseGoTest(items)
 	action = parseAction(items, test)
 
 	return name, action, test
+}
+func ensureEnough(items []interface{}) {
+	if len(items) < 2 {
+		panic(parseError)
+	}
 }
 func parseName(items []interface{}) string {
 	if name, parsed := items[0].(string); parsed {

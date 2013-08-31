@@ -5,9 +5,9 @@ import (
 )
 
 func TestShouldEqual(t *testing.T) {
-	fail(t, so(1, ShouldEqual), "This expectation requires a second value (only one provided: '1').")
-	fail(t, so(1, ShouldEqual, 1, 2), "This expectation only accepts 2 values to be compared (and 3 were provided).")
-	fail(t, so(1, ShouldEqual, 1, 2, 3), "This expectation only accepts 2 values to be compared (and 4 were provided).")
+	fail(t, so(1, ShouldEqual), "This expectation requires at least one comparison value (none provided).")
+	fail(t, so(1, ShouldEqual, 1, 2), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldEqual, 1, 2, 3), "This expectation only accepts 1 value to be compared (and 3 were provided).")
 
 	pass(t, so(1, ShouldEqual, 1))
 	fail(t, so(1, ShouldEqual, 2), "'1' should equal '2' (but it doesn't)!")
@@ -17,6 +17,14 @@ func TestShouldEqual(t *testing.T) {
 
 	pass(t, so("hi", ShouldEqual, "hi"))
 	fail(t, so("hi", ShouldEqual, "bye"), "'hi' should equal 'bye' (but it doesn't)!")
+
+}
+func TestShouldBeNil(t *testing.T) {
+	fail(t, so(nil, ShouldBeNil, nil, nil, nil), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(nil, ShouldBeNil, nil), "This expectation does not allow for user-supplied comparison values.")
+
+	pass(t, so(nil, ShouldBeNil))
+	fail(t, so(1, ShouldBeNil), "'1' should have been nil!")
 }
 
 func pass(t *testing.T, result string) {

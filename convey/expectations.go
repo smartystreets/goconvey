@@ -1,26 +1,27 @@
 package convey
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type expectation func(actual interface{}, expected []interface{}) string
 
 func ShouldEqual(actual interface{}, expected []interface{}) string {
-	switch {
-	case len(expected) == 0:
-		return fmt.Sprintf("This expectation requires a second value (only one provided: '%v').", actual)
-	case len(expected) > 1:
-		return fmt.Sprintf("This expectation only accepts 2 values to be compared (and %v were provided).", len(expected)+1)
-	case actual != expected[0]:
-		return fmt.Sprintf("'%v' should equal '%v' (but it doesn't)!", actual, expected[0])
+	if fail := onlyOne(expected); fail != "" {
+		return fail
+	} else if actual != expected[0] {
+		return fmt.Sprintf(shouldHaveBeenEqual, actual, expected[0])
 	}
-	return ""
+	return success
 }
 
 func ShouldBeNil(actual interface{}, expected []interface{}) string {
-	if actual != nil {
-		return fmt.Sprintf("'%v' should have been nil!", actual)
+	if fail := none(expected); fail != "" {
+		return fail
+	} else if actual != nil {
+		return fmt.Sprintf(shouldHaveBeenNil, actual)
 	}
-	return ""
+	return success
 }
 
 /*
@@ -28,11 +29,7 @@ func ShouldBeNil(actual interface{}, expected []interface{}) string {
 	// Equality
 X	So(thing, ShouldEqual, thing2)
 	So(thing, ShouldNotEqual, thing2)
-	So(thing, ShouldMarshalLike, thing2)
-
-	// Sameness
-	So(thing, ShouldBe, thing2)
-	So(thing, ShouldNotBe, thing2)
+	So(thing, ShouldMarshalLike, thing2) // not necessary if we use DeepEquals for ShouldEqual and ShouldNotEqual?
 	So(thing, ShouldPointTo, thing2)
 	So(thing, ShouldNotPointTo, thing2)
 X	So(thing, ShouldBeNil, thing2)
@@ -63,8 +60,8 @@ X	So(thing, ShouldBeNil, thing2)
 	// Collections
 	So([]int{}, ShouldBeEmpty)
 	So([]int{1}, ShouldNotBeEmpty)
-	So([]int{1, 2, 3}, ShouldContain, 1)
-	So([]int{1, 2, 3}, ShouldNotContain, 4)
+	So([]int{1, 2, 3}, ShouldContain, 1) // This could receive several final arguments as proposed members
+	So([]int{1, 2, 3}, ShouldNotContain, 4) // This could receive several final arguments as proposed members
 	So(1, ShouldBeIn, []int{1, 2, 3})
 	So(4, ShouldNotBeIn, []int{1, 2, 3})
 
