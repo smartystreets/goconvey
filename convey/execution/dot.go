@@ -26,4 +26,5 @@ func NewDotReporter() *dot {
 }
 
 type dot struct {
+	inner   Reporter
 }

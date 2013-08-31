@@ -1,8 +1,6 @@
 package convey
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestShouldEqual(t *testing.T) {
 	fail(t, so(1, ShouldEqual), "This expectation requires at least one comparison value (none provided).")
@@ -19,6 +17,7 @@ func TestShouldEqual(t *testing.T) {
 	fail(t, so("hi", ShouldEqual, "bye"), "'hi' should equal 'bye' (but it doesn't)!")
 
 }
+
 func TestShouldBeNil(t *testing.T) {
 	fail(t, so(nil, ShouldBeNil, nil, nil, nil), "This expectation does not allow for user-supplied comparison values.")
 	fail(t, so(nil, ShouldBeNil, nil), "This expectation does not allow for user-supplied comparison values.")

@@ -32,7 +32,6 @@ func NewStatisticsReporter() *statistics {
 
 type statistics struct {
 	Reports map[string]*scopeReport
-	inner   Reporter
 }
 
 type scopeReport struct {

@@ -1,8 +1,6 @@
 package convey
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type expectation func(actual interface{}, expected []interface{}) string
 

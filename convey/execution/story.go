@@ -26,4 +26,5 @@ func NewStoryReporter() *story {
 }
 
 type story struct {
+	inner   Reporter
 }
