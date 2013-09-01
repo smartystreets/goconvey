@@ -6,6 +6,20 @@ import (
 	"strings"
 )
 
+func caller() (file string, line int, stack string) {
+	// TODO: what if they have extracted the So() call into a helper method?
+	//       (runtime.Caller(3) will not yield the correct stack entry!)
+	_, file, line, _ = runtime.Caller(3)
+	stack = stackTrace()
+	return
+}
+func stackTrace() string {
+	// TODO: what if the stack trace is larger than the buffer? What should the max size of buffer be?
+	buffer := make([]byte, 1024*10)
+	runtime.Stack(buffer, false)
+	return strings.Trim(string(buffer), string([]byte{0}))
+}
+
 func functionName(action func()) string {
 	return runtime.FuncForPC(functionId(action)).Name()
 }

@@ -26,18 +26,13 @@ func (self *scope) visited() bool {
 }
 
 func (parent *scope) visit() {
-	parent.reporter.Enter(parent.name)
-	defer parent.recover()
+	defer parent.exit()
+	parent.enter()
 	parent.action()
 	parent.visitChildren()
-	parent.reporter.Exit()
 }
-func (parent *scope) recover() {
-	if problem := recover(); problem != nil {
-		parent.panicked = true
-		// TODO: Reporting hook (Error)
-		// TODO: Reporting hook (Exit)
-	}
+func (parent *scope) enter() {
+	parent.reporter.Enter(parent.name)
 }
 func (parent *scope) visitChildren() {
 	if len(parent.children) == 0 {
@@ -58,6 +53,13 @@ func (parent *scope) cleanup() {
 	for _, reset := range parent.resets {
 		reset()
 	}
+}
+func (parent *scope) exit() {
+	if problem := recover(); problem != nil {
+		parent.panicked = true
+		parent.reporter.Report(NewErrorReport(problem))
+	}
+	parent.reporter.Exit()
 }
 
 func newScope(name string, action func(), reporter Reporter) *scope {

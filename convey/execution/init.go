@@ -19,17 +19,32 @@ type runner interface {
 
 type Reporter interface {
 	Enter(scope string)
-	Success(r Report)
-	Failure(r Report)
-	Error(r Report)
+	Report(r *Report)
 	Exit()
 }
 
 type Report struct {
-	File    string
-	Line    int
-	Failure string
-	Error   error
+	File       string
+	Line       int
+	Failure    string
+	Error      interface{}
+	stackTrace string
+}
+
+func NewFailureReport(failure string) *Report {
+	file, line, stack := caller()
+	report := Report{file, line, failure, nil, stack}
+	return &report
+}
+func NewErrorReport(err interface{}) *Report {
+	file, line, stack := caller()
+	report := Report{file, line, "", err, stack}
+	return &report
+}
+func NewSuccessReport() *Report {
+	file, line, stack := caller()
+	report := Report{file, line, "", nil, stack}
+	return &report
 }
 
 type GoTest interface {

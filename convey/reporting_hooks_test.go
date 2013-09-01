@@ -9,35 +9,68 @@ import (
 )
 
 func TestSingleScopeReported(t *testing.T) {
-	reporter, expected := setupFakeReporter()
+	reporter := setupFakeReporter()
 
 	Convey("A", t, func() {
-		expected.File, expected.Line = currentFileAndNextLine()
 		So(1, ShouldEqual, 1)
 	})
 
-	expectEqual(t, true, reporter.stories["A"])
-	expectEqual(t, 1, len(reporter.stories))
-
-	expectEqual(t, expected, reporter.reports[0])
-	expectEqual(t, 1, len(reporter.reports))
+	expectEqual(t, "A|Success|Exit", reporter.wholeStory())
 }
 
 func TestNestedScopeReported(t *testing.T) {
-	reporter, expected := setupFakeReporter()
+	reporter := setupFakeReporter()
 
 	Convey("A", t, func() {
 		Convey("B", func() {
-			expected.File, expected.Line = currentFileAndNextLine()
 			So(1, ShouldEqual, 1)
 		})
 	})
 
-	expectEqual(t, true, reporter.stories["AB"])
-	expectEqual(t, 1, len(reporter.stories))
+	expectEqual(t, "A|B|Success|Exit|Exit", reporter.wholeStory())
+}
 
-	expectEqual(t, expected, reporter.reports[0])
-	expectEqual(t, 1, len(reporter.reports))
+func TestFailureReported(t *testing.T) {
+	reporter := setupFakeReporter()
+
+	Convey("A", t, func() {
+		So(1, ShouldBeNil)
+	})
+
+	expectEqual(t, "A|Failure|Exit", reporter.wholeStory())
+}
+
+func TestNestedFailureReported(t *testing.T) {
+	reporter := setupFakeReporter()
+
+	Convey("A", t, func() {
+		Convey("B", func() {
+			So(2, ShouldBeNil)
+		})
+	})
+
+	expectEqual(t, "A|B|Failure|Exit|Exit", reporter.wholeStory())
+}
+
+func TestSuccessAndFailureReported(t *testing.T) {
+	reporter := setupFakeReporter()
+
+	Convey("A", t, func() {
+		So(1, ShouldBeNil)
+		So(nil, ShouldBeNil)
+	})
+
+	expectEqual(t, "A|Failure|Success|Exit", reporter.wholeStory())
+}
+
+func TestErrorByManualPanicReported(t *testing.T) {
+	reporter := setupFakeReporter()
+
+	Convey("A", t, func() {
+		panic("Gopher alert!")
+	})
+
+	expectEqual(t, "A|Error|Exit", reporter.wholeStory())
 }
 
 // TODO: test failures, errors, nested failures, nested errors, (ensure cleanup is happening?)
@@ -50,62 +83,43 @@ func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 	}
 }
 
-func expectGreaterThan(t *testing.T, minimum int, higher int) {
-	if !(higher > minimum) {
-		_, file, line, _ := runtime.Caller(1)
-		t.Errorf("Expected '%v' to be greater than '%v' but it wasn't. See '%s' at line %d.",
-			higher, minimum, path.Base(file), line)
+func reportEqual(t *testing.T, expected *execution.Report, actual *execution.Report) {
+	if actual.File != expected.File {
+		t.Errorf("")
 	}
 }
 
-func setupFakeReporter() (*fakeReporter, execution.Report) {
-	r := fakeReporter{}
-	r.scopes = make([]string, 20, 20)
-	r.stories = make(map[string]bool)
-	r.reports = []execution.Report{}
+func setupFakeReporter() *fakeReporter {
+	reporter := fakeReporter{}
+	reporter.calls = []string{}
 	execution.SpecRunner = execution.NewScopeRunner()
-	execution.SpecRunner.UpgradeReporter(&r)
-	execution.SpecReporter = &r
-	return &r, execution.Report{}
+	execution.SpecRunner.UpgradeReporter(&reporter)
+	execution.SpecReporter = &reporter
+	return &reporter
 }
 
 type fakeReporter struct {
-	scopeIndex int
-	scopes     []string
-	reports    []execution.Report
-	stories    map[string]bool
+	calls []string
 }
 
 func (self *fakeReporter) Enter(scope string) {
-	self.scopes[self.scopeIndex] = scope
-	self.scopeIndex++
+	self.calls = append(self.calls, scope)
 }
 
-func (self *fakeReporter) Success(r execution.Report) {
-	self.reports = append(self.reports, r)
-}
-
-func (self *fakeReporter) Failure(r execution.Report) {
-	self.reports = append(self.reports, r)
-}
-
-func (self *fakeReporter) Error(r execution.Report) {
-	self.reports = append(self.reports, r)
-}
-
-func (self *fakeReporter) Exit() {
-	self.scopeIndex--
-	if self.scopeIndex == 0 {
-		self.stories[self.wholeStory()] = true
-		self.scopes = make([]string, 20, 20)
+func (self *fakeReporter) Report(r *execution.Report) {
+	if r.Error != nil {
+		self.calls = append(self.calls, "Error")
+	} else if r.Failure != "" {
+		self.calls = append(self.calls, "Failure")
+	} else {
+		self.calls = append(self.calls, "Success")
 	}
 }
 
-func (self *fakeReporter) wholeStory() string {
-	return strings.Join(self.scopes, "")
+func (self *fakeReporter) Exit() {
+	self.calls = append(self.calls, "Exit")
 }
 
-func currentFileAndNextLine() (string, int) {
-	_, file, line, _ := runtime.Caller(1)
-	return file, line + 1
+func (self *fakeReporter) wholeStory() string {
+	return strings.Join(self.calls, "|")
 }

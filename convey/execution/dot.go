@@ -4,15 +4,7 @@ func (self *dot) Enter(scope string) {
 
 }
 
-func (self *dot) Success(r Report) {
-
-}
-
-func (self *dot) Failure(r Report) {
-
-}
-
-func (self *dot) Error(r Report) {
+func (self *dot) Report(r *Report) {
 
 }
 
@@ -26,5 +18,5 @@ func NewDotReporter() *dot {
 }
 
 type dot struct {
-	inner   Reporter
+	inner Reporter
 }

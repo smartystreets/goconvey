@@ -4,15 +4,7 @@ func (self *story) Enter(scope string) {
 
 }
 
-func (self *story) Success(r Report) {
-
-}
-
-func (self *story) Failure(r Report) {
-
-}
-
-func (self *story) Error(r Report) {
+func (self *story) Report(r *Report) {
 
 }
 
@@ -26,5 +18,5 @@ func NewStoryReporter() *story {
 }
 
 type story struct {
-	inner   Reporter
+	inner Reporter
 }

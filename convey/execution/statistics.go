@@ -8,15 +8,7 @@ func (self *statistics) Enter(scope string) {
 
 }
 
-func (self *statistics) Success(r Report) {
-
-}
-
-func (self *statistics) Failure(r Report) {
-
-}
-
-func (self *statistics) Error(r Report) {
+func (self *statistics) Report(r *Report) {
 
 }
 
