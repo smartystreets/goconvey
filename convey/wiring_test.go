@@ -5,9 +5,6 @@ import (
 	"testing"
 )
 
-// TODO: test So() wireup
-// TODO: test Reset() wireup
-
 func TestParseTopLevelRegistration(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"

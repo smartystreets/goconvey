@@ -16,6 +16,7 @@ func TestShouldEqual(t *testing.T) {
 	pass(t, so("hi", ShouldEqual, "hi"))
 	fail(t, so("hi", ShouldEqual, "bye"), "'hi' should equal 'bye' (but it doesn't)!")
 
+	// TODO: compare structs
 }
 
 func TestShouldBeNil(t *testing.T) {
@@ -27,7 +28,7 @@ func TestShouldBeNil(t *testing.T) {
 }
 
 func pass(t *testing.T, result string) {
-	const PASS = ""
+	const PASS = success
 	if result != PASS {
 		t.Errorf("Expectation should have passed but failed: '%s'", result)
 	}
