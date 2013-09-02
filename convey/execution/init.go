@@ -5,7 +5,8 @@ var SpecReporter Reporter
 
 func init() {
 	SpecRunner = NewScopeRunner()
-	SpecReporter = NewStatisticsReporter()
+	printer := newPrinter(newConsole())
+	SpecReporter = NewStoryReporter(printer)
 	SpecRunner.UpgradeReporter(SpecReporter)
 }
 
