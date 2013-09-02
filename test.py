@@ -5,7 +5,7 @@ import time
 
 
 def main():
-    working = os.path.abspath(os.path.join(os.getcwd(), 'convey'))
+    working = os.path.abspath(os.path.join(os.getcwd()))
     repetitions = 0
     state = 0
     while True:
@@ -35,9 +35,11 @@ def _display_repetitions_banner(repetitions):
 
 def _run_tests(working):
     os.chdir(working)
-    _run_test()
     for root, dirs, files in os.walk(working):
         for d in dirs:
+            if '.git' in d or '.git' in root:
+                continue
+
             os.chdir(os.path.join(root, d))
             _run_test()
 
