@@ -18,7 +18,7 @@ func Reset(action func()) {
 }
 
 func So(actual interface{}, match expectation, expected ...interface{}) {
-	if result := match(actual, expected); result == success {
+	if result := match(actual, expected...); result == success {
 		execution.SpecReporter.Report(execution.NewSuccessReport())
 	} else {
 		execution.SpecReporter.Report(execution.NewFailureReport(result))

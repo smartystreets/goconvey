@@ -2,9 +2,9 @@ package convey
 
 import "fmt"
 
-type expectation func(actual interface{}, expected []interface{}) string
+type expectation func(actual interface{}, expected ...interface{}) string
 
-func ShouldEqual(actual interface{}, expected []interface{}) string {
+func ShouldEqual(actual interface{}, expected ...interface{}) string {
 	if fail := onlyOne(expected); fail != "" {
 		return fail
 	} else if actual != expected[0] {
@@ -13,7 +13,7 @@ func ShouldEqual(actual interface{}, expected []interface{}) string {
 	return success
 }
 
-func ShouldBeNil(actual interface{}, expected []interface{}) string {
+func ShouldBeNil(actual interface{}, expected ...interface{}) string {
 	if fail := none(expected); fail != "" {
 		return fail
 	} else if actual != nil {

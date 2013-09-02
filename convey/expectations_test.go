@@ -45,5 +45,5 @@ func fail(t *testing.T, actual string, expected string) {
 }
 
 func so(actual interface{}, match expectation, expected ...interface{}) string {
-	return match(actual, expected)
+	return match(actual, expected...)
 }
