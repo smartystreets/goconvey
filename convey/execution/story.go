@@ -1,8 +1,8 @@
 package execution
 
 func (self *story) Enter(scope string) {
-	self.out.println(scope)
-	self.out.indent()
+	// self.out.println(scope)
+	// self.out.indent()
 }
 
 func (self *story) Report(r *Report) {
@@ -10,7 +10,7 @@ func (self *story) Report(r *Report) {
 }
 
 func (self *story) Exit() {
-	self.out.dedent()
+	// self.out.dedent()
 }
 
 func NewStoryReporter(out *printer) *story {

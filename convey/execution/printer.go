@@ -1,3 +1,5 @@
+// TODO: truncate to given line width (so we can format the end of the line with '.', 'X', or 'E')?
+
 package execution
 
 import (
@@ -45,7 +47,6 @@ type console struct{}
 
 func (self *console) Write(p []byte) (n int, err error) {
 	return fmt.Print(string(p))
-	return len(p), nil
 }
 
 func newConsole() io.Writer {

@@ -1,7 +1,7 @@
 package execution
 
 func (self *scopeRunner) Begin(test GoTest, situation string, action func()) {
-	self.currentTest = test // TODO: remember to call .Fail() on this thing...
+	self.currentTest = test // TODO: remember to call .Fail() on this thing somewhere...
 	self.Register(situation, action)
 }
 
