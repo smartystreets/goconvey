@@ -6,7 +6,7 @@ import (
 )
 
 func TestExample(t *testing.T) {
-	Convey("Subject: Integer incrementation and decrementation", func() {
+	Convey("Subject: Integer incrementation and decrementation", t, func() {
 		x := 0
 
 		Convey("Given a starting integer value", func() {
