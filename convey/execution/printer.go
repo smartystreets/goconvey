@@ -37,6 +37,7 @@ type printer struct {
 
 func newPrinter(out io.Writer) *printer {
 	self := printer{}
+	self.out = out
 	return &self
 }
 
@@ -44,6 +45,7 @@ type console struct{}
 
 func (self *console) Write(p []byte) (n int, err error) {
 	return fmt.Print(string(p))
+	return len(p), nil
 }
 
 func newConsole() io.Writer {
