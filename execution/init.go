@@ -14,7 +14,10 @@ var SpecReporter Reporter
 func init() {
 	console := printing.NewConsole()
 	printer := printing.NewPrinter(console)
-	SpecReporter = reporting.NewStoryReporter(printer)
+	SpecReporter := newReporters(
+		reporting.NewGoTestReporter(),
+		reporting.NewStoryReporter(printer), // TODO: or a dot reporter (-v)
+		reporting.NewStatisticsReporter(printer))
 	SpecRunner = NewScopeRunner()
 	SpecRunner.UpgradeReporter(SpecReporter)
 }

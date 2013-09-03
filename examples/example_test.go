@@ -17,10 +17,10 @@ func TestExample(t *testing.T) {
 
 				Convey("The value should be greater by one", func() {
 					So(x, ShouldEqual, 43)
-					So(x, ShouldEqual, -1234)
+					// So(x, ShouldEqual, -1234)
 				})
 				Convey("The value should NOT be what it used to be", func() {
-					// So(x, ShouldNotEqual, 42)
+					So(x, ShouldNotEqual, 42)
 				})
 			})
 			Convey("When decremented", func() {
@@ -30,9 +30,9 @@ func TestExample(t *testing.T) {
 					So(x, ShouldEqual, 41)
 				})
 				Convey("The value should NOT be what it used to be", func() {
-					s := []byte{}[40]
-					So(s, ShouldEqual, 1234)
-					// So(x, ShouldNotEqual, 42)
+					// s := []byte{}[40]
+					// So(s, ShouldEqual, 1234)
+					So(x, ShouldNotEqual, 42)
 				})
 			})
 			Reset(func() {

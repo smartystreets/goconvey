@@ -1,11 +1,12 @@
 package reporting
 
-import "github.com/smartystreets/goconvey/gotest"
-import "github.com/smartystreets/goconvey/printing"
+import (
+	"fmt"
+	"github.com/smartystreets/goconvey/gotest"
+	"github.com/smartystreets/goconvey/printing"
+)
 
-func (self *story) BeginStory(test gotest.T) {
-	self.test = test
-}
+func (self *story) BeginStory(test gotest.T) {}
 
 func (self *story) Enter(title, id string) {
 	self.out.Indent()
@@ -21,29 +22,32 @@ func (self *story) Enter(title, id string) {
 
 func (self *story) Report(r *Report) {
 	if r.Error != nil {
-		self.out.Insert(error_)
-		self.errors++
-		self.out.Println("")
-		self.out.Indent()
-		self.out.Indent()
-		self.out.Print("* %s \n* Line: %d - %v \n%s", r.File, r.Line, r.Error, r.stackTrace)
-		self.out.Dedent()
-		self.out.Dedent()
-		self.test.Fail()
+		self.reportError(r)
 	} else if r.Failure != "" {
-		self.out.Insert(failure)
-		self.failures++
-		self.out.Println("")
-		self.out.Indent()
-		self.out.Indent()
-		self.out.Print("* %s \n* Line %d: %s", r.File, r.Line, r.Failure)
-		self.out.Dedent()
-		self.out.Dedent()
-		self.test.Fail()
+		self.reportFailure(r)
 	} else {
-		self.out.Insert(success)
-		self.successes++
+		self.report(success, "")
 	}
+}
+func (self *story) reportError(r *Report) {
+	message := fmt.Sprintf(errorTemplate, r.File, r.Line, r.Error, r.stackTrace)
+	self.report(error_, message)
+}
+func (self *story) reportFailure(r *Report) {
+	message := fmt.Sprintf(failureTemplate, r.File, r.Line, r.Failure)
+	self.report(failure, message)
+}
+func (self *story) report(indicator, message string) {
+	self.out.Insert(indicator)
+	if message == "" {
+		return
+	}
+	self.out.Println("")
+	self.out.Indent()
+	self.out.Indent()
+	self.out.Print(message)
+	self.out.Dedent()
+	self.out.Dedent()
 }
 
 func (self *story) Exit() {
@@ -53,8 +57,7 @@ func (self *story) Exit() {
 func (self *story) EndStory() {
 	self.currentId = ""
 	self.titlesById = make(map[string]string)
-	self.out.Println("\n")
-	self.out.Println("Passed: %d | Failed: %d | Errors: %d\n", self.successes, self.failures, self.errors)
+	self.out.Println("")
 }
 
 func NewStoryReporter(out *printing.Printer) *story {
@@ -65,15 +68,7 @@ func NewStoryReporter(out *printing.Printer) *story {
 }
 
 type story struct {
-	successes  int
-	failures   int
-	errors     int
 	out        *printing.Printer
 	titlesById map[string]string
 	currentId  string
-	test       gotest.T
 }
-
-const success = "✓"
-const failure = "✗"
-const error_ = "🔥"

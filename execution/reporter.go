@@ -40,3 +40,8 @@ func (self *reporters) EndStory() {
 type reporters struct {
 	collection []Reporter
 }
+
+func newReporters(collection ...Reporter) *reporters {
+	self := reporters{collection}
+	return &self
+}

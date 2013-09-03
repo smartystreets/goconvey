@@ -1,0 +1,17 @@
+package execution
+
+import "github.com/smartystreets/goconvey/gotest"
+import "github.com/smartystreets/goconvey/reporting"
+
+func newNilReporter() *nilReporter {
+	self := nilReporter{}
+	return &self
+}
+
+func (self *nilReporter) BeginStory(test gotest.T)   {}
+func (self *nilReporter) Enter(title, id string)     {}
+func (self *nilReporter) Report(r *reporting.Report) {}
+func (self *nilReporter) Exit()                      {}
+func (self *nilReporter) EndStory()                  {}
+
+type nilReporter struct{}

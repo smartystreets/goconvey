@@ -172,6 +172,7 @@ func (self *fakeRunner) UpgradeReporter(out execution.Reporter) {}
 
 type fakeGoTest struct{}
 
-func (self *fakeGoTest) Fail() {}
+func (self *fakeGoTest) Fail()                                     {}
+func (self *fakeGoTest) Fatalf(format string, args ...interface{}) {}
 
 var test gotest.T = &fakeGoTest{}

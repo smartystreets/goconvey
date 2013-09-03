@@ -76,3 +76,8 @@ func isExternal(line string) bool {
 }
 
 const newline = "\n"
+const success = "✓"
+const failure = "✗"
+const error_ = "🔥"
+const errorTemplate = "* %s \n* Line: %d - %v \n%s"
+const failureTemplate = "* %s \n* Line %d: %s"
