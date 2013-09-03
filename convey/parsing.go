@@ -1,8 +1,8 @@
 package convey
 
-import "github.com/smartystreets/goconvey/convey/execution"
+import "github.com/smartystreets/goconvey/gotest"
 
-func parseRegistration(items []interface{}) (name string, action func(), test execution.GoTest) {
+func parseRegistration(items []interface{}) (name string, action func(), test gotest.T) {
 	ensureEnough(items)
 
 	name = parseName(items)
@@ -22,13 +22,13 @@ func parseName(items []interface{}) string {
 	}
 	panic(parseError)
 }
-func parseGoTest(items []interface{}) execution.GoTest {
-	if test, parsed := items[1].(execution.GoTest); parsed {
+func parseGoTest(items []interface{}) gotest.T {
+	if test, parsed := items[1].(gotest.T); parsed {
 		return test
 	}
 	return nil
 }
-func parseAction(items []interface{}, test execution.GoTest) func() {
+func parseAction(items []interface{}, test gotest.T) func() {
 	var index = 1
 	if test != nil {
 		index = 2

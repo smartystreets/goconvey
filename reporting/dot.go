@@ -1,6 +1,8 @@
-package execution
+package reporting
 
-func (self *dot) BeginStory(test GoTest) {
+import "github.com/smartystreets/goconvey/gotest"
+
+func (self *dot) BeginStory(test gotest.T) {
 
 }
 
@@ -26,5 +28,4 @@ func NewDotReporter() *dot {
 }
 
 type dot struct {
-	inner Reporter
 }

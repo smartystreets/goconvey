@@ -1,7 +1,8 @@
 package convey
 
 import (
-	"github.com/smartystreets/goconvey/convey/execution"
+	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/gotest"
 	"testing"
 )
 
@@ -9,7 +10,7 @@ func TestParseTopLevelRegistration(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	execution.SpecRunner = myRunner
-	var test execution.GoTest = &fakeGoTest{}
+	var test gotest.T = &fakeGoTest{}
 	executed := false
 	action := func() {
 		executed = true
@@ -117,7 +118,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesGoTest(t *testing.T)
 	situation := "Hello, World!"
 	nextSituation := "Goodbye, World!"
 	execution.SpecRunner = myRunner
-	var test execution.GoTest = &fakeGoTest{}
+	var test gotest.T = &fakeGoTest{}
 	executed := 0
 	action := func() {
 		executed++
@@ -140,7 +141,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesGoTest(t *testing.T)
 }
 
 type fakeRunner struct {
-	test          execution.GoTest
+	test          gotest.T
 	situation     string
 	action        func()
 	runnerStarted bool
@@ -152,7 +153,7 @@ func newFakeRunner() *fakeRunner {
 	return &f
 }
 
-func (self *fakeRunner) Begin(test execution.GoTest, situation string, action func()) {
+func (self *fakeRunner) Begin(test gotest.T, situation string, action func()) {
 	self.test = test
 	self.Register(situation, action)
 }
@@ -173,4 +174,4 @@ type fakeGoTest struct{}
 
 func (self *fakeGoTest) Fail() {}
 
-var test execution.GoTest = &fakeGoTest{}
+var test gotest.T = &fakeGoTest{}

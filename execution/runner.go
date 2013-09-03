@@ -1,6 +1,9 @@
 package execution
 
-func (self *scopeRunner) Begin(test GoTest, situation string, action func()) {
+import "github.com/smartystreets/goconvey/gotest"
+import "github.com/smartystreets/goconvey/reporting"
+
+func (self *scopeRunner) Begin(test gotest.T, situation string, action func()) {
 	self.out.BeginStory(test)
 	self.Register(situation, action)
 }
@@ -71,7 +74,7 @@ type scopeRunner struct {
 }
 
 func NewScopeRunner() *scopeRunner {
-	var out Reporter = &nilReporter{}
+	var out Reporter = reporting.NewNilReporter()
 	self := scopeRunner{}
 	self.top = newScope(topLevel, func() {}, out)
 	self.chain = make(map[string]string)

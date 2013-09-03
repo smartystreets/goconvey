@@ -1,6 +1,7 @@
 package convey
 
-import "github.com/smartystreets/goconvey/convey/execution"
+import "github.com/smartystreets/goconvey/execution"
+import "github.com/smartystreets/goconvey/reporting"
 
 func Convey(items ...interface{}) {
 	name, action, test := parseRegistration(items)
@@ -20,8 +21,8 @@ func Reset(action func()) {
 
 func So(actual interface{}, match expectation, expected ...interface{}) {
 	if result := match(actual, expected...); result == success {
-		execution.SpecReporter.Report(execution.NewSuccessReport())
+		execution.SpecReporter.Report(reporting.NewSuccessReport())
 	} else {
-		execution.SpecReporter.Report(execution.NewFailureReport(result))
+		execution.SpecReporter.Report(reporting.NewFailureReport(result))
 	}
 }

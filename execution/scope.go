@@ -1,5 +1,7 @@
 package execution
 
+import "github.com/smartystreets/goconvey/reporting"
+
 func (parent *scope) adopt(child *scope) {
 	if parent.hasChild(child) {
 		return
@@ -56,7 +58,7 @@ func (parent *scope) cleanup() {
 func (parent *scope) exit() {
 	if problem := recover(); problem != nil {
 		parent.panicked = true
-		parent.reporter.Report(NewErrorReport(problem))
+		parent.reporter.Report(reporting.NewErrorReport(problem))
 	}
 	parent.reporter.Exit()
 }

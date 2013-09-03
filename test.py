@@ -36,12 +36,25 @@ def _display_repetitions_banner(repetitions):
 def _run_tests(working):
     os.chdir(working)
     for root, dirs, files in os.walk(working):
-        for d in dirs:
-            if '.git' in d or '.git' in root:
-                continue
+        search_for_tests(root, dirs, files)
 
+
+def search_for_tests(root, dirs, files):
+    for d in dirs:
+        if '.git' in d or '.git' in root:
+            continue
+
+        if tests_found(os.path.join(root, d)):
             os.chdir(os.path.join(root, d))
             _run_test()
+
+
+def tests_found(folder):
+    for f in os.listdir(folder):
+        if f.endswith('_test.go'):
+            return True
+
+    return False
 
 
 def _run_test():

@@ -1,7 +1,7 @@
 package convey
 
 import (
-	"github.com/smartystreets/goconvey/convey/execution"
+	"github.com/smartystreets/goconvey/execution"
 	"testing"
 )
 

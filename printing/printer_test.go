@@ -1,13 +1,13 @@
-package execution
+package printing
 
 import "testing"
 
 func TestPrint(t *testing.T) {
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 	const expected = "Hello, World!"
 
-	printer.print(expected)
+	printer.Print(expected)
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
@@ -16,10 +16,10 @@ func TestPrint(t *testing.T) {
 
 func TestPrintln(t *testing.T) {
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 	const expected = "Hello, World!"
 
-	printer.println(expected)
+	printer.Println(expected)
 
 	if file.buffer != expected+"\n" {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
@@ -28,12 +28,12 @@ func TestPrintln(t *testing.T) {
 
 func TestPrintIndented(t *testing.T) {
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 	const message = "Hello, World!\nGoodbye, World!"
 	const expected = "  Hello, World!\n  Goodbye, World!"
 
-	printer.indent()
-	printer.print(message)
+	printer.Indent()
+	printer.Print(message)
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
@@ -42,12 +42,12 @@ func TestPrintIndented(t *testing.T) {
 
 func TestPrintDedented(t *testing.T) {
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 	const expected = "Hello, World!\nGoodbye, World!"
 
-	printer.indent()
-	printer.dedent()
-	printer.print(expected)
+	printer.Indent()
+	printer.Dedent()
+	printer.Print(expected)
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
@@ -56,12 +56,12 @@ func TestPrintDedented(t *testing.T) {
 
 func TestPrintlnIndented(t *testing.T) {
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 	const message = "Hello, World!\nGoodbye, World!"
 	const expected = "  Hello, World!\n  Goodbye, World!\n"
 
-	printer.indent()
-	printer.println(message)
+	printer.Indent()
+	printer.Println(message)
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
@@ -70,12 +70,12 @@ func TestPrintlnIndented(t *testing.T) {
 
 func TestPrintlnDedented(t *testing.T) {
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 	const expected = "Hello, World!\nGoodbye, World!"
 
-	printer.indent()
-	printer.dedent()
-	printer.println(expected)
+	printer.Indent()
+	printer.Dedent()
+	printer.Println(expected)
 
 	if file.buffer != expected+"\n" {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
@@ -89,21 +89,21 @@ func TestDedentTooFarShouldNotPanic(t *testing.T) {
 		}
 	}()
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 
-	printer.dedent()
+	printer.Dedent()
 
 	t.Log("Getting to this point without panicking means we passed.")
 }
 
 func TestInsert(t *testing.T) {
 	file := newMemoryFile()
-	printer := newPrinter(file)
+	printer := NewPrinter(file)
 
-	printer.indent()
-	printer.print("Hi")
-	printer.insert(" there")
-	printer.dedent()
+	printer.Indent()
+	printer.Print("Hi")
+	printer.Insert(" there")
+	printer.Dedent()
 
 	expected := "  Hi there"
 	if file.buffer != expected {

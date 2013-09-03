@@ -1,7 +1,9 @@
 package convey
 
 import (
-	"github.com/smartystreets/goconvey/convey/execution"
+	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/gotest"
+	"github.com/smartystreets/goconvey/reporting"
 	"path"
 	"runtime"
 	"strings"
@@ -81,7 +83,7 @@ func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 	}
 }
 
-func reportEqual(t *testing.T, expected *execution.Report, actual *execution.Report) {
+func reportEqual(t *testing.T, expected *reporting.Report, actual *reporting.Report) {
 	if actual.File != expected.File {
 		t.Errorf("")
 	}
@@ -100,7 +102,7 @@ type fakeReporter struct {
 	calls []string
 }
 
-func (self *fakeReporter) BeginStory(test execution.GoTest) {
+func (self *fakeReporter) BeginStory(test gotest.T) {
 	self.calls = append(self.calls, "Begin")
 }
 
@@ -108,7 +110,7 @@ func (self *fakeReporter) Enter(title, id string) {
 	self.calls = append(self.calls, title)
 }
 
-func (self *fakeReporter) Report(r *execution.Report) {
+func (self *fakeReporter) Report(r *reporting.Report) {
 	if r.Error != nil {
 		self.calls = append(self.calls, "Error")
 	} else if r.Failure != "" {

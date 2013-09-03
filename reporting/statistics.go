@@ -1,10 +1,15 @@
-package execution
+package reporting
 
 import (
+	"github.com/smartystreets/goconvey/gotest"
 	"time"
 )
 
-func (self *statistics) Enter(scope string) {
+func (self *statistics) BeginStory(test gotest.T) {
+
+}
+
+func (self *statistics) Enter(title, id string) {
 
 }
 
@@ -13,6 +18,10 @@ func (self *statistics) Report(r *Report) {
 }
 
 func (self *statistics) Exit() {
+
+}
+
+func (self *statistics) EndStory() {
 
 }
 
