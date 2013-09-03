@@ -5,19 +5,6 @@ import (
 	"testing"
 )
 
-func TestOtherExample(t *testing.T) {
-	Convey("What about another example?", t, func() {
-		Convey("that does something else...", func() {
-			So(1, ShouldEqual, 1)
-		})
-	})
-}
-
-// func TestRegular(t *testing.T) {
-// 	s := []byte{}[40]
-// 	fmt.Println(s)
-// }
-
 func TestExample(t *testing.T) {
 	Convey("Subject: Integer incrementation and decrementation", t, func() {
 		x := 0
@@ -54,23 +41,3 @@ func TestExample(t *testing.T) {
 		})
 	})
 }
-
-/*
-Output:
-
-### file/to/test.go - Line 42 - TestExample ###
-
-	- Subject: Integer incrementation and decrementation
-		- Given a starting integer value
-			- When incremented
-				- The value should be greater by one
-				- The value should NOT be what it used to be
-			- When decremented
-				- The value should be lesser by one
-
-
-## Running Total: ##
-
-1 Stor[y|ies] with 4 Assertion[s] (1 Failed)[, 0 Errors]
-
-*/
