@@ -20,9 +20,11 @@ type runner interface {
 }
 
 type Reporter interface {
-	Enter(scope string)
+	BeginStory(test GoTest)
+	Enter(title, id string)
 	Report(r *Report)
 	Exit()
+	EndStory()
 }
 
 type Report struct {

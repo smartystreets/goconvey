@@ -1,7 +1,7 @@
 package execution
 
 func (self *scopeRunner) Begin(test GoTest, situation string, action func()) {
-	self.currentTest = test // TODO: remember to call .Fail() on this thing somewhere...
+	self.out.BeginStory(test)
 	self.Register(situation, action)
 }
 
@@ -61,13 +61,13 @@ func (self *scopeRunner) Run() {
 	for !self.top.visited() {
 		self.top.visit()
 	}
+	self.out.EndStory()
 }
 
 type scopeRunner struct {
-	top         *scope
-	chain       map[string]string
-	currentTest GoTest
-	out         Reporter
+	top   *scope
+	chain map[string]string
+	out   Reporter
 }
 
 func NewScopeRunner() *scopeRunner {

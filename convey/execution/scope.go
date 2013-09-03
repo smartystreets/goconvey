@@ -4,13 +4,12 @@ func (parent *scope) adopt(child *scope) {
 	if parent.hasChild(child) {
 		return
 	}
-	name := functionName(child.action)
-	parent.birthOrder = append(parent.birthOrder, name)
-	parent.children[name] = child
+	parent.birthOrder = append(parent.birthOrder, child.name)
+	parent.children[child.name] = child
 }
 func (parent *scope) hasChild(child *scope) bool {
 	for _, name := range parent.birthOrder {
-		if name == functionName(child.action) {
+		if name == child.name {
 			return true
 		}
 	}
@@ -32,7 +31,7 @@ func (parent *scope) visit() {
 	parent.visitChildren()
 }
 func (parent *scope) enter() {
-	parent.reporter.Enter(parent.name)
+	parent.reporter.Enter(parent.title, parent.name)
 }
 func (parent *scope) visitChildren() {
 	if len(parent.children) == 0 {
@@ -62,8 +61,8 @@ func (parent *scope) exit() {
 	parent.reporter.Exit()
 }
 
-func newScope(name string, action func(), reporter Reporter) *scope {
-	self := scope{name: name, action: action}
+func newScope(title string, action func(), reporter Reporter) *scope {
+	self := scope{name: functionName(action), title: title, action: action}
 	self.children = make(map[string]*scope)
 	self.birthOrder = []string{}
 	self.resets = make(map[uintptr]func())
@@ -73,6 +72,7 @@ func newScope(name string, action func(), reporter Reporter) *scope {
 
 type scope struct {
 	name       string
+	title      string
 	action     func()
 	children   map[string]*scope
 	birthOrder []string

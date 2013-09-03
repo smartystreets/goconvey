@@ -30,7 +30,7 @@ func TestPrintIndented(t *testing.T) {
 	file := newMemoryFile()
 	printer := newPrinter(file)
 	const message = "Hello, World!\nGoodbye, World!"
-	const expected = "\tHello, World!\n\tGoodbye, World!"
+	const expected = "  Hello, World!\n  Goodbye, World!"
 
 	printer.indent()
 	printer.print(message)
@@ -58,7 +58,7 @@ func TestPrintlnIndented(t *testing.T) {
 	file := newMemoryFile()
 	printer := newPrinter(file)
 	const message = "Hello, World!\nGoodbye, World!"
-	const expected = "\tHello, World!\n\tGoodbye, World!\n"
+	const expected = "  Hello, World!\n  Goodbye, World!\n"
 
 	printer.indent()
 	printer.println(message)
@@ -79,6 +79,35 @@ func TestPrintlnDedented(t *testing.T) {
 
 	if file.buffer != expected+"\n" {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
+	}
+}
+
+func TestDedentTooFarShouldNotPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Error("Should not have panicked!")
+		}
+	}()
+	file := newMemoryFile()
+	printer := newPrinter(file)
+
+	printer.dedent()
+
+	t.Log("Getting to this point without panicking means we passed.")
+}
+
+func TestInsert(t *testing.T) {
+	file := newMemoryFile()
+	printer := newPrinter(file)
+
+	printer.indent()
+	printer.print("Hi")
+	printer.insert(" there")
+	printer.dedent()
+
+	expected := "  Hi there"
+	if file.buffer != expected {
+		t.Errorf("Should have written '%s' but instead wrote '%s'.", expected, file.buffer)
 	}
 }
 

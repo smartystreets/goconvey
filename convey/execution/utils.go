@@ -16,7 +16,7 @@ func caller() (file string, line int, stack string) {
 func stackTrace() string {
 	// TODO: what if the stack trace is larger than the buffer? What should the max size of buffer be?
 	buffer := make([]byte, 1024*10)
-	runtime.Stack(buffer, false)
+	runtime.Stack(buffer, false) // I'd like this to be true when its an error scenario...
 	return strings.Trim(string(buffer), string([]byte{0}))
 }
 

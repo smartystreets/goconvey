@@ -1,5 +1,3 @@
-// TODO: truncate to given line width (so we can format the end of the line with '.', 'X', or 'E')?
-
 package execution
 
 import (
@@ -9,7 +7,7 @@ import (
 )
 
 func (self *printer) println(message string, values ...interface{}) {
-	formatted := self.format(message, values...) + "\n"
+	formatted := self.format(message, values...) + newline
 	self.out.Write([]byte(formatted))
 }
 
@@ -18,19 +16,30 @@ func (self *printer) print(message string, values ...interface{}) {
 	self.out.Write([]byte(formatted))
 }
 
+func (self *printer) insert(text string) {
+	self.out.Write([]byte(text))
+}
+
 func (self *printer) format(message string, values ...interface{}) string {
 	formatted := self.prefix + fmt.Sprintf(message, values...)
-	indented := strings.Replace(formatted, "\n", "\n"+self.prefix, -1)
-	return strings.TrimRight(indented, "\t")
+	indented := strings.Replace(formatted, newline, newline+self.prefix, -1)
+	return strings.TrimRight(indented, space)
 }
 
 func (self *printer) indent() {
-	self.prefix += "\t"
+	self.prefix += pad
 }
 
 func (self *printer) dedent() {
-	self.prefix = self.prefix[:len(self.prefix)-1]
+	if len(self.prefix) >= padLength {
+		self.prefix = self.prefix[:len(self.prefix)-padLength]
+	}
 }
+
+const newline = "\n"
+const space = " "
+const pad = space + space
+const padLength = len(pad)
 
 type printer struct {
 	out    io.Writer

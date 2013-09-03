@@ -172,3 +172,5 @@ func (self *fakeRunner) UpgradeReporter(out execution.Reporter) {}
 type fakeGoTest struct{}
 
 func (self *fakeGoTest) Fail() {}
+
+var test execution.GoTest = &fakeGoTest{}
