@@ -36,17 +36,20 @@ type Report struct {
 }
 
 func NewFailureReport(failure string) *Report {
-	file, line, stack := caller()
+	file, line := caller()
+	stack := stackTrace()
 	report := Report{file, line, failure, nil, stack}
 	return &report
 }
 func NewErrorReport(err interface{}) *Report {
-	file, line, stack := caller()
+	file, line := caller()
+	stack := fullStackTrace()
 	report := Report{file, line, "", err, stack}
 	return &report
 }
 func NewSuccessReport() *Report {
-	file, line, stack := caller()
+	file, line := caller()
+	stack := stackTrace()
 	report := Report{file, line, "", nil, stack}
 	return &report
 }

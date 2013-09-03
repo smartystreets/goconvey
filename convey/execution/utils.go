@@ -6,18 +6,33 @@ import (
 	"strings"
 )
 
-func caller() (file string, line int, stack string) {
+func caller() (file string, line int) {
 	// TODO: what if they have extracted the So() call into a helper method?
 	//       (runtime.Caller(3) will not yield the correct stack entry!)
 	_, file, line, _ = runtime.Caller(3)
-	stack = stackTrace()
 	return
 }
 func stackTrace() string {
-	// TODO: what if the stack trace is larger than the buffer? What should the max size of buffer be?
-	buffer := make([]byte, 1024*10)
-	runtime.Stack(buffer, false) // I'd like this to be true when its an error scenario...
-	return strings.Trim(string(buffer), string([]byte{0}))
+	buffer := make([]byte, 1024*64)
+	runtime.Stack(buffer, false)
+	formatted := strings.Trim(string(buffer), string([]byte{0}))
+	return filterStack(formatted)
+}
+func fullStackTrace() string {
+	buffer := make([]byte, 1024*64)
+	runtime.Stack(buffer, true)
+	formatted := strings.Trim(string(buffer), string([]byte{0}))
+	return filterStack(formatted)
+}
+func filterStack(stack string) string {
+	lines := strings.Split(stack, newline)
+	filtered := []string{}
+	for _, line := range lines {
+		if !strings.Contains(line, "goconvey/convey") {
+			filtered = append(filtered, line)
+		}
+	}
+	return strings.Join(filtered, newline)
 }
 
 func functionName(action func()) string {

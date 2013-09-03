@@ -23,7 +23,7 @@ func (self *story) Report(r *Report) {
 		self.out.println("")
 		self.out.indent()
 		self.out.indent()
-		self.out.print("* %s \n* Line: %d: %v \n* %s", r.File, r.Line, r.Error, r.stackTrace)
+		self.out.print("* %s \n* Line: %d - %v \n%s", r.File, r.Line, r.Error, r.stackTrace)
 		self.out.dedent()
 		self.out.dedent()
 		self.test.Fail()

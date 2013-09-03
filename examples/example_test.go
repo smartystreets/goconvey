@@ -13,6 +13,11 @@ func TestOtherExample(t *testing.T) {
 	})
 }
 
+// func TestRegular(t *testing.T) {
+// 	s := []byte{}[40]
+// 	fmt.Println(s)
+// }
+
 func TestExample(t *testing.T) {
 	Convey("Subject: Integer incrementation and decrementation", t, func() {
 		x := 0
