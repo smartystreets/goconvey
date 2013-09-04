@@ -196,6 +196,6 @@ func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
 }
 
 func prepare() string {
-	SpecRunner = execution.NewScopeRunner()
+	runner = execution.NewRunner()
 	return ""
 }

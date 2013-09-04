@@ -11,17 +11,17 @@ import (
 )
 
 func TestSingleScopeReported(t *testing.T) {
-	reporter, test := setupFakeReporter()
+	myReporter, test := setupFakeReporter()
 
 	Convey("A", test, func() {
 		So(1, ShouldEqual, 1)
 	})
 
-	expectEqual(t, "Begin|A|Success|Exit|End", reporter.wholeStory())
+	expectEqual(t, "Begin|A|Success|Exit|End", myReporter.wholeStory())
 }
 
 func TestNestedScopeReported(t *testing.T) {
-	reporter, test := setupFakeReporter()
+	myReporter, test := setupFakeReporter()
 
 	Convey("A", test, func() {
 		Convey("B", func() {
@@ -29,21 +29,21 @@ func TestNestedScopeReported(t *testing.T) {
 		})
 	})
 
-	expectEqual(t, "Begin|A|B|Success|Exit|Exit|End", reporter.wholeStory())
+	expectEqual(t, "Begin|A|B|Success|Exit|Exit|End", myReporter.wholeStory())
 }
 
 func TestFailureReported(t *testing.T) {
-	reporter, test := setupFakeReporter()
+	myReporter, test := setupFakeReporter()
 
 	Convey("A", test, func() {
 		So(1, ShouldBeNil)
 	})
 
-	expectEqual(t, "Begin|A|Failure|Exit|End", reporter.wholeStory())
+	expectEqual(t, "Begin|A|Failure|Exit|End", myReporter.wholeStory())
 }
 
 func TestNestedFailureReported(t *testing.T) {
-	reporter, test := setupFakeReporter()
+	myReporter, test := setupFakeReporter()
 
 	Convey("A", test, func() {
 		Convey("B", func() {
@@ -51,28 +51,28 @@ func TestNestedFailureReported(t *testing.T) {
 		})
 	})
 
-	expectEqual(t, "Begin|A|B|Failure|Exit|Exit|End", reporter.wholeStory())
+	expectEqual(t, "Begin|A|B|Failure|Exit|Exit|End", myReporter.wholeStory())
 }
 
 func TestSuccessAndFailureReported(t *testing.T) {
-	reporter, test := setupFakeReporter()
+	myReporter, test := setupFakeReporter()
 
 	Convey("A", test, func() {
 		So(1, ShouldBeNil)
 		So(nil, ShouldBeNil)
 	})
 
-	expectEqual(t, "Begin|A|Failure|Success|Exit|End", reporter.wholeStory())
+	expectEqual(t, "Begin|A|Failure|Success|Exit|End", myReporter.wholeStory())
 }
 
 func TestErrorByManualPanicReported(t *testing.T) {
-	reporter, test := setupFakeReporter()
+	myReporter, test := setupFakeReporter()
 
 	Convey("A", test, func() {
 		panic("Gopher alert!")
 	})
 
-	expectEqual(t, "Begin|A|Error|Exit|End", reporter.wholeStory())
+	expectEqual(t, "Begin|A|Error|Exit|End", myReporter.wholeStory())
 }
 
 func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
@@ -83,19 +83,13 @@ func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 	}
 }
 
-func reportEqual(t *testing.T, expected *reporting.Report, actual *reporting.Report) {
-	if actual.File != expected.File {
-		t.Errorf("")
-	}
-}
-
 func setupFakeReporter() (*fakeReporter, *fakeGoTest) {
-	reporter := fakeReporter{}
-	reporter.calls = []string{}
-	SpecRunner = execution.NewScopeRunner()
-	SpecRunner.UpgradeReporter(&reporter)
-	SpecReporter = &reporter
-	return &reporter, &fakeGoTest{}
+	myReporter := fakeReporter{}
+	myReporter.calls = []string{}
+	reporter = &myReporter
+	runner = execution.NewRunner()
+	runner.UpgradeReporter(reporter)
+	return &myReporter, &fakeGoTest{}
 }
 
 type fakeReporter struct {

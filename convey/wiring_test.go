@@ -9,7 +9,7 @@ import (
 func TestParseTopLevelRegistration(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
-	SpecRunner = myRunner
+	runner = myRunner
 	var test gotest.T = &fakeGoTest{}
 	executed := false
 	action := func() {
@@ -38,7 +38,7 @@ func TestParseTopLevelRegistration(t *testing.T) {
 func TestParseRegistrationWithoutIncludingGoTestObject(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
-	SpecRunner = myRunner
+	runner = myRunner
 	executed := false
 	action := func() {
 		executed = true
@@ -87,7 +87,7 @@ func TestParseRegistration_MissingNameString(t *testing.T) {
 	}()
 
 	myRunner := newFakeRunner()
-	SpecRunner = myRunner
+	runner = myRunner
 	action := func() {}
 
 	Convey(action)
@@ -106,7 +106,7 @@ func TestParseRegistration_MissingActionFunc(t *testing.T) {
 		}
 	}()
 
-	SpecRunner = myRunner
+	runner = myRunner
 
 	Convey("Hi there", 12345)
 
@@ -117,7 +117,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesGoTest(t *testing.T)
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	nextSituation := "Goodbye, World!"
-	SpecRunner = myRunner
+	runner = myRunner
 	var test gotest.T = &fakeGoTest{}
 	executed := 0
 	action := func() {

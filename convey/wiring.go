@@ -2,7 +2,6 @@ package convey
 
 import (
 	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/printing"
 	"github.com/smartystreets/goconvey/reporting"
 )
@@ -11,44 +10,35 @@ func Convey(items ...interface{}) {
 	name, action, test := parseRegistration(items)
 
 	if test != nil {
-		SpecRunner.Begin(test, name, action)
-		SpecRunner.Run()
+		runner.Begin(test, name, action)
+		runner.Run()
 	} else {
-		SpecRunner.Register(name, action)
+		runner.Register(name, action)
 	}
 }
 
 func Reset(action func()) {
-	SpecRunner.RegisterReset(action)
+	runner.RegisterReset(action)
 }
 
 func So(actual interface{}, match expectation, expected ...interface{}) {
 	if result := match(actual, expected...); result == success {
-		SpecReporter.Report(reporting.NewSuccessReport())
+		reporter.Report(reporting.NewSuccessReport())
 	} else {
-		SpecReporter.Report(reporting.NewFailureReport(result))
+		reporter.Report(reporting.NewFailureReport(result))
 	}
 }
-
-// TODO: private...
-var SpecRunner runner
-var SpecReporter reporting.Reporter
 
 func init() {
 	console := printing.NewConsole()
 	printer := printing.NewPrinter(console)
-	SpecReporter = reporting.NewReporters(
+	reporter = reporting.NewReporters(
 		reporting.NewGoTestReporter(),
 		reporting.NewStoryReporter(printer), // TODO: or a dot reporter (-v)
 		reporting.NewStatisticsReporter(printer))
-	SpecRunner = execution.NewScopeRunner()
-	SpecRunner.UpgradeReporter(SpecReporter)
+	runner = execution.NewRunner()
+	runner.UpgradeReporter(reporter)
 }
 
-type runner interface {
-	Begin(test gotest.T, situation string, action func())
-	Register(situation string, action func())
-	RegisterReset(action func())
-	Run()
-	UpgradeReporter(out reporting.Reporter)
-}
+var runner execution.Runner
+var reporter reporting.Reporter

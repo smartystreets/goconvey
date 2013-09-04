@@ -5,37 +5,45 @@ import (
 	"github.com/smartystreets/goconvey/reporting"
 )
 
-func (self *scopeRunner) Begin(test gotest.T, situation string, action func()) {
+type Runner interface {
+	Begin(test gotest.T, situation string, action func())
+	Register(situation string, action func())
+	RegisterReset(action func())
+	UpgradeReporter(out reporting.Reporter)
+	Run()
+}
+
+func (self *runner) Begin(test gotest.T, situation string, action func()) {
 	self.out.BeginStory(test)
 	self.Register(situation, action)
 }
 
-func (self *scopeRunner) Register(situation string, action func()) {
+func (self *runner) Register(situation string, action func()) {
 	parentAction := self.link(action)
 	parent := self.accessScope(parentAction)
 	child := newScope(situation, action, self.out)
 	parent.adopt(child)
 }
-func (self *scopeRunner) link(action func()) string {
+func (self *runner) link(action func()) string {
 	parentAction := resolveExternalCaller()
 	childAction := functionName(action)
 	self.linkTo(topLevel, parentAction)
 	self.linkTo(parentAction, childAction)
 	return parentAction
 }
-func (self *scopeRunner) linkTo(value, name string) {
+func (self *runner) linkTo(value, name string) {
 	if self.chain[name] == "" {
 		self.chain[name] = value
 	}
 }
-func (self *scopeRunner) accessScope(current string) *scope {
+func (self *runner) accessScope(current string) *scope {
 	if self.chain[current] == topLevel {
 		return self.top
 	}
 	breadCrumbs := self.trail(current)
 	return self.follow(breadCrumbs)
 }
-func (self *scopeRunner) trail(start string) []string {
+func (self *runner) trail(start string) []string {
 	breadCrumbs := []string{start, self.chain[start]}
 	for {
 		next := self.chain[last(breadCrumbs)]
@@ -47,7 +55,7 @@ func (self *scopeRunner) trail(start string) []string {
 	}
 	return breadCrumbs[:len(breadCrumbs)-1]
 }
-func (self *scopeRunner) follow(trail []string) *scope {
+func (self *runner) follow(trail []string) *scope {
 	var accessed = self.top
 
 	for x := len(trail) - 1; x >= 0; x-- {
@@ -56,34 +64,34 @@ func (self *scopeRunner) follow(trail []string) *scope {
 	return accessed
 }
 
-func (self *scopeRunner) RegisterReset(action func()) {
+func (self *runner) RegisterReset(action func()) {
 	parentAction := self.link(action)
 	parent := self.accessScope(parentAction)
 	parent.registerReset(action)
 }
 
-func (self *scopeRunner) Run() {
+func (self *runner) Run() {
 	for !self.top.visited() {
 		self.top.visit()
 	}
 	self.out.EndStory()
 }
 
-type scopeRunner struct {
+type runner struct {
 	top   *scope
 	chain map[string]string
 	out   reporting.Reporter
 }
 
-func NewScopeRunner() *scopeRunner {
-	self := scopeRunner{}
+func NewRunner() *runner {
+	self := runner{}
 	self.out = NewNilReporter()
 	self.top = newScope(topLevel, func() {}, self.out)
 	self.chain = make(map[string]string)
 	return &self
 }
 
-func (self *scopeRunner) UpgradeReporter(out reporting.Reporter) {
+func (self *runner) UpgradeReporter(out reporting.Reporter) {
 	self.out = out
 }
 
