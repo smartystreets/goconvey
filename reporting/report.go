@@ -33,8 +33,6 @@ func NewSuccessReport() *Report {
 }
 
 func caller() (file string, line int) {
-	// TODO: what if they have extracted the So() call into a helper method?
-	//       (runtime.Caller(3) will not yield the correct stack entry!)
 	_, file, line, _ = runtime.Caller(3)
 	return
 }
