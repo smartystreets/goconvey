@@ -37,6 +37,9 @@ def _display_repetitions_banner(repetitions):
 
 def _run_tests(working):
     os.chdir(working)
+    if tests_found(working):
+        _run_test()
+    
     for root, dirs, files in os.walk(working):
         search_for_tests(root, dirs, files)
 
