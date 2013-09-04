@@ -34,7 +34,7 @@ func init() {
 	printer := printing.NewPrinter(console)
 	reporter = reporting.NewReporters(
 		reporting.NewGoTestReporter(),
-		reporting.NewStoryReporter(printer), // TODO: or a dot reporter (-v)
+		reporting.NewDotReporter(printer), // TODO: or a dot reporter (-v)
 		reporting.NewStatisticsReporter(printer))
 	runner = execution.NewRunner()
 	runner.UpgradeReporter(reporter)

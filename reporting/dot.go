@@ -22,14 +22,23 @@ func (self *dot) Report(r *Report) {
 func (self *dot) Exit() {}
 
 func (self *dot) EndStory() {
-	self.out.Println("Errors:")
-
-	for _, e := range self.errors {
+	self.out.Println("")
+	self.showErrors()
+	self.showFailures()
+}
+func (self *dot) showErrors() {
+	for i, e := range self.errors {
+		if i == 0 {
+			self.out.Println("Errors:")
+		}
 		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.stackTrace)
 	}
-
-	self.out.Println("Failures:")
-	for _, f := range self.failures {
+}
+func (self *dot) showFailures() {
+	for i, f := range self.failures {
+		if i == 0 {
+			self.out.Println("Failures:")
+		}
 		self.out.Println(failureTemplate, f.File, f.Line, f.Failure)
 	}
 }
