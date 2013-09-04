@@ -36,21 +36,31 @@ func init() {
 	runner.UpgradeReporter(reporter)
 }
 func buildReporter() reporting.Reporter {
+	var consoleReporter reporting.Reporter
 	console := printing.NewConsole()
 	printer := printing.NewPrinter(console)
+
+	if verbose() {
+		consoleReporter = reporting.NewStoryReporter(printer)
+	} else {
+		consoleReporter = reporting.NewDotReporter(printer)
+	}
+
 	return reporting.NewReporters(
 		reporting.NewGoTestReporter(),
-		consoleReporter(printer),
+		consoleReporter,
 		reporting.NewStatisticsReporter(printer))
 }
-func consoleReporter(printer *printing.Printer) reporting.Reporter {
+func verbose() bool {
 	for _, arg := range os.Args {
-		if arg == "-test.v=true" {
-			return reporting.NewStoryReporter(printer)
+		if arg == verboseEnabled {
+			return true
 		}
 	}
-	return reporting.NewDotReporter(printer)
+	return false
 }
 
 var runner execution.Runner
 var reporter reporting.Reporter
+
+const verboseEnabled = "-test.v=true"

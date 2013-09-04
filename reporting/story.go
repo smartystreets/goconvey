@@ -14,7 +14,7 @@ func (self *story) Enter(title, id string) {
 
 	if _, found := self.titlesById[id]; !found {
 		self.out.Println("")
-		self.out.Print("- " + title)
+		self.out.Print(title)
 		self.out.Insert(" ")
 		self.titlesById[id] = title
 	}

@@ -9,13 +9,13 @@ func (self *dot) Enter(title, id string) {}
 
 func (self *dot) Report(r *Report) {
 	if r.Error != nil {
-		self.out.Insert("E")
+		self.out.Insert(dotError)
 		self.errors = append(self.errors, r)
 	} else if r.Failure != "" {
-		self.out.Insert("X")
+		self.out.Insert(dotFailure)
 		self.failures = append(self.failures, r)
 	} else {
-		self.out.Insert(".")
+		self.out.Insert(dotSuccess)
 	}
 }
 
@@ -29,18 +29,22 @@ func (self *dot) EndStory() {
 func (self *dot) showErrors() {
 	for i, e := range self.errors {
 		if i == 0 {
-			self.out.Println("Errors:")
+			self.out.Println("\nErrors:\n")
+			self.out.Indent()
 		}
 		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.stackTrace)
 	}
+	self.out.Dedent()
 }
 func (self *dot) showFailures() {
 	for i, f := range self.failures {
 		if i == 0 {
-			self.out.Println("Failures:")
+			self.out.Println("\nFailures:\n")
+			self.out.Indent()
 		}
 		self.out.Println(failureTemplate, f.File, f.Line, f.Failure)
 	}
+	self.out.Dedent()
 }
 
 func NewDotReporter(out *printing.Printer) *dot {
