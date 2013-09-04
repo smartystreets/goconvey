@@ -1,4 +1,4 @@
-package something
+package examples
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
@@ -7,7 +7,7 @@ import (
 
 func TestSpec(t *testing.T) {
 	Convey("Subject: Integer incrementation and decrementation", t, func() {
-		x := 0
+		var x int
 
 		Convey("Given a starting integer value", func() {
 			x = 42
