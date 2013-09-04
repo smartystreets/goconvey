@@ -31,14 +31,17 @@ func So(actual interface{}, match expectation, expected ...interface{}) {
 }
 
 func init() {
+	reporter = buildReporter()
+	runner = execution.NewRunner()
+	runner.UpgradeReporter(reporter)
+}
+func buildReporter() reporting.Reporter {
 	console := printing.NewConsole()
 	printer := printing.NewPrinter(console)
-	reporter = reporting.NewReporters(
+	return reporting.NewReporters(
 		reporting.NewGoTestReporter(),
 		consoleReporter(printer),
 		reporting.NewStatisticsReporter(printer))
-	runner = execution.NewRunner()
-	runner.UpgradeReporter(reporter)
 }
 func consoleReporter(printer *printing.Printer) reporting.Reporter {
 	for _, arg := range os.Args {
