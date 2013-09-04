@@ -4,6 +4,7 @@ import (
 	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/printing"
 	"github.com/smartystreets/goconvey/reporting"
+	"os"
 )
 
 func Convey(items ...interface{}) {
@@ -34,10 +35,18 @@ func init() {
 	printer := printing.NewPrinter(console)
 	reporter = reporting.NewReporters(
 		reporting.NewGoTestReporter(),
-		reporting.NewDotReporter(printer), // TODO: or a dot reporter (-v)
+		consoleReporter(printer),
 		reporting.NewStatisticsReporter(printer))
 	runner = execution.NewRunner()
 	runner.UpgradeReporter(reporter)
+}
+func consoleReporter(printer *printing.Printer) reporting.Reporter {
+	for _, arg := range os.Args {
+		if arg == "-test.v=true" {
+			return reporting.NewStoryReporter(printer)
+		}
+	}
+	return reporting.NewDotReporter(printer)
 }
 
 var runner execution.Runner
