@@ -92,9 +92,9 @@ func reportEqual(t *testing.T, expected *reporting.Report, actual *reporting.Rep
 func setupFakeReporter() (*fakeReporter, *fakeGoTest) {
 	reporter := fakeReporter{}
 	reporter.calls = []string{}
-	execution.SpecRunner = execution.NewScopeRunner()
-	execution.SpecRunner.UpgradeReporter(&reporter)
-	execution.SpecReporter = &reporter
+	SpecRunner = execution.NewScopeRunner()
+	SpecRunner.UpgradeReporter(&reporter)
+	SpecReporter = &reporter
 	return &reporter, &fakeGoTest{}
 }
 

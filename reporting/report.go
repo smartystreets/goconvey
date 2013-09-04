@@ -54,9 +54,9 @@ func filterStack(stack string) string {
 	lines := strings.Split(stack, newline)
 	filtered := []string{}
 	for _, line := range lines {
-		if isExternal(line) {
-			filtered = append(filtered, line)
-		}
+		// if isExternal(line) {
+		filtered = append(filtered, line)
+		// }
 	}
 	return strings.Join(filtered, newline)
 }

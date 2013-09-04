@@ -3,7 +3,7 @@ package execution
 import "github.com/smartystreets/goconvey/gotest"
 import "github.com/smartystreets/goconvey/reporting"
 
-func newNilReporter() *nilReporter {
+func NewNilReporter() *nilReporter {
 	self := nilReporter{}
 	return &self
 }

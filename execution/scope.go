@@ -1,6 +1,8 @@
 package execution
 
-import "github.com/smartystreets/goconvey/reporting"
+import (
+	"github.com/smartystreets/goconvey/reporting"
+)
 
 func (parent *scope) adopt(child *scope) {
 	if parent.hasChild(child) {
@@ -63,7 +65,7 @@ func (parent *scope) exit() {
 	parent.reporter.Exit()
 }
 
-func newScope(title string, action func(), reporter Reporter) *scope {
+func newScope(title string, action func(), reporter reporting.Reporter) *scope {
 	self := scope{name: functionName(action), title: title, action: action}
 	self.children = make(map[string]*scope)
 	self.birthOrder = []string{}
@@ -81,5 +83,5 @@ type scope struct {
 	child      int
 	resets     map[uintptr]func()
 	panicked   bool
-	reporter   Reporter
+	reporter   reporting.Reporter
 }

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestExample(t *testing.T) {
+func TestSpec(t *testing.T) {
 	Convey("Subject: Integer incrementation and decrementation", t, func() {
 		x := 0
 
@@ -20,7 +20,7 @@ func TestExample(t *testing.T) {
 					// So(x, ShouldEqual, -1234)
 				})
 				Convey("The value should NOT be what it used to be", func() {
-					So(x, ShouldNotEqual, 42)
+					// So(x, ShouldNotEqual, 42)
 				})
 			})
 			Convey("When decremented", func() {
@@ -32,7 +32,7 @@ func TestExample(t *testing.T) {
 				Convey("The value should NOT be what it used to be", func() {
 					// s := []byte{}[40]
 					// So(s, ShouldEqual, 1234)
-					So(x, ShouldNotEqual, 42)
+					// So(x, ShouldNotEqual, 42)
 				})
 			})
 			Reset(func() {

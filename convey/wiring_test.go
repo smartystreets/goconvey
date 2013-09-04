@@ -1,15 +1,15 @@
 package convey
 
 import (
-	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/gotest"
+	"github.com/smartystreets/goconvey/reporting"
 	"testing"
 )
 
 func TestParseTopLevelRegistration(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
-	execution.SpecRunner = myRunner
+	SpecRunner = myRunner
 	var test gotest.T = &fakeGoTest{}
 	executed := false
 	action := func() {
@@ -38,7 +38,7 @@ func TestParseTopLevelRegistration(t *testing.T) {
 func TestParseRegistrationWithoutIncludingGoTestObject(t *testing.T) {
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
-	execution.SpecRunner = myRunner
+	SpecRunner = myRunner
 	executed := false
 	action := func() {
 		executed = true
@@ -87,7 +87,7 @@ func TestParseRegistration_MissingNameString(t *testing.T) {
 	}()
 
 	myRunner := newFakeRunner()
-	execution.SpecRunner = myRunner
+	SpecRunner = myRunner
 	action := func() {}
 
 	Convey(action)
@@ -106,7 +106,7 @@ func TestParseRegistration_MissingActionFunc(t *testing.T) {
 		}
 	}()
 
-	execution.SpecRunner = myRunner
+	SpecRunner = myRunner
 
 	Convey("Hi there", 12345)
 
@@ -117,7 +117,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesGoTest(t *testing.T)
 	myRunner := newFakeRunner()
 	situation := "Hello, World!"
 	nextSituation := "Goodbye, World!"
-	execution.SpecRunner = myRunner
+	SpecRunner = myRunner
 	var test gotest.T = &fakeGoTest{}
 	executed := 0
 	action := func() {
@@ -168,7 +168,7 @@ func (self *fakeRunner) RegisterReset(action func()) {}
 func (self *fakeRunner) Run() {
 	self.runnerStarted = true
 }
-func (self *fakeRunner) UpgradeReporter(out execution.Reporter) {}
+func (self *fakeRunner) UpgradeReporter(out reporting.Reporter) {}
 
 type fakeGoTest struct{}
 

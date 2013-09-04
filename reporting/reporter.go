@@ -1,12 +1,13 @@
-package execution
+package reporting
 
-import "github.com/smartystreets/goconvey/gotest"
-import "github.com/smartystreets/goconvey/reporting"
+import (
+	"github.com/smartystreets/goconvey/gotest"
+)
 
 type Reporter interface {
 	BeginStory(test gotest.T)
 	Enter(title, id string)
-	Report(r *reporting.Report)
+	Report(r *Report)
 	Exit()
 	EndStory()
 }
@@ -21,7 +22,7 @@ func (self *reporters) Enter(title, id string) {
 		r.Enter(title, id)
 	}
 }
-func (self *reporters) Report(r *reporting.Report) {
+func (self *reporters) Report(r *Report) {
 	for _, x := range self.collection {
 		x.Report(r)
 	}
@@ -41,7 +42,7 @@ type reporters struct {
 	collection []Reporter
 }
 
-func newReporters(collection ...Reporter) *reporters {
+func NewReporters(collection ...Reporter) *reporters {
 	self := reporters{collection}
 	return &self
 }

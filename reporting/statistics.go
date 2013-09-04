@@ -28,14 +28,14 @@ func (self *statistics) Exit() {}
 func (self *statistics) EndStory() {
 	duration := time.Since(self.start)
 
-	message := fmt.Sprintf("Successes: %d", self.successes)
+	message := fmt.Sprintf("\nPassed: %d", self.successes)
 	if self.failures > 0 {
-		message += fmt.Sprintf(" | Failures: %d", self.failures)
+		message += fmt.Sprintf(" | Failed: %d", self.failures)
 	}
 	if self.errors > 0 {
 		message += fmt.Sprintf(" | Errors: %d", self.errors)
 	}
-	message += fmt.Sprintf(" (in %v)", duration)
+	message += fmt.Sprintf(" (in %v)\n", duration)
 	self.out.Println(message)
 }
 

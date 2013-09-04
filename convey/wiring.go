@@ -1,28 +1,54 @@
 package convey
 
-import "github.com/smartystreets/goconvey/execution"
-import "github.com/smartystreets/goconvey/reporting"
+import (
+	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/gotest"
+	"github.com/smartystreets/goconvey/printing"
+	"github.com/smartystreets/goconvey/reporting"
+)
 
 func Convey(items ...interface{}) {
 	name, action, test := parseRegistration(items)
 
 	if test != nil {
-		// TODO: we need to be able to know and expect this branch of the if and panic if they forget to pass in *testing.T
-		execution.SpecRunner.Begin(test, name, action)
-		execution.SpecRunner.Run()
+		SpecRunner.Begin(test, name, action)
+		SpecRunner.Run()
 	} else {
-		execution.SpecRunner.Register(name, action)
+		SpecRunner.Register(name, action)
 	}
 }
 
 func Reset(action func()) {
-	execution.SpecRunner.RegisterReset(action)
+	SpecRunner.RegisterReset(action)
 }
 
 func So(actual interface{}, match expectation, expected ...interface{}) {
 	if result := match(actual, expected...); result == success {
-		execution.SpecReporter.Report(reporting.NewSuccessReport())
+		SpecReporter.Report(reporting.NewSuccessReport())
 	} else {
-		execution.SpecReporter.Report(reporting.NewFailureReport(result))
+		SpecReporter.Report(reporting.NewFailureReport(result))
 	}
+}
+
+// TODO: private...
+var SpecRunner runner
+var SpecReporter reporting.Reporter
+
+func init() {
+	console := printing.NewConsole()
+	printer := printing.NewPrinter(console)
+	SpecReporter = reporting.NewReporters(
+		reporting.NewGoTestReporter(),
+		reporting.NewStoryReporter(printer), // TODO: or a dot reporter (-v)
+		reporting.NewStatisticsReporter(printer))
+	SpecRunner = execution.NewScopeRunner()
+	SpecRunner.UpgradeReporter(SpecReporter)
+}
+
+type runner interface {
+	Begin(test gotest.T, situation string, action func())
+	Register(situation string, action func())
+	RegisterReset(action func())
+	Run()
+	UpgradeReporter(out reporting.Reporter)
 }

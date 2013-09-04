@@ -7,7 +7,6 @@ const needAtLeastOneValue = "This expectation requires at least one comparison v
 const onlyAcceptsOneValue = "This expectation only accepts 1 value to be compared (and %v were provided)."
 const noValuesAccepted = "This expectation does not allow for user-supplied comparison values."
 const shouldHaveBeenEqual = "'%v' should equal '%v' (but it doesn't)!"
-const shouldNotHaveBeenEqual = "'%v' should NOT equal '%v' (but it does)!"
 const shouldHaveBeenNil = "'%v' should have been nil!"
 
 func onlyOne(expected []interface{}) string {
