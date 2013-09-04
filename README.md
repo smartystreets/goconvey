@@ -118,7 +118,7 @@ Here's the listing of assertions that this project aims to implement
 
  1.0  | completed |usage
 :----:|:---------:|-----
-      |           |// Equality
+      |           |__Equality__
 *     |X          |So(thing, ShouldEqual, thing2)
 *     |X          |So(thing, ShouldNotEqual, thing2)
 *     |           |So(thing, ShouldBeLike, thing2)
@@ -129,30 +129,30 @@ Here's the listing of assertions that this project aims to implement
 *     |           |So(thing, ShouldNotBeNil, thing2)
 *     |           |So(thing, ShouldBeTrue)
 *     |           |SO(thing, ShouldBeFalse)
-      |           |// Interfaces
+      |           |__Interfaces__
       |           |So(1, ShouldImplement, Interface)
       |           |So(1, ShouldNotImplement, OtherInterface)
-      |           |// Type checking
+      |           |__Type checking__
       |           |So(1, ShouldBeAn, int)
       |           |So(1, ShouldNotBeAn, int)
       |           |So("1", ShouldBeA, string)
       |           |So("1", ShouldNotBeA, string)
-      |           |// Quantity comparison (Time and Duration might be special cases?)
+      |           |__Quantity comparison__
 *     |           |So(1, ShouldBeGreaterThan, 0)
 *     |           |So(1, Shou|ldBeGreaterThanOrEqualTo, 0)
 *     |           |So(1, ShouldBeLessThan, 2)
 *     |           |So(1, ShouldBeLessThanOrEqualTo, 2)
-      |           |// Tolerences
+      |           |__Tolerences__
 *     |           |So(1.1, ShouldBeWithin, .1, 1)
 *     |           |So(1.1, ShouldNotBeWithin, .1, 2)
-      |           |// Collections
+      |           |__Collections__
 *     |           |So([]int{}, ShouldBeEmpty)
 *     |           |So([]int{1}, ShouldNotBeEmpty)
 *     |           |So([]int{1, 2, 3}, ShouldContain, 1, 2)
 *     |           |So([]int{1, 2, 3}, ShouldNotContain, 4, 5)
       |           |So(1, ShouldBeIn, []int{1, 2, 3})
       |           |So(4, ShouldNotBeIn, []int{1, 2, 3})
-      |           |// Strings
+      |           |__Strings__
 *     |           |So(|"asdf", ShouldStartWith, "as")
 *     |           |So("asdf", ShouldNotStartWith, "df")
 *     |           |So("asdf", ShouldEndWith, "df")
