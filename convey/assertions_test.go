@@ -21,10 +21,11 @@ func TestShouldEqual(t *testing.T) {
 	pass(t, so("hi", ShouldEqual, "hi"))
 	fail(t, so("hi", ShouldEqual, "bye"), "'hi' should equal 'bye' (but it doesn't)!")
 
-	pass(t, so(thing1{}, ShouldEqual, thing1{}))
-	fail(t, so(&thing1{"hi"}, ShouldEqual, &thing1{"hi"}), "'&{hi}' should equal '&{hi}' (but it doesn't)!")
+	pass(t, so(Thing1{}, ShouldEqual, Thing1{}))
+	pass(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}))
+	fail(t, so(&Thing1{"hi"}, ShouldEqual, &Thing1{"hi"}), "'&{hi}' should equal '&{hi}' (but it doesn't)!")
 
-	fail(t, so(thing1{}, ShouldEqual, thing2{}), "'{}' should equal '{}' (but it doesn't)!")
+	fail(t, so(Thing1{}, ShouldEqual, Thing2{}), "'{}' should equal '{}' (but it doesn't)!")
 }
 
 func TestShouldNotEqual(t *testing.T) {
@@ -41,10 +42,11 @@ func TestShouldNotEqual(t *testing.T) {
 	pass(t, so("hi", ShouldNotEqual, "bye"))
 	fail(t, so("hi", ShouldNotEqual, "hi"), "'hi' should NOT equal 'hi' (but it does)!")
 
-	pass(t, so(&thing1{"hi"}, ShouldNotEqual, &thing1{"hi"}))
-	fail(t, so(thing1{}, ShouldNotEqual, thing1{}), "'{}' should NOT equal '{}' (but it does)!")
+	pass(t, so(&Thing1{"hi"}, ShouldNotEqual, &Thing1{"hi"}))
+	fail(t, so(Thing1{"hi"}, ShouldNotEqual, Thing1{"hi"}), "'{hi}' should NOT equal '{hi}' (but it does)!")
+	fail(t, so(Thing1{}, ShouldNotEqual, Thing1{}), "'{}' should NOT equal '{}' (but it does)!")
 
-	pass(t, so(thing1{}, ShouldNotEqual, thing2{}))
+	pass(t, so(Thing1{}, ShouldNotEqual, Thing2{}))
 }
 
 func TestShouldBeNil(t *testing.T) {
@@ -52,7 +54,25 @@ func TestShouldBeNil(t *testing.T) {
 	fail(t, so(nil, ShouldBeNil, nil), "This expectation does not allow for user-supplied comparison values.")
 
 	pass(t, so(nil, ShouldBeNil))
-	fail(t, so(1, ShouldBeNil), "'1' should have been nil!")
+	fail(t, so(1, ShouldBeNil), "'1' should have been nil (but it wasn't)!")
+
+	var thing Thinger
+	pass(t, so(thing, ShouldBeNil))
+	thing = &Thing{}
+	fail(t, so(thing, ShouldBeNil), "'&{}' should have been nil (but it wasn't)!")
+}
+
+func TestShouldNotBeNil(t *testing.T) {
+	fail(t, so(nil, ShouldNotBeNil, nil, nil, nil), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(nil, ShouldNotBeNil, nil), "This expectation does not allow for user-supplied comparison values.")
+
+	fail(t, so(nil, ShouldNotBeNil), "'<nil>' should NOT have been nil (but it was)!")
+	pass(t, so(1, ShouldNotBeNil))
+
+	var thing Thinger
+	fail(t, so(thing, ShouldNotBeNil), "'<nil>' should NOT have been nil (but it was)!")
+	thing = &Thing{}
+	pass(t, so(thing, ShouldNotBeNil))
 }
 
 func pass(t *testing.T, result string) {
@@ -78,9 +98,17 @@ func so(actual interface{}, assert assertion, expected ...interface{}) string {
 	return assert(actual, expected...)
 }
 
-type thing1 struct {
+type Thing1 struct {
 	a string
 }
-type thing2 struct {
+type Thing2 struct {
 	a string
 }
+
+type Thinger interface {
+	Hi()
+}
+
+type Thing struct{}
+
+func (self *Thing) Hi() {}

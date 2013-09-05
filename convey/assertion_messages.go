@@ -8,7 +8,8 @@ const onlyAcceptsOneValue = "This expectation only accepts 1 value to be compare
 const noValuesAccepted = "This expectation does not allow for user-supplied comparison values."
 const shouldHaveBeenEqual = "'%v' should equal '%v' (but it doesn't)!"
 const shouldNotHaveBeenEqual = "'%v' should NOT equal '%v' (but it does)!"
-const shouldHaveBeenNil = "'%v' should have been nil!"
+const shouldHaveBeenNil = "'%v' should have been nil (but it wasn't)!"
+const shouldNotHaveBeenNil = "'%v' should NOT have been nil (but it was)!"
 
 func onlyOne(expected []interface{}) string {
 	switch {

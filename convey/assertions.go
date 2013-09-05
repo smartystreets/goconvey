@@ -40,3 +40,13 @@ func ShouldBeNil(actual interface{}, expected ...interface{}) string {
 	}
 	return success
 }
+
+// ShouldNotBeNil receives a single parameter and ensures it is not nil.
+func ShouldNotBeNil(actual interface{}, expected ...interface{}) string {
+	if fail := none(expected); fail != "" {
+		return fail
+	} else if actual == nil {
+		return fmt.Sprintf(shouldNotHaveBeenNil, actual)
+	}
+	return success
+}

@@ -126,7 +126,7 @@ Here's the listing of assertions that this project aims to implement
       |           |So(thing, ShouldPointTo, thing2)
       |           |So(thing, ShouldNotPointTo, thing2)
 *     |X          |So(thing, ShouldBeNil, thing2)
-*     |           |So(thing, ShouldNotBeNil, thing2)
+*     |X          |So(thing, ShouldNotBeNil, thing2)
 *     |           |So(thing, ShouldBeTrue)
 *     |           |SO(thing, ShouldBeFalse)
       |           |__Interfaces__
