@@ -2,10 +2,10 @@ GoConvey - BDD in Go - by SmartyStreets, LLC
 ============================================
 
 Welcome to GoConvey, a yummy BDD tool for gophers. You'll soon be enjoying the benefits of
-this robust, descriptive and fun-to-use tool. Among those benefits are the following:
+this robust, descriptive and fun-to-use bit of code. Among those benefits are the following:
 
 - An ever-growing suite of regression tests
-- Tests which are formatted to the console as a readable specification, accessible to any manager (IT or not).
+- Tests which are formatted to the console as a readable specification, understandable by any manager (IT or not).
 - Integration with the already excellent `go test` tool
 - Constant updates on the working state of your application via the bundled `idle.py` script (more below).
 
@@ -13,7 +13,7 @@ this robust, descriptive and fun-to-use tool. Among those benefits are the follo
 Installation:
 -------------
 
-	(assuming you have set your $GOPATH environment variable) (*link*)
+Assuming you have set your $GOPATH environment variable:
 	
 	$ go get github.com/smartystreets/goconvey
 
@@ -139,7 +139,7 @@ Here's the listing of assertions that this project aims to implement
       |           |So("1", ShouldNotBeA, string)
       |           |__Quantity comparison__
 *     |           |So(1, ShouldBeGreaterThan, 0)
-*     |           |So(1, Shou|ldBeGreaterThanOrEqualTo, 0)
+*     |           |So(1, ShouldBeGreaterThanOrEqualTo, 0)
 *     |           |So(1, ShouldBeLessThan, 2)
 *     |           |So(1, ShouldBeLessThanOrEqualTo, 2)
       |           |__Tolerences__
@@ -153,7 +153,7 @@ Here's the listing of assertions that this project aims to implement
       |           |So(1, ShouldBeIn, []int{1, 2, 3})
       |           |So(4, ShouldNotBeIn, []int{1, 2, 3})
       |           |__Strings__
-*     |           |So(|"asdf", ShouldStartWith, "as")
+*     |           |So("asdf", ShouldStartWith, "as")
 *     |           |So("asdf", ShouldNotStartWith, "df")
 *     |           |So("asdf", ShouldEndWith, "df")
 *     |           |So("asdf", ShouldNotEndWith, "df")
@@ -161,20 +161,34 @@ Here's the listing of assertions that this project aims to implement
       |           |So("(asdf)", ShouldNotBeSurroundedWith, "[]")
 
 
+Writing your own assertions:
+----------------------------
 
-RoadMap:
---------
+Sometimes a test suite will might need an assertion that is too
+specific to be included in this tool. Not to worry, simply implement
+a function with the following signature (fill in the bracketed parts
+and string values):
 
-Still in development:
+    func Should<do-something>(actual interface, expected ...interface{}) string {
+        if <some-important-condition-is-met(actual, expected)> {
+            return "" // empty string means the assertion passed
+        } else {
+            return "some descriptive message detailing why the assertion failed..."
+        }
+    }
 
-	- Randomized execution of stories (including resets)
-	- Full suite of 'Should' assertions
+Suppose I implemented the following assertion:
 
+    func ShouldScareGophersMoreThan(actual interface, expected ...interface{}) string {
+        if actual == "BOO!" && expected[0] == "boo" {
+            return ""
+        } else {
+            return "Ha! You'll have to get a lot friendlier with the capslock if you want to scare a gopher!"
+        }
+    }
 
-Would be awesome:
+I can then make use of the assertion function when calling the `So(...)` method in the tests:
 
-	- Auto-reloading local http endpoint:
-		- Output Story presentation to HTML file (https://github.com/russross/blackfriday)
-		- Create http endpoint that serves the html output
-		- make http endpoint poll for updates reload report (collapse all but failed and erred stuff)
-		- clicking on filename/line-number in web report shows that file as a web page w/ problem line highlighted
+    Convey("All caps always makes text more meaningful", func() {
+      So("BOO!", ShouldScareGophersMoreThan, "boo")
+    })
