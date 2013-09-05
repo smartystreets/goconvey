@@ -190,5 +190,5 @@ Suppose I implemented the following assertion:
 I can then make use of the assertion function when calling the `So(...)` method in the tests:
 
     Convey("All caps always makes text more meaningful", func() {
-      So("BOO!", ShouldScareGophersMoreThan, "boo")
+        So("BOO!", ShouldScareGophersMoreThan, "boo")
     })
