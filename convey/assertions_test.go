@@ -75,6 +75,24 @@ func TestShouldNotBeNil(t *testing.T) {
 	pass(t, so(thing, ShouldNotBeNil))
 }
 
+func TestShouldBeTrue(t *testing.T) {
+	fail(t, so(true, ShouldBeTrue, 1, 2, 3), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(true, ShouldBeTrue, 1), "This expectation does not allow for user-supplied comparison values.")
+
+	fail(t, so(false, ShouldBeTrue), "Should have been 'true', not 'false'.")
+	fail(t, so(1, ShouldBeTrue), "Should have been 'true', not '1'.")
+	pass(t, so(true, ShouldBeTrue))
+}
+
+func TestShouldBeFalse(t *testing.T) {
+	fail(t, so(false, ShouldBeFalse, 1, 2, 3), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(false, ShouldBeFalse, 1), "This expectation does not allow for user-supplied comparison values.")
+
+	fail(t, so(true, ShouldBeFalse), "Should have been 'false', not 'true'.")
+	fail(t, so(1, ShouldBeFalse), "Should have been 'false', not '1'.")
+	pass(t, so(false, ShouldBeFalse))
+}
+
 func pass(t *testing.T, result string) {
 	const PASS = success
 	if result != PASS {
