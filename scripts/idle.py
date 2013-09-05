@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""
+This script scans the current working directory for changes to .go files and runs 
+`go test` in each folder where *_test.go files are found. It does this indefinitely 
+or until a KeyboardInterrupt is raised (<Ctrl+c>). This script passes the verbosity 
+command line argument (-v) to `go test`.
+"""
+
 import os
 import subprocess
 import sys

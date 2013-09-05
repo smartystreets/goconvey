@@ -74,8 +74,8 @@ func fail(t *testing.T, actual string, expected string) {
 	}
 }
 
-func so(actual interface{}, match expectation, expected ...interface{}) string {
-	return match(actual, expected...)
+func so(actual interface{}, assert assertion, expected ...interface{}) string {
+	return assert(actual, expected...)
 }
 
 type thing1 struct {
