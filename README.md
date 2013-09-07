@@ -127,16 +127,11 @@ Here's the listing of assertions that this project aims to implement
       |           |So(thing, ShouldNotPointTo, thing2)
 *     |X          |So(thing, ShouldBeNil, thing2)
 *     |X          |So(thing, ShouldNotBeNil, thing2)
-*     |           |So(thing, ShouldBeTrue)
-*     |           |SO(thing, ShouldBeFalse)
-      |           |__Interfaces__
-      |           |So(1, ShouldImplement, Interface)
-      |           |So(1, ShouldNotImplement, OtherInterface)
+*     |X          |So(thing, ShouldBeTrue)
+*     |X          |SO(thing, ShouldBeFalse)
       |           |__Type checking__
-      |           |So(1, ShouldBeAn, int)
-      |           |So(1, ShouldNotBeAn, int)
-      |           |So("1", ShouldBeA, string)
-      |           |So("1", ShouldNotBeA, string)
+      |           |So(1, ShouldBeA, reflect.TypeOf(0))
+      |           |So(1, ShouldNotBeA, reflect.TypeOf(0))
       |           |__Quantity comparison__
 *     |           |So(1, ShouldBeGreaterThan, 0)
 *     |           |So(1, ShouldBeGreaterThanOrEqualTo, 0)
@@ -146,19 +141,18 @@ Here's the listing of assertions that this project aims to implement
 *     |           |So(1.1, ShouldBeWithin, .1, 1)
 *     |           |So(1.1, ShouldNotBeWithin, .1, 2)
       |           |__Collections__
-*     |           |So([]int{}, ShouldBeEmpty)
-*     |           |So([]int{1}, ShouldNotBeEmpty)
-*     |           |So([]int{1, 2, 3}, ShouldContain, 1, 2)
-*     |           |So([]int{1, 2, 3}, ShouldNotContain, 4, 5)
-      |           |So(1, ShouldBeIn, []int{1, 2, 3})
-      |           |So(4, ShouldNotBeIn, []int{1, 2, 3})
+*     |           |So([]int{2, 4, 6}, ShouldContain, 4)
+*     |           |So([]int{2, 4, 6}, ShouldNotContain, 5)
+      |           |So(4, ShouldBeIn, ...[]int{2, 4, 6})
+      |           |So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
       |           |__Strings__
 *     |           |So("asdf", ShouldStartWith, "as")
 *     |           |So("asdf", ShouldNotStartWith, "df")
 *     |           |So("asdf", ShouldEndWith, "df")
 *     |           |So("asdf", ShouldNotEndWith, "df")
-      |           |So("(asdf)", ShouldBeSurroundedWith, "()")
-      |           |So("(asdf)", ShouldNotBeSurroundedWith, "[]")
+*     |           |So("asdf", ShouldContain, "sd")
+      |           |So("(asdf)", ShouldBeSurroundedWith, "(", ")")
+      |           |So("(asdf)", ShouldNotBeSurroundedWith, "[", "]")
 
 
 Writing your own assertions:
@@ -169,7 +163,7 @@ specific to be included in this tool. Not to worry, simply implement
 a function with the following signature (fill in the bracketed parts
 and string values):
 
-    func Should<do-something>(actual interface, expected ...interface{}) string {
+    func should<do-something>(actual interface, expected ...interface{}) string {
         if <some-important-condition-is-met(actual, expected)> {
             return "" // empty string means the assertion passed
         } else {
@@ -179,7 +173,7 @@ and string values):
 
 Suppose I implemented the following assertion:
 
-    func ShouldScareGophersMoreThan(actual interface, expected ...interface{}) string {
+    func shouldScareGophersMoreThan(actual interface, expected ...interface{}) string {
         if actual == "BOO!" && expected[0] == "boo" {
             return ""
         } else {
@@ -190,5 +184,5 @@ Suppose I implemented the following assertion:
 I can then make use of the assertion function when calling the `So(...)` method in the tests:
 
     Convey("All caps always makes text more meaningful", func() {
-        So("BOO!", ShouldScareGophersMoreThan, "boo")
+        So("BOO!", shouldScareGophersMoreThan, "boo")
     })
