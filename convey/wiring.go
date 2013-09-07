@@ -72,6 +72,7 @@ func buildReporter() reporting.Reporter {
 	return reporting.NewReporters(
 		reporting.NewGoTestReporter(),
 		consoleReporter,
+		reporting.NewProblemReporter(printer),
 		reporting.NewStatisticsReporter(printer))
 }
 func verbose() bool {

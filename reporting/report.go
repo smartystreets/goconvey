@@ -74,11 +74,20 @@ func isExternal(line string) bool {
 }
 
 const newline = "\n"
-const success = "✓"
-const failure = "✗"
-const error_ = "🔥"
-const dotSuccess = "."
-const dotFailure = "x"
-const dotError = "E"
-const errorTemplate = "* %s \n* Line: %d - %v \n%s"
-const failureTemplate = "* %s \n* Line %d: %s"
+
+const (
+	greenColor = "\033[32m"
+	redColor   = "\033[31m"
+	resetColor = "\033[0m"
+)
+
+const (
+	success         = "✓"
+	failure         = "✗"
+	error_          = "🔥"
+	dotSuccess      = "."
+	dotFailure      = "x"
+	dotError        = "E"
+	errorTemplate   = "* %s \n* Line %d: - %v \n%s"
+	failureTemplate = "* %s \n* Line %d: %s"
+)
