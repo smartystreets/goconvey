@@ -1,8 +1,6 @@
 package convey
 
 import (
-	_ "fmt"
-	_ "reflect"
 	"runtime"
 	"testing"
 )
@@ -21,8 +19,13 @@ func TestShouldEqual(t *testing.T) {
 	pass(t, so("hi", ShouldEqual, "hi"))
 	fail(t, so("hi", ShouldEqual, "bye"), "'hi' should equal 'bye' (but it doesn't)!")
 
-	pass(t, so(Thing1{}, ShouldEqual, Thing1{}))
-	pass(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}))
+	var a int = 42
+	var b uint = 42
+
+	pass(t, so(a, ShouldEqual, b))
+
+	fail(t, so(Thing1{}, ShouldEqual, Thing1{}), "'{}' should equal '{}' (but it doesn't)!")
+	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}), "'{hi}' should equal '{hi}' (but it doesn't)!")
 	fail(t, so(&Thing1{"hi"}, ShouldEqual, &Thing1{"hi"}), "'&{hi}' should equal '&{hi}' (but it doesn't)!")
 
 	fail(t, so(Thing1{}, ShouldEqual, Thing2{}), "'{}' should equal '{}' (but it doesn't)!")
@@ -60,6 +63,9 @@ func TestShouldBeNil(t *testing.T) {
 	pass(t, so(thing, ShouldBeNil))
 	thing = &Thing{}
 	fail(t, so(thing, ShouldBeNil), "'&{}' should have been nil (but it wasn't)!")
+
+	var thingOne *Thing1
+	pass(t, so(thingOne, ShouldBeNil))
 }
 
 func TestShouldNotBeNil(t *testing.T) {

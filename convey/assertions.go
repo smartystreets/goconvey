@@ -2,7 +2,11 @@ package convey
 
 import (
 	"fmt"
-	_ "reflect"
+	"reflect"
+)
+
+import (
+	"github.com/jacobsa/oglematchers"
 )
 
 // assertion is an alias for a function with a signature that the convey.So()
@@ -12,13 +16,25 @@ import (
 type assertion func(actual interface{}, expected ...interface{}) string
 
 // ShouldEqual receives exactly two parameters and does a simple equality (==) check.
-func ShouldEqual(actual interface{}, expected ...interface{}) string {
-	if fail := onlyOne(expected); fail != "" {
-		return fail
-	} else if actual != expected[0] {
-		return fmt.Sprintf(shouldHaveBeenEqual, actual, expected[0])
+func ShouldEqual(actual interface{}, expected ...interface{}) (message string) {
+	if message = onlyOne(expected); message != "" {
+		return
 	}
-	return success
+
+	defer func() {
+		if r := recover(); r != nil {
+			message = fmt.Sprintf(shouldHaveBeenEqual, actual, expected[0])
+		}
+	}()
+
+	matcher := oglematchers.Equals(expected[0])
+	matchError := matcher.Matches(actual)
+	if matchError != nil {
+		message = fmt.Sprintf(shouldHaveBeenEqual, actual, expected[0])
+		return
+	}
+
+	return
 }
 
 // ShouldNotEqual receives exactly two parameters and does a simple inequality (!=) check.
@@ -35,10 +51,16 @@ func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 func ShouldBeNil(actual interface{}, expected ...interface{}) string {
 	if fail := none(expected); fail != "" {
 		return fail
-	} else if actual != nil {
-		return fmt.Sprintf(shouldHaveBeenNil, actual)
+	} else if actual == nil {
+		return success
+	} else if interfaceIsNilPointer(actual) {
+		return success
 	}
-	return success
+	return fmt.Sprintf(shouldHaveBeenNil, actual)
+}
+func interfaceIsNilPointer(actual interface{}) bool {
+	value := reflect.ValueOf(actual)
+	return value.Kind() == reflect.Ptr && value.Pointer() == 0
 }
 
 // ShouldNotBeNil receives a single parameter and ensures it is not nil.
