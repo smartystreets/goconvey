@@ -88,6 +88,6 @@ const (
 	dotSuccess      = "."
 	dotFailure      = "x"
 	dotError        = "E"
-	errorTemplate   = "* %s \n* Line %d: - %v \n%s"
-	failureTemplate = "* %s \n* Line %d: %s"
+	errorTemplate   = "* %s \n  Line %d: - %v \n%s\n"
+	failureTemplate = "* %s \n  Line %d: %s\n"
 )
