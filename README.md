@@ -153,6 +153,8 @@ Here's the listing of assertions that this project aims to implement
            |So("asdf", ShouldContain, "sd")
            |So("(asdf)", ShouldBeSurroundedWith, "(", ")")
            |So("(asdf)", ShouldNotBeSurroundedWith, "[", "]")
+           |__panics__
+           |So(func(), ShouldPanicWith, "") // or errors.New("something")
 
 
 Writing your own assertions:
