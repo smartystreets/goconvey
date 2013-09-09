@@ -7,7 +7,7 @@ import (
 )
 
 import (
-	"github.com/jacobsa/oglematchers"
+	"github.com/smartystreets/oglematchers"
 )
 
 // assertion is an alias for a function with a signature that the convey.So()
