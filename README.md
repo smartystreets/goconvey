@@ -116,43 +116,43 @@ Here's the listing of assertions that this project aims to implement
 (see the examples folder for actual usage):
 
 
- 1.0  | completed |usage
-:----:|:---------:|-----
-      |           |__Equality__
-*     |X          |So(thing, ShouldEqual, thing2)
-*     |X          |So(thing, ShouldNotEqual, thing2)
-*     |           |So(thing, ShouldBeLike, thing2)
-*     |           |So(thing, ShouldNotBeLike, thing2)
-      |           |So(thing, ShouldPointTo, thing2)
-      |           |So(thing, ShouldNotPointTo, thing2)
-*     |X          |So(thing, ShouldBeNil, thing2)
-*     |X          |So(thing, ShouldNotBeNil, thing2)
-*     |X          |So(thing, ShouldBeTrue)
-*     |X          |SO(thing, ShouldBeFalse)
-      |           |__Type checking__
-      |           |So(1, ShouldBeA, reflect.TypeOf(0))
-      |           |So(1, ShouldNotBeA, reflect.TypeOf(0))
-      |           |__Quantity comparison__
-*     |           |So(1, ShouldBeGreaterThan, 0)
-*     |           |So(1, ShouldBeGreaterThanOrEqualTo, 0)
-*     |           |So(1, ShouldBeLessThan, 2)
-*     |           |So(1, ShouldBeLessThanOrEqualTo, 2)
-      |           |__Tolerences__
-*     |           |So(1.1, ShouldBeWithin, .1, 1)
-*     |           |So(1.1, ShouldNotBeWithin, .1, 2)
-      |           |__Collections__
-*     |           |So([]int{2, 4, 6}, ShouldContain, 4)
-*     |           |So([]int{2, 4, 6}, ShouldNotContain, 5)
-      |           |So(4, ShouldBeIn, ...[]int{2, 4, 6})
-      |           |So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
-      |           |__Strings__
-*     |           |So("asdf", ShouldStartWith, "as")
-*     |           |So("asdf", ShouldNotStartWith, "df")
-*     |           |So("asdf", ShouldEndWith, "df")
-*     |           |So("asdf", ShouldNotEndWith, "df")
-*     |           |So("asdf", ShouldContain, "sd")
-      |           |So("(asdf)", ShouldBeSurroundedWith, "(", ")")
-      |           |So("(asdf)", ShouldNotBeSurroundedWith, "[", "]")
+ completed |usage
+:---------:|-------------------------------------------------------------
+           |__Equality__
+     X     |So(thing, ShouldEqual, thing2)
+     X     |So(thing, ShouldNotEqual, thing2)
+     X     |So(thing, ShouldResemble, thing2)
+     X     |So(thing, ShouldNotResemble, thing2)
+           |So(thing, ShouldPointTo, thing2)
+           |So(thing, ShouldNotPointTo, thing2)
+     X     |So(thing, ShouldBeNil, thing2)
+     X     |So(thing, ShouldNotBeNil, thing2)
+     X     |So(thing, ShouldBeTrue)
+     X     |So(thing, ShouldBeFalse)
+           |__Type checking__
+           |So(1, ShouldBeA, reflect.TypeOf(0))
+           |So(1, ShouldNotBeA, reflect.TypeOf(0))
+           |__Quantity comparison__
+           |So(1, ShouldBeGreaterThan, 0)
+           |So(1, ShouldBeGreaterThanOrEqualTo, 0)
+           |So(1, ShouldBeLessThan, 2)
+           |So(1, ShouldBeLessThanOrEqualTo, 2)
+           |__Tolerences__
+           |So(1.1, ShouldBeWithin, .1, 1)
+           |So(1.1, ShouldNotBeWithin, .1, 2)
+           |__Collections__
+           |So([]int{2, 4, 6}, ShouldContain, 4)
+           |So([]int{2, 4, 6}, ShouldNotContain, 5)
+           |So(4, ShouldBeIn, ...[]int{2, 4, 6})
+           |So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
+           |__Strings__
+           |So("asdf", ShouldStartWith, "as")
+           |So("asdf", ShouldNotStartWith, "df")
+           |So("asdf", ShouldEndWith, "df")
+           |So("asdf", ShouldNotEndWith, "df")
+           |So("asdf", ShouldContain, "sd")
+           |So("(asdf)", ShouldBeSurroundedWith, "(", ")")
+           |So("(asdf)", ShouldNotBeSurroundedWith, "[", "]")
 
 
 Writing your own assertions:

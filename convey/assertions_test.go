@@ -6,7 +6,7 @@ import (
 )
 
 func TestShouldEqual(t *testing.T) {
-	fail(t, so(1, ShouldEqual), "This expectation requires at least one comparison value (none provided).")
+	fail(t, so(1, ShouldEqual), "This expectation requires exactly one comparison value (none provided).")
 	fail(t, so(1, ShouldEqual, 1, 2), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 	fail(t, so(1, ShouldEqual, 1, 2, 3), "This expectation only accepts 1 value to be compared (and 3 were provided).")
 
@@ -19,10 +19,7 @@ func TestShouldEqual(t *testing.T) {
 	pass(t, so("hi", ShouldEqual, "hi"))
 	fail(t, so("hi", ShouldEqual, "bye"), "'hi' should equal 'bye' (but it doesn't)!")
 
-	var a int = 42
-	var b uint = 42
-
-	pass(t, so(a, ShouldEqual, b))
+	pass(t, so(42, ShouldEqual, uint(42)))
 
 	fail(t, so(Thing1{}, ShouldEqual, Thing1{}), "'{}' should equal '{}' (but it doesn't)!")
 	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}), "'{hi}' should equal '{hi}' (but it doesn't)!")
@@ -32,7 +29,7 @@ func TestShouldEqual(t *testing.T) {
 }
 
 func TestShouldNotEqual(t *testing.T) {
-	fail(t, so(1, ShouldNotEqual), "This expectation requires at least one comparison value (none provided).")
+	fail(t, so(1, ShouldNotEqual), "This expectation requires exactly one comparison value (none provided).")
 	fail(t, so(1, ShouldNotEqual, 1, 2), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 	fail(t, so(1, ShouldNotEqual, 1, 2, 3), "This expectation only accepts 1 value to be compared (and 3 were provided).")
 
@@ -46,10 +43,25 @@ func TestShouldNotEqual(t *testing.T) {
 	fail(t, so("hi", ShouldNotEqual, "hi"), "'hi' should NOT equal 'hi' (but it does)!")
 
 	pass(t, so(&Thing1{"hi"}, ShouldNotEqual, &Thing1{"hi"}))
-	fail(t, so(Thing1{"hi"}, ShouldNotEqual, Thing1{"hi"}), "'{hi}' should NOT equal '{hi}' (but it does)!")
-	fail(t, so(Thing1{}, ShouldNotEqual, Thing1{}), "'{}' should NOT equal '{}' (but it does)!")
-
+	pass(t, so(Thing1{"hi"}, ShouldNotEqual, Thing1{"hi"}))
+	pass(t, so(Thing1{}, ShouldNotEqual, Thing1{}))
 	pass(t, so(Thing1{}, ShouldNotEqual, Thing2{}))
+}
+
+func TestShouldResemble(t *testing.T) {
+	fail(t, so(Thing1{"hi"}, ShouldResemble), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	
+	pass(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}))
+	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "'{hi}' should resemble '{bye}' (but it doesn't)!")
+}
+
+func TestShouldNotResemble(t *testing.T) {
+	fail(t, so(Thing1{"hi"}, ShouldNotResemble), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}, Thing1{"hi"}), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+
+	pass(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"bye"}))
+	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}), "'{hi}' should NOT resemble '{hi}' (but it does)!")
 }
 
 func TestShouldBeNil(t *testing.T) {
@@ -85,8 +97,8 @@ func TestShouldBeTrue(t *testing.T) {
 	fail(t, so(true, ShouldBeTrue, 1, 2, 3), "This expectation does not allow for user-supplied comparison values.")
 	fail(t, so(true, ShouldBeTrue, 1), "This expectation does not allow for user-supplied comparison values.")
 
-	fail(t, so(false, ShouldBeTrue), "Should have been 'true', not 'false'.")
-	fail(t, so(1, ShouldBeTrue), "Should have been 'true', not '1'.")
+	fail(t, so(false, ShouldBeTrue), "Should have been 'true', not 'false'!")
+	fail(t, so(1, ShouldBeTrue), "Should have been 'true', not '1'!")
 	pass(t, so(true, ShouldBeTrue))
 }
 
@@ -94,14 +106,13 @@ func TestShouldBeFalse(t *testing.T) {
 	fail(t, so(false, ShouldBeFalse, 1, 2, 3), "This expectation does not allow for user-supplied comparison values.")
 	fail(t, so(false, ShouldBeFalse, 1), "This expectation does not allow for user-supplied comparison values.")
 
-	fail(t, so(true, ShouldBeFalse), "Should have been 'false', not 'true'.")
-	fail(t, so(1, ShouldBeFalse), "Should have been 'false', not '1'.")
+	fail(t, so(true, ShouldBeFalse), "Should have been 'false', not 'true'!")
+	fail(t, so(1, ShouldBeFalse), "Should have been 'false', not '1'!")
 	pass(t, so(false, ShouldBeFalse))
 }
 
 func pass(t *testing.T, result string) {
-	const PASS = success
-	if result != PASS {
+	if result != success {
 		_, _, line, _ := runtime.Caller(1)
 		t.Errorf("Expectation should have passed but failed (see line %d): '%s'", line, result)
 	}
