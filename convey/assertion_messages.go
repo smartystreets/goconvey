@@ -25,7 +25,7 @@ const ( // equality
 )
 
 const ( // quantity comparisons
-	shouldHaveBeenGreater        = "Expected '%v' to ge greater than '%v' (but it wasn't)!"
+	shouldHaveBeenGreater        = "Expected '%v' to be greater than '%v' (but it wasn't)!"
 	shouldHaveBeenGreaterOrEqual = "Expected '%v' to be greater than or equal to '%v' (but it wasn't)!"
 	shouldHaveBeenLess           = "Expected '%v' to be less than '%v' (but it wasn't)!"
 	shouldHaveBeenLessOrEqual    = "Expected '%v' to be less than or equal to '%v' (but it wasn't)!"

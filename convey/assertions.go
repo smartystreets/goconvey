@@ -17,25 +17,24 @@ import (
 type assertion func(actual interface{}, expected ...interface{}) string
 
 // ShouldEqual receives exactly two parameters and does a simple equality (==) check.
-func ShouldEqual(actual interface{}, expected ...interface{}) (message string) {
-	if message = onlyOne(expected); message != success {
-		return
+func ShouldEqual(actual interface{}, expected ...interface{}) string {
+	if message := onlyOne(expected); message != success {
+		return message
 	}
-
+	return shouldEqual(actual, expected[0])
+}
+func shouldEqual(actual, expected interface{}) (message string) {
 	defer func() {
 		if r := recover(); r != nil {
-			message = fmt.Sprintf(shouldHaveBeenEqual, actual, expected[0])
+			message = fmt.Sprintf(shouldHaveBeenEqual, actual, expected)
 		}
 	}()
 
-	matcher := oglematchers.Equals(expected[0])
-	matchError := matcher.Matches(actual)
-	if matchError != nil {
-		message = fmt.Sprintf(shouldHaveBeenEqual, actual, expected[0])
-		return
+	if matchError := oglematchers.Equals(expected).Matches(actual); matchError != nil {
+		return fmt.Sprintf(shouldHaveBeenEqual, actual, expected)
 	}
 
-	return
+	return success
 }
 
 // ShouldNotEqual receives exactly two parameters and does a simple inequality (!=) check.
@@ -157,6 +156,26 @@ func ShouldBeFalse(actual interface{}, expected ...interface{}) string {
 		return fail
 	} else if actual != false {
 		return fmt.Sprintf(shouldHaveBeenFalse, actual)
+	}
+	return success
+}
+
+// ShouldBeGreaterThan receives exactly two parameters and ensures that the first is greater than the second.
+func ShouldBeGreaterThan(actual interface{}, expected ...interface{}) string {
+	if fail := onlyOne(expected); fail != success {
+		return fail
+	} else if matchError := oglematchers.GreaterThan(expected[0]).Matches(actual); matchError != nil {
+		return fmt.Sprintf(shouldHaveBeenGreater, actual, expected[0])
+	}
+	return success
+}
+
+// ShouldBeGreaterThanOrEqualTo receives exactly two parameters and ensures that the first is greater than or equal to the second.
+func ShouldBeGreaterThanOrEqualTo(actual interface{}, expected ...interface{}) string {
+	if fail := onlyOne(expected); fail != success {
+		return fail
+	} else if matchError := oglematchers.GreaterOrEqual(expected[0]).Matches(actual); matchError != nil {
+		return fmt.Sprintf(shouldHaveBeenGreaterOrEqual, actual, expected[0])
 	}
 	return success
 }

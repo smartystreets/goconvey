@@ -8,7 +8,7 @@ import (
 )
 
 func TestShouldEqual(t *testing.T) {
-	fail(t, so(1, ShouldEqual), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(1, ShouldEqual), needOneValue)
 	fail(t, so(1, ShouldEqual, 1, 2), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 	fail(t, so(1, ShouldEqual, 1, 2, 3), "This expectation only accepts 1 value to be compared (and 3 were provided).")
 
@@ -31,7 +31,7 @@ func TestShouldEqual(t *testing.T) {
 }
 
 func TestShouldNotEqual(t *testing.T) {
-	fail(t, so(1, ShouldNotEqual), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(1, ShouldNotEqual), needOneValue)
 	fail(t, so(1, ShouldNotEqual, 1, 2), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 	fail(t, so(1, ShouldNotEqual, 1, 2, 3), "This expectation only accepts 1 value to be compared (and 3 were provided).")
 
@@ -51,7 +51,7 @@ func TestShouldNotEqual(t *testing.T) {
 }
 
 func TestShouldResemble(t *testing.T) {
-	fail(t, so(Thing1{"hi"}, ShouldResemble), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(Thing1{"hi"}, ShouldResemble), needOneValue)
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}))
@@ -59,7 +59,7 @@ func TestShouldResemble(t *testing.T) {
 }
 
 func TestShouldNotResemble(t *testing.T) {
-	fail(t, so(Thing1{"hi"}, ShouldNotResemble), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(Thing1{"hi"}, ShouldNotResemble), needOneValue)
 	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}, Thing1{"hi"}), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"bye"}))
@@ -74,7 +74,7 @@ func TestShouldPointTo(t *testing.T) {
 	pointer1 := reflect.ValueOf(t1).Pointer()
 	pointer3 := reflect.ValueOf(t3).Pointer()
 
-	fail(t, so(t1, ShouldPointTo), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(t1, ShouldPointTo), needOneValue)
 	fail(t, so(t1, ShouldPointTo, t2, t3), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(t1, ShouldPointTo, t2))
@@ -96,7 +96,7 @@ func TestShouldNotPointTo(t *testing.T) {
 
 	pointer1 := reflect.ValueOf(t1).Pointer()
 
-	fail(t, so(t1, ShouldNotPointTo), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(t1, ShouldNotPointTo), needOneValue)
 	fail(t, so(t1, ShouldNotPointTo, t2, t3), "This expectation only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(t1, ShouldNotPointTo, t3))
@@ -156,6 +156,41 @@ func TestShouldBeFalse(t *testing.T) {
 	fail(t, so(true, ShouldBeFalse), "Expected 'false' (not 'true')!")
 	fail(t, so(1, ShouldBeFalse), "Expected 'false' (not '1')!")
 	pass(t, so(false, ShouldBeFalse))
+}
+
+func TestShouldBeGreaterThan(t *testing.T) {
+	fail(t, so(1, ShouldBeGreaterThan), needOneValue)
+	fail(t, so(1, ShouldBeGreaterThan, 0, 0), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+
+	pass(t, so(1, ShouldBeGreaterThan, 0))
+	pass(t, so(1.1, ShouldBeGreaterThan, 1))
+	pass(t, so(1, ShouldBeGreaterThan, uint(0)))
+	pass(t, so("b", ShouldBeGreaterThan, "a"))
+
+	fail(t, so(0, ShouldBeGreaterThan, 1), "Expected '0' to be greater than '1' (but it wasn't)!")
+	fail(t, so(1, ShouldBeGreaterThan, 1.1), "Expected '1' to be greater than '1.1' (but it wasn't)!")
+	fail(t, so(uint(0), ShouldBeGreaterThan, 1.1), "Expected '0' to be greater than '1.1' (but it wasn't)!")
+	fail(t, so("a", ShouldBeGreaterThan, "b"), "Expected 'a' to be greater than 'b' (but it wasn't)!")
+}
+
+func TestShouldBeGreaterThanOrEqual(t *testing.T) {
+	fail(t, so(1, ShouldBeGreaterThanOrEqualTo), needOneValue)
+	fail(t, so(1, ShouldBeGreaterThanOrEqualTo, 0, 0), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+
+	pass(t, so(1, ShouldBeGreaterThanOrEqualTo, 1))
+	pass(t, so(1.1, ShouldBeGreaterThanOrEqualTo, 1.1))
+	pass(t, so(1, ShouldBeGreaterThanOrEqualTo, uint(1)))
+	pass(t, so("b", ShouldBeGreaterThanOrEqualTo, "b"))
+
+	pass(t, so(1, ShouldBeGreaterThanOrEqualTo, 0))
+	pass(t, so(1.1, ShouldBeGreaterThanOrEqualTo, 1))
+	pass(t, so(1, ShouldBeGreaterThanOrEqualTo, uint(0)))
+	pass(t, so("b", ShouldBeGreaterThanOrEqualTo, "a"))
+
+	fail(t, so(0, ShouldBeGreaterThanOrEqualTo, 1), "Expected '0' to be greater than or equal to '1' (but it wasn't)!")
+	fail(t, so(1, ShouldBeGreaterThanOrEqualTo, 1.1), "Expected '1' to be greater than or equal to '1.1' (but it wasn't)!")
+	fail(t, so(uint(0), ShouldBeGreaterThanOrEqualTo, 1.1), "Expected '0' to be greater than or equal to '1.1' (but it wasn't)!")
+	fail(t, so("a", ShouldBeGreaterThanOrEqualTo, "b"), "Expected 'a' to be greater than or equal to 'b' (but it wasn't)!")
 }
 
 func pass(t *testing.T, result string) {
