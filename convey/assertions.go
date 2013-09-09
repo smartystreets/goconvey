@@ -179,3 +179,23 @@ func ShouldBeGreaterThanOrEqualTo(actual interface{}, expected ...interface{}) s
 	}
 	return success
 }
+
+// ShouldBeLessThan receives exactly two parameters and ensures that the first is less than the second.
+func ShouldBeLessThan(actual interface{}, expected ...interface{}) string {
+	if fail := onlyOne(expected); fail != success {
+		return fail
+	} else if matchError := oglematchers.LessThan(expected[0]).Matches(actual); matchError != nil {
+		return fmt.Sprintf(shouldHaveBeenLess, actual, expected[0])
+	}
+	return success
+}
+
+// ShouldBeLessThan receives exactly two parameters and ensures that the first is less than or equal to the second.
+func ShouldBeLessThanOrEqualTo(actual interface{}, expected ...interface{}) string {
+	if fail := onlyOne(expected); fail != success {
+		return fail
+	} else if matchError := oglematchers.LessOrEqual(expected[0]).Matches(actual); matchError != nil {
+		return fmt.Sprintf(shouldHaveBeenLess, actual, expected[0])
+	}
+	return success
+}
