@@ -155,7 +155,7 @@ Here's the listing of assertions that this project aims to implement
            |So(1, ShouldNotBeA, reflect.TypeOf(0))
 
 
-Thanks for [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 
+Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 
 [oglematchers](https://github.com/smartystreets/oglmatchers) library, which
 is what many of these methods make use of to do their jobs.
 
