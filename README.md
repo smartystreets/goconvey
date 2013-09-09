@@ -115,50 +115,61 @@ Assertions:
 Here's the listing of assertions that this project aims to implement 
 (see the examples folder for actual usage):
 
+ completed |usage
+:---------:|-------------------------------------------------------------
+     X     |__Equality__
+     X     |So(thing, ShouldEqual, thing2)
+     X     |So(thing, ShouldNotEqual, thing2)
+     X     |So(thing, ShouldResemble, thing2)
+     X     |So(thing, ShouldNotResemble, thing2)
+     X     |So(thing, ShouldPointTo, thing2)
+     X     |So(thing, ShouldNotPointTo, thing2)
+     X     |So(thing, ShouldBeNil, thing2)
+     X     |So(thing, ShouldNotBeNil, thing2)
+     X     |So(thing, ShouldBeTrue)
+     X     |So(thing, ShouldBeFalse)
+           |__Quantity comparison__
+     X     |So(1, ShouldBeGreaterThan, 0)
+     X     |So(1, ShouldBeGreaterThanOrEqualTo, 0)
+     X     |So(1, ShouldBeLessThan, 2)
+     X     |So(1, ShouldBeLessThanOrEqualTo, 2)
+           |So(1.1, ShouldBeBetween, .8, 1.2)
+           |So(1.1, ShouldNotBeBetween, 2, 3)
+           |So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
+           |So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
+           |__Collections__
+           |So([]int{2, 4, 6}, ShouldContain, 4)
+           |So([]int{2, 4, 6}, ShouldNotContain, 5)
+           |So(4, ShouldBeIn, ...[]int{2, 4, 6})
+           |So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
+           |__Strings__ (and []byte?)
+           |So("asdf", ShouldStartWith, "as")
+           |So("asdf", ShouldNotStartWith, "df")
+           |So("asdf", ShouldEndWith, "df")
+           |So("asdf", ShouldNotEndWith, "df")
+           |So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments
+           |__panics__
+           |So(func(), ShouldPanicWith, "") // or errors.New("something")
+           |__Type checking__
+           |So(1, ShouldBeA, reflect.TypeOf(0))
+           |So(1, ShouldNotBeA, reflect.TypeOf(0))
 
- 1.0  | completed |usage
-:----:|:---------:|-----
-      |           |__Equality__
-*     |X          |So(thing, ShouldEqual, thing2)
-*     |X          |So(thing, ShouldNotEqual, thing2)
-*     |           |So(thing, ShouldBeLike, thing2)
-*     |           |So(thing, ShouldNotBeLike, thing2)
-      |           |So(thing, ShouldPointTo, thing2)
-      |           |So(thing, ShouldNotPointTo, thing2)
-*     |X          |So(thing, ShouldBeNil, thing2)
-*     |X          |So(thing, ShouldNotBeNil, thing2)
-*     |           |So(thing, ShouldBeTrue)
-*     |           |SO(thing, ShouldBeFalse)
-      |           |__Interfaces__
-      |           |So(1, ShouldImplement, Interface)
-      |           |So(1, ShouldNotImplement, OtherInterface)
-      |           |__Type checking__
-      |           |So(1, ShouldBeAn, int)
-      |           |So(1, ShouldNotBeAn, int)
-      |           |So("1", ShouldBeA, string)
-      |           |So("1", ShouldNotBeA, string)
-      |           |__Quantity comparison__
-*     |           |So(1, ShouldBeGreaterThan, 0)
-*     |           |So(1, ShouldBeGreaterThanOrEqualTo, 0)
-*     |           |So(1, ShouldBeLessThan, 2)
-*     |           |So(1, ShouldBeLessThanOrEqualTo, 2)
-      |           |__Tolerences__
-*     |           |So(1.1, ShouldBeWithin, .1, 1)
-*     |           |So(1.1, ShouldNotBeWithin, .1, 2)
-      |           |__Collections__
-*     |           |So([]int{}, ShouldBeEmpty)
-*     |           |So([]int{1}, ShouldNotBeEmpty)
-*     |           |So([]int{1, 2, 3}, ShouldContain, 1, 2)
-*     |           |So([]int{1, 2, 3}, ShouldNotContain, 4, 5)
-      |           |So(1, ShouldBeIn, []int{1, 2, 3})
-      |           |So(4, ShouldNotBeIn, []int{1, 2, 3})
-      |           |__Strings__
-*     |           |So("asdf", ShouldStartWith, "as")
-*     |           |So("asdf", ShouldNotStartWith, "df")
-*     |           |So("asdf", ShouldEndWith, "df")
-*     |           |So("asdf", ShouldNotEndWith, "df")
-      |           |So("(asdf)", ShouldBeSurroundedWith, "()")
-      |           |So("(asdf)", ShouldNotBeSurroundedWith, "[]")
+
+Future options:
+  - time
+    - ShouldBeOnOrAfter
+  - json
+    - ShouldMarshalLike
+  - hashes
+    - ?
+  - hex (and other encodings)
+    - convert from base64 then compare
+  - bytes(?)
+    - this might already be done with existing methods
+  - containers (list, heap, ring)
+    - might already be done with ShouldResemble
+  - urls
+    - should be part of [domain]
 
 
 Writing your own assertions:
@@ -169,7 +180,7 @@ specific to be included in this tool. Not to worry, simply implement
 a function with the following signature (fill in the bracketed parts
 and string values):
 
-    func Should<do-something>(actual interface, expected ...interface{}) string {
+    func should<do-something>(actual interface, expected ...interface{}) string {
         if <some-important-condition-is-met(actual, expected)> {
             return "" // empty string means the assertion passed
         } else {
@@ -179,7 +190,7 @@ and string values):
 
 Suppose I implemented the following assertion:
 
-    func ShouldScareGophersMoreThan(actual interface, expected ...interface{}) string {
+    func shouldScareGophersMoreThan(actual interface, expected ...interface{}) string {
         if actual == "BOO!" && expected[0] == "boo" {
             return ""
         } else {
@@ -190,5 +201,5 @@ Suppose I implemented the following assertion:
 I can then make use of the assertion function when calling the `So(...)` method in the tests:
 
     Convey("All caps always makes text more meaningful", func() {
-        So("BOO!", ShouldScareGophersMoreThan, "boo")
+        So("BOO!", shouldScareGophersMoreThan, "boo")
     })
