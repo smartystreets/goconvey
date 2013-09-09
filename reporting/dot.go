@@ -15,12 +15,14 @@ func (self *dot) Report(r *Report) {
 	if r.Error != nil {
 		fmt.Print(redColor)
 		self.out.Insert(dotError)
-		fmt.Print(resetColor)
 	} else if r.Failure != "" {
 		fmt.Print(redColor)
 		self.out.Insert(dotFailure)
-		fmt.Print(resetColor)
+	} else {
+		fmt.Print(greenColor)
+		self.out.Insert(dotSuccess)
 	}
+	fmt.Print(resetColor)
 }
 
 func (self *dot) Exit() {}
