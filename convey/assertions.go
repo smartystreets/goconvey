@@ -16,7 +16,7 @@ import (
 // passes and a well-formed failure message if not.
 type assertion func(actual interface{}, expected ...interface{}) string
 
-// ShouldEqual receives exactly two parameters and does a simple equality (==) check.
+// ShouldEqual receives exactly two parameters and does an equality check.
 func ShouldEqual(actual interface{}, expected ...interface{}) string {
 	if message := onlyOne(expected); message != success {
 		return message
@@ -37,7 +37,7 @@ func shouldEqual(actual, expected interface{}) (message string) {
 	return success
 }
 
-// ShouldNotEqual receives exactly two parameters and does a simple inequality (!=) check.
+// ShouldNotEqual receives exactly two parameters and does an inequality check.
 func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 	if fail := onlyOne(expected); fail != success {
 		return fail
@@ -114,7 +114,7 @@ func ShouldNotPointTo(actual interface{}, expected ...interface{}) string {
 	return success
 }
 
-// ShouldBeNil receives a single parameter and does a nil check.
+// ShouldBeNil receives a single parameter and ensures that it is nil.
 func ShouldBeNil(actual interface{}, expected ...interface{}) string {
 	if fail := none(expected); fail != success {
 		return fail
@@ -130,7 +130,7 @@ func interfaceIsNilPointer(actual interface{}) bool {
 	return value.Kind() == reflect.Ptr && value.Pointer() == 0
 }
 
-// ShouldNotBeNil receives a single parameter and ensures it is not nil.
+// ShouldNotBeNil receives a single parameter and ensures that it is not nil.
 func ShouldNotBeNil(actual interface{}, expected ...interface{}) string {
 	if fail := none(expected); fail != success {
 		return fail
@@ -140,7 +140,7 @@ func ShouldNotBeNil(actual interface{}, expected ...interface{}) string {
 	return success
 }
 
-// ShouldBeTrue receives a single parameter and ensures it is true.
+// ShouldBeTrue receives a single parameter and ensures that it is true.
 func ShouldBeTrue(actual interface{}, expected ...interface{}) string {
 	if fail := none(expected); fail != success {
 		return fail
@@ -150,7 +150,7 @@ func ShouldBeTrue(actual interface{}, expected ...interface{}) string {
 	return success
 }
 
-// ShouldBeFalse receives a single parameter and ensures it is false.
+// ShouldBeFalse receives a single parameter and ensures that it is false.
 func ShouldBeFalse(actual interface{}, expected ...interface{}) string {
 	if fail := none(expected); fail != success {
 		return fail
@@ -164,7 +164,9 @@ func ShouldBeFalse(actual interface{}, expected ...interface{}) string {
 func ShouldBeGreaterThan(actual interface{}, expected ...interface{}) string {
 	if fail := onlyOne(expected); fail != success {
 		return fail
-	} else if matchError := oglematchers.GreaterThan(expected[0]).Matches(actual); matchError != nil {
+	}
+
+	if matchError := oglematchers.GreaterThan(expected[0]).Matches(actual); matchError != nil {
 		return fmt.Sprintf(shouldHaveBeenGreater, actual, expected[0])
 	}
 	return success
@@ -198,4 +200,13 @@ func ShouldBeLessThanOrEqualTo(actual interface{}, expected ...interface{}) stri
 		return fmt.Sprintf(shouldHaveBeenLess, actual, expected[0])
 	}
 	return success
+}
+
+// ShouldBeBetween receives exactly three parameters: an actual value, a lower bound, and an upper bound.
+// It ensures that the actual value is between both bounds or is equal to one of the bounds.
+func ShouldBeBetween(actual interface{}, expected ...interface{}) string {
+	if fail := onlyTwo(expected); fail != success {
+		return fail
+	}
+	return "asdf"
 }

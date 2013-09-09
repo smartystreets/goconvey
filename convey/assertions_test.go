@@ -9,8 +9,8 @@ import (
 
 func TestShouldEqual(t *testing.T) {
 	fail(t, so(1, ShouldEqual), needOneValue)
-	fail(t, so(1, ShouldEqual, 1, 2), "This expectation only accepts 1 value to be compared (and 2 were provided).")
-	fail(t, so(1, ShouldEqual, 1, 2, 3), "This expectation only accepts 1 value to be compared (and 3 were provided).")
+	fail(t, so(1, ShouldEqual, 1, 2), "This assertion only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldEqual, 1, 2, 3), "This assertion only accepts 1 value to be compared (and 3 were provided).")
 
 	pass(t, so(1, ShouldEqual, 1))
 	fail(t, so(1, ShouldEqual, 2), "Expected '1' to equal '2' (but it didn't)!")
@@ -32,8 +32,8 @@ func TestShouldEqual(t *testing.T) {
 
 func TestShouldNotEqual(t *testing.T) {
 	fail(t, so(1, ShouldNotEqual), needOneValue)
-	fail(t, so(1, ShouldNotEqual, 1, 2), "This expectation only accepts 1 value to be compared (and 2 were provided).")
-	fail(t, so(1, ShouldNotEqual, 1, 2, 3), "This expectation only accepts 1 value to be compared (and 3 were provided).")
+	fail(t, so(1, ShouldNotEqual, 1, 2), "This assertion only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldNotEqual, 1, 2, 3), "This assertion only accepts 1 value to be compared (and 3 were provided).")
 
 	pass(t, so(1, ShouldNotEqual, 2))
 	fail(t, so(1, ShouldNotEqual, 1), "Expected '1' to NOT equal '1' (but it did)!")
@@ -52,7 +52,7 @@ func TestShouldNotEqual(t *testing.T) {
 
 func TestShouldResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldResemble), needOneValue)
-	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}))
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "Expected '{hi}' to resemble '{bye}' (but it didn't)!")
@@ -60,7 +60,7 @@ func TestShouldResemble(t *testing.T) {
 
 func TestShouldNotResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldNotResemble), needOneValue)
-	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}, Thing1{"hi"}), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"bye"}))
 	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}), "Expected '{hi}' to NOT resemble '{hi}' (but it did)!")
@@ -75,7 +75,7 @@ func TestShouldPointTo(t *testing.T) {
 	pointer3 := reflect.ValueOf(t3).Pointer()
 
 	fail(t, so(t1, ShouldPointTo), needOneValue)
-	fail(t, so(t1, ShouldPointTo, t2, t3), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(t1, ShouldPointTo, t2, t3), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(t1, ShouldPointTo, t2))
 	fail(t, so(t1, ShouldPointTo, t3), fmt.Sprintf("Expected '&{}' (address: '%v') and '&{}' (address: '%v') to be the same address (but their weren't)!", pointer1, pointer3))
@@ -97,7 +97,7 @@ func TestShouldNotPointTo(t *testing.T) {
 	pointer1 := reflect.ValueOf(t1).Pointer()
 
 	fail(t, so(t1, ShouldNotPointTo), needOneValue)
-	fail(t, so(t1, ShouldNotPointTo, t2, t3), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(t1, ShouldNotPointTo, t2, t3), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(t1, ShouldNotPointTo, t3))
 	fail(t, so(t1, ShouldNotPointTo, t2), fmt.Sprintf("Expected '&{}' and '&{}' to be different references (but they matched: '%v')!", pointer1))
@@ -112,8 +112,8 @@ func TestShouldNotPointTo(t *testing.T) {
 }
 
 func TestShouldBeNil(t *testing.T) {
-	fail(t, so(nil, ShouldBeNil, nil, nil, nil), "This expectation does not allow for user-supplied comparison values.")
-	fail(t, so(nil, ShouldBeNil, nil), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(nil, ShouldBeNil, nil, nil, nil), "This assertion does not allow for user-supplied comparison values.")
+	fail(t, so(nil, ShouldBeNil, nil), "This assertion does not allow for user-supplied comparison values.")
 
 	pass(t, so(nil, ShouldBeNil))
 	fail(t, so(1, ShouldBeNil), "Expected '1' to be nil (but it wasn't)!")
@@ -128,8 +128,8 @@ func TestShouldBeNil(t *testing.T) {
 }
 
 func TestShouldNotBeNil(t *testing.T) {
-	fail(t, so(nil, ShouldNotBeNil, nil, nil, nil), "This expectation does not allow for user-supplied comparison values.")
-	fail(t, so(nil, ShouldNotBeNil, nil), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(nil, ShouldNotBeNil, nil, nil, nil), "This assertion does not allow for user-supplied comparison values.")
+	fail(t, so(nil, ShouldNotBeNil, nil), "This assertion does not allow for user-supplied comparison values.")
 
 	fail(t, so(nil, ShouldNotBeNil), "Expected '<nil>' to NOT be nil (but it was)!")
 	pass(t, so(1, ShouldNotBeNil))
@@ -141,8 +141,8 @@ func TestShouldNotBeNil(t *testing.T) {
 }
 
 func TestShouldBeTrue(t *testing.T) {
-	fail(t, so(true, ShouldBeTrue, 1, 2, 3), "This expectation does not allow for user-supplied comparison values.")
-	fail(t, so(true, ShouldBeTrue, 1), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(true, ShouldBeTrue, 1, 2, 3), "This assertion does not allow for user-supplied comparison values.")
+	fail(t, so(true, ShouldBeTrue, 1), "This assertion does not allow for user-supplied comparison values.")
 
 	fail(t, so(false, ShouldBeTrue), "Expected 'true' (not 'false')!")
 	fail(t, so(1, ShouldBeTrue), "Expected 'true' (not '1')!")
@@ -150,8 +150,8 @@ func TestShouldBeTrue(t *testing.T) {
 }
 
 func TestShouldBeFalse(t *testing.T) {
-	fail(t, so(false, ShouldBeFalse, 1, 2, 3), "This expectation does not allow for user-supplied comparison values.")
-	fail(t, so(false, ShouldBeFalse, 1), "This expectation does not allow for user-supplied comparison values.")
+	fail(t, so(false, ShouldBeFalse, 1, 2, 3), "This assertion does not allow for user-supplied comparison values.")
+	fail(t, so(false, ShouldBeFalse, 1), "This assertion does not allow for user-supplied comparison values.")
 
 	fail(t, so(true, ShouldBeFalse), "Expected 'false' (not 'true')!")
 	fail(t, so(1, ShouldBeFalse), "Expected 'false' (not '1')!")
@@ -160,7 +160,7 @@ func TestShouldBeFalse(t *testing.T) {
 
 func TestShouldBeGreaterThan(t *testing.T) {
 	fail(t, so(1, ShouldBeGreaterThan), needOneValue)
-	fail(t, so(1, ShouldBeGreaterThan, 0, 0), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeGreaterThan, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(1, ShouldBeGreaterThan, 0))
 	pass(t, so(1.1, ShouldBeGreaterThan, 1))
@@ -175,7 +175,7 @@ func TestShouldBeGreaterThan(t *testing.T) {
 
 func TestShouldBeGreaterThanOrEqual(t *testing.T) {
 	fail(t, so(1, ShouldBeGreaterThanOrEqualTo), needOneValue)
-	fail(t, so(1, ShouldBeGreaterThanOrEqualTo, 0, 0), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeGreaterThanOrEqualTo, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(1, ShouldBeGreaterThanOrEqualTo, 1))
 	pass(t, so(1.1, ShouldBeGreaterThanOrEqualTo, 1.1))
@@ -195,7 +195,7 @@ func TestShouldBeGreaterThanOrEqual(t *testing.T) {
 
 func TestShouldBeLessThan(t *testing.T) {
 	fail(t, so(1, ShouldBeLessThan), needOneValue)
-	fail(t, so(1, ShouldBeLessThan, 0, 0), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeLessThan, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(0, ShouldBeLessThan, 1))
 	pass(t, so(1, ShouldBeLessThan, 1.1))
@@ -210,7 +210,7 @@ func TestShouldBeLessThan(t *testing.T) {
 
 func TestShouldBeLessThanOrEqualTo(t *testing.T) {
 	fail(t, so(1, ShouldBeLessThanOrEqualTo), needOneValue)
-	fail(t, so(1, ShouldBeLessThanOrEqualTo, 0, 0), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeLessThanOrEqualTo, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
 
 	pass(t, so(1, ShouldBeLessThanOrEqualTo, 1))
 	pass(t, so(1.1, ShouldBeLessThanOrEqualTo, 1.1))
@@ -226,6 +226,14 @@ func TestShouldBeLessThanOrEqualTo(t *testing.T) {
 	fail(t, so(1.1, ShouldBeLessThanOrEqualTo, 1), "Expected '1.1' to be less than '1' (but it wasn't)!")
 	fail(t, so(1.1, ShouldBeLessThanOrEqualTo, uint(0)), "Expected '1.1' to be less than '0' (but it wasn't)!")
 	fail(t, so("b", ShouldBeLessThanOrEqualTo, "a"), "Expected 'b' to be less than 'a' (but it wasn't)!")
+}
+
+func TestShouldBeBetween(t *testing.T) {
+	fail(t, so(1, ShouldBeBetween), "This assertion requires exactly 2 comparison values (you provided 0).")
+	fail(t, so(1, ShouldBeBetween, 1, 2, 3), "This assertion requires exactly 2 comparison values (you provided 3).")
+
+	pass(t, so(9, ShouldBeBetween, 8, 12))
+	pass(t, so(11, ShouldBeBetween, 8, 12))
 }
 
 func pass(t *testing.T, result string) {

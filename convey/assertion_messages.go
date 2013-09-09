@@ -2,13 +2,6 @@ package convey
 
 import "fmt"
 
-const (
-	success             = ""
-	needOneValue        = "This expectation requires exactly one comparison value (none provided)."
-	onlyAcceptsOneValue = "This expectation only accepts 1 value to be compared (and %v were provided)."
-	noValuesAccepted    = "This expectation does not allow for user-supplied comparison values."
-)
-
 const ( // equality
 	shouldHaveBeenEqual         = "Expected '%v' to equal '%v' (but it didn't)!"
 	shouldNotHaveBeenEqual      = "Expected '%v' to NOT equal '%v' (but it did)!"
@@ -29,8 +22,8 @@ const ( // quantity comparisons
 	shouldHaveBeenGreaterOrEqual = "Expected '%v' to be greater than or equal to '%v' (but it wasn't)!"
 	shouldHaveBeenLess           = "Expected '%v' to be less than '%v' (but it wasn't)!"
 	shouldHaveBeenLessOrEqual    = "Expected '%v' to be less than or equal to '%v' (but it wasn't)!"
-	shouldHaveBeenWithin         = "Expected '%v' to be within '%v' of '%v' (distance was '%v')!"
-	shouldNotHaveBeenWithin      = "Expected '%v' NOT to be within '%v' of '%v' (distance was '%v')!"
+	shouldHaveBeenBetween        = "Expected '%v' to be between '%v' and '%v' (but it wasn't)!"
+	shouldNotHaveBeenBetween     = "Expected '%v' NOT to be between '%v' and '%v' (but it was)!"
 )
 
 const ( // collections
@@ -56,6 +49,21 @@ const ( // type checking
 	shouldHaveBeenA    = "Expected '%v' to be a '%v' (but was a '%v')!"
 	shouldNotHaveBeenA = "Expected '%v to NOT be a '%v' (but it was)!"
 )
+
+const (
+	success             = ""
+	needOneValue        = "This assertion requires exactly one comparison value (none provided)."
+	onlyAcceptsOneValue = "This assertion only accepts 1 value to be compared (and %v were provided)."
+	noValuesAccepted    = "This assertion does not allow for user-supplied comparison values."
+	needTwoValues       = "This assertion requires exactly 2 comparison values (you provided %d)."
+)
+
+func onlyTwo(expected []interface{}) string {
+	if len(expected) != 2 {
+		return fmt.Sprintf(needTwoValues, len(expected))
+	}
+	return success
+}
 
 func onlyOne(expected []interface{}) string {
 	switch {
