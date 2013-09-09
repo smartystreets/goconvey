@@ -3,6 +3,7 @@ package convey
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 import (
@@ -48,27 +49,68 @@ func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 }
 
 // ShouldResemble receives exactly two parameters and does a deep equal check (see reflect.DeepEqual)
-func ShouldResemble(actual interface{}, expected ...interface{}) (message string) {
-	if message = onlyOne(expected); message != success {
-		return
+func ShouldResemble(actual interface{}, expected ...interface{}) string {
+	if message := onlyOne(expected); message != success {
+		return message
 	}
 
 	matcher := oglematchers.DeepEquals(expected[0])
 	matchError := matcher.Matches(actual)
 	if matchError != nil {
-		message = fmt.Sprintf(shouldHaveResembled, actual, expected[0])
-		return
+		return fmt.Sprintf(shouldHaveResembled, actual, expected[0])
 	}
-	
-	return
+
+	return success
 }
 
 // ShouldNotResemble receives exactly two parameters and does an inverse deep equal check (see reflect.DeepEqual)
-func ShouldNotResemble(actual interface{}, expected ...interface{}) (message string) {
-	if message = onlyOne(expected); message != success {
-		return
+func ShouldNotResemble(actual interface{}, expected ...interface{}) string {
+	if message := onlyOne(expected); message != success {
+		return message
 	} else if ShouldResemble(actual, expected[0]) == success {
 		return fmt.Sprintf(shouldNotHaveResembled, actual, expected[0])
+	}
+	return success
+}
+
+// ShouldPointTo receives exactly two parameters and checks to see that they point to the same address.
+func ShouldPointTo(actual interface{}, expected ...interface{}) string {
+	if message := onlyOne(expected); message != success {
+		return message
+	}
+	return shouldPointTo(actual, expected[0])
+	
+}
+func shouldPointTo(actual, expected interface{}) string {
+	actualValue := reflect.ValueOf(actual)
+	expectedValue := reflect.ValueOf(expected)
+
+	if ShouldNotBeNil(actual) != success {
+		return fmt.Sprintf(shouldHaveBeenNonNilPointer, "first", "nil")
+	} else if ShouldNotBeNil(expected) != success {
+		return fmt.Sprintf(shouldHaveBeenNonNilPointer, "second", "nil")
+	} else if actualValue.Kind() != reflect.Ptr {
+		return fmt.Sprintf(shouldHaveBeenNonNilPointer, "first", "not")
+	} else if expectedValue.Kind() != reflect.Ptr {
+		return fmt.Sprintf(shouldHaveBeenNonNilPointer, "second", "not")
+	} else if ShouldEqual(actualValue.Pointer(), expectedValue.Pointer()) != success {
+		return fmt.Sprintf(shouldHavePointedTo,
+			actual, reflect.ValueOf(actual).Pointer(),
+			expected, reflect.ValueOf(expected).Pointer())
+	}
+	return success
+}
+
+// ShouldNotPointTo receives exactly two parameters and checks to see that they point to different addresess.
+func ShouldNotPointTo(actual interface{}, expected ...interface{}) string {
+	if message := onlyOne(expected); message != success {
+		return message
+	}
+	compare := ShouldPointTo(actual, expected[0])
+	if strings.HasPrefix(compare, shouldBePointers) {
+		return compare
+	} else if compare == success {
+		return fmt.Sprintf(shouldNotHavePointedTo, actual, expected[0], reflect.ValueOf(actual).Pointer())
 	}
 	return success
 }

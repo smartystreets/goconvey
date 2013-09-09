@@ -1,6 +1,8 @@
 package convey
 
 import (
+	"fmt"
+	"reflect"
 	"runtime"
 	"testing"
 )
@@ -51,7 +53,7 @@ func TestShouldNotEqual(t *testing.T) {
 func TestShouldResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldResemble), "This expectation requires exactly one comparison value (none provided).")
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This expectation only accepts 1 value to be compared (and 2 were provided).")
-	
+
 	pass(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}))
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "'{hi}' should resemble '{bye}' (but it doesn't)!")
 }
@@ -62,6 +64,51 @@ func TestShouldNotResemble(t *testing.T) {
 
 	pass(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"bye"}))
 	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}), "'{hi}' should NOT resemble '{hi}' (but it does)!")
+}
+
+func TestShouldPointTo(t *testing.T) {
+	t1 := &Thing1{}
+	t2 := t1
+	t3 := &Thing1{}
+
+	pointer1 := reflect.ValueOf(t1).Pointer()
+	pointer3 := reflect.ValueOf(t3).Pointer()
+
+	fail(t, so(t1, ShouldPointTo), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(t1, ShouldPointTo, t2, t3), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+
+	pass(t, so(t1, ShouldPointTo, t2))
+	fail(t, so(t1, ShouldPointTo, t3), fmt.Sprintf("Expected '&{}' (address: '%v') and '&{}' (address: '%v') to be the same address (but their weren't)!", pointer1, pointer3))
+
+	t4 := Thing1{}
+	t5 := t4
+
+	fail(t, so(t4, ShouldPointTo, t5), "Both arguments should be pointers (the first was not)!")
+	fail(t, so(&t4, ShouldPointTo, t5), "Both arguments should be pointers (the second was not)!")
+	fail(t, so(nil, ShouldPointTo, nil), "Both arguments should be pointers (the first was nil)!")
+	fail(t, so(&t4, ShouldPointTo, nil), "Both arguments should be pointers (the second was nil)!")
+}
+
+func TestShouldNotPointTo(t *testing.T) {
+	t1 := &Thing1{}
+	t2 := t1
+	t3 := &Thing1{}
+
+	pointer1 := reflect.ValueOf(t1).Pointer()
+
+	fail(t, so(t1, ShouldNotPointTo), "This expectation requires exactly one comparison value (none provided).")
+	fail(t, so(t1, ShouldNotPointTo, t2, t3), "This expectation only accepts 1 value to be compared (and 2 were provided).")
+
+	pass(t, so(t1, ShouldNotPointTo, t3))
+	fail(t, so(t1, ShouldNotPointTo, t2), fmt.Sprintf("Expected '&{}' and '&{}' to be different references (but they matched: '%v')!", pointer1))
+
+	t4 := Thing1{}
+	t5 := t4
+
+	fail(t, so(t4, ShouldNotPointTo, t5), "Both arguments should be pointers (the first was not)!")
+	fail(t, so(&t4, ShouldNotPointTo, t5), "Both arguments should be pointers (the second was not)!")
+	fail(t, so(nil, ShouldNotPointTo, nil), "Both arguments should be pointers (the first was nil)!")
+	fail(t, so(&t4, ShouldNotPointTo, nil), "Both arguments should be pointers (the second was nil)!")
 }
 
 func TestShouldBeNil(t *testing.T) {
