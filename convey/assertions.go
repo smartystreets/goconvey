@@ -79,7 +79,7 @@ func ShouldPointTo(actual interface{}, expected ...interface{}) string {
 		return message
 	}
 	return shouldPointTo(actual, expected[0])
-	
+
 }
 func shouldPointTo(actual, expected interface{}) string {
 	actualValue := reflect.ValueOf(actual)

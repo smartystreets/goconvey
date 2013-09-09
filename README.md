@@ -115,7 +115,6 @@ Assertions:
 Here's the listing of assertions that this project aims to implement 
 (see the examples folder for actual usage):
 
-
  completed |usage
 :---------:|-------------------------------------------------------------
      X     |__Equality__
@@ -129,15 +128,11 @@ Here's the listing of assertions that this project aims to implement
      X     |So(thing, ShouldNotBeNil, thing2)
      X     |So(thing, ShouldBeTrue)
      X     |So(thing, ShouldBeFalse)
-           |__Type checking__
-           |So(1, ShouldBeA, reflect.TypeOf(0))
-           |So(1, ShouldNotBeA, reflect.TypeOf(0))
-           |__Quantity comparison__
+           |__Quantity comparison__ (numerics, times)
            |So(1, ShouldBeGreaterThan, 0)
            |So(1, ShouldBeGreaterThanOrEqualTo, 0)
            |So(1, ShouldBeLessThan, 2)
            |So(1, ShouldBeLessThanOrEqualTo, 2)
-           |__Tolerences__
            |So(1.1, ShouldBeWithin, .1, 1)
            |So(1.1, ShouldNotBeWithin, .1, 2)
            |__Collections__
@@ -150,11 +145,12 @@ Here's the listing of assertions that this project aims to implement
            |So("asdf", ShouldNotStartWith, "df")
            |So("asdf", ShouldEndWith, "df")
            |So("asdf", ShouldNotEndWith, "df")
-           |So("asdf", ShouldContain, "sd")
-           |So("(asdf)", ShouldBeSurroundedWith, "(", ")")
-           |So("(asdf)", ShouldNotBeSurroundedWith, "[", "]")
+           |So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments
            |__panics__
            |So(func(), ShouldPanicWith, "") // or errors.New("something")
+           |__Type checking__
+           |So(1, ShouldBeA, reflect.TypeOf(0))
+           |So(1, ShouldNotBeA, reflect.TypeOf(0))
 
 
 Writing your own assertions:
