@@ -118,13 +118,13 @@ Here's the listing of assertions that this project aims to implement
 
  completed |usage
 :---------:|-------------------------------------------------------------
-           |__Equality__
+     X     |__Equality__
      X     |So(thing, ShouldEqual, thing2)
      X     |So(thing, ShouldNotEqual, thing2)
      X     |So(thing, ShouldResemble, thing2)
      X     |So(thing, ShouldNotResemble, thing2)
-           |So(thing, ShouldPointTo, thing2)
-           |So(thing, ShouldNotPointTo, thing2)
+     X     |So(thing, ShouldPointTo, thing2)
+     X     |So(thing, ShouldNotPointTo, thing2)
      X     |So(thing, ShouldBeNil, thing2)
      X     |So(thing, ShouldNotBeNil, thing2)
      X     |So(thing, ShouldBeTrue)
