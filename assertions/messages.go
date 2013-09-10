@@ -1,10 +1,10 @@
 package assertions
 
 const ( // equality
-	shouldHaveBeenEqual         = "Expected '%v' to equal '%v' (but it didn't)!"
-	shouldNotHaveBeenEqual      = "Expected '%v' to NOT equal '%v' (but it did)!"
-	shouldHaveResembled         = "Expected '%v' to resemble '%v' (but it didn't)!"
-	shouldNotHaveResembled      = "Expected '%v' to NOT resemble '%v' (but it did)!"
+	shouldHaveBeenEqual         = "Expected '%v'\nto equal '%v'\n(but it didn't)!"
+	shouldNotHaveBeenEqual      = "Expected     '%v'\nto NOT equal '%v'\n(but it did)!"
+	shouldHaveResembled         = "Expected '%v'\nto resemble '%v'\n(but it didn't)!"
+	shouldNotHaveResembled      = "Expected        '%v'\nto NOT resemble '%v'\n(but it did)!"
 	shouldBePointers            = "Both arguments should be pointers "
 	shouldHaveBeenNonNilPointer = shouldBePointers + "(the %s was %s)!"
 	shouldHavePointedTo         = "Expected '%v' (address: '%v') and '%v' (address: '%v') to be the same address (but their weren't)!"
@@ -28,11 +28,11 @@ const ( // quantity comparisons
 )
 
 const ( // collections
-	shouldHaveContained                 = "Expected the collection (%v) to contain member: '%v' (but it didn't)!"
-	shouldNotHaveContained              = "Expected the collection (%v) NOT to contain member: '%v' (but it did)!"
-	shouldHaveBeenIn                    = "Expected '%v' to be in the collection (%v, but it wasn't)!"
-	shouldNotHaveBeenIn                 = "Expected '%v' NOT to be in the collection (%v, but it was)!"
-	shouldHaveBeenAValidCollection      = "You must provide a valid collection (was %v)!"
+	shouldHaveContained                 = "Expected the container (%v) to contain: '%v' (but it didn't)!"
+	shouldNotHaveContained              = "Expected the container (%v) NOT to contain: '%v' (but it did)!"
+	shouldHaveBeenIn                    = "Expected '%v' to be in the container (%v, but it wasn't)!"
+	shouldNotHaveBeenIn                 = "Expected '%v' NOT to be in the container (%v, but it was)!"
+	shouldHaveBeenAValidCollection      = "You must provide a valid container (was %v)!"
 	shouldHaveProvidedCollectionMembers = "This assertion requires at least 1 comparison value (you provided 0)."
 )
 
