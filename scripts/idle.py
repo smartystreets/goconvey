@@ -61,7 +61,8 @@ class TestRunner(object):
         self._run_tests()
 
     def _display_repetitions_banner(self):
-        number = ' {} '.format(self.repetitions)
+        number = ' {} '.format(self.repetitions if self.repetitions % 50 else
+            'Wow, are you going for a top score? Keep it up!')
         half_delimiter = (EVEN if not self.repetitions % 2 else ODD) * \
                          ((80 - len(number)) / 2)
         self.out.write('\n{0}{1}{0}\n'.format(half_delimiter, number))
