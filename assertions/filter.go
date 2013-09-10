@@ -13,3 +13,10 @@ func need(needed int, expected []interface{}) string {
 	}
 	return success
 }
+
+func atLeast(minimum int, expected []interface{}) string {
+	if len(expected) < 1 {
+		return shouldHaveProvidedCollectionMembers
+	}
+	return success
+}
