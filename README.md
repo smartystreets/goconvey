@@ -115,53 +115,53 @@ Assertions:
 Here's the listing of assertions that this project aims to implement 
 (see the examples folder for actual usage):
 
- completed |usage
-:---------:|-------------------------------------------------------------
-     X     |__General Equality__
-     X     |So(thing, ShouldEqual, thing2)
-     X     |So(thing, ShouldNotEqual, thing2)
-     X     |So(thing, ShouldResemble, thing2)
-     X     |So(thing, ShouldNotResemble, thing2)
-     X     |So(thing, ShouldPointTo, thing2)
-     X     |So(thing, ShouldNotPointTo, thing2)
-     X     |So(thing, ShouldBeNil, thing2)
-     X     |So(thing, ShouldNotBeNil, thing2)
-     X     |So(thing, ShouldBeTrue)
-     X     |So(thing, ShouldBeFalse)
-     X     |__Numeric Quantity comparison__
-     X     |So(1, ShouldBeGreaterThan, 0)
-     X     |So(1, ShouldBeGreaterThanOrEqualTo, 0)
-     X     |So(1, ShouldBeLessThan, 2)
-     X     |So(1, ShouldBeLessThanOrEqualTo, 2)
-     X     |So(1.1, ShouldBeBetween, .8, 1.2)
-     X     |So(1.1, ShouldNotBeBetween, 2, 3)
-     X     |So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
-     X     |So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
-     X     |__Collections__
-     X     |So([]int{2, 4, 6}, ShouldContain, 4)
-     X     |So([]int{2, 4, 6}, ShouldNotContain, 5)
-     X     |So(4, ShouldBeIn, ...[]int{2, 4, 6})
-     X     |So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
-           |__Strings__ (and []byte?)
-     X     |So("asdf", ShouldStartWith, "as")
-     X     |So("asdf", ShouldNotStartWith, "df")
-     X     |So("asdf", ShouldEndWith, "df")
-     X     |So("asdf", ShouldNotEndWith, "df")
-           |So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments
-           |So("asdf", ShouldNotContain, "er")
-           |__panics__
-           |So(func(), ShouldPanicWith, "") // or errors.New("something")
-           |__Type checking__
-           |So(1, ShouldBeA, reflect.TypeOf(0))
-           |So(1, ShouldNotBeA, reflect.TypeOf(0))
-           |__time__
-           |So(time.Now(), ShouldHappenBefore, time.Now())
-           |So(time.Now(), ShouldHappenOnOrBefore, time.Now())
-           |So(time.Now(), ShouldHappenAfter, time.Now())
-           |So(time.Now(), ShouldHappenOnOrAfter, time.Now())
-           |So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
-           |So(time.Now(), ShouldHappenBetweenOrOn, time.Now(), time.Now())
-           |So(time.New(), ShouldHappenWithin, duration, time.Now())
+ completed | usage
+:---------:|--------------------------------------------------------------
+     X     | __General Equality__
+     X     | So(thing, ShouldEqual, thing2)
+     X     | So(thing, ShouldNotEqual, thing2)
+     X     | So(thing, ShouldResemble, thing2)
+     X     | So(thing, ShouldNotResemble, thing2)
+     X     | So(thing, ShouldPointTo, thing2)
+     X     | So(thing, ShouldNotPointTo, thing2)
+     X     | So(thing, ShouldBeNil, thing2)
+     X     | So(thing, ShouldNotBeNil, thing2)
+     X     | So(thing, ShouldBeTrue)
+     X     | So(thing, ShouldBeFalse)
+     X     | __Numeric Quantity comparison__
+     X     | So(1, ShouldBeGreaterThan, 0)
+     X     | So(1, ShouldBeGreaterThanOrEqualTo, 0)
+     X     | So(1, ShouldBeLessThan, 2)
+     X     | So(1, ShouldBeLessThanOrEqualTo, 2)
+     X     | So(1.1, ShouldBeBetween, .8, 1.2)
+     X     | So(1.1, ShouldNotBeBetween, 2, 3)
+     X     | So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
+     X     | So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
+     X     | __Collections__
+     X     | So([]int{2, 4, 6}, ShouldContain, 4)
+     X     | So([]int{2, 4, 6}, ShouldNotContain, 5)
+     X     | So(4, ShouldBeIn, ...[]int{2, 4, 6})
+     X     | So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
+           | __Strings__ (and []byte?)
+     X     | So("asdf", ShouldStartWith, "as")
+     X     | So("asdf", ShouldNotStartWith, "df")
+     X     | So("asdf", ShouldEndWith, "df")
+     X     | So("asdf", ShouldNotEndWith, "df")
+           | So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments
+           | So("asdf", ShouldNotContain, "er")
+           | __panics__
+           | So(func(), ShouldPanicWith, "") // or errors.New("something")
+           | __Type checking__
+           | So(1, ShouldBeA, reflect.TypeOf(0))
+           | So(1, ShouldNotBeA, reflect.TypeOf(0))
+           | __time__
+           | So(time.Now(), ShouldHappenBefore, time.Now())
+           | So(time.Now(), ShouldHappenOnOrBefore, time.Now())
+           | So(time.Now(), ShouldHappenAfter, time.Now())
+           | So(time.Now(), ShouldHappenOnOrAfter, time.Now())
+           | So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
+           | So(time.Now(), ShouldHappenBetweenOrOn, time.Now(), time.Now())
+           | So(time.New(), ShouldHappenWithin, duration, time.Now())
 
 Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 
 [oglematchers](https://github.com/smartystreets/oglmatchers) library, which
