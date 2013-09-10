@@ -37,10 +37,11 @@ const ( // collections
 )
 
 const ( // strings
-	shouldHaveStartedWith    = "Expected       '%v'\nto start with: '%v'\n(but it didn't)!"
-	shouldNotHaveStartedWith = "Expected           '%v'\nNOT to start with: '%v'\n(but it did)!"
+	shouldHaveStartedWith    = "Expected      '%v'\nto start with '%v'\n(but it didn't)!"
+	shouldNotHaveStartedWith = "Expected          '%v'\nNOT to start with '%v'\n(but it did)!"
 	shouldHaveEndedWith      = "Expected     '%v'\nto end with: '%v'\n(but it didn't)!"
 	shouldNotHaveEndedWith   = "Expected         '%v'\nNOT to end with: '%v'\n(but it didn't)!"
+	shouldBothBeStrings      = "Both arguments to this assertions must be strings (you provided %v and %v)."
 )
 
 const ( // panics
