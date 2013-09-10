@@ -28,10 +28,11 @@ const ( // quantity comparisons
 )
 
 const ( // collections
-	shouldHaveContained    = "Expected the collection to contain member: '%v' (but it didn't)!"
-	shouldNotHaveContained = "Expected the collection NOT to contain member: '%v' (but it did)!"
-	shouldHaveBeenIn       = "Expected '%v' to be in the collection (but it wasn't)!"
-	shouldNotHaveBeenIn    = "Expected '%v' NOT to be in the collection (but it was)!"
+	shouldHaveContained            = "Expected the collection (%v) to contain member: '%v' (but it didn't)!"
+	shouldNotHaveContained         = "Expected the collection (%v) NOT to contain member: '%v' (but it did)!"
+	shouldHaveBeenIn               = "Expected '%v' to be in the collection (but it wasn't)!"
+	shouldNotHaveBeenIn            = "Expected '%v' NOT to be in the collection (but it was)!"
+	shouldHaveBeenAValidCollection = "You must provide a valid collection (was %v)!"
 )
 
 const ( // strings

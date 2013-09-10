@@ -128,7 +128,7 @@ Here's the listing of assertions that this project aims to implement
      X     |So(thing, ShouldNotBeNil, thing2)
      X     |So(thing, ShouldBeTrue)
      X     |So(thing, ShouldBeFalse)
-           |__Numeric Quantity comparison__
+     X     |__Numeric Quantity comparison__
      X     |So(1, ShouldBeGreaterThan, 0)
      X     |So(1, ShouldBeGreaterThanOrEqualTo, 0)
      X     |So(1, ShouldBeLessThan, 2)
@@ -138,8 +138,8 @@ Here's the listing of assertions that this project aims to implement
      X     |So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
      X     |So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
            |__Collections__
-           |So([]int{2, 4, 6}, ShouldContain, 4)
-           |So([]int{2, 4, 6}, ShouldNotContain, 5)
+     X     |So([]int{2, 4, 6}, ShouldContain, 4)
+     X     |So([]int{2, 4, 6}, ShouldNotContain, 5)
            |So(4, ShouldBeIn, ...[]int{2, 4, 6})
            |So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
            |__Strings__ (and []byte?)
