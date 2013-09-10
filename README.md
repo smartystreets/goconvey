@@ -117,7 +117,7 @@ Here's the listing of assertions that this project aims to implement
 
  completed |usage
 :---------:|-------------------------------------------------------------
-     X     |__Equality__
+     X     |__General Equality__
      X     |So(thing, ShouldEqual, thing2)
      X     |So(thing, ShouldNotEqual, thing2)
      X     |So(thing, ShouldResemble, thing2)
@@ -128,15 +128,15 @@ Here's the listing of assertions that this project aims to implement
      X     |So(thing, ShouldNotBeNil, thing2)
      X     |So(thing, ShouldBeTrue)
      X     |So(thing, ShouldBeFalse)
-           |__Quantity comparison__
+           |__Numeric Quantity comparison__
      X     |So(1, ShouldBeGreaterThan, 0)
      X     |So(1, ShouldBeGreaterThanOrEqualTo, 0)
      X     |So(1, ShouldBeLessThan, 2)
      X     |So(1, ShouldBeLessThanOrEqualTo, 2)
-           |So(1.1, ShouldBeBetween, .8, 1.2)
-           |So(1.1, ShouldNotBeBetween, 2, 3)
-           |So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
-           |So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
+     X     |So(1.1, ShouldBeBetween, .8, 1.2)
+     X     |So(1.1, ShouldNotBeBetween, 2, 3)
+     X     |So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
+     X     |So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
            |__Collections__
            |So([]int{2, 4, 6}, ShouldContain, 4)
            |So([]int{2, 4, 6}, ShouldNotContain, 5)

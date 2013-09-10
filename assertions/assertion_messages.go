@@ -16,12 +16,15 @@ const ( // equality
 )
 
 const ( // quantity comparisons
-	shouldHaveBeenGreater        = "Expected '%v' to be greater than '%v' (but it wasn't)!"
-	shouldHaveBeenGreaterOrEqual = "Expected '%v' to be greater than or equal to '%v' (but it wasn't)!"
-	shouldHaveBeenLess           = "Expected '%v' to be less than '%v' (but it wasn't)!"
-	shouldHaveBeenLessOrEqual    = "Expected '%v' to be less than or equal to '%v' (but it wasn't)!"
-	shouldHaveBeenBetween        = "Expected '%v' to be between '%v' and '%v' (but it wasn't)!"
-	shouldNotHaveBeenBetween     = "Expected '%v' NOT to be between '%v' and '%v' (but it was)!"
+	shouldHaveBeenGreater            = "Expected '%v' to be greater than '%v' (but it wasn't)!"
+	shouldHaveBeenGreaterOrEqual     = "Expected '%v' to be greater than or equal to '%v' (but it wasn't)!"
+	shouldHaveBeenLess               = "Expected '%v' to be less than '%v' (but it wasn't)!"
+	shouldHaveBeenLessOrEqual        = "Expected '%v' to be less than or equal to '%v' (but it wasn't)!"
+	shouldHaveBeenBetween            = "Expected '%v' to be between '%v' and '%v' (but it wasn't)!"
+	shouldNotHaveBeenBetween         = "Expected '%v' NOT to be between '%v' and '%v' (but it was)!"
+	shouldHaveDifferentUpperAndLower = "The lower and upper bounds must be different values (they were both '%v')."
+	shouldHaveBeenBetweenOrEqual     = "Expected '%v' to be between '%v' and '%v' or equal to one of them (but it wasn't)!"
+	shouldNotHaveBeenBetweenOrEqual  = "Expected '%v' NOT to be between '%v' and '%v' or equal to one of them (but it was)!"
 )
 
 const ( // collections
