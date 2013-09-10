@@ -8,7 +8,6 @@ command line argument (-v) to `go test`.
 """
 
 import os
-import StringIO
 import subprocess
 import sys
 import time
