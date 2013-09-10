@@ -1,4 +1,4 @@
-package convey
+package assertions
 
 import (
 	"fmt"
@@ -254,7 +254,7 @@ func fail(t *testing.T, actual string, expected string) {
 	}
 }
 
-func so(actual interface{}, assert assertion, expected ...interface{}) string {
+func so(actual interface{}, assert func(interface{}, ...interface{}) string, expected ...interface{}) string {
 	return assert(actual, expected...)
 }
 

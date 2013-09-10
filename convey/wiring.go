@@ -44,14 +44,21 @@ func Reset(action func()) {
 // and describe how the first argument (actual) should compare with any of the
 // final (expected) arguments. How many final arguments are accepted depends on
 // the particular assertion that is passed in as the assert argument.
-// See the examples package for use cases.
+// See the examples package for use cases and the assertions package for
+// documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
-	if result := assert(actual, expected...); result == success {
+	if result := assert(actual, expected...); result == assertionSuccess {
 		reporter.Report(reporting.NewSuccessReport())
 	} else {
 		reporter.Report(reporting.NewFailureReport(result))
 	}
 }
+
+// assertion is an alias for a function with a signature that the convey.So()
+// method can handle. Any future or custom assertions should conform to this
+// method signature. The return value should be an empty string if the assertion
+// passes and a well-formed failure message if not.
+type assertion func(actual interface{}, expected ...interface{}) string
 
 func init() {
 	reporter = buildReporter()
@@ -88,3 +95,4 @@ var runner execution.Runner
 var reporter reporting.Reporter
 
 const verboseEnabled = "-test.v=true"
+const assertionSuccess = ""

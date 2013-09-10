@@ -1,4 +1,4 @@
-package convey
+package assertions
 
 import "fmt"
 
