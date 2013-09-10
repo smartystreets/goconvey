@@ -37,10 +37,10 @@ const ( // collections
 )
 
 const ( // strings
-	shouldHaveStartedWith    = "Expected '%v' to start with: \n         '%v' (but it didn't)!"
-	shouldNotHaveStartedWith = "Expected '%v' NOT to start with: \n         '%v' (but it did)!"
-	shouldHaveEndedWith      = "Expected '%v' to end with: \n         '%v' (but it didn't)!"
-	shouldNotHaveEndedWith   = "Expected '%v' NOT to end with: \n         '%v' (but it didn't)!"
+	shouldHaveStartedWith    = "Expected       '%v'\nto start with: '%v'\n(but it didn't)!"
+	shouldNotHaveStartedWith = "Expected           '%v'\nNOT to start with: '%v'\n(but it did)!"
+	shouldHaveEndedWith      = "Expected     '%v'\nto end with: '%v'\n(but it didn't)!"
+	shouldNotHaveEndedWith   = "Expected         '%v'\nNOT to end with: '%v'\n(but it didn't)!"
 )
 
 const ( // panics
@@ -50,5 +50,5 @@ const ( // panics
 
 const ( // type checking
 	shouldHaveBeenA    = "Expected '%v' to be a '%v' (but was a '%v')!"
-	shouldNotHaveBeenA = "Expected '%v to NOT be a '%v' (but it was)!"
+	shouldNotHaveBeenA = "Expected '%v' to NOT be a '%v' (but it was)!"
 )

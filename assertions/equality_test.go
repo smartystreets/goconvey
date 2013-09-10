@@ -12,21 +12,21 @@ func TestShouldEqual(t *testing.T) {
 	fail(t, so(1, ShouldEqual, 1, 2, 3), "This assertion requires exactly 1 comparison values (you provided 3).")
 
 	pass(t, so(1, ShouldEqual, 1))
-	fail(t, so(1, ShouldEqual, 2), "Expected '1'\nto equal '2'\n(but it didn't)!")
+	fail(t, so(1, ShouldEqual, 2), "Expected '1' to equal '2' (but it didn't)!")
 
 	pass(t, so(true, ShouldEqual, true))
-	fail(t, so(true, ShouldEqual, false), "Expected 'true'\nto equal 'false'\n(but it didn't)!")
+	fail(t, so(true, ShouldEqual, false), "Expected 'true' to equal 'false' (but it didn't)!")
 
 	pass(t, so("hi", ShouldEqual, "hi"))
-	fail(t, so("hi", ShouldEqual, "bye"), "Expected 'hi'\nto equal 'bye'\n(but it didn't)!")
+	fail(t, so("hi", ShouldEqual, "bye"), "Expected 'hi' to equal 'bye' (but it didn't)!")
 
 	pass(t, so(42, ShouldEqual, uint(42)))
 
-	fail(t, so(Thing1{}, ShouldEqual, Thing1{}), "Expected '{}'\nto equal '{}'\n(but it didn't)!")
-	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}), "Expected '{hi}'\nto equal '{hi}'\n(but it didn't)!")
-	fail(t, so(&Thing1{"hi"}, ShouldEqual, &Thing1{"hi"}), "Expected '&{hi}'\nto equal '&{hi}'\n(but it didn't)!")
+	fail(t, so(Thing1{}, ShouldEqual, Thing1{}), "Expected '{}' to equal '{}' (but it didn't)!")
+	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}), "Expected '{hi}' to equal '{hi}' (but it didn't)!")
+	fail(t, so(&Thing1{"hi"}, ShouldEqual, &Thing1{"hi"}), "Expected '&{hi}' to equal '&{hi}' (but it didn't)!")
 
-	fail(t, so(Thing1{}, ShouldEqual, Thing2{}), "Expected '{}'\nto equal '{}'\n(but it didn't)!")
+	fail(t, so(Thing1{}, ShouldEqual, Thing2{}), "Expected '{}' to equal '{}' (but it didn't)!")
 }
 
 func TestShouldNotEqual(t *testing.T) {
@@ -35,13 +35,13 @@ func TestShouldNotEqual(t *testing.T) {
 	fail(t, so(1, ShouldNotEqual, 1, 2, 3), "This assertion requires exactly 1 comparison values (you provided 3).")
 
 	pass(t, so(1, ShouldNotEqual, 2))
-	fail(t, so(1, ShouldNotEqual, 1), "Expected     '1'\nto NOT equal '1'\n(but it did)!")
+	fail(t, so(1, ShouldNotEqual, 1), "Expected '1' to NOT equal '1' (but it did)!")
 
 	pass(t, so(true, ShouldNotEqual, false))
-	fail(t, so(true, ShouldNotEqual, true), "Expected     'true'\nto NOT equal 'true'\n(but it did)!")
+	fail(t, so(true, ShouldNotEqual, true), "Expected 'true' to NOT equal 'true' (but it did)!")
 
 	pass(t, so("hi", ShouldNotEqual, "bye"))
-	fail(t, so("hi", ShouldNotEqual, "hi"), "Expected     'hi'\nto NOT equal 'hi'\n(but it did)!")
+	fail(t, so("hi", ShouldNotEqual, "hi"), "Expected 'hi' to NOT equal 'hi' (but it did)!")
 
 	pass(t, so(&Thing1{"hi"}, ShouldNotEqual, &Thing1{"hi"}))
 	pass(t, so(Thing1{"hi"}, ShouldNotEqual, Thing1{"hi"}))
@@ -54,7 +54,7 @@ func TestShouldResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}))
-	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "Expected '{hi}'\nto resemble '{bye}'\n(but it didn't)!")
+	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "Expected '{hi}' to resemble '{bye}' (but it didn't)!")
 }
 
 func TestShouldNotResemble(t *testing.T) {
@@ -62,7 +62,7 @@ func TestShouldNotResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"bye"}))
-	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}), "Expected        '{hi}'\nto NOT resemble '{hi}'\n(but it did)!")
+	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}), "Expected '{hi}' to NOT resemble '{hi}' (but it did)!")
 }
 
 func TestShouldPointTo(t *testing.T) {

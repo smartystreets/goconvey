@@ -3,6 +3,7 @@ package assertions
 import (
 	"path"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -15,6 +16,8 @@ func pass(t *testing.T, result string) {
 }
 
 func fail(t *testing.T, actual string, expected string) {
+	actual = format(actual)
+
 	if actual != expected {
 		if actual == "" {
 			actual = "(empty)"
@@ -24,6 +27,13 @@ func fail(t *testing.T, actual string, expected string) {
 		t.Errorf("Expectation should have failed but passed (see %s: line %d). \nExpected: %s\nActual:   %s\n",
 			base, line, expected, actual)
 	}
+}
+func format(message string) string {
+	message = strings.Replace(message, "\n", " ", -1)
+	for strings.Contains(message, "  ") {
+		message = strings.Replace(message, "  ", " ", -1)
+	}
+	return message
 }
 
 func so(actual interface{}, assert func(interface{}, ...interface{}) string, expected ...interface{}) string {
