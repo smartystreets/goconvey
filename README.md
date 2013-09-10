@@ -14,7 +14,7 @@ Installation:
 -------------
 
 Assuming you have set your $GOPATH environment variable:
-	
+
 	$ go get github.com/smartystreets/goconvey
 
 

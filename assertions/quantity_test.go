@@ -5,8 +5,8 @@ import (
 )
 
 func TestShouldBeGreaterThan(t *testing.T) {
-	fail(t, so(1, ShouldBeGreaterThan), needOneValue)
-	fail(t, so(1, ShouldBeGreaterThan, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeGreaterThan), "This assertion requires exactly 1 comparison values (you provided 0).")
+	fail(t, so(1, ShouldBeGreaterThan, 0, 0), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(1, ShouldBeGreaterThan, 0))
 	pass(t, so(1.1, ShouldBeGreaterThan, 1))
@@ -20,8 +20,8 @@ func TestShouldBeGreaterThan(t *testing.T) {
 }
 
 func TestShouldBeGreaterThanOrEqual(t *testing.T) {
-	fail(t, so(1, ShouldBeGreaterThanOrEqualTo), needOneValue)
-	fail(t, so(1, ShouldBeGreaterThanOrEqualTo, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeGreaterThanOrEqualTo), "This assertion requires exactly 1 comparison values (you provided 0).")
+	fail(t, so(1, ShouldBeGreaterThanOrEqualTo, 0, 0), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(1, ShouldBeGreaterThanOrEqualTo, 1))
 	pass(t, so(1.1, ShouldBeGreaterThanOrEqualTo, 1.1))
@@ -40,8 +40,8 @@ func TestShouldBeGreaterThanOrEqual(t *testing.T) {
 }
 
 func TestShouldBeLessThan(t *testing.T) {
-	fail(t, so(1, ShouldBeLessThan), needOneValue)
-	fail(t, so(1, ShouldBeLessThan, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeLessThan), "This assertion requires exactly 1 comparison values (you provided 0).")
+	fail(t, so(1, ShouldBeLessThan, 0, 0), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(0, ShouldBeLessThan, 1))
 	pass(t, so(1, ShouldBeLessThan, 1.1))
@@ -55,8 +55,8 @@ func TestShouldBeLessThan(t *testing.T) {
 }
 
 func TestShouldBeLessThanOrEqualTo(t *testing.T) {
-	fail(t, so(1, ShouldBeLessThanOrEqualTo), needOneValue)
-	fail(t, so(1, ShouldBeLessThanOrEqualTo, 0, 0), "This assertion only accepts 1 value to be compared (and 2 were provided).")
+	fail(t, so(1, ShouldBeLessThanOrEqualTo), "This assertion requires exactly 1 comparison values (you provided 0).")
+	fail(t, so(1, ShouldBeLessThanOrEqualTo, 0, 0), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(1, ShouldBeLessThanOrEqualTo, 1))
 	pass(t, so(1.1, ShouldBeLessThanOrEqualTo, 1.1))

@@ -12,7 +12,7 @@ import (
 
 // ShouldEqual receives exactly two parameters and does an equality check.
 func ShouldEqual(actual interface{}, expected ...interface{}) string {
-	if message := onlyOne(expected); message != success {
+	if message := need(1, expected); message != success {
 		return message
 	}
 	return shouldEqual(actual, expected[0])
@@ -33,7 +33,7 @@ func shouldEqual(actual, expected interface{}) (message string) {
 
 // ShouldNotEqual receives exactly two parameters and does an inequality check.
 func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
-	if fail := onlyOne(expected); fail != success {
+	if fail := need(1, expected); fail != success {
 		return fail
 	} else if ShouldEqual(actual, expected[0]) == success {
 		return fmt.Sprintf(shouldNotHaveBeenEqual, actual, expected[0])
@@ -43,7 +43,7 @@ func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 
 // ShouldResemble receives exactly two parameters and does a deep equal check (see reflect.DeepEqual)
 func ShouldResemble(actual interface{}, expected ...interface{}) string {
-	if message := onlyOne(expected); message != success {
+	if message := need(1, expected); message != success {
 		return message
 	}
 
@@ -56,7 +56,7 @@ func ShouldResemble(actual interface{}, expected ...interface{}) string {
 
 // ShouldNotResemble receives exactly two parameters and does an inverse deep equal check (see reflect.DeepEqual)
 func ShouldNotResemble(actual interface{}, expected ...interface{}) string {
-	if message := onlyOne(expected); message != success {
+	if message := need(1, expected); message != success {
 		return message
 	} else if ShouldResemble(actual, expected[0]) == success {
 		return fmt.Sprintf(shouldNotHaveResembled, actual, expected[0])
@@ -66,7 +66,7 @@ func ShouldNotResemble(actual interface{}, expected ...interface{}) string {
 
 // ShouldPointTo receives exactly two parameters and checks to see that they point to the same address.
 func ShouldPointTo(actual interface{}, expected ...interface{}) string {
-	if message := onlyOne(expected); message != success {
+	if message := need(1, expected); message != success {
 		return message
 	}
 	return shouldPointTo(actual, expected[0])
@@ -94,7 +94,7 @@ func shouldPointTo(actual, expected interface{}) string {
 
 // ShouldNotPointTo receives exactly two parameters and checks to see that they point to different addresess.
 func ShouldNotPointTo(actual interface{}, expected ...interface{}) string {
-	if message := onlyOne(expected); message != success {
+	if message := need(1, expected); message != success {
 		return message
 	}
 	compare := ShouldPointTo(actual, expected[0])
@@ -108,7 +108,7 @@ func ShouldNotPointTo(actual interface{}, expected ...interface{}) string {
 
 // ShouldBeNil receives a single parameter and ensures that it is nil.
 func ShouldBeNil(actual interface{}, expected ...interface{}) string {
-	if fail := none(expected); fail != success {
+	if fail := need(0, expected); fail != success {
 		return fail
 	} else if actual == nil {
 		return success
@@ -124,7 +124,7 @@ func interfaceIsNilPointer(actual interface{}) bool {
 
 // ShouldNotBeNil receives a single parameter and ensures that it is not nil.
 func ShouldNotBeNil(actual interface{}, expected ...interface{}) string {
-	if fail := none(expected); fail != success {
+	if fail := need(0, expected); fail != success {
 		return fail
 	} else if ShouldBeNil(actual) == success {
 		return fmt.Sprintf(shouldNotHaveBeenNil, actual)
@@ -134,7 +134,7 @@ func ShouldNotBeNil(actual interface{}, expected ...interface{}) string {
 
 // ShouldBeTrue receives a single parameter and ensures that it is true.
 func ShouldBeTrue(actual interface{}, expected ...interface{}) string {
-	if fail := none(expected); fail != success {
+	if fail := need(0, expected); fail != success {
 		return fail
 	} else if actual != true {
 		return fmt.Sprintf(shouldHaveBeenTrue, actual)
@@ -144,7 +144,7 @@ func ShouldBeTrue(actual interface{}, expected ...interface{}) string {
 
 // ShouldBeFalse receives a single parameter and ensures that it is false.
 func ShouldBeFalse(actual interface{}, expected ...interface{}) string {
-	if fail := none(expected); fail != success {
+	if fail := need(0, expected); fail != success {
 		return fail
 	} else if actual != false {
 		return fmt.Sprintf(shouldHaveBeenFalse, actual)
