@@ -142,13 +142,13 @@ Here's the listing of assertions that this project aims to implement
      X     | So([]int{2, 4, 6}, ShouldNotContain, 5)
      X     | So(4, ShouldBeIn, ...[]int{2, 4, 6})
      X     | So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
-           | __Strings__ (and []byte?)
+     X     | __Strings__ (and []byte?)
      X     | So("asdf", ShouldStartWith, "as")
      X     | So("asdf", ShouldNotStartWith, "df")
      X     | So("asdf", ShouldEndWith, "df")
      X     | So("asdf", ShouldNotEndWith, "df")
-           | So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments
-           | So("asdf", ShouldNotContain, "er")
+     X     | So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments
+     X     | So("asdf", ShouldNotContain, "er")
            | __panics__
            | So(func(), ShouldPanicWith, "") // or errors.New("something")
            | __Type checking__

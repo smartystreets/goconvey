@@ -15,6 +15,7 @@ func ShouldContain(actual interface{}, expected ...interface{}) string {
 	if fail := need(1, expected); fail != success {
 		return fail
 	}
+
 	if matchError := oglematchers.Contains(expected[0]).Matches(actual); matchError != nil {
 		typeName := reflect.TypeOf(actual)
 

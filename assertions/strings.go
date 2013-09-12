@@ -105,3 +105,39 @@ func shouldNotEndWith(value, suffix string) string {
 	}
 	return success
 }
+
+func ShouldContainSubstring(actual interface{}, expected ...interface{}) string {
+	if fail := need(1, expected); fail != success {
+		return fail
+	}
+
+	long, longOk := actual.(string)
+	short, shortOk := expected[0].(string)
+
+	if !longOk || !shortOk {
+		return fmt.Sprintf(shouldBothBeStrings, reflect.TypeOf(actual), reflect.TypeOf(expected[0]))
+	}
+
+	if !strings.Contains(long, short) {
+		return fmt.Sprintf(shouldHaveContainedSubstring, long, short)
+	}
+	return success
+}
+
+func ShouldNotContainSubstring(actual interface{}, expected ...interface{}) string {
+	if fail := need(1, expected); fail != success {
+		return fail
+	}
+
+	long, longOk := actual.(string)
+	short, shortOk := expected[0].(string)
+
+	if !longOk || !shortOk {
+		return fmt.Sprintf(shouldBothBeStrings, reflect.TypeOf(actual), reflect.TypeOf(expected[0]))
+	}
+
+	if strings.Contains(long, short) {
+		return fmt.Sprintf(shouldNotHaveContainedSubstring, long, short)
+	}
+	return success
+}
