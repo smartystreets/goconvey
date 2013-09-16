@@ -55,6 +55,6 @@ const ( // panics
 )
 
 const ( // type checking
-	shouldHaveBeenA    = "Expected '%v' to be a '%v' (but was a '%v')!"
-	shouldNotHaveBeenA = "Expected '%v' to NOT be a '%v' (but it was)!"
+	shouldHaveBeenA    = "Expected '%v' to be: '%v' (but was: '%v')!"
+	shouldNotHaveBeenA = "Expected '%v' to NOT be: '%v' (but it was)!"
 )

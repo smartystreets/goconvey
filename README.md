@@ -154,9 +154,9 @@ Here's the listing of assertions that this project aims to implement
      X     | So(func(), ShouldNotPanic)
      X     | So(func(), ShouldPanicWith, "") // or errors.New("something")
      X     | So(func(), ShouldNotPanicWith, "") // or errors.New("something")
-           | __Type checking__
-           | So(1, ShouldHaveSameTypeAs, 0)
-           | So(1, ShouldNotHaveSameTypeAs, "asdf")
+     X     | __Type checking__
+     X     | So(1, ShouldHaveSameTypeAs, 0)
+     X     | So(1, ShouldNotHaveSameTypeAs, "asdf")
            | __time__
            | So(time.Now(), ShouldHappenBefore, time.Now())
            | So(time.Now(), ShouldHappenOnOrBefore, time.Now())
