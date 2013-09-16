@@ -14,8 +14,11 @@ func (self *statistics) Enter(title, id string) {}
 
 func (self *statistics) Report(r *Report) {
 	self.total++
-	if !self.failing && (r.Error != nil || r.Failure != "") {
+	if !self.failing && r.Failure != "" {
 		self.failing = true
+	}
+	if !self.erroring && r.Error != nil {
+		self.erroring = true
 	}
 }
 
@@ -26,7 +29,9 @@ func (self *statistics) EndStory() {
 	if self.total == 1 {
 		plural = ""
 	}
-	if self.failing {
+	if self.failing && !self.erroring {
+		fmt.Print(yellowColor)
+	} else if self.erroring {
 		fmt.Print(redColor)
 	} else {
 		fmt.Print(greenColor)
@@ -42,7 +47,8 @@ func NewStatisticsReporter(out *printing.Printer) *statistics {
 }
 
 type statistics struct {
-	out     *printing.Printer
-	total   int
-	failing bool
+	out      *printing.Printer
+	total    int
+	failing  bool
+	erroring bool
 }

@@ -76,14 +76,15 @@ func isExternal(line string) bool {
 const newline = "\n"
 
 const (
-	greenColor = "\033[32m"
-	redColor   = "\033[31m"
-	resetColor = "\033[0m"
+	greenColor  = "\033[32m"
+	yellowColor = "\033[33m"
+	redColor    = "\033[31m"
+	resetColor  = "\033[0m"
 )
 
 const (
-	success         = "✓"
-	failure         = "✗"
+	success         = "✔"
+	failure         = "✘"
 	error_          = "🔥"
 	dotSuccess      = "."
 	dotFailure      = "x"

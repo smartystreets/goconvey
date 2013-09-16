@@ -54,15 +54,15 @@ Verbose mode:
 	  Subject: Bowling Game Scoring 
 	    Given a fresh score card 
 	      When all gutter balls are thrown 
-	        The score should be zero ✓
+	        The score should be zero ✔
 	      When all throws knock down only one pin 
-	        The score should be 20 ✓
+	        The score should be 20 ✔
 	      When a spare is thrown 
-	        The score should include a spare bonus. ✓
+	        The score should include a spare bonus. ✔
 	      When a strike is thrown 
-	        The score should include a strike bonus. ✓
+	        The score should include a strike bonus. ✔
 	      When all strikes are thrown 
-	        The score should be 300. ✓
+	        The score should be 300. ✔
 
 	5 assertions and counting
 
@@ -72,11 +72,11 @@ Verbose mode:
 	  Subject: Integer incrementation and decrementation 
 	    Given a starting integer value 
 	      When incremented 
-	        The value should be greater by one ✓
-	        The value should NOT be what it used to be ✓
+	        The value should be greater by one ✔
+	        The value should NOT be what it used to be ✔
 	      When decremented 
-	        The value should be lesser by one ✓
-	        The value should NOT be what it used to be ✓
+	        The value should be lesser by one ✔
+	        The value should NOT be what it used to be ✔
 
 	9 assertions and counting
 
@@ -152,8 +152,8 @@ Here's the listing of assertions that this project aims to implement
            | __panics__
            | So(func(), ShouldPanicWith, "") // or errors.New("something")
            | __Type checking__
-           | So(1, ShouldBeA, reflect.TypeOf(0))
-           | So(1, ShouldNotBeA, reflect.TypeOf(0))
+           | So(1, ShouldMatchTypeWith, 0)
+           | So(1, ShouldNotMatchTypeWith, "asdf")
            | __time__
            | So(time.Now(), ShouldHappenBefore, time.Now())
            | So(time.Now(), ShouldHappenOnOrBefore, time.Now())

@@ -16,7 +16,7 @@ func (self *dot) Report(r *Report) {
 		fmt.Print(redColor)
 		self.out.Insert(dotError)
 	} else if r.Failure != "" {
-		fmt.Print(redColor)
+		fmt.Print(yellowColor)
 		self.out.Insert(dotFailure)
 	} else {
 		fmt.Print(greenColor)

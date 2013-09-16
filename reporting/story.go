@@ -23,16 +23,16 @@ func (self *story) Enter(title, id string) {
 
 func (self *story) Report(r *Report) {
 	if r.Error != nil {
+		fmt.Print(redColor)
 		self.out.Insert(error_)
 	} else if r.Failure != "" {
-		fmt.Print(redColor)
+		fmt.Print(yellowColor)
 		self.out.Insert(failure)
-		fmt.Print(resetColor)
 	} else {
 		fmt.Print(greenColor)
 		self.out.Insert(success)
-		fmt.Print(resetColor)
 	}
+	fmt.Print(resetColor)
 }
 
 func (self *story) Exit() {

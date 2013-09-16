@@ -40,7 +40,7 @@ func (self *problem) showErrors() {
 	self.errors = []*Report{}
 }
 func (self *problem) showFailures() {
-	fmt.Print(redColor)
+	fmt.Print(yellowColor)
 	for i, f := range self.failures {
 		if i == 0 {
 			self.out.Println("\nFailures:\n")
