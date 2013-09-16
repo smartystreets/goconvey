@@ -158,12 +158,12 @@ Here's the listing of assertions that this project aims to implement
      X     | So(1, ShouldHaveSameTypeAs, 0)
      X     | So(1, ShouldNotHaveSameTypeAs, "asdf")
            | __time__
-           | So(time.Now(), ShouldHappenBefore, time.Now())
+     X     | So(time.Now(), ShouldHappenBefore, time.Now())
            | So(time.Now(), ShouldHappenOnOrBefore, time.Now())
            | So(time.Now(), ShouldHappenAfter, time.Now())
            | So(time.Now(), ShouldHappenOnOrAfter, time.Now())
            | So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
-           | So(time.Now(), ShouldHappenBetweenOrOn, time.Now(), time.Now())
+           | So(time.Now(), ShouldHappenOnOrBetween, time.Now(), time.Now())
            | So(time.New(), ShouldHappenWithin, duration, time.Now())
 
 Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 

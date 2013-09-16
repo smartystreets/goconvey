@@ -58,3 +58,14 @@ const ( // type checking
 	shouldHaveBeenA    = "Expected '%v' to be: '%v' (but was: '%v')!"
 	shouldNotHaveBeenA = "Expected '%v' to NOT be: '%v' (but it was)!"
 )
+
+const ( // time comparisons
+	shouldUseTimes                = "You must provide time instances as arguments to this assertion."
+	shouldHaveHappenedBefore      = "Expected '%v' to happen before '%v' (it happened '%v' after)!"
+	shouldHaveHappenedOneOrBefore = "Expected '%v' to happen on or before '%v' (it happened '%v' after)!"
+	shouldHaveHappenedAfter       = "Expected '%v' to happen after '%v' (it happened '%v' before)!"
+	shouldHaveHappenedOnOrAfter   = "Expected '%v' to happen on or after '%v' (it happened '%v' before)!"
+	shouldHaveHappenedBetween     = "Expected '%v' to happen between '%v' and '%v' (it happened '%v' outside threshold)!"
+	shouldHaveHappenedOnOrBetween = "Expected '%v' to happen on or between '%v' (it happened '%v' outside threshold)!"
+	shouldHaveHappenedWithin      = "Expected '%v' to happen within '%v' (it happened within '%v')!"
+)
