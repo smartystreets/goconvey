@@ -47,8 +47,11 @@ const ( // strings
 )
 
 const ( // panics
-	shouldHavePanickedWith = "Expected func() to panic with '%v' (but it panicked with '%v')!"
-	shouldHavePanicked     = "Expected func() to panic with '%v' (but it didn't panic at all)!"
+	shouldUseVoidNiladicFunction = "You must provide a void, niladic function as the first argument!"
+	shouldHavePanickedWith       = "Expected func() to panic with '%v' (but it panicked with '%v')!"
+	shouldHavePanicked           = "Expected func() to panic (but it didn't)!"
+	shouldNotHavePanicked        = "Expected func() NOT to panic (but it did)!"
+	shouldNotHavePanickedWith    = "Expected func() NOT to panic with '%v' (but it did)!"
 )
 
 const ( // type checking
