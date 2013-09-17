@@ -1,6 +1,8 @@
 package reporting
 
 import (
+	"fmt"
+	"os"
 	"runtime"
 	"strings"
 )
@@ -76,13 +78,6 @@ func isExternal(line string) bool {
 const newline = "\n"
 
 const (
-	greenColor  = "\033[32m"
-	yellowColor = "\033[33m"
-	redColor    = "\033[31m"
-	resetColor  = "\033[0m"
-)
-
-const (
 	success         = "✔"
 	failure         = "✘"
 	error_          = "🔥"
@@ -92,3 +87,20 @@ const (
 	errorTemplate   = "* %s \nLine %d: - %v \n%s\n"
 	failureTemplate = "* %s \nLine %d:\n%s\n"
 )
+
+var (
+	greenColor  = "\033[32m"
+	yellowColor = "\033[33m"
+	redColor    = "\033[31m"
+	resetColor  = "\033[0m"
+)
+
+func init() {
+	if !xterm() {
+		greenColor, yellowColor, redColor, resetColor = "", "", "", ""
+	}
+}
+
+func xterm() bool {
+	return strings.Contains(fmt.Sprintf("%v", os.Environ()), " TERM=xterm")
+}
