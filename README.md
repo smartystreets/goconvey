@@ -149,6 +149,8 @@ Here's the listing of assertions that this project aims to implement
      X     | So("asdf", ShouldNotEndWith, "df")
      X     | So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments?
      X     | So("asdf", ShouldNotContain, "er")
+     X     | So("adsf", ShouldBeBlank)
+     X     | So("asdf", ShouldNotBeBlank)
      X     | __panics__
      X     | So(func(), ShouldPanic)
      X     | So(func(), ShouldNotPanic)

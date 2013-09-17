@@ -70,3 +70,19 @@ func TestShouldNotContainSubstring(t *testing.T) {
 	pass(t, so("qwer", ShouldNotContainSubstring, "sd"))
 	fail(t, so("asdf", ShouldNotContainSubstring, "sd"), "Expected 'asdf' NOT to contain substring 'sd' (but it didn't)!")
 }
+
+func TestShouldBeBlank(t *testing.T) {
+	fail(t, so("", ShouldBeBlank, "adsf"), "This assertion requires exactly 0 comparison values (you provided 1).")
+	fail(t, so(1, ShouldBeBlank), "The argument to this assertion must be a string (you provided int).")
+
+	fail(t, so("asdf", ShouldBeBlank), "Expected 'asdf' to be blank (but it wasn't)!")
+	pass(t, so("", ShouldBeBlank))
+}
+
+func TestShouldNotBeBlank(t *testing.T) {
+	fail(t, so("", ShouldNotBeBlank, "adsf"), "This assertion requires exactly 0 comparison values (you provided 1).")
+	fail(t, so(1, ShouldNotBeBlank), "The argument to this assertion must be a string (you provided int).")
+
+	fail(t, so("", ShouldNotBeBlank), "Expected value to NOT be blank (but it was)!")
+	pass(t, so("asdf", ShouldNotBeBlank))
+}

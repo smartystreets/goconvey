@@ -143,3 +143,33 @@ func ShouldNotContainSubstring(actual interface{}, expected ...interface{}) stri
 	}
 	return success
 }
+
+// ShouldBeBlank receives exactly 1 string parameter and ensures that it is equal to "".
+func ShouldBeBlank(actual interface{}, expected ...interface{}) string {
+	if fail := need(0, expected); fail != success {
+		return fail
+	}
+	value, ok := actual.(string)
+	if !ok {
+		return fmt.Sprintf(shouldBeString, reflect.TypeOf(actual))
+	}
+	if value != "" {
+		return fmt.Sprintf(shouldHaveBeenBlank, value)
+	}
+	return success
+}
+
+// ShouldNotBeBlank receives exactly 1 string parameter and ensures that it is equal to "".
+func ShouldNotBeBlank(actual interface{}, expected ...interface{}) string {
+	if fail := need(0, expected); fail != success {
+		return fail
+	}
+	value, ok := actual.(string)
+	if !ok {
+		return fmt.Sprintf(shouldBeString, reflect.TypeOf(actual))
+	}
+	if value == "" {
+		return shouldNotHaveBeenBlank
+	}
+	return success
+}
