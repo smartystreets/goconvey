@@ -157,14 +157,16 @@ Here's the listing of assertions that this project aims to implement
      X     | __Type checking__
      X     | So(1, ShouldHaveSameTypeAs, 0)
      X     | So(1, ShouldNotHaveSameTypeAs, "asdf")
-           | __time__
+     X     | __time__
      X     | So(time.Now(), ShouldHappenBefore, time.Now())
-           | So(time.Now(), ShouldHappenOnOrBefore, time.Now())
-           | So(time.Now(), ShouldHappenAfter, time.Now())
-           | So(time.Now(), ShouldHappenOnOrAfter, time.Now())
-           | So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
-           | So(time.Now(), ShouldHappenOnOrBetween, time.Now(), time.Now())
-           | So(time.New(), ShouldHappenWithin, duration, time.Now())
+     X     | So(time.Now(), ShouldHappenOnOrBefore, time.Now())
+     X     | So(time.Now(), ShouldHappenAfter, time.Now())
+     X     | So(time.Now(), ShouldHappenOnOrAfter, time.Now())
+     X     | So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
+     X     | So(time.Now(), ShouldHappenOnOrBetween, time.Now(), time.Now())
+     X     | So(time.Now(), ShouldNotHappenOnOrBetween, time.Now(), time.Now())
+     X     | So(time.New(), ShouldHappenWithin, duration, time.Now())
+     X     | So(time.New(), ShouldNotHappenWithin, duration, time.Now())
 
 Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 
 [oglematchers](https://github.com/smartystreets/oglmatchers) library, which
