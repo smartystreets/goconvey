@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 """
-This script scans the current working directory for changes to .go files and runs 
-`go test` in each folder where *_test.go files are found. It does this indefinitely 
-or until a KeyboardInterrupt is raised (<Ctrl+c>). This script passes the verbosity 
-command line argument (-v) to `go test`.
+This script scans the current working directory for changes to .go files and 
+runs `go test` in each folder where *_test.go files are found. It does this 
+indefinitely or until a KeyboardInterrupt is raised (<Ctrl+c>). This script 
+passes the verbosity command line argument (-v) to `go test`.
 """
+
 
 import os
 import subprocess
@@ -94,7 +95,8 @@ class TestRunner(object):
     def _run_test(self):
         subprocess.call('go test -i', shell=True)
         try:
-            output = subprocess.check_output('go test ' + self.verbosity, shell=True)
+            output = subprocess.check_output(
+                'go test ' + self.verbosity, shell=True)
             self.write_output(output)
         except subprocess.CalledProcessError as error:
             self.write_output(error.output)
@@ -126,9 +128,9 @@ class OutputWriter(object):
         sys.stdout.write(value)
         sys.stdout.flush()
         if self.logfile is not None:
-            self.write_to_log(value)
+            self._write_to_log(value)
         
-    def write_to_log(self, value):
+    def _write_to_log(self, value):
         output = value\
             .replace(RED_COLOR, '')\
             .replace(GREEN_COLOR, '')\
@@ -143,10 +145,11 @@ class OutputWriter(object):
 
 
 EVEN = '='
-ODD = '-'
-RESET_COLOR = '\033[0m'
-RED_COLOR = '\033[31m'
-GREEN_COLOR = '\033[32m'
+ODD  = '-'
+RESET_COLOR  = '\033[0m'
+RED_COLOR    = '\033[31m'
+YELLOW_COLOR = '\033[33m'
+GREEN_COLOR  = '\033[32m'
 
 
 def parse_bool_arg(name):
