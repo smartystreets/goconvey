@@ -106,6 +106,7 @@ func shouldNotEndWith(value, suffix string) string {
 	return success
 }
 
+// ShouldContainSubstring receives exactly 2 string parameters and ensures that the first contains the second as a substring.
 func ShouldContainSubstring(actual interface{}, expected ...interface{}) string {
 	if fail := need(1, expected); fail != success {
 		return fail
@@ -124,6 +125,7 @@ func ShouldContainSubstring(actual interface{}, expected ...interface{}) string 
 	return success
 }
 
+// ShouldNotContainSubstring receives exactly 2 string parameters and ensures that the first does NOT contain the second as a substring.
 func ShouldNotContainSubstring(actual interface{}, expected ...interface{}) string {
 	if fail := need(1, expected); fail != success {
 		return fail
