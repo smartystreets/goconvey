@@ -133,6 +133,7 @@ class OutputWriter(object):
     def _write_to_log(self, value):
         output = value\
             .replace(RED_COLOR, '')\
+            .replace(YELLOW_COLOR, '')\
             .replace(GREEN_COLOR, '')\
             .replace(RESET_COLOR, '')
         self.logfile.write(output)
