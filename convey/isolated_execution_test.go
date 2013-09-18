@@ -195,6 +195,48 @@ func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
 	expectEqual(t, "2ab2", output)
 }
 
+func TestSkipTopLevel(t *testing.T) {
+	output := prepare()
+
+	SkipConvey("hi", t, func() {
+		output += "This shouldn't be executed!"
+	})
+
+	expectEqual(t, "", output)
+}
+
+func TestSkipNestedLevel(t *testing.T) {
+	output := prepare()
+
+	Convey("hi", t, func() {
+		output += "yes"
+
+		SkipConvey("bye", func() {
+			output += "no"
+		})
+	})
+
+	expectEqual(t, "yes", output)
+}
+
+func TestSkipNestedLevelSkipsAllChildLevels(t *testing.T) {
+	output := prepare()
+
+	Convey("hi", t, func() {
+		output += "yes"
+
+		SkipConvey("bye", func() {
+			output += "no"
+
+			Convey("byebye", func() {
+				output += "no-no"
+			})
+		})
+	})
+
+	expectEqual(t, "yes", output)
+}
+
 func prepare() string {
 	runner = execution.NewRunner()
 	return ""

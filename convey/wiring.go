@@ -2,6 +2,7 @@ package convey
 
 import (
 	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/printing"
 	"github.com/smartystreets/goconvey/reporting"
 	"os"
@@ -24,7 +25,18 @@ import (
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
 	name, action, test := parseRegistration(items)
+	register(name, action, test)
+}
 
+// SkipConvey is analagous to Convey except that the scope is not executed
+// (which means that child scopes defined within this scope are not run either).
+func SkipConvey(items ...interface{}) {
+	name, _, test := parseRegistration(items)
+	action := execution.NewSkippedAction(skipReport)
+	register(name, action, test)
+}
+
+func register(name string, action *execution.Action, test gotest.T) {
 	if test != nil {
 		runner.Begin(test, name, action)
 		runner.Run()
@@ -33,10 +45,14 @@ func Convey(items ...interface{}) {
 	}
 }
 
+func skipReport() {
+	reporter.Report(reporting.NewSkipReport())
+}
+
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
-	runner.RegisterReset(action)
+	runner.RegisterReset(execution.NewAction(action))
 }
 
 // So is the means by which assertions are made against the system under test.

@@ -13,24 +13,31 @@ type Report struct {
 	Failure    string
 	Error      interface{}
 	stackTrace string
+	Skipped    bool
 }
 
 func NewFailureReport(failure string) *Report {
 	file, line := caller()
 	stack := stackTrace()
-	report := Report{file, line, failure, nil, stack}
+	report := Report{file, line, failure, nil, stack, false}
 	return &report
 }
 func NewErrorReport(err interface{}) *Report {
 	file, line := caller()
 	stack := fullStackTrace()
-	report := Report{file, line, "", err, stack}
+	report := Report{file, line, "", err, stack, false}
 	return &report
 }
 func NewSuccessReport() *Report {
 	file, line := caller()
 	stack := stackTrace()
-	report := Report{file, line, "", nil, stack}
+	report := Report{file, line, "", nil, stack, false}
+	return &report
+}
+func NewSkipReport() *Report {
+	file, line := caller()
+	stack := stackTrace()
+	report := Report{file, line, "", nil, stack, true}
 	return &report
 }
 
@@ -81,9 +88,11 @@ const (
 	success         = "✔"
 	failure         = "✘"
 	error_          = "🔥"
+	skip            = "⚠"
 	dotSuccess      = "."
 	dotFailure      = "x"
 	dotError        = "E"
+	dotSkip         = "S"
 	errorTemplate   = "* %s \nLine %d: - %v \n%s\n"
 	failureTemplate = "* %s \nLine %d:\n%s\n"
 )

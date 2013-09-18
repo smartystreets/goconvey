@@ -1,6 +1,7 @@
 package convey
 
 import (
+	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 	"testing"
@@ -40,9 +41,7 @@ func TestParseRegistrationWithoutIncludingGoTestObject(t *testing.T) {
 	situation := "Hello, World!"
 	runner = myRunner
 	executed := false
-	action := func() {
-		executed = true
-	}
+	action := func() { executed = true }
 
 	Convey(situation, action)
 
@@ -120,9 +119,7 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesGoTest(t *testing.T)
 	runner = myRunner
 	var test gotest.T = &fakeGoTest{}
 	executed := 0
-	action := func() {
-		executed++
-	}
+	action := func() { executed++ }
 
 	Convey(situation, test, action)
 	Convey(nextSituation, action)
@@ -143,28 +140,28 @@ func TestParseFirstRegistrationAndNextRegistration_PreservesGoTest(t *testing.T)
 type fakeRunner struct {
 	test          gotest.T
 	situation     string
-	action        func()
+	action        *execution.Action
 	runnerStarted bool
 }
 
 func newFakeRunner() *fakeRunner {
 	f := fakeRunner{}
-	f.action = func() {}
+	f.action = execution.NewAction(func() {})
 	return &f
 }
 
-func (self *fakeRunner) Begin(test gotest.T, situation string, action func()) {
+func (self *fakeRunner) Begin(test gotest.T, situation string, action *execution.Action) {
 	self.test = test
 	self.Register(situation, action)
 }
-func (self *fakeRunner) Register(situation string, action func()) {
+func (self *fakeRunner) Register(situation string, action *execution.Action) {
 	self.situation = situation
 	self.action = action
 	if self.action != nil {
-		self.action()
+		self.action.Invoke()
 	}
 }
-func (self *fakeRunner) RegisterReset(action func()) {}
+func (self *fakeRunner) RegisterReset(action *execution.Action) {}
 func (self *fakeRunner) Run() {
 	self.runnerStarted = true
 }

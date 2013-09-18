@@ -66,7 +66,6 @@ func TestScoring(t *testing.T) {
 				})
 			})
 		})
-
 	})
 }
 

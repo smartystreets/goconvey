@@ -28,6 +28,9 @@ func (self *story) Report(r *Report) {
 	} else if r.Failure != "" {
 		fmt.Print(yellowColor)
 		self.out.Insert(failure)
+	} else if r.Skipped {
+		fmt.Print(yellowColor)
+		self.out.Insert(skip)
 	} else {
 		fmt.Print(greenColor)
 		self.out.Insert(success)

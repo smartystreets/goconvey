@@ -18,6 +18,9 @@ func (self *dot) Report(r *Report) {
 	} else if r.Failure != "" {
 		fmt.Print(yellowColor)
 		self.out.Insert(dotFailure)
+	} else if r.Skipped {
+		fmt.Print(yellowColor)
+		self.out.Insert(dotSkip)
 	} else {
 		fmt.Print(greenColor)
 		self.out.Insert(dotSuccess)

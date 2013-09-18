@@ -20,8 +20,8 @@ func (parent *scope) hasChild(child *scope) bool {
 	return false
 }
 
-func (self *scope) registerReset(action func()) {
-	self.resets[functionId(action)] = action
+func (self *scope) registerReset(action *Action) {
+	self.resets[action.Name] = action
 }
 
 func (self *scope) visited() bool {
@@ -31,7 +31,7 @@ func (self *scope) visited() bool {
 func (parent *scope) visit() {
 	defer parent.exit()
 	parent.enter()
-	parent.action()
+	parent.action.Invoke()
 	parent.visitChildren()
 }
 func (parent *scope) enter() {
@@ -54,7 +54,7 @@ func (parent *scope) visitChild() {
 }
 func (parent *scope) cleanup() {
 	for _, reset := range parent.resets {
-		reset()
+		reset.Invoke()
 	}
 }
 func (parent *scope) exit() {
@@ -65,11 +65,11 @@ func (parent *scope) exit() {
 	parent.reporter.Exit()
 }
 
-func newScope(title string, action func(), reporter reporting.Reporter) *scope {
-	self := scope{name: functionName(action), title: title, action: action}
+func newScope(title string, action *Action, reporter reporting.Reporter) *scope {
+	self := scope{name: action.Name, title: title, action: action}
 	self.children = make(map[string]*scope)
 	self.birthOrder = []string{}
-	self.resets = make(map[uintptr]func())
+	self.resets = make(map[string]*Action)
 	self.reporter = reporter
 	return &self
 }
@@ -77,11 +77,11 @@ func newScope(title string, action func(), reporter reporting.Reporter) *scope {
 type scope struct {
 	name       string
 	title      string
-	action     func()
+	action     *Action
 	children   map[string]*scope
 	birthOrder []string
 	child      int
-	resets     map[uintptr]func()
+	resets     map[string]*Action
 	panicked   bool
 	reporter   reporting.Reporter
 }
