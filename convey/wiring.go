@@ -30,6 +30,7 @@ func Convey(items ...interface{}) {
 
 // SkipConvey is analagous to Convey except that the scope is not executed
 // (which means that child scopes defined within this scope are not run either).
+// The reporter will be notified that this step was skipped.
 func SkipConvey(items ...interface{}) {
 	name, _, test := parseRegistration(items)
 	action := execution.NewSkippedAction(skipReport)
@@ -68,6 +69,12 @@ func So(actual interface{}, assert assertion, expected ...interface{}) {
 	} else {
 		reporter.Report(reporting.NewFailureReport(result))
 	}
+}
+
+// SkipSo is analagous to So except that the assertion that would have been passed
+// to So is not executed and the reporter is notified that the assertion was skipped.
+func SkipSo(stuff ...interface{}) {
+	skipReport()
 }
 
 // assertion is an alias for a function with a signature that the convey.So()

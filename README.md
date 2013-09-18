@@ -221,3 +221,27 @@ I can then make use of the assertion function when calling the `So(...)` method 
     Convey("All caps always makes text more meaningful", func() {
         So("BOO!", shouldScareGophersMoreThan, "boo")
     })
+
+
+Skipping `Convey` Registrations:
+--------------------------------
+
+Changing a `Convey` to `SkipConvey` prevents the `func()` associated with
+that call from running. This also has the consequence of preventing any nested 
+`Convey` registrations from running. The reporter will indicate that the 
+registration was skipped.
+
+
+Unimplemented `Convey` Registrations:
+-------------------------------------
+
+When composing `Convey` registrations sometimes it's convenient to use `nil`
+instead of an actual `func()`. This allows you to do that and it also provides
+an indication in the report that the registration is not complete.
+
+
+Skipping `So` Assertions:
+-------------------------
+
+Changing a `So` to `SkipSo` prevents the execution of that assertion. The report
+will show that the assertion was skipped.

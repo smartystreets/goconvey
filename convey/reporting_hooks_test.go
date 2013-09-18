@@ -118,6 +118,28 @@ func TestMultipleSkipsAreReported(t *testing.T) {
 	expectEqual(t, expected, myReporter.wholeStory())
 }
 
+func TestSkippedAssertionIsNotReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	Convey("A", test, func() {
+		SkipSo(1, ShouldEqual, 1)
+	})
+
+	expectEqual(t, "Begin|A|Skipped|Exit|End", myReporter.wholeStory())
+}
+
+func TestMultipleSkippedAssertionsAreNotReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	Convey("A", test, func() {
+		SkipSo(1, ShouldEqual, 1)
+		So(1, ShouldEqual, 1)
+		SkipSo(1, ShouldEqual, 1)
+	})
+
+	expectEqual(t, "Begin|A|Skipped|Success|Skipped|Exit|End", myReporter.wholeStory())
+}
+
 func TestErrorByManualPanicReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
