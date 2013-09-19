@@ -31,6 +31,8 @@ func TestSingleScopeWithMultipleConveys(t *testing.T) {
 	Convey("2", t, func() {
 		output += "2"
 	})
+
+	expectEqual(t, "12", output)
 }
 
 func TestNestedScopes(t *testing.T) {
