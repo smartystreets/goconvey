@@ -40,6 +40,8 @@ Composition:
 ------------
 
 See the [examples folder](https://github.com/smartystreets/goconvey/tree/master/examples).
+We recommend reviewing [isolated_execution_test.go](https://github.com/smartystreets/goconvey/blob/master/convey/isolated_execution_test.go) for a more thorough understanding of how tests are
+composed, and how they actually work.
 
 
 
