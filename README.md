@@ -24,6 +24,12 @@ Composition:
 
 See the [examples folder](https://github.com/smartystreets/goconvey/tree/master/examples).
 
+Documentation:
+--------------
+
+Public functions are documented using GoDoc conventions. See the [godoc.org page for this project]
+(http://godoc.org/github.com/smartystreets/goconvey) for the details.
+
 
 Execution:
 ----------
