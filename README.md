@@ -257,6 +257,12 @@ SkipConvey("Important stuff", func() { // This func() will not be executed!
 })
 ```
 
+Using `SkipConvey` has nearly the same effect as commenting out the test
+entirely. However, this is preferred over commenting out tests to avoid the
+usual "declared/imported but not used" errors. Usage of `SkipConvey` is
+intended for temporary code alterations.
+
+
 Unimplemented `Convey` Registrations:
 -------------------------------------
 
@@ -276,8 +282,8 @@ Convey("Some stuff", func() {
 Skipping `So` Assertions:
 -------------------------
 
-Changing a `So` to `SkipSo` prevents the execution of that assertion. The report
-will show that the assertion was skipped.
+Similar to `SkipConvey`, changing a `So` to `SkipSo` prevents the execution of
+that assertion. The report will show that the assertion was skipped.
 
 ```go
 Convey("1 Should Equal 2", func() {
@@ -287,3 +293,6 @@ Convey("1 Should Equal 2", func() {
 
 })
 ```
+
+And like `SkipConvey`, this function is only intended for use during
+temporary code alterations.
