@@ -7,8 +7,7 @@ import (
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func (self *statistics) BeginStory(test gotest.T) {
-}
+func (self *statistics) BeginStory(test gotest.T) {}
 
 func (self *statistics) Enter(title, id string) {}
 
@@ -31,9 +30,12 @@ func (self *statistics) EndStory() {
 	self.reportAssertions()
 	self.reportSkippedSections()
 	self.completeReport()
-	self.completeReport()
 }
 func (self *statistics) reportAssertions() {
+	self.decideColor()
+	self.out.Print("\n%d %s thus far", self.total, plural("assertion", self.total))
+}
+func (self *statistics) decideColor() {
 	if self.failing && !self.erroring {
 		fmt.Print(yellowColor)
 	} else if self.erroring {
@@ -41,7 +43,6 @@ func (self *statistics) reportAssertions() {
 	} else {
 		fmt.Print(greenColor)
 	}
-	self.out.Print("\n%d %s thus far", self.total, plural("assertion", self.total))
 }
 func (self *statistics) reportSkippedSections() {
 	if self.skipped > 0 {
@@ -51,15 +52,9 @@ func (self *statistics) reportSkippedSections() {
 	}
 }
 func (self *statistics) completeReport() {
-	self.out.Print("\n")
 	fmt.Print(resetColor)
-}
-
-func plural(word string, count int) string {
-	if count == 1 {
-		return word
-	}
-	return word + "s"
+	self.out.Print("\n")
+	self.out.Print("\n")
 }
 
 func NewStatisticsReporter(out *printing.Printer) *statistics {
@@ -74,4 +69,11 @@ type statistics struct {
 	failing  bool
 	erroring bool
 	skipped  int
+}
+
+func plural(word string, count int) string {
+	if count == 1 {
+		return word
+	}
+	return word + "s"
 }

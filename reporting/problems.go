@@ -23,11 +23,17 @@ func (self *problem) Exit() {}
 
 func (self *problem) EndStory() {
 	self.out.Println("")
-	self.showErrors()
-	self.showFailures()
+	self.show(self.showErrors, redColor)
+	self.show(self.showFailures, yellowColor)
+	self.prepareForNextStory()
+}
+func (self *problem) show(display func(), color string) {
+	fmt.Print(color)
+	display()
+	fmt.Print(resetColor)
+	self.out.Dedent()
 }
 func (self *problem) showErrors() {
-	fmt.Print(redColor)
 	for i, e := range self.errors {
 		if i == 0 {
 			self.out.Println("\nErrors:\n")
@@ -35,12 +41,8 @@ func (self *problem) showErrors() {
 		}
 		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.stackTrace)
 	}
-	self.out.Dedent()
-	fmt.Print(resetColor)
-	self.errors = []*Report{}
 }
 func (self *problem) showFailures() {
-	fmt.Print(yellowColor)
 	for i, f := range self.failures {
 		if i == 0 {
 			self.out.Println("\nFailures:\n")
@@ -48,17 +50,17 @@ func (self *problem) showFailures() {
 		}
 		self.out.Println(failureTemplate, f.File, f.Line, f.Failure)
 	}
-	self.out.Dedent()
-	fmt.Print(resetColor)
-	self.failures = []*Report{}
 }
 
 func NewProblemReporter(out *printing.Printer) *problem {
 	self := problem{}
 	self.out = out
+	self.prepareForNextStory()
+	return &self
+}
+func (self *problem) prepareForNextStory() {
 	self.errors = []*Report{}
 	self.failures = []*Report{}
-	return &self
 }
 
 type problem struct {
