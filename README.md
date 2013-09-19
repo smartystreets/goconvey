@@ -121,60 +121,60 @@ Assertions:
 Here's the listing of assertions that this project aims to implement 
 (see the examples folder for actual usage):
 
- completed | usage
-:---------:|--------------------------------------------------------------
-     X     | __General Equality__
-     X     | So(thing, ShouldEqual, thing2)
-     X     | So(thing, ShouldNotEqual, thing2)
-     X     | So(thing, ShouldResemble, thing2)
-     X     | So(thing, ShouldNotResemble, thing2)
-     X     | So(thing, ShouldPointTo, thing2)
-     X     | So(thing, ShouldNotPointTo, thing2)
-     X     | So(thing, ShouldBeNil, thing2)
-     X     | So(thing, ShouldNotBeNil, thing2)
-     X     | So(thing, ShouldBeTrue)
-     X     | So(thing, ShouldBeFalse)
-     X     | __Numeric Quantity comparison__
-     X     | So(1, ShouldBeGreaterThan, 0)
-     X     | So(1, ShouldBeGreaterThanOrEqualTo, 0)
-     X     | So(1, ShouldBeLessThan, 2)
-     X     | So(1, ShouldBeLessThanOrEqualTo, 2)
-     X     | So(1.1, ShouldBeBetween, .8, 1.2)
-     X     | So(1.1, ShouldNotBeBetween, 2, 3)
-     X     | So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
-     X     | So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
-     X     | __Collections__
-     X     | So([]int{2, 4, 6}, ShouldContain, 4)
-     X     | So([]int{2, 4, 6}, ShouldNotContain, 5)
-     X     | So(4, ShouldBeIn, ...[]int{2, 4, 6})
-     X     | So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
-     X     | __Strings__ (and []byte?)
-     X     | So("asdf", ShouldStartWith, "as")
-     X     | So("asdf", ShouldNotStartWith, "df")
-     X     | So("asdf", ShouldEndWith, "df")
-     X     | So("asdf", ShouldNotEndWith, "df")
-     X     | So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments?
-     X     | So("asdf", ShouldNotContain, "er")
-     X     | So("adsf", ShouldBeBlank)
-     X     | So("asdf", ShouldNotBeBlank)
-     X     | __panics__
-     X     | So(func(), ShouldPanic)
-     X     | So(func(), ShouldNotPanic)
-     X     | So(func(), ShouldPanicWith, "") // or errors.New("something")
-     X     | So(func(), ShouldNotPanicWith, "") // or errors.New("something")
-     X     | __Type checking__
-     X     | So(1, ShouldHaveSameTypeAs, 0)
-     X     | So(1, ShouldNotHaveSameTypeAs, "asdf")
-     X     | __time__
-     X     | So(time.Now(), ShouldHappenBefore, time.Now())
-     X     | So(time.Now(), ShouldHappenOnOrBefore, time.Now())
-     X     | So(time.Now(), ShouldHappenAfter, time.Now())
-     X     | So(time.Now(), ShouldHappenOnOrAfter, time.Now())
-     X     | So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
-     X     | So(time.Now(), ShouldHappenOnOrBetween, time.Now(), time.Now())
-     X     | So(time.Now(), ShouldNotHappenOnOrBetween, time.Now(), time.Now())
-     X     | So(time.New(), ShouldHappenWithin, duration, time.Now())
-     X     | So(time.New(), ShouldNotHappenWithin, duration, time.Now())
+| Assertions
+|--------------------------------------------------------------
+| __General Equality__
+| So(thing, ShouldEqual, thing2)
+| So(thing, ShouldNotEqual, thing2)
+| So(thing, ShouldResemble, thing2)
+| So(thing, ShouldNotResemble, thing2)
+| So(thing, ShouldPointTo, thing2)
+| So(thing, ShouldNotPointTo, thing2)
+| So(thing, ShouldBeNil, thing2)
+| So(thing, ShouldNotBeNil, thing2)
+| So(thing, ShouldBeTrue)
+| So(thing, ShouldBeFalse)
+| __Numeric Quantity comparison__
+| So(1, ShouldBeGreaterThan, 0)
+| So(1, ShouldBeGreaterThanOrEqualTo, 0)
+| So(1, ShouldBeLessThan, 2)
+| So(1, ShouldBeLessThanOrEqualTo, 2)
+| So(1.1, ShouldBeBetween, .8, 1.2)
+| So(1.1, ShouldNotBeBetween, 2, 3)
+| So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
+| So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
+| __Collections__
+| So([]int{2, 4, 6}, ShouldContain, 4)
+| So([]int{2, 4, 6}, ShouldNotContain, 5)
+| So(4, ShouldBeIn, ...[]int{2, 4, 6})
+| So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
+| __Strings__ (and []byte?)
+| So("asdf", ShouldStartWith, "as")
+| So("asdf", ShouldNotStartWith, "df")
+| So("asdf", ShouldEndWith, "df")
+| So("asdf", ShouldNotEndWith, "df")
+| So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments?
+| So("asdf", ShouldNotContain, "er")
+| So("adsf", ShouldBeBlank)
+| So("asdf", ShouldNotBeBlank)
+| __panics__
+| So(func(), ShouldPanic)
+| So(func(), ShouldNotPanic)
+| So(func(), ShouldPanicWith, "") // or errors.New("something")
+| So(func(), ShouldNotPanicWith, "") // or errors.New("something")
+| __Type checking__
+| So(1, ShouldHaveSameTypeAs, 0)
+| So(1, ShouldNotHaveSameTypeAs, "asdf")
+| __time__
+| So(time.Now(), ShouldHappenBefore, time.Now())
+| So(time.Now(), ShouldHappenOnOrBefore, time.Now())
+| So(time.Now(), ShouldHappenAfter, time.Now())
+| So(time.Now(), ShouldHappenOnOrAfter, time.Now())
+| So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
+| So(time.Now(), ShouldHappenOnOrBetween, time.Now(), time.Now())
+| So(time.Now(), ShouldNotHappenOnOrBetween, time.Now(), time.Now())
+| So(time.New(), ShouldHappenWithin, duration, time.Now())
+| So(time.New(), ShouldNotHappenWithin, duration, time.Now())
 
 Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 
 [oglematchers](https://github.com/smartystreets/oglmatchers) library, which
