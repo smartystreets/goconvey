@@ -19,16 +19,36 @@ Assuming you have set your $GOPATH environment variable:
 
 
 
+Verbose output:
+--------------
+
+**Tests pass:**
+
+![Pass](http://i.imgur.com/c2qAQcR.png)
+
+**Test fail:**
+
+![Fail](http://i.imgur.com/sRcyZBr.png)
+
+**Test panic:**
+
+![Panic](http://i.imgur.com/iG2EZ5C.png)
+
+
+
 Composition:
 ------------
 
 See the [examples folder](https://github.com/smartystreets/goconvey/tree/master/examples).
+
+
 
 Documentation:
 --------------
 
 Public functions are documented using GoDoc conventions. See the [godoc.org page for this project]
 (http://godoc.org/github.com/smartystreets/goconvey) for the details.
+
 
 
 Execution:
@@ -189,30 +209,35 @@ specific to be included in this tool. Not to worry, simply implement
 a function with the following signature (fill in the bracketed parts
 and string values):
 
-    func should<do-something>(actual interface, expected ...interface{}) string {
-        if <some-important-condition-is-met(actual, expected)> {
-            return "" // empty string means the assertion passed
-        } else {
-            return "some descriptive message detailing why the assertion failed..."
-        }
+```go
+func should<do-something>(actual interface, expected ...interface{}) string {
+    if <some-important-condition-is-met(actual, expected)> {
+        return "" // empty string means the assertion passed
+    } else {
+        return "some descriptive message detailing why the assertion failed..."
     }
+}
+```
 
 Suppose I implemented the following assertion:
 
-    func shouldScareGophersMoreThan(actual interface, expected ...interface{}) string {
-        if actual == "BOO!" && expected[0] == "boo" {
-            return ""
-        } else {
-            return "Ha! You'll have to get a lot friendlier with the capslock if you want to scare a gopher!"
-        }
+```go
+func shouldScareGophersMoreThan(actual interface, expected ...interface{}) string {
+    if actual == "BOO!" && expected[0] == "boo" {
+        return ""
+    } else {
+        return "Ha! You'll have to get a lot friendlier with the capslock if you want to scare a gopher!"
     }
+}
+```
 
 I can then make use of the assertion function when calling the `So(...)` method in the tests:
 
-    Convey("All caps always makes text more meaningful", func() {
-        So("BOO!", shouldScareGophersMoreThan, "boo")
-    })
-
+```go
+Convey("All caps always makes text more meaningful", func() {
+    So("BOO!", shouldScareGophersMoreThan, "boo")
+})
+```
 
 Skipping `Convey` Registrations:
 --------------------------------
@@ -222,12 +247,15 @@ that call from running. This also has the consequence of preventing any nested
 `Convey` registrations from running. The reporter will indicate that the 
 registration was skipped.
 
-    SkipConvey("Important stuff", func() { // This func() will not be executed!
+```go
+SkipConvey("Important stuff", func() { // This func() will not be executed!
 
-        Convey("More important stuff", func() {
-            So("asdf", ShouldEqual, "asdf")
-        })
+    Convey("More important stuff", func() {
+        So("asdf", ShouldEqual, "asdf")
     })
+
+})
+```
 
 Unimplemented `Convey` Registrations:
 -------------------------------------
@@ -236,12 +264,14 @@ When composing `Convey` registrations sometimes it's convenient to use `nil`
 instead of an actual `func()`. This allows you to do that and it also provides
 an indication in the report that the registration is not complete.
 
-    Convey("Some stuff", func() {
+```go
+Convey("Some stuff", func() {
 
-        // This will show up as 'skipped' in the report
-        Convey("Should go boink", nil) 
-    }
+    // This will show up as 'skipped' in the report
+    Convey("Should go boink", nil)
 
+}
+```
 
 Skipping `So` Assertions:
 -------------------------
@@ -249,8 +279,11 @@ Skipping `So` Assertions:
 Changing a `So` to `SkipSo` prevents the execution of that assertion. The report
 will show that the assertion was skipped.
 
-    Convey("1 Should Equal 2", func() {
-        
-        // This assertion will not be executed and will show up as 'skipped in the report'
-        SkipSo(1, ShouldEqual, 2) 
-    })
+```go
+Convey("1 Should Equal 2", func() {
+    
+    // This assertion will not be executed and will show up as 'skipped' in the report
+    SkipSo(1, ShouldEqual, 2)
+
+})
+```
