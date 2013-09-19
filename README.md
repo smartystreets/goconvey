@@ -175,21 +175,6 @@ Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his 
 is what many of these methods make use of to do their jobs.
 
 
-Future options:
-  - json
-    - ShouldMarshalLike
-  - hashes
-    - ?
-  - hex (and other encodings)
-    - convert from base64 then compare
-  - bytes(?)
-    - this might already be done with existing methods
-  - containers (list, heap, ring)
-    - might already be done with ShouldResemble
-  - urls
-    - should be part of [domain]
-
-
 Writing your own assertions:
 ----------------------------
 
