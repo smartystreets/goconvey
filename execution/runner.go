@@ -14,11 +14,15 @@ type Runner interface {
 }
 
 func (self *runner) Begin(test gotest.T, situation string, action *Action) {
+	self.awaitingNewStory = false
 	self.out.BeginStory(test)
 	self.Register(situation, action)
 }
 
 func (self *runner) Register(situation string, action *Action) {
+	if self.awaitingNewStory {
+		panic(MissingGoTest)
+	}
 	parentAction := self.link(action)
 	parent := self.accessScope(parentAction)
 	child := newScope(situation, action, self.out)
@@ -75,12 +79,15 @@ func (self *runner) Run() {
 		self.top.visit()
 	}
 	self.out.EndStory()
+	self.awaitingNewStory = true
 }
 
 type runner struct {
 	top   *scope
 	chain map[string]string
 	out   reporting.Reporter
+
+	awaitingNewStory bool
 }
 
 func NewRunner() *runner {
@@ -88,6 +95,7 @@ func NewRunner() *runner {
 	self.out = NewNilReporter()
 	self.top = newScope(topLevel, NewAction(func() {}), self.out)
 	self.chain = make(map[string]string)
+	self.awaitingNewStory = true
 	return &self
 }
 
@@ -96,3 +104,5 @@ func (self *runner) UpgradeReporter(out reporting.Reporter) {
 }
 
 const topLevel = "TOP"
+const MissingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T. 
+    Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `

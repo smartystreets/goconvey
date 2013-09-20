@@ -23,6 +23,8 @@ import (
 //
 //     Convey(description string, action func())
 //
+// Don't worry, the goconvey will panic if you get it wrong so you can fix it.
+//
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
 	name, action, test := parseRegistration(items)
