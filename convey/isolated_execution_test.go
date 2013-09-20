@@ -5,12 +5,6 @@ import (
 	"testing"
 )
 
-func TestNothingInScope(t *testing.T) {
-	output := prepare()
-
-	expectEqual(t, "", output)
-}
-
 func TestSingleScope(t *testing.T) {
 	output := prepare()
 
