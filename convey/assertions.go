@@ -4,8 +4,6 @@ import (
 	"github.com/smartystreets/goconvey/assertions"
 )
 
-// TODO: make examples file that invokes each of these so we know it's all working.
-
 var (
 	ShouldEqual       = assertions.ShouldEqual
 	ShouldNotEqual    = assertions.ShouldNotEqual
