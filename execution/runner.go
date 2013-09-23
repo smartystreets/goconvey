@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 )
@@ -15,7 +16,7 @@ type Runner interface {
 
 func (self *runner) Begin(test gotest.T, situation string, action *Action) {
 	if !self.awaitingNewStory {
-		panic(ExtraGoTest)
+		panic(fmt.Sprintf("%s (See %s)", ExtraGoTest, resolveExternalFileAndLine()))
 	}
 	self.awaitingNewStory = false
 	self.out.BeginStory(test)

@@ -1,7 +1,9 @@
 package execution
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/reporting"
+	"strings"
 )
 
 func (parent *scope) adopt(child *scope) {
@@ -59,7 +61,7 @@ func (parent *scope) cleanup() {
 }
 func (parent *scope) exit() {
 	if problem := recover(); problem != nil {
-		if problem == ExtraGoTest {
+		if strings.HasPrefix(fmt.Sprintf("%v", problem), ExtraGoTest) {
 			panic(problem)
 		}
 		parent.panicked = true

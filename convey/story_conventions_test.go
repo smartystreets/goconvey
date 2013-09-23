@@ -1,7 +1,9 @@
 package convey
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/execution"
+	"strings"
 	"testing"
 )
 
@@ -55,7 +57,7 @@ func TestExtraReferencePanics(t *testing.T) {
 		err := recover()
 		if err == nil {
 			t.Error("We should have recovered a panic here (because of an extra *testing.T reference)!")
-		} else if err != execution.ExtraGoTest {
+		} else if !strings.HasPrefix(fmt.Sprintf("%v", err), execution.ExtraGoTest) {
 			t.Error("Should have panicked with the 'extra go test' error!")
 		}
 		if output["bad"] {
