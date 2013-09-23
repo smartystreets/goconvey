@@ -59,6 +59,9 @@ func (parent *scope) cleanup() {
 }
 func (parent *scope) exit() {
 	if problem := recover(); problem != nil {
+		if problem == ExtraGoTest {
+			panic(problem)
+		}
 		parent.panicked = true
 		parent.reporter.Report(reporting.NewErrorReport(problem))
 	}

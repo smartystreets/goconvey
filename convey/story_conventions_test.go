@@ -46,3 +46,26 @@ func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
 		output["bad"] = true // shouldn't happen
 	})
 }
+
+func TestExtraReferencePanics(t *testing.T) {
+	runner = execution.NewRunner()
+	output := map[string]bool{}
+
+	defer func() {
+		err := recover()
+		if err == nil {
+			t.Error("We should have recovered a panic here (because of an extra *testing.T reference)!")
+		} else if err != execution.ExtraGoTest {
+			t.Error("Should have panicked with the 'extra go test' error!")
+		}
+		if output["bad"] {
+			t.Error("We should NOT have run the bad example!")
+		}
+	}()
+
+	Convey("Good example", t, func() {
+		Convey("Bad example - passing in *testing.T a second time!", t, func() {
+			output["bad"] = true // shouldn't happen
+		})
+	})
+}

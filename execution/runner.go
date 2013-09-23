@@ -14,6 +14,9 @@ type Runner interface {
 }
 
 func (self *runner) Begin(test gotest.T, situation string, action *Action) {
+	if !self.awaitingNewStory {
+		panic(ExtraGoTest)
+	}
 	self.awaitingNewStory = false
 	self.out.BeginStory(test)
 	self.Register(situation, action)
@@ -106,3 +109,4 @@ func (self *runner) UpgradeReporter(out reporting.Reporter) {
 const topLevel = "TOP"
 const MissingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T. 
     Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
+const ExtraGoTest = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
