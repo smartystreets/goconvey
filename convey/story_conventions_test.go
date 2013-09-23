@@ -11,14 +11,14 @@ func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {
 	output := map[string]bool{}
 
 	defer expectEqual(t, false, output["good"])
-	defer requireGoTestReference()
+	defer requireGoTestReference(t)
 
 	Convey("Hi", func() {
 		output["bad"] = true // this shouldn't happen
 	})
 }
 
-func() requireGoTestReference() {
+func requireGoTestReference(t *testing.T) {
 	err := recover()
 	if err == nil {
 		t.Error("We should have recovered a panic here (because of a missing *testing.T reference)!")
@@ -36,7 +36,7 @@ func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
 		expectEqual(t, true, output["good"])
 		expectEqual(t, false, output["bad"])
 	}()
-	defer requireGoTestReference()
+	defer requireGoTestReference(t)
 
 	Convey("Good example", t, func() {
 		output["good"] = true
