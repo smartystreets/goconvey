@@ -12,7 +12,6 @@ func (self *statistics) BeginStory(test gotest.T) {}
 func (self *statistics) Enter(title, id string) {}
 
 func (self *statistics) Report(r *Report) {
-	self.total++
 	if !self.failing && r.Failure != "" {
 		self.failing = true
 	}
@@ -21,6 +20,8 @@ func (self *statistics) Report(r *Report) {
 	}
 	if r.Skipped {
 		self.skipped += 1
+	} else {
+		self.total++
 	}
 }
 
