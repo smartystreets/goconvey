@@ -3,7 +3,7 @@ package assertions
 const ( // equality
 	shouldHaveBeenEqual         = "Expected '%v'\nto equal '%v'\n(but it didn't)!"
 	shouldNotHaveBeenEqual      = "Expected     '%v'\nto NOT equal '%v'\n(but it did)!"
-	shouldHaveResembled         = "Expected '%v'\nto resemble '%v'\n(but it didn't)!"
+	shouldHaveResembled         = "Expected    '%v'\nto resemble '%v'\n(but it didn't)!"
 	shouldNotHaveResembled      = "Expected        '%v'\nto NOT resemble '%v'\n(but it did)!"
 	shouldBePointers            = "Both arguments should be pointers "
 	shouldHaveBeenNonNilPointer = shouldBePointers + "(the %s was %s)!"
