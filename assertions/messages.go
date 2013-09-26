@@ -1,18 +1,18 @@
 package assertions
 
 const ( // equality
-	shouldHaveBeenEqual         = "Expected '%v'\nto equal '%v'\n(but it didn't)!"
+	shouldHaveBeenEqual         = "Expected: '%v'\nActual:   '%v'\n(Should be equal)"
 	shouldNotHaveBeenEqual      = "Expected     '%v'\nto NOT equal '%v'\n(but it did)!"
-	shouldHaveResembled         = "Expected    '%v'\nto resemble '%v'\n(but it didn't)!"
+	shouldHaveResembled         = "Expected: '%v'\nActual:   '%v'\n(Should resemble)!"
 	shouldNotHaveResembled      = "Expected        '%v'\nto NOT resemble '%v'\n(but it did)!"
 	shouldBePointers            = "Both arguments should be pointers "
 	shouldHaveBeenNonNilPointer = shouldBePointers + "(the %s was %s)!"
 	shouldHavePointedTo         = "Expected '%v' (address: '%v') and '%v' (address: '%v') to be the same address (but their weren't)!"
 	shouldNotHavePointedTo      = "Expected '%v' and '%v' to be different references (but they matched: '%v')!"
-	shouldHaveBeenNil           = "Expected '%v' to be nil (but it wasn't)!"
+	shouldHaveBeenNil           = "Expected: nil\nActual:   '%v'"
 	shouldNotHaveBeenNil        = "Expected '%v' to NOT be nil (but it was)!"
-	shouldHaveBeenTrue          = "Expected 'true' (not '%v')!"
-	shouldHaveBeenFalse         = "Expected 'false' (not '%v')!"
+	shouldHaveBeenTrue          = "Expected: true\nActual:   %v"
+	shouldHaveBeenFalse         = "Expected: false\nActual:   %v"
 )
 
 const ( // quantity comparisons
