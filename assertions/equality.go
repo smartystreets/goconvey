@@ -25,7 +25,7 @@ func shouldEqual(actual, expected interface{}) (message string) {
 	}()
 
 	if matchError := oglematchers.Equals(expected).Matches(actual); matchError != nil {
-		return fmt.Sprintf(shouldHaveBeenEqual, actual, expected)
+		return fmt.Sprintf(shouldHaveBeenEqual, expected, actual)
 	}
 
 	return success
@@ -48,7 +48,7 @@ func ShouldResemble(actual interface{}, expected ...interface{}) string {
 	}
 
 	if matchError := oglematchers.DeepEquals(expected[0]).Matches(actual); matchError != nil {
-		return fmt.Sprintf(shouldHaveResembled, actual, expected[0])
+		return fmt.Sprintf(shouldHaveResembled, expected[0], actual)
 	}
 
 	return success
