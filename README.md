@@ -298,3 +298,10 @@ Convey("1 Should Equal 2", func() {
 
 And like `SkipConvey`, this function is only intended for use during
 temporary code alterations.
+
+
+Contributors (Thanks!):
+-----------------------
+
+#### [Michael Whatcott](https://github.com/mdwhatcott)
+#### [Matt Holt](https://github.com/mholt)
