@@ -22,7 +22,7 @@ func TestShouldEqual(t *testing.T) {
 
 	pass(t, so(42, ShouldEqual, uint(42)))
 
-	fail(t, so(Thing1{}, ShouldEqual, Thing1{}), "Expected: '{}' Actual: '{}' (Should be equal)")
+	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{}), "Expected: '{}' Actual: '{hi}' (Should be equal)")
 	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}), "Expected: '{hi}' Actual: '{hi}' (Should be equal)")
 	fail(t, so(&Thing1{"hi"}, ShouldEqual, &Thing1{"hi"}), "Expected: '&{hi}' Actual: '&{hi}' (Should be equal)")
 
