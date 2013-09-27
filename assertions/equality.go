@@ -20,7 +20,7 @@ func ShouldEqual(actual interface{}, expected ...interface{}) string {
 func shouldEqual(actual, expected interface{}) (message string) {
 	defer func() {
 		if r := recover(); r != nil {
-			message = fmt.Sprintf(shouldHaveBeenEqual, actual, expected)
+			message = fmt.Sprintf(shouldHaveBeenEqual, expected, actual)
 		}
 	}()
 
