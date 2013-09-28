@@ -34,11 +34,16 @@ func (self *jsonReporter) Exit() {
 }
 
 func (self *jsonReporter) EndStory() {
+	self.report()
+	self.reset()
+}
+func (self *jsonReporter) report() {
 	serialized, _ := json.Marshal(self.story)
-	var b bytes.Buffer
-	json.Indent(&b, serialized, "", " ")
-	self.out.Print(b.String())
-
+	var buffer bytes.Buffer
+	json.Indent(&buffer, serialized, "", " ")
+	self.out.Print(buffer.String())
+}
+func (self *jsonReporter) reset() {
 	self.titlesById = make(map[string]string)
 	self.story = nil
 	self.current = nil
