@@ -11,7 +11,6 @@ func (self *story) BeginStory(test gotest.T) {}
 
 func (self *story) Enter(title, id string) {
 	self.out.Indent()
-	self.currentId = id
 
 	if _, found := self.titlesById[id]; !found {
 		self.out.Println("")
@@ -43,7 +42,6 @@ func (self *story) Exit() {
 }
 
 func (self *story) EndStory() {
-	self.currentId = ""
 	self.titlesById = make(map[string]string)
 }
 
@@ -57,5 +55,4 @@ func NewStoryReporter(out *printing.Printer) *story {
 type story struct {
 	out        *printing.Printer
 	titlesById map[string]string
-	currentId  string
 }
