@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	. "github.com/smartystreets/goconvey/convey"
+	"testing"
+)
 
 func Test(t *testing.T) {
 	Convey("The purpose of this file is to generate some", t, func() {

@@ -5,50 +5,57 @@ import (
 	"github.com/howeyc/fsnotify"
 	"net/http"
 	"os"
+	"os/exec"
+	"strings"
+	"time"
 )
 
 func main() {
-	startTestRunner()
-	serveHTTP()
-}
-
-func serveHTTP() {
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/latest", homeHandler)
-	http.ListenAndServe(":8080", nil)
-	fmt.Println("Reporting results to browser via websockets at:\n\n127.0.0.1:8080\n\n")
-}
-
-func startTestRunner() {
-	watcher, err := configureWatcher()
+	watcher, _ := fsnotify.NewWatcher()
 	defer watcher.Close()
 
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1) // not sure if this is the best place for this
-	} else {
-		testRunner = newRunner(watcher)
-		go testRunner.idle()
-		fmt.Println("Idleing... move along...")
+	go reactToChanges(watcher)
+
+	working, _ := os.Getwd()
+	watcher.Watch(working)
+
+	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/latest", reportHandler)
+	http.ListenAndServe(":8080", nil)
+}
+
+func reactToChanges(watcher *fsnotify.Watcher) {
+	busy := false
+	done := make(chan bool)
+	ready := make(chan bool)
+
+	for {
+		select {
+		case ev := <-watcher.Event:
+			if strings.HasSuffix(ev.Name, ".go") && !busy {
+				busy = true
+				go test(done)
+			}
+
+		case err := <-watcher.Error:
+			fmt.Println(err)
+
+		case <-done:
+			time.AfterFunc(1500*time.Millisecond, func() {
+				ready <- true
+			})
+
+		case <-ready:
+			busy = false
+		}
 	}
 }
 
-func configureWatcher() (watcher *fsnotify.Watcher, err error) {
-	var working string
-
-	if working, err = os.Getwd(); err != nil {
-		return
-	}
-
-	if watcher, err = fsnotify.NewWatcher(); err != nil {
-		return
-	}
-
-	if err = watcher.Watch(working); err != nil {
-		return
-	}
-
-	return
+func test(done chan bool) {
+	fmt.Println("Running tests...")
+	output, _ := exec.Command("go", "test").Output()
+	latest = string(output)
+	done <- true
 }
 
 func homeHandler(writer http.ResponseWriter, request *http.Request) {
@@ -57,10 +64,10 @@ func homeHandler(writer http.ResponseWriter, request *http.Request) {
 
 func reportHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(writer, testRunner.latest)
+	fmt.Fprint(writer, latest)
 }
 
-var testRunner *runner
+var latest string
 var HOME_HTML = `<!DOCTYPE html>
 <html>
 
@@ -74,16 +81,12 @@ var HOME_HTML = `<!DOCTYPE html>
             $("#output").hide();
 
             setInterval(function() {
-                console.log("Querying api...")
                 $.ajax({
-                    url: "/api/latest",
+                    url: "/latest",
                     complete: function(xhr, status) {
                     },
                     success: function(data) {
-                        var old = $("#output").html();
-                        if (data == old) {
-                            return;
-                        }
+                    	console.log(data);
                         $("#output").hide();
                         $("#output").empty();
                         $("#output").html(data);
@@ -129,18 +132,7 @@ var HOME_HTML = `<!DOCTYPE html>
 		}
 
 		body {
-		    background-color: #002b36;
 		    margin: 0 auto;
-		}
-
-		.passed {
-		    color: #859900;
-		}
-		.failed {
-		    color: #ff8800;
-		}
-		.error {
-		    color: #b03911;
 		}
 
 		nav ul li { 
@@ -171,7 +163,6 @@ var HOME_HTML = `<!DOCTYPE html>
 		    line-height: 1.4em;
 		    color: #586e75;
 		}
-		div.story .t1 { color: #839496; }
 		div.story .t2:before { content: "\00a0"; }
 		div.story .t3:before { content: "\00a0\00a0"; }
 		div.story .t4:before { content: "\00a0\00a0\00a0"; }
@@ -187,7 +178,6 @@ var HOME_HTML = `<!DOCTYPE html>
 		    margin: 40px 10%;
 		    margin-left: 10%;
 		    text-align: left;
-		    background-color: #073642;
 		    border-radius: 5px;
 		}
     </style>
