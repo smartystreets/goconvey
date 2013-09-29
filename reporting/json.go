@@ -8,7 +8,8 @@ import (
 )
 
 func (self *jsonReporter) BeginStory(test gotest.T) {
-	top := newScope("TOP", self.depth) // TODO: this could have the GoTest name.
+	file, line, testName := gotest.ResolveExternalCaller()
+	top := newScope(testName, self.depth, file, line)
 	self.scopes = append(self.scopes, top)
 	self.stack = append(self.stack, top)
 }
@@ -21,7 +22,18 @@ func (self *jsonReporter) Enter(title, id string) {
 }
 func (self *jsonReporter) registerScope(title, id string) {
 	self.titlesById[id] = title
-	next := newScope(title, self.depth)
+	file, line, _ := gotest.ResolveExternalCaller()
+	// ok, this isn't working--we're getting the wrong line numbers at this
+	// point because we are executing from the top-level Convey statement and
+	// not the actual Convey statement.
+	// because that's where we execute runner.Run() from).
+	// I probably need to capture the file and line information when I parse
+	// registration in the convey package. That info would be stored on the
+	// scope struct and then passed to the reporter during the Enter method
+	// so we'd have it here. Although, I hate to modify the signature of the
+	// Reporter interface just for the json reporter but I don't see a better
+	// way at this point...
+	next := newScope(title, self.depth, file, line)
 	self.scopes = append(self.scopes, next)
 	self.stack = append(self.stack, next)
 }
@@ -78,10 +90,12 @@ type scope struct {
 	Reports []*report
 }
 
-func newScope(title string, depth int) *scope {
+func newScope(title string, depth int, file string, line int) *scope {
 	self := &scope{}
-	self.Depth = depth
 	self.Title = title
+	self.Depth = depth
+	self.File = file
+	self.Line = line
 	self.Reports = []*report{}
 	return self
 }
