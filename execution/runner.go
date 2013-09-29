@@ -16,7 +16,8 @@ type Runner interface {
 
 func (self *runner) Begin(test gotest.T, situation string, action *Action) {
 	if !self.awaitingNewStory {
-		panic(fmt.Sprintf("%s (See %s)", ExtraGoTest, resolveExternalFileAndLine()))
+		panic(fmt.Sprintf("%s (See %s)",
+			ExtraGoTest, gotest.ResolveExternalFileAndLine()))
 	}
 	self.awaitingNewStory = false
 	self.out.BeginStory(test)
@@ -33,7 +34,7 @@ func (self *runner) Register(situation string, action *Action) {
 	parent.adopt(child)
 }
 func (self *runner) link(action *Action) string {
-	parentAction := resolveExternalCaller()
+	parentAction := gotest.ResolveExternalFunctionName()
 	childAction := action.Name
 	self.linkTo(topLevel, parentAction)
 	self.linkTo(parentAction, childAction)

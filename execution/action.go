@@ -1,5 +1,9 @@
 package execution
 
+import (
+	"github.com/smartystreets/goconvey/gotest"
+)
+
 func (self *Action) Invoke() {
 	self.action()
 }
@@ -15,7 +19,7 @@ func NewAction(action func()) *Action {
 
 func NewSkippedAction(action func()) *Action {
 	self := &Action{}
-	self.Name = resolveExternalFileAndLine()
+	self.Name = gotest.ResolveExternalFileAndLine()
 	self.action = action
 	return self
 }
