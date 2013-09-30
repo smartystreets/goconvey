@@ -20,7 +20,7 @@ func (self *story) Enter(title, id string) {
 	}
 }
 
-func (self *story) Report(r *Report) {
+func (self *story) Report(r *AssertionReport) {
 	if r.Error != nil {
 		fmt.Print(redColor)
 		self.out.Insert(error_)

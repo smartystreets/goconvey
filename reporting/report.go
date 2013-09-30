@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type Report struct {
+type AssertionReport struct {
 	File       string
 	Line       int
 	Failure    string
@@ -14,28 +14,28 @@ type Report struct {
 	Skipped    bool
 }
 
-func NewFailureReport(failure string) *Report {
+func NewFailureReport(failure string) *AssertionReport {
 	file, line := caller()
 	stack := stackTrace()
-	report := Report{file, line, failure, nil, stack, false}
+	report := AssertionReport{file, line, failure, nil, stack, false}
 	return &report
 }
-func NewErrorReport(err interface{}) *Report {
+func NewErrorReport(err interface{}) *AssertionReport {
 	file, line := caller()
 	stack := fullStackTrace()
-	report := Report{file, line, "", err, stack, false}
+	report := AssertionReport{file, line, "", err, stack, false}
 	return &report
 }
-func NewSuccessReport() *Report {
+func NewSuccessReport() *AssertionReport {
 	file, line := caller()
 	stack := stackTrace()
-	report := Report{file, line, "", nil, stack, false}
+	report := AssertionReport{file, line, "", nil, stack, false}
 	return &report
 }
-func NewSkipReport() *Report {
+func NewSkipReport() *AssertionReport {
 	file, line := caller()
 	stack := stackTrace()
-	report := Report{file, line, "", nil, stack, true}
+	report := AssertionReport{file, line, "", nil, stack, true}
 	return &report
 }
 

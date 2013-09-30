@@ -8,10 +8,10 @@ func NewNilReporter() *nilReporter {
 	return &self
 }
 
-func (self *nilReporter) BeginStory(test gotest.T)   {}
-func (self *nilReporter) Enter(title, id string)     {}
-func (self *nilReporter) Report(r *reporting.Report) {}
-func (self *nilReporter) Exit()                      {}
-func (self *nilReporter) EndStory()                  {}
+func (self *nilReporter) BeginStory(test gotest.T)            {}
+func (self *nilReporter) Enter(title, id string)              {}
+func (self *nilReporter) Report(r *reporting.AssertionReport) {}
+func (self *nilReporter) Exit()                               {}
+func (self *nilReporter) EndStory()                           {}
 
 type nilReporter struct{}

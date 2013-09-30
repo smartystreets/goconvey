@@ -11,7 +11,7 @@ func (self *problem) BeginStory(test gotest.T) {}
 
 func (self *problem) Enter(title, id string) {}
 
-func (self *problem) Report(r *Report) {
+func (self *problem) Report(r *AssertionReport) {
 	if r.Error != nil {
 		self.errors = append(self.errors, r)
 	} else if r.Failure != "" {
@@ -59,12 +59,12 @@ func NewProblemReporter(out *printing.Printer) *problem {
 	return &self
 }
 func (self *problem) prepareForNextStory() {
-	self.errors = []*Report{}
-	self.failures = []*Report{}
+	self.errors = []*AssertionReport{}
+	self.failures = []*AssertionReport{}
 }
 
 type problem struct {
 	out      *printing.Printer
-	errors   []*Report
-	failures []*Report
+	errors   []*AssertionReport
+	failures []*AssertionReport
 }

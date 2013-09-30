@@ -7,7 +7,7 @@ import (
 type Reporter interface {
 	BeginStory(test gotest.T)
 	Enter(title, id string)
-	Report(r *Report)
+	Report(r *AssertionReport)
 	Exit()
 	EndStory()
 }
@@ -22,7 +22,7 @@ func (self *reporters) Enter(title, id string) {
 		r.Enter(title, id)
 	}
 }
-func (self *reporters) Report(r *Report) {
+func (self *reporters) Report(r *AssertionReport) {
 	for _, x := range self.collection {
 		x.Report(r)
 	}

@@ -11,7 +11,7 @@ func (self *statistics) BeginStory(test gotest.T) {}
 
 func (self *statistics) Enter(title, id string) {}
 
-func (self *statistics) Report(r *Report) {
+func (self *statistics) Report(r *AssertionReport) {
 	if !self.failing && r.Failure != "" {
 		self.failing = true
 	}

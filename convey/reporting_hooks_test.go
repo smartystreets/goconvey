@@ -178,7 +178,7 @@ func (self *fakeReporter) Enter(title, id string) {
 	self.calls = append(self.calls, title)
 }
 
-func (self *fakeReporter) Report(r *reporting.Report) {
+func (self *fakeReporter) Report(r *reporting.AssertionReport) {
 	if r.Error != nil {
 		self.calls = append(self.calls, "Error")
 	} else if r.Failure != "" {

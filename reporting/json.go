@@ -38,7 +38,7 @@ func (self *jsonReporter) registerScope(title, id string) {
 	self.stack = append(self.stack, next)
 }
 
-func (self *jsonReporter) Report(r *Report) {
+func (self *jsonReporter) Report(r *AssertionReport) {
 	current := self.stack[len(self.stack)-1]
 	current.Reports = append(current.Reports, newJsonReport(r))
 }
@@ -109,7 +109,7 @@ type report struct {
 	Skipped    bool
 }
 
-func newJsonReport(r *Report) *report {
+func newJsonReport(r *AssertionReport) *report {
 	return &report{
 		r.File,
 		r.Line,

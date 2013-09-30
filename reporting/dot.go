@@ -11,7 +11,7 @@ func (self *dot) BeginStory(test gotest.T) {}
 
 func (self *dot) Enter(title, id string) {}
 
-func (self *dot) Report(r *Report) {
+func (self *dot) Report(r *AssertionReport) {
 	if r.Error != nil {
 		fmt.Print(redColor)
 		self.out.Insert(dotError)

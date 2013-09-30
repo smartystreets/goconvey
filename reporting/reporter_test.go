@@ -57,7 +57,7 @@ func (self *fakeReporter) BeginStory(test gotest.T) {
 func (self *fakeReporter) Enter(title, id string) {
 	self.entered = true
 }
-func (self *fakeReporter) Report(r *Report) {
+func (self *fakeReporter) Report(r *AssertionReport) {
 	self.reported = true
 }
 func (self *fakeReporter) Exit() {

@@ -11,7 +11,7 @@ func (self *gotestReporter) Enter(title, id string) {
 	self.ensureReady()
 }
 
-func (self *gotestReporter) Report(r *Report) {
+func (self *gotestReporter) Report(r *AssertionReport) {
 	self.ensureReady()
 
 	if !passed(r) {
@@ -42,6 +42,6 @@ type gotestReporter struct {
 
 const registrationError = "You must register the actual *testing.T reference for this test in the first call to Convey(...)."
 
-func passed(r *Report) bool {
+func passed(r *AssertionReport) bool {
 	return r.Error == nil && r.Failure == ""
 }
