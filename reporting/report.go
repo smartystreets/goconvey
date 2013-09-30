@@ -1,8 +1,6 @@
 package reporting
 
 import (
-	"fmt"
-	"os"
 	"runtime"
 	"strings"
 )
@@ -76,28 +74,6 @@ func isExternal(line string) bool {
 	return true
 }
 
-const newline = "\n"
-
-const (
-	success         = "✔"
-	failure         = "✘"
-	error_          = "🔥"
-	skip            = "⚠"
-	dotSuccess      = "."
-	dotFailure      = "x"
-	dotError        = "E"
-	dotSkip         = "S"
-	errorTemplate   = "* %s \nLine %d: - %v \n%s\n"
-	failureTemplate = "* %s \nLine %d:\n%s\n"
-)
-
-var (
-	greenColor  = "\033[32m"
-	yellowColor = "\033[33m"
-	redColor    = "\033[31m"
-	resetColor  = "\033[0m"
-)
-
 // NOTE: any new packages that host goconvey packages will need to be added here!
 // An alternative is to scan the goconvey directory and then exclude stuff like
 // the examples package but that's nasty too.
@@ -109,14 +85,4 @@ var internalPackages = []string{
 	"/goconvey/printing/",
 	"/goconvey/reporting/",
 	"/goconvey/web/",
-}
-
-func init() {
-	if !xterm() {
-		greenColor, yellowColor, redColor, resetColor = "", "", "", ""
-	}
-}
-
-func xterm() bool {
-	return strings.Contains(fmt.Sprintf("%v", os.Environ()), " TERM=xterm")
 }
