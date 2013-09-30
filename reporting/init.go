@@ -1,14 +1,14 @@
 package reporting
 
 import (
-	"os"
 	"fmt"
+	"os"
 	"strings"
 )
 
 const newline = "\n"
 
-const (
+var (
 	success         = "✔"
 	failure         = "✘"
 	error_          = "🔥"
@@ -30,8 +30,19 @@ var (
 
 func init() {
 	if !xterm() {
-		greenColor, yellowColor, redColor, resetColor = "", "", "", ""
+		monochrome()
 	}
+}
+
+// QuiteMode disables all console output symbols. This is only meant to be used
+// for tests that are internal to goconvey where the output is distracting or
+// otherwise not needed in the test output.
+func QuietMode() {
+	success, failure, error_, skip, dotSuccess, dotFailure, dotError, dotSkip = "", "", "", "", "", "", "", ""
+}
+
+func monochrome() {
+	greenColor, yellowColor, redColor, resetColor = "", "", "", ""
 }
 
 func xterm() bool {

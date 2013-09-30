@@ -2,6 +2,7 @@ package convey
 
 import (
 	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/reporting"
 	"testing"
 )
 
@@ -235,5 +236,6 @@ func TestSkipNestedLevelSkipsAllChildLevels(t *testing.T) {
 
 func prepare() string {
 	runner = execution.NewRunner()
+	reporting.QuietMode()
 	return ""
 }

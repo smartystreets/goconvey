@@ -7,30 +7,30 @@ import (
 )
 
 type Runner interface {
-	Begin(test gotest.T, situation string, action *Action)
-	Register(situation string, action *Action)
+	Begin(entry *Registration)
+	Register(entry *Registration)
 	RegisterReset(action *Action)
 	UpgradeReporter(out reporting.Reporter)
 	Run()
 }
 
-func (self *runner) Begin(test gotest.T, situation string, action *Action) {
+func (self *runner) Begin(entry *Registration) {
 	if !self.awaitingNewStory {
 		panic(fmt.Sprintf("%s (See %s)",
 			ExtraGoTest, gotest.ResolveExternalFileAndLine()))
 	}
 	self.awaitingNewStory = false
-	self.out.BeginStory(test)
-	self.Register(situation, action)
+	self.out.BeginStory(reporting.NewStoryReport(entry.Test))
+	self.Register(entry)
 }
 
-func (self *runner) Register(situation string, action *Action) {
+func (self *runner) Register(entry *Registration) {
 	if self.awaitingNewStory {
 		panic(MissingGoTest)
 	}
-	parentAction := self.link(action)
+	parentAction := self.link(entry.Action)
 	parent := self.accessScope(parentAction)
-	child := newScope(situation, action, self.out)
+	child := newScope(entry, self.out)
 	parent.adopt(child)
 }
 func (self *runner) link(action *Action) string {
@@ -98,7 +98,7 @@ type runner struct {
 func NewRunner() *runner {
 	self := runner{}
 	self.out = NewNilReporter()
-	self.top = newScope(topLevel, NewAction(func() {}), self.out)
+	self.top = newScope(NewRegistration(topLevel, NewAction(func() {}), nil), self.out)
 	self.chain = make(map[string]string)
 	self.awaitingNewStory = true
 	return &self

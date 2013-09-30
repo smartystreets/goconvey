@@ -2,7 +2,6 @@ package convey
 
 import (
 	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 	"path"
 	"runtime"
@@ -170,20 +169,20 @@ type fakeReporter struct {
 	calls []string
 }
 
-func (self *fakeReporter) BeginStory(test gotest.T) {
+func (self *fakeReporter) BeginStory(story *reporting.StoryReport) {
 	self.calls = append(self.calls, "Begin")
 }
 
-func (self *fakeReporter) Enter(title, id string) {
-	self.calls = append(self.calls, title)
+func (self *fakeReporter) Enter(scope *reporting.ScopeReport) {
+	self.calls = append(self.calls, scope.Title)
 }
 
-func (self *fakeReporter) Report(r *reporting.AssertionReport) {
-	if r.Error != nil {
+func (self *fakeReporter) Report(report *reporting.AssertionReport) {
+	if report.Error != nil {
 		self.calls = append(self.calls, "Error")
-	} else if r.Failure != "" {
+	} else if report.Failure != "" {
 		self.calls = append(self.calls, "Failure")
-	} else if r.Skipped {
+	} else if report.Skipped {
 		self.calls = append(self.calls, "Skipped")
 	} else {
 		self.calls = append(self.calls, "Success")

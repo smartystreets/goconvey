@@ -5,7 +5,6 @@ package convey
 
 import (
 	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 )
 
@@ -27,25 +26,25 @@ import (
 //
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
-	name, action, test := parseRegistration(items)
-	register(name, action, test)
+	entry := discover(items)
+	register(entry)
 }
 
 // SkipConvey is analagous to Convey except that the scope is not executed
 // (which means that child scopes defined within this scope are not run either).
 // The reporter will be notified that this step was skipped.
 func SkipConvey(items ...interface{}) {
-	name, _, test := parseRegistration(items)
-	action := execution.NewSkippedAction(skipReport)
-	register(name, action, test)
+	entry := discover(items)
+	entry.Action = execution.NewSkippedAction(skipReport)
+	register(entry)
 }
 
-func register(name string, action *execution.Action, test gotest.T) {
-	if test != nil {
-		runner.Begin(test, name, action)
+func register(entry *execution.Registration) {
+	if entry.Test != nil {
+		runner.Begin(entry)
 		runner.Run()
 	} else {
-		runner.Register(name, action)
+		runner.Register(entry)
 	}
 }
 

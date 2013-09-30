@@ -40,7 +40,7 @@ func NewSkipReport() *AssertionReport {
 }
 
 func caller() (file string, line int) {
-	_, file, line, _ = runtime.Caller(3)
+	_, file, line, _ = runtime.Caller(3) // TODO: could we use gotest.ResolveExternalCaller?
 	return
 }
 func stackTrace() string {

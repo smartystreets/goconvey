@@ -37,7 +37,7 @@ func (parent *scope) visit() {
 	parent.visitChildren()
 }
 func (parent *scope) enter() {
-	parent.reporter.Enter(parent.title, parent.name)
+	parent.reporter.Enter(parent.report)
 }
 func (parent *scope) visitChildren() {
 	if len(parent.children) == 0 {
@@ -70,13 +70,18 @@ func (parent *scope) exit() {
 	parent.reporter.Exit()
 }
 
-func newScope(title string, action *Action, reporter reporting.Reporter) *scope {
-	self := scope{name: action.Name, title: title, action: action}
+// func newScope(title string, action *Action, reporter reporting.Reporter) *scope {
+func newScope(entry *Registration, reporter reporting.Reporter) *scope {
+	self := &scope{}
+	self.reporter = reporter
+	self.name = entry.Action.Name
+	self.title = entry.Situation
+	self.action = entry.Action
 	self.children = make(map[string]*scope)
 	self.birthOrder = []string{}
 	self.resets = make(map[string]*Action)
-	self.reporter = reporter
-	return &self
+	self.report = reporting.NewScopeReport(self.title, self.name)
+	return self
 }
 
 type scope struct {
@@ -89,4 +94,5 @@ type scope struct {
 	resets     map[string]*Action
 	panicked   bool
 	reporter   reporting.Reporter
+	report     *reporting.ScopeReport
 }

@@ -150,13 +150,13 @@ func newFakeRunner() *fakeRunner {
 	return &f
 }
 
-func (self *fakeRunner) Begin(test gotest.T, situation string, action *execution.Action) {
-	self.test = test
-	self.Register(situation, action)
+func (self *fakeRunner) Begin(entry *execution.Registration) {
+	self.test = entry.Test
+	self.Register(entry)
 }
-func (self *fakeRunner) Register(situation string, action *execution.Action) {
-	self.situation = situation
-	self.action = action
+func (self *fakeRunner) Register(entry *execution.Registration) {
+	self.situation = entry.Situation
+	self.action = entry.Action
 	if self.action != nil {
 		self.action.Invoke()
 	}

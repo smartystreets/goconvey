@@ -1,30 +1,26 @@
 package reporting
 
-import (
-	"github.com/smartystreets/goconvey/gotest"
-)
-
 type Reporter interface {
-	BeginStory(test gotest.T)
-	Enter(title, id string)
+	BeginStory(story *StoryReport)
+	Enter(scope *ScopeReport)
 	Report(r *AssertionReport)
 	Exit()
 	EndStory()
 }
 
-func (self *reporters) BeginStory(test gotest.T) {
+func (self *reporters) BeginStory(story *StoryReport) {
 	for _, r := range self.collection {
-		r.BeginStory(test)
+		r.BeginStory(story)
 	}
 }
-func (self *reporters) Enter(title, id string) {
+func (self *reporters) Enter(scope *ScopeReport) {
 	for _, r := range self.collection {
-		r.Enter(title, id)
+		r.Enter(scope)
 	}
 }
-func (self *reporters) Report(r *AssertionReport) {
+func (self *reporters) Report(report *AssertionReport) {
 	for _, x := range self.collection {
-		x.Report(r)
+		x.Report(report)
 	}
 }
 func (self *reporters) Exit() {

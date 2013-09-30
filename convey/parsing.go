@@ -5,14 +5,14 @@ import (
 	"github.com/smartystreets/goconvey/gotest"
 )
 
-func parseRegistration(items []interface{}) (name string, action *execution.Action, test gotest.T) {
+func discover(items []interface{}) *execution.Registration {
 	ensureEnough(items)
 
-	name = parseName(items)
-	test = parseGoTest(items)
-	action = parseAction(items, test)
+	name := parseName(items)
+	test := parseGoTest(items)
+	action := parseAction(items, test)
 
-	return name, action, test
+	return execution.NewRegistration(name, action, test)
 }
 func ensureEnough(items []interface{}) {
 	if len(items) < 2 {

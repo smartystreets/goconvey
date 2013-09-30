@@ -3,22 +3,21 @@ package reporting
 import "fmt"
 
 import (
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func (self *statistics) BeginStory(test gotest.T) {}
+func (self *statistics) BeginStory(story *StoryReport) {}
 
-func (self *statistics) Enter(title, id string) {}
+func (self *statistics) Enter(scope *ScopeReport) {}
 
-func (self *statistics) Report(r *AssertionReport) {
-	if !self.failing && r.Failure != "" {
+func (self *statistics) Report(report *AssertionReport) {
+	if !self.failing && report.Failure != "" {
 		self.failing = true
 	}
-	if !self.erroring && r.Error != nil {
+	if !self.erroring && report.Error != nil {
 		self.erroring = true
 	}
-	if r.Skipped {
+	if report.Skipped {
 		self.skipped += 1
 	} else {
 		self.total++

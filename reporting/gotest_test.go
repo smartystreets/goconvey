@@ -4,28 +4,10 @@ import (
 	"testing"
 )
 
-func TestReporterRequiresGoTestToBegin(t *testing.T) {
-	defer catch(t)
-	reporter := NewGoTestReporter()
-	reporter.BeginStory(nil)
-}
-
-func TestReporterRequiresGoTestToEnterScope(t *testing.T) {
-	defer catch(t)
-	reporter := NewGoTestReporter()
-	reporter.Enter("hello", "world")
-}
-
-func TestReporterRequiresGoTestToReceiveReport(t *testing.T) {
-	defer catch(t)
-	reporter := NewGoTestReporter()
-	reporter.Report(nil)
-}
-
 func TestReporterReceivesSuccessfulReport(t *testing.T) {
 	reporter := NewGoTestReporter()
 	test := &fakeTest{}
-	reporter.BeginStory(test)
+	reporter.BeginStory(NewStoryReport(test))
 	reporter.Report(NewSuccessReport())
 
 	if test.failed {
@@ -36,7 +18,7 @@ func TestReporterReceivesSuccessfulReport(t *testing.T) {
 func TestReporterReceivesFailureReport(t *testing.T) {
 	reporter := NewGoTestReporter()
 	test := &fakeTest{}
-	reporter.BeginStory(test)
+	reporter.BeginStory(NewStoryReport(test))
 	reporter.Report(NewFailureReport("This is a failure."))
 
 	if !test.failed {
@@ -47,7 +29,7 @@ func TestReporterReceivesFailureReport(t *testing.T) {
 func TestReporterReceivesErrorReport(t *testing.T) {
 	reporter := NewGoTestReporter()
 	test := &fakeTest{}
-	reporter.BeginStory(test)
+	reporter.BeginStory(NewStoryReport(test))
 	reporter.Report(NewErrorReport("This is an error."))
 
 	if !test.failed {
@@ -59,16 +41,15 @@ func TestReporterIsResetAtTheEndOfTheStory(t *testing.T) {
 	defer catch(t)
 	reporter := NewGoTestReporter()
 	test := &fakeTest{}
-	reporter.BeginStory(test)
+	reporter.BeginStory(NewStoryReport(test))
 	reporter.EndStory()
+
 	reporter.Report(NewSuccessReport())
 }
 
 func catch(t *testing.T) {
-	if r := recover(); r == registrationError {
-		t.Log("Getting to this point means we've passed (because we caught a registration error appropriately).")
-	} else {
-		t.Errorf("Should have recovered a panic with: \n'%s'\n...but was: \n'%v'.", registrationError, r)
+	if r := recover(); r != nil {
+		t.Log("Getting to this point means we've passed (because we caught a panic appropriately).")
 	}
 }
 

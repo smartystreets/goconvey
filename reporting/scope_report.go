@@ -17,6 +17,6 @@ func NewScopeReport(title, id string) *ScopeReport {
 	self.Title = title
 	self.ID = id
 	self.File = file
-	self.line = line
+	self.Line = line
 	return self
 }

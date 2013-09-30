@@ -10,7 +10,7 @@ func (self *Action) Invoke() {
 
 type Action struct {
 	action func()
-	Name   string
+	Name   string // TODO: why exported?
 }
 
 func NewAction(action func()) *Action {

@@ -3,19 +3,18 @@ package reporting
 import "fmt"
 
 import (
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func (self *problem) BeginStory(test gotest.T) {}
+func (self *problem) BeginStory(story *StoryReport) {}
 
-func (self *problem) Enter(title, id string) {}
+func (self *problem) Enter(scope *ScopeReport) {}
 
-func (self *problem) Report(r *AssertionReport) {
-	if r.Error != nil {
-		self.errors = append(self.errors, r)
-	} else if r.Failure != "" {
-		self.failures = append(self.failures, r)
+func (self *problem) Report(report *AssertionReport) {
+	if report.Error != nil {
+		self.errors = append(self.errors, report)
+	} else if report.Failure != "" {
+		self.failures = append(self.failures, report)
 	}
 }
 

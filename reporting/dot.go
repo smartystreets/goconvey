@@ -3,22 +3,21 @@ package reporting
 import "fmt"
 
 import (
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func (self *dot) BeginStory(test gotest.T) {}
+func (self *dot) BeginStory(story *StoryReport) {}
 
-func (self *dot) Enter(title, id string) {}
+func (self *dot) Enter(scope *ScopeReport) {}
 
-func (self *dot) Report(r *AssertionReport) {
-	if r.Error != nil {
+func (self *dot) Report(report *AssertionReport) {
+	if report.Error != nil {
 		fmt.Print(redColor)
 		self.out.Insert(dotError)
-	} else if r.Failure != "" {
+	} else if report.Failure != "" {
 		fmt.Print(yellowColor)
 		self.out.Insert(dotFailure)
-	} else if r.Skipped {
+	} else if report.Skipped {
 		fmt.Print(yellowColor)
 		self.out.Insert(dotSkip)
 	} else {

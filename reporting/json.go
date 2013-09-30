@@ -3,44 +3,31 @@ package reporting
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func (self *jsonReporter) BeginStory(test gotest.T) {
-	file, line, testName := gotest.ResolveExternalCaller()
-	top := newScope(testName, self.depth, file, line)
+func (self *jsonReporter) BeginStory(story *StoryReport) {
+	top := newScope(story.Name, self.depth, story.File, story.Line)
 	self.scopes = append(self.scopes, top)
 	self.stack = append(self.stack, top)
 }
 
-func (self *jsonReporter) Enter(title, id string) {
+func (self *jsonReporter) Enter(scope *ScopeReport) {
 	self.depth++
-	if _, found := self.titlesById[id]; !found {
-		self.registerScope(title, id)
+	if _, found := self.titlesById[scope.ID]; !found {
+		self.registerScope(scope)
 	}
 }
-func (self *jsonReporter) registerScope(title, id string) {
-	self.titlesById[id] = title
-	file, line, _ := gotest.ResolveExternalCaller()
-	// ok, this isn't working--we're getting the wrong line numbers at this
-	// point because we are executing from the top-level Convey statement and
-	// not the actual Convey statement.
-	// because that's where we execute runner.Run() from).
-	// I probably need to capture the file and line information when I parse
-	// registration in the convey package. That info would be stored on the
-	// scope struct and then passed to the reporter during the Enter method
-	// so we'd have it here. Although, I hate to modify the signature of the
-	// Reporter interface just for the json reporter but I don't see a better
-	// way at this point...
-	next := newScope(title, self.depth, file, line)
+func (self *jsonReporter) registerScope(scope *ScopeReport) {
+	self.titlesById[scope.ID] = scope.ID
+	next := newScope(scope.Title, self.depth, scope.File, scope.Line)
 	self.scopes = append(self.scopes, next)
 	self.stack = append(self.stack, next)
 }
 
-func (self *jsonReporter) Report(r *AssertionReport) {
+func (self *jsonReporter) Report(report *AssertionReport) {
 	current := self.stack[len(self.stack)-1]
-	current.Reports = append(current.Reports, newJsonReport(r))
+	current.Reports = append(current.Reports, newAssertion(report))
 }
 
 func (self *jsonReporter) Exit() {
@@ -87,7 +74,7 @@ type scope struct {
 	File    string
 	Line    int
 	Depth   int
-	Reports []*report
+	Reports []*assertion
 }
 
 func newScope(title string, depth int, file string, line int) *scope {
@@ -96,26 +83,29 @@ func newScope(title string, depth int, file string, line int) *scope {
 	self.Depth = depth
 	self.File = file
 	self.Line = line
-	self.Reports = []*report{}
+	self.Reports = []*assertion{}
 	return self
 }
 
-type report struct {
-	File       string
-	Line       int
-	Failure    string
-	Error      interface{}
+type assertion struct {
+	File    string
+	Line    int
+	Failure string
+	Error   interface{}
+	Skipped bool
+
+	// TODO: I'm going to have to parse this turn it into a structure that
+	// can accomodate turning the file paths into urls when templated...
 	StackTrace string
-	Skipped    bool
 }
 
-func newJsonReport(r *AssertionReport) *report {
-	return &report{
-		r.File,
-		r.Line,
-		r.Failure,
-		r.Error,
-		r.stackTrace,
-		r.Skipped,
-	}
+func newAssertion(report *AssertionReport) *assertion {
+	self := &assertion{}
+	self.File = report.File
+	self.Line = report.Line
+	self.Failure = report.Failure
+	self.Error = report.Error
+	self.StackTrace = report.stackTrace
+	self.Skipped = report.Skipped
+	return self
 }

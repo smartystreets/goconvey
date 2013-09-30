@@ -1,7 +1,6 @@
 package reporting
 
 import (
-	"github.com/smartystreets/goconvey/gotest"
 	"runtime"
 	"testing"
 )
@@ -15,7 +14,7 @@ func TestEachNestedReporterReceivesTheCallFromTheContainingReporter(t *testing.T
 	assertTrue(t, fake1.begun)
 	assertTrue(t, fake2.begun)
 
-	reporter.Enter("scope", "hi")
+	reporter.Enter(NewScopeReport("scope", "hi"))
 	assertTrue(t, fake1.entered)
 	assertTrue(t, fake2.entered)
 
@@ -51,13 +50,13 @@ func newFakeReporter() *fakeReporter {
 	return &fakeReporter{}
 }
 
-func (self *fakeReporter) BeginStory(test gotest.T) {
+func (self *fakeReporter) BeginStory(story *StoryReport) {
 	self.begun = true
 }
-func (self *fakeReporter) Enter(title, id string) {
+func (self *fakeReporter) Enter(scope *ScopeReport) {
 	self.entered = true
 }
-func (self *fakeReporter) Report(r *AssertionReport) {
+func (self *fakeReporter) Report(report *AssertionReport) {
 	self.reported = true
 }
 func (self *fakeReporter) Exit() {

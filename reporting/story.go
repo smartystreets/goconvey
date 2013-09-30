@@ -3,31 +3,30 @@ package reporting
 import "fmt"
 
 import (
-	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func (self *story) BeginStory(test gotest.T) {}
+func (self *story) BeginStory(story *StoryReport) {}
 
-func (self *story) Enter(title, id string) {
+func (self *story) Enter(scope *ScopeReport) {
 	self.out.Indent()
 
-	if _, found := self.titlesById[id]; !found {
+	if _, found := self.titlesById[scope.ID]; !found {
 		self.out.Println("")
-		self.out.Print(title)
+		self.out.Print(scope.Title)
 		self.out.Insert(" ")
-		self.titlesById[id] = title
+		self.titlesById[scope.ID] = scope.Title
 	}
 }
 
-func (self *story) Report(r *AssertionReport) {
-	if r.Error != nil {
+func (self *story) Report(report *AssertionReport) {
+	if report.Error != nil {
 		fmt.Print(redColor)
 		self.out.Insert(error_)
-	} else if r.Failure != "" {
+	} else if report.Failure != "" {
 		fmt.Print(yellowColor)
 		self.out.Insert(failure)
-	} else if r.Skipped {
+	} else if report.Skipped {
 		fmt.Print(yellowColor)
 		self.out.Insert(skip)
 	} else {

@@ -1,6 +1,5 @@
 package execution
 
-import "github.com/smartystreets/goconvey/gotest"
 import "github.com/smartystreets/goconvey/reporting"
 
 func NewNilReporter() *nilReporter {
@@ -8,10 +7,10 @@ func NewNilReporter() *nilReporter {
 	return &self
 }
 
-func (self *nilReporter) BeginStory(test gotest.T)            {}
-func (self *nilReporter) Enter(title, id string)              {}
-func (self *nilReporter) Report(r *reporting.AssertionReport) {}
-func (self *nilReporter) Exit()                               {}
-func (self *nilReporter) EndStory()                           {}
+func (self *nilReporter) BeginStory(story *reporting.StoryReport)  {}
+func (self *nilReporter) Enter(scope *reporting.ScopeReport)       {}
+func (self *nilReporter) Report(report *reporting.AssertionReport) {}
+func (self *nilReporter) Exit()                                    {}
+func (self *nilReporter) EndStory()                                {}
 
 type nilReporter struct{}
