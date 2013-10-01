@@ -60,7 +60,7 @@ func removeInternalEntries(stack string) string {
 	lines := strings.Split(stack, newline)
 	filtered := []string{}
 	for _, line := range lines {
-		if isExternal(line) {
+		if !isExternal(line) {
 			filtered = append(filtered, line)
 		}
 	}
@@ -69,21 +69,21 @@ func removeInternalEntries(stack string) string {
 func isExternal(line string) bool {
 	for _, p := range internalPackages {
 		if strings.Contains(line, p) {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 // NOTE: any new packages that host goconvey packages will need to be added here!
 // An alternative is to scan the goconvey directory and then exclude stuff like
 // the examples package but that's nasty too.
 var internalPackages = []string{
-	"/goconvey/assertions/",
-	"/goconvey/convey/",
-	"/goconvey/execution/",
-	"/goconvey/gotest/",
-	"/goconvey/printing/",
-	"/goconvey/reporting/",
-	"/goconvey/web/",
+	"goconvey/assertions",
+	"goconvey/convey",
+	"goconvey/execution",
+	"goconvey/gotest",
+	"goconvey/printing",
+	"goconvey/reporting",
+	"goconvey/web",
 }
