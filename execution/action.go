@@ -10,16 +10,16 @@ func (self *Action) Invoke() {
 
 type Action struct {
 	action func()
-	Name   string // TODO: why exported?
+	name   string
 }
 
 func NewAction(action func()) *Action {
-	return &Action{action: action, Name: functionName(action)}
+	return &Action{action: action, name: functionName(action)}
 }
 
 func NewSkippedAction(action func()) *Action {
 	self := &Action{}
-	self.Name = gotest.ResolveExternalFileAndLine()
+	self.name = gotest.ResolveExternalFileAndLine()
 	self.action = action
 	return self
 }

@@ -23,7 +23,7 @@ func (parent *scope) hasChild(child *scope) bool {
 }
 
 func (self *scope) registerReset(action *Action) {
-	self.resets[action.Name] = action
+	self.resets[action.name] = action
 }
 
 func (self *scope) visited() bool {
@@ -74,7 +74,7 @@ func (parent *scope) exit() {
 func newScope(entry *Registration, reporter reporting.Reporter) *scope {
 	self := &scope{}
 	self.reporter = reporter
-	self.name = entry.Action.Name
+	self.name = entry.Action.name
 	self.title = entry.Situation
 	self.action = entry.Action
 	self.children = make(map[string]*scope)
