@@ -23,7 +23,7 @@ func (self *runner) ensureStoryCanBegin() {
 	if self.awaitingNewStory {
 		self.awaitingNewStory = false
 	} else {
-		panic(fmt.Sprintf("%s (See %s)", ExtraGoTest, gotest.ResolveExternalFileAndLine()))
+		panic(fmt.Sprintf("%s (See %s)", ExtraGoTest, gotest.FormatExternalFileAndLine()))
 	}
 }
 
@@ -40,7 +40,7 @@ func (self *runner) ensureStoryAlreadyStarted() {
 	}
 }
 func (self *runner) link(action *Action) string {
-	parentAction := gotest.ResolveExternalFunctionName()
+	_, _, parentAction := gotest.ResolveExternalCaller()
 	childAction := action.name
 	self.linkTo(topLevel, parentAction)
 	self.linkTo(parentAction, childAction)

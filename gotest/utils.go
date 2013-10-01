@@ -6,13 +6,7 @@ import (
 	"strings"
 )
 
-func ResolveExternalFunctionName() string {
-	_, _, name := ResolveExternalCaller()
-	return name
-}
-
-// TODO: rethink this method...
-func ResolveExternalFileAndLine() string {
+func FormatExternalFileAndLine() string {
 	file, line, _ := ResolveExternalCaller()
 	if line == -1 {
 		return "<unknown caller!>" // panic?
@@ -20,7 +14,6 @@ func ResolveExternalFileAndLine() string {
 	return fmt.Sprintf("%s:%d", file, line)
 }
 
-// TODO: rename to ResolveFirstExternalCaller()
 func ResolveExternalCaller() (file string, line int, name string) {
 	var caller_id uintptr
 	callers := runtime.Callers(0, callStack)
