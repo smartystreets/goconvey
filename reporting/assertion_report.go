@@ -1,6 +1,7 @@
 package reporting
 
 import (
+	"github.com/smartystreets/goconvey/gotest"
 	"runtime"
 	"strings"
 )
@@ -40,7 +41,7 @@ func NewSkipReport() *AssertionReport {
 }
 
 func caller() (file string, line int) {
-	_, file, line, _ = runtime.Caller(3) // TODO: could we use gotest.ResolveExternalCaller?
+	file, line, _ = gotest.ResolveExternalCaller()
 	return
 }
 func stackTrace() string {
