@@ -19,6 +19,10 @@ func NewAction(action func()) *Action {
 
 func NewSkippedAction(action func()) *Action {
 	self := &Action{}
+
+	// The choice to use the filename and line number as the action name
+	// reflects the need for something unique but also that corresponds
+	// in a determinist way to the action itself.
 	self.name = gotest.ResolveExternalFileAndLine()
 	self.action = action
 	return self
