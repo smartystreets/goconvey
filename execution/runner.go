@@ -15,27 +15,33 @@ type Runner interface {
 }
 
 func (self *runner) Begin(entry *Registration) {
-	if !self.awaitingNewStory {
-		panic(fmt.Sprintf("%s (See %s)",
-			ExtraGoTest, gotest.ResolveExternalFileAndLine()))
-	}
-	self.awaitingNewStory = false
+	self.ensureStoryCanBegin()
 	self.out.BeginStory(reporting.NewStoryReport(entry.Test))
 	self.Register(entry)
 }
+func (self *runner) ensureStoryCanBegin() {
+	if self.awaitingNewStory {
+		self.awaitingNewStory = false
+	} else {
+		panic(fmt.Sprintf("%s (See %s)", ExtraGoTest, gotest.ResolveExternalFileAndLine()))
+	}
+}
 
 func (self *runner) Register(entry *Registration) {
-	if self.awaitingNewStory {
-		panic(MissingGoTest)
-	}
+	self.ensureStoryAlreadyStarted()
 	parentAction := self.link(entry.Action)
 	parent := self.accessScope(parentAction)
 	child := newScope(entry, self.out)
 	parent.adopt(child)
 }
+func (self *runner) ensureStoryAlreadyStarted() {
+	if self.awaitingNewStory {
+		panic(MissingGoTest)
+	}
+}
 func (self *runner) link(action *Action) string {
 	parentAction := gotest.ResolveExternalFunctionName()
-	childAction := action.Name
+	childAction := action.name
 	self.linkTo(topLevel, parentAction)
 	self.linkTo(parentAction, childAction)
 	return parentAction
