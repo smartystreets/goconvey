@@ -7,25 +7,91 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
 
 func main() {
-	watcher, _ := fsnotify.NewWatcher()
+	watcher, _ = fsnotify.NewWatcher() // TODO: err
 	defer watcher.Close()
 
-	go reactToChanges(watcher)
+	fmt.Println("Initialized watcher...")
 
-	working, _ := os.Getwd()
-	watcher.Watch(working)
+	go reactToChanges()
+
+	working, _ := os.Getwd() // TODO: err
+	updateWatch(working)
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/latest", reportHandler)
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/watch", watchHandler)
+	http.ListenAndServe(":8080", nil) // TODO: flag for port
 }
 
-func reactToChanges(watcher *fsnotify.Watcher) {
+func updateWatch(root string) {
+	addNewWatches(root)
+	removeOldWatches()
+}
+func addNewWatches(root string) {
+	if rootWatch != root {
+		adjustRoot(root)
+	}
+
+	watchNestedPaths(root)
+}
+func adjustRoot(root string) {
+	fmt.Println("Watching new root:", root)
+	for path, _ := range watched {
+		removeWatch(path)
+	}
+	rootWatch = root
+	watch(root)
+}
+func watchNestedPaths(root string) {
+	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if matches, _ := filepath.Glob(filepath.Join(path, "*test.go")); len(matches) > 0 {
+			watch(path)
+		}
+		return nil
+	})
+}
+func watch(path string) {
+	if !watching(path) {
+		fmt.Println("Watching:", path)
+		watched[path] = true
+		watcher.Watch(path)
+	}
+}
+
+func watching(path string) bool {
+	for w, _ := range watched {
+		if w == path {
+			return true
+		}
+	}
+	return false
+}
+
+func removeOldWatches() {
+	for path, _ := range watched {
+		if !exists(path) {
+			removeWatch(path)
+		}
+	}
+}
+func removeWatch(path string) {
+	delete(watched, path)
+	watcher.RemoveWatch(path)
+	fmt.Println("No longer watching:", path)
+}
+
+func exists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
+}
+
+func reactToChanges() {
 	busy := false
 	done := make(chan bool)
 	ready := make(chan bool)
@@ -33,9 +99,10 @@ func reactToChanges(watcher *fsnotify.Watcher) {
 	for {
 		select {
 		case ev := <-watcher.Event:
+			updateWatch(rootWatch)
 			if strings.HasSuffix(ev.Name, ".go") && !busy {
 				busy = true
-				go test(done)
+				go runTests(done)
 			}
 
 		case err := <-watcher.Error:
@@ -53,30 +120,52 @@ func reactToChanges(watcher *fsnotify.Watcher) {
 	}
 }
 
-func test(done chan bool) {
-	fmt.Println("Running tests...")
-
-	// TODO: recurse into subdirectories and run tests...
-	// oh yeah, and always check for new packages sprouting up,
-	// or existing ones being removed...
-	output, _ := exec.Command("go", "test", "-json").Output()
-	result := parsePackageResult(string(output))
-
-	serialized, _ := json.Marshal(result)
-	// var buffer bytes.Buffer
-	// json.Indent(&buffer, serialized, "", "  ")
-
-	latest = string(serialized)
+func runTests(done chan bool) {
+	results := []PackageResult{}
+	for path, _ := range watched {
+		fmt.Println("Running tests at:", path)
+		os.Chdir(path)                                            // TODO: err
+		output, _ := exec.Command("go", "test", "-json").Output() // TODO: err
+		result := parsePackageResult(string(output))
+		fmt.Println("Result: ", result.Passed)
+		results = append(results, result)
+	}
+	serialized, _ := json.Marshal(results) // TODO: err
+	latestOutput = string(serialized)
 	done <- true
 }
 
 func homeHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprint(writer, "<html>...</html>") // TODO
+	fmt.Fprint(writer, "<html>...</html>") // TODO: setup static handler for html and javascript?
 }
 
 func reportHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(writer, latest)
+	fmt.Fprint(writer, latestOutput)
 }
 
-var latest string
+func watchHandler(writer http.ResponseWriter, request *http.Request) {
+	if request.Method == "GET" {
+		writer.Write([]byte(rootWatch))
+		return
+	}
+
+	value := request.URL.Query()["root"]
+	if len(value) == 0 {
+		http.Error(writer, "No 'root' query string parameter included!", http.StatusBadRequest)
+		return
+	}
+	newRoot := value[0]
+	if !exists(newRoot) {
+		http.Error(writer, "The 'root' value provided is not an existing directory.", http.StatusNotFound)
+	} else {
+		updateWatch(newRoot)
+	}
+}
+
+var (
+	latestOutput string
+	rootWatch    string
+	watched      map[string]bool
+	watcher      *fsnotify.Watcher
+)
