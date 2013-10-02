@@ -30,10 +30,10 @@ func main() {
 }
 
 func updateWatch(root string) {
-	addNewWatches(root)
-	removeOldWatches()
+	addWatches(root)
+	removeWatches()
 }
-func addNewWatches(root string) {
+func addWatches(root string) {
 	if rootWatch != root {
 		adjustRoot(root)
 	}
@@ -73,7 +73,7 @@ func watching(path string) bool {
 	return false
 }
 
-func removeOldWatches() {
+func removeWatches() {
 	for path, _ := range watched {
 		if !exists(path) {
 			removeWatch(path)
