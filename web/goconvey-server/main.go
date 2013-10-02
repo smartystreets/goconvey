@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/howeyc/fsnotify"
 	"net/http"
@@ -13,20 +14,28 @@ import (
 )
 
 func main() {
-	watcher, _ = fsnotify.NewWatcher() // TODO: err
+	flag.Parse()
+
+	watcher, err = fsnotify.NewWatcher()
+	if err != nil {
+		panic(err)
+	}
 	defer watcher.Close()
 
 	fmt.Println("Initialized watcher...")
 
 	go reactToChanges()
 
-	working, _ := os.Getwd() // TODO: err
+	working, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
 	updateWatch(working)
 
 	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/latest", reportHandler)
 	http.HandleFunc("/watch", watchHandler)
-	http.ListenAndServe(":8080", nil) // TODO: flag for port
+	http.HandleFunc("/latest", reportHandler)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
 
 func updateWatch(root string) {
@@ -124,14 +133,25 @@ func runTests(done chan bool) {
 	results := []PackageResult{}
 	for path, _ := range watched {
 		fmt.Println("Running tests at:", path)
-		os.Chdir(path)                                            // TODO: err
-		output, _ := exec.Command("go", "test", "-json").Output() // TODO: err
+		if err := os.Chdir(path); err != nil {
+			fmt.Println("Could not chdir to:", path)
+			continue
+		}
+		output, err := exec.Command("go", "test", "-json").Output()
+		if err != nil {
+			fmt.Printf("Error from test execution at %s. Error: %v\n", path, err)
+			// continue // TODO: is the error expected on failure?
+		}
 		result := parsePackageResult(string(output))
 		fmt.Println("Result: ", result.Passed)
 		results = append(results, result)
 	}
-	serialized, _ := json.Marshal(results) // TODO: err
-	latestOutput = string(serialized)
+	serialized, err := json.Marshal(results)
+	if err != nil {
+		fmt.Println("Problem serializing json test results!", err)
+	} else {
+		latestOutput = string(serialized)
+	}
 	done <- true
 }
 
@@ -164,8 +184,13 @@ func watchHandler(writer http.ResponseWriter, request *http.Request) {
 }
 
 var (
+	port         int
 	latestOutput string
 	rootWatch    string
 	watched      map[string]bool
 	watcher      *fsnotify.Watcher
 )
+
+func init() {
+	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
+}
