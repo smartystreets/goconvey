@@ -13,16 +13,21 @@ import (
 	"time"
 )
 
-func main() {
-	flag.Parse()
+func init() {
+	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
+	watched = make(map[string]bool)
 
+	var err error
 	watcher, err = fsnotify.NewWatcher()
 	if err != nil {
 		panic(err)
 	}
-	defer watcher.Close()
-
 	fmt.Println("Initialized watcher...")
+}
+
+func main() {
+	flag.Parse()
+	defer watcher.Close()
 
 	go reactToChanges()
 
@@ -190,7 +195,3 @@ var (
 	watched      map[string]bool
 	watcher      *fsnotify.Watcher
 )
-
-func init() {
-	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
-}
