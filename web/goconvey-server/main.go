@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/howeyc/fsnotify"
 	"net/http"
@@ -41,6 +42,7 @@ func reactToChanges(watcher *fsnotify.Watcher) {
 			fmt.Println(err)
 
 		case <-done:
+			// TODO: rethink this delay?
 			time.AfterFunc(1500*time.Millisecond, func() {
 				ready <- true
 			})
@@ -53,8 +55,18 @@ func reactToChanges(watcher *fsnotify.Watcher) {
 
 func test(done chan bool) {
 	fmt.Println("Running tests...")
-	output, _ := exec.Command("go", "test").Output()
-	latest = string(output)
+
+	// TODO: recurse into subdirectories and run tests...
+	// oh yeah, and always check for new packages sprouting up,
+	// or existing ones being removed...
+	output, _ := exec.Command("go", "test", "-json").Output()
+	result := parsePackageResult(string(output))
+
+	serialized, _ := json.Marshal(result)
+	// var buffer bytes.Buffer
+	// json.Indent(&buffer, serialized, "", "  ")
+
+	latest = string(serialized)
 	done <- true
 }
 
@@ -75,7 +87,8 @@ var HOME_HTML = `<!DOCTYPE html>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Latest GoConvey Execution Report</title>
 
-	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://raw.github.com/adammark/Markup.js/master/src/markup.min.js"></script>
 	<script type="text/javascript">
         $(document).ready(function() {
             $("#output").hide();
@@ -87,6 +100,7 @@ var HOME_HTML = `<!DOCTYPE html>
                     },
                     success: function(data) {
                     	console.log(data);
+
                         $("#output").hide();
                         $("#output").empty();
                         $("#output").html(data);
@@ -185,6 +199,10 @@ var HOME_HTML = `<!DOCTYPE html>
 
 <body>
 	<div id="output"></div>
+
+	<script id="stories" type="text/template">
+
+	</script>
 </body>
 
 </html>`

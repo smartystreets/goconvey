@@ -85,5 +85,4 @@ var internalPackages = []string{
 	"goconvey/gotest",
 	"goconvey/printing",
 	"goconvey/reporting",
-	"goconvey/web",
 }

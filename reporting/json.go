@@ -7,7 +7,7 @@ import (
 )
 
 func (self *jsonReporter) BeginStory(story *StoryReport) {
-	top := newScope(story.Name, self.depth, story.File, story.Line)
+	top := newScopeResult(story.Name, self.depth, story.File, story.Line)
 	self.scopes = append(self.scopes, top)
 	self.stack = append(self.stack, top)
 }
@@ -20,14 +20,14 @@ func (self *jsonReporter) Enter(scope *ScopeReport) {
 }
 func (self *jsonReporter) registerScope(scope *ScopeReport) {
 	self.titlesById[scope.ID] = scope.ID
-	next := newScope(scope.Title, self.depth, scope.File, scope.Line)
+	next := newScopeResult(scope.Title, self.depth, scope.File, scope.Line)
 	self.scopes = append(self.scopes, next)
 	self.stack = append(self.stack, next)
 }
 
 func (self *jsonReporter) Report(report *AssertionReport) {
 	current := self.stack[len(self.stack)-1]
-	current.Reports = append(current.Reports, newAssertion(report))
+	current.Assertions = append(current.Assertions, newAssertionResult(report))
 }
 
 func (self *jsonReporter) Exit() {
@@ -49,8 +49,8 @@ func (self *jsonReporter) report() {
 }
 func (self *jsonReporter) reset() {
 	self.titlesById = make(map[string]string)
-	self.scopes = []*scope{}
-	self.stack = []*scope{}
+	self.scopes = []*ScopeResult{}
+	self.stack = []*ScopeResult{}
 	self.depth = 0
 }
 
@@ -64,30 +64,30 @@ func NewJsonReporter(out *printing.Printer) *jsonReporter {
 type jsonReporter struct {
 	out        *printing.Printer
 	titlesById map[string]string
-	scopes     []*scope
-	stack      []*scope
+	scopes     []*ScopeResult
+	stack      []*ScopeResult
 	depth      int
 }
 
-type scope struct {
-	Title   string
-	File    string
-	Line    int
-	Depth   int
-	Reports []*assertion
+type ScopeResult struct {
+	Title      string
+	File       string
+	Line       int
+	Depth      int
+	Assertions []AssertionResult
 }
 
-func newScope(title string, depth int, file string, line int) *scope {
-	self := &scope{}
+func newScopeResult(title string, depth int, file string, line int) *ScopeResult {
+	self := &ScopeResult{}
 	self.Title = title
 	self.Depth = depth
 	self.File = file
 	self.Line = line
-	self.Reports = []*assertion{}
+	self.Assertions = []AssertionResult{}
 	return self
 }
 
-type assertion struct {
+type AssertionResult struct {
 	File    string
 	Line    int
 	Failure string
@@ -99,8 +99,8 @@ type assertion struct {
 	StackTrace string
 }
 
-func newAssertion(report *AssertionReport) *assertion {
-	self := &assertion{}
+func newAssertionResult(report *AssertionReport) AssertionResult {
+	self := AssertionResult{}
 	self.File = report.File
 	self.Line = report.Line
 	self.Failure = report.Failure
