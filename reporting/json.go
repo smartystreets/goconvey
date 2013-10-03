@@ -45,7 +45,7 @@ func (self *jsonReporter) report() {
 	serialized, _ := json.Marshal(self.scopes)
 	var buffer bytes.Buffer
 	json.Indent(&buffer, serialized, "", "  ")
-	self.out.Print(buffer.String() + ",")
+	self.out.Print(buffer.String() + ",\n")
 }
 func (self *jsonReporter) reset() {
 	self.titlesById = make(map[string]string)
