@@ -49,6 +49,7 @@ func updateWatch(root string) {
 }
 func addWatches(root string) {
 	if rootWatch != root {
+		// TODO: set gopath...
 		adjustRoot(root)
 	}
 
@@ -100,8 +101,8 @@ func removeWatch(path string) {
 	fmt.Println("No longer watching:", path)
 }
 
-func exists(path string) bool {
-	info, err := os.Stat(path)
+func exists(directory string) bool {
+	info, err := os.Stat(directory)
 	return err == nil && info.IsDir()
 }
 
@@ -166,6 +167,9 @@ func homeHandler(writer http.ResponseWriter, request *http.Request) {
 
 func reportHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
+	writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	writer.Header().Set("Pragma", "no-cache")
+	writer.Header().Set("Expires", "0")
 	fmt.Fprint(writer, latestOutput)
 }
 
