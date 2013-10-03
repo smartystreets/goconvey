@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
+	_ "os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -104,21 +104,21 @@ func reactToChanges() {
 
 func runTests(done chan bool) {
 	results := []PackageResult{}
-	for path, _ := range watched {
-		fmt.Println("Running tests at:", path)
-		if err := os.Chdir(path); err != nil {
-			fmt.Println("Could not chdir to:", path)
-			continue
-		}
-		output, err := exec.Command("go", "test", "-json").Output()
-		if err != nil {
-			fmt.Printf("Error from test execution at %s. Error: %v\n", path, err)
-			// continue // TODO: is the error expected on failure?
-		}
-		result := parsePackageResult(string(output))
-		fmt.Println("Result: ", result.Passed)
-		results = append(results, result)
-	}
+	// for path, _ := range watched {
+	// fmt.Println("Running tests at:", path)
+	// if err := os.Chdir(path); err != nil {
+	// fmt.Println("Could not chdir to:", path)
+	// continue
+	// }
+	// output, err := exec.Command("go", "test", "-json").Output()
+	// if err != nil {
+	// fmt.Printf("Error from test execution at %s. Error: %v\n", path, err)
+	// continue // TODO: is the error expected on failure?
+	// }
+	// result := parsePackageResult(string(output))
+	// fmt.Println("Result: ", result.Passed)
+	// results = append(results, result)
+	// }
 	serialized, err := json.Marshal(results)
 	if err != nil {
 		fmt.Println("Problem serializing json test results!", err)

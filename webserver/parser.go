@@ -1,89 +1,138 @@
-/*
-- all go test output is compiled as an array of PackageResult structs
-- a PackageResult is an object with a name, an elapsed time, and an array of StoryResults
-- a StoryResult is an array of ScopeResults
-- a ScopeResult is an object with a depth field and an array of AssertionResults
-- a AssertionResults is a failure, pass, error, skip w/ stacktrace
-*/
-
 package main
 
 import (
-	"encoding/json"
+	_ "fmt"
 	"github.com/smartystreets/goconvey/reporting"
-	"math"
+	"strconv"
 	"strings"
-	"time"
 )
+
+func parsePackageResults(raw string) *PackageResult {
+	parser := newOutputParser(raw)
+	return parser.Parse()
+}
+
+func newOutputParser(raw string) *outputParser {
+	self := &outputParser{}
+	self.raw = strings.TrimSpace(raw)
+	self.lines = strings.Split(self.raw, "\n")
+	self.result = &PackageResult{}
+	self.tests = []*TestResult{}
+	self.result.TestResults = []TestResult{}
+	return self
+}
+
+func (self *outputParser) Parse() *PackageResult {
+	self.gatherTestFunctionsAndMetadata()
+	self.parseTestFunctions()
+	self.attachTestFunctionsToResult()
+	return self.result
+}
+
+func (self *outputParser) gatherTestFunctionsAndMetadata() {
+	for _, self.line = range self.lines {
+		self.processNextLine()
+	}
+}
+func (self *outputParser) processNextLine() {
+	if isNewTest(self.line) {
+		self.registerTestFunction()
+
+	} else if isTestResult(self.line) {
+		self.recordTestMetadata()
+
+	} else if isPackageReport(self.line) {
+		self.recordPackageMetadata()
+
+	} else {
+		self.saveLineForParsingLater()
+	}
+}
+
+func isNewTest(line string) bool {
+	return strings.HasPrefix(line, "=== ")
+}
+func isTestResult(line string) bool {
+	return strings.HasPrefix(line, "--- ")
+}
+func isPackageReport(line string) bool {
+	// TODO: passing test: strings.HasPrefix(line, "PASS\nok  \t")
+	return strings.HasPrefix(line, "FAIL") || strings.HasPrefix(line, "exit status")
+}
+
+func (self *outputParser) registerTestFunction() {
+	self.test = &TestResult{}
+	self.test.Stories = []reporting.ScopeResult{}
+	self.test.rawLines = []string{}
+	self.test.TestName = self.line[len("=== RUN "):]
+	self.tests = append(self.tests, self.test)
+}
+func (self *outputParser) recordTestMetadata() {
+	if strings.Contains(self.line, "--- PASS: ") {
+		self.test.Passed = true
+		// TODO: parse duration
+	}
+}
+func (self *outputParser) saveLineForParsingLater() {
+	self.line = strings.TrimSpace(self.line)
+	self.test.rawLines = append(self.test.rawLines, self.line)
+}
+func (self *outputParser) recordPackageMetadata() {
+	if strings.HasPrefix(self.line, "FAIL\t") {
+		fields := strings.Split(self.line, "\t")
+		self.result.PackageName = strings.TrimSpace(fields[1])
+		self.result.Elapsed = parseDuration(fields[2], 3)
+	}
+}
+
+func (self *outputParser) parseTestFunctions() {
+	for _, test := range self.tests {
+		if len(test.rawLines) > 0 {
+			lineFields := test.rawLines[0]
+			fields := strings.Split(lineFields, ":")
+			test.File = strings.TrimSpace(fields[0])
+			test.Line, _ = strconv.Atoi(fields[1])
+			test.Message = strings.TrimSpace(fields[2])
+			if len(test.rawLines) > 1 {
+				test.Message = test.Message + "\n" + strings.Join(test.rawLines[1:], "\n")
+			}
+		}
+	}
+}
+
+func (self *outputParser) attachTestFunctionsToResult() {
+	for _, test := range self.tests {
+		test.rawLines = []string{}
+		self.result.TestResults = append(self.result.TestResults, *test)
+	}
+}
+
+type outputParser struct {
+	raw    string
+	lines  []string
+	result *PackageResult
+	tests  []*TestResult
+
+	// place holders for loops
+	line string
+	test *TestResult
+}
 
 type PackageResult struct {
 	PackageName string
 	Elapsed     float64
 	Passed      bool
-	Stories     []StoryResult
+	TestResults []TestResult
 }
 
-type StoryResult []reporting.ScopeResult
+type TestResult struct {
+	TestName string
+	Elapsed  float64
+	Passed   bool
+	File     string
+	Line     int
+	Message  string
+	Stories  []reporting.ScopeResult
 
-func parsePackageResult(rawResult string) PackageResult {
-	passed, packageName, duration := parseMetadata(rawResult)
-
-	var storyEnd int
-	storyEnd = strings.Index(rawResult, ",PASS\nok")
-	if storyEnd < 0 {
-		storyEnd = strings.Index(rawResult, ",--- FAIL")
-	}
-	rawStories := "[" + rawResult[:storyEnd] + "]"
-
-	var stories []StoryResult
-	json.Unmarshal([]byte(rawStories), &stories) // TODO: returns err...
-
-	return PackageResult{
-		PackageName: packageName,
-		Elapsed:     duration,
-		Passed:      passed,
-		Stories:     stories,
-	}
-}
-func parseMetadata(rawResult string) (passed bool, packageName string, elapsed float64) {
-	lines := strings.Split(strings.TrimSpace(rawResult), "\n")
-	lastLine := lines[len(lines)-1]
-	fields := strings.Split(lastLine, "\t")
-	// fmt.Println(lastLine, fields)
-
-	if len(fields) != 3 {
-		// fmt.Println(lastLine)
-	}
-
-	passed = fields[0] == "ok  "
-	packageName = fields[1]
-	rawDuration := fields[2]
-
-	duration, _ := time.ParseDuration(rawDuration)
-	elapsed = Round(duration.Seconds(), 3)
-	return
-}
-
-// Round returns the rounded version of x with precision.
-//
-// Special cases are:
-//	Round(±0) = ±0
-//	Round(±Inf) = ±Inf
-//	Round(NaN) = NaN
-//
-// Why, oh why doesn't the math package come with a Round function?
-// Inspiration: http://play.golang.org/p/ZmFfr07oHp
-func Round(x float64, precision int) float64 {
-	var rounder float64
-	pow := math.Pow(10, float64(precision))
-	intermediate := x * pow
-
-	if intermediate < 0.0 {
-		intermediate -= 0.5
-	} else {
-		intermediate += 0.5
-	}
-	rounder = float64(int64(intermediate))
-
-	return rounder / float64(pow)
+	rawLines []string
 }
