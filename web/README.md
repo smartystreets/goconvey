@@ -1,8 +1,8 @@
 TODO: 
 
 Client:
-  - Project path bar (read upon startup and update)
-  - Generate file links
+  - DONE: Project path bar (read upon startup and update)
+  - DONE: Generate file links
   - Generate scrolling link
   - Diff polish (common assertions)
   - Cleanup
@@ -12,6 +12,6 @@ Client:
 Server
   - Failing builds
   - possible bug in parser when starting the server in the /server directory
-  - cleaup
+  - cleanup
   - run all tests on startup
   - Integration test
