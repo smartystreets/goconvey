@@ -108,6 +108,7 @@ func isJson(line string) bool {
 	return strings.HasPrefix(line, "{")
 }
 func (self *outputParser) deserializeScopes() {
+	// TODO: clean up
 	rawJson := strings.Join(self.test.rawLines, "")
 	var scopes []reporting.ScopeResult
 	if strings.HasSuffix(rawJson, ",") { // Shouldn't need this...
