@@ -6,32 +6,14 @@ var convey = {
 		panic: 'panic',
 		skip: 'skip'
 	},
-	assertions: {
-		passed: [],
-		failed: [],
-		panicked: [],
-		skipped: []
-	},
-	overall: {
-		status: 'ok',
-		duration: 0,
-		assertions: 0,
-		passed: 0,
-		panics: 0,
-		failures: 0,
-		skipped: 0
-	},
+	assertions: emptyAssertions(),
+	overall: emptyOverall(),
 	zen: {},
 	revisionHash: ""
 };
 
-
 $(function()
 {
-	// Copy the defaults so we can replace them on each update
-	var overall_cpy = $.extend({}, convey.overall);
-	var assertions_cpy = $.extend({}, convey.assertions);
-
 	// Focus on first textbox
 	if ($('input').first().val() == "")
 		$('input').first().focus();
@@ -66,9 +48,9 @@ $(function()
 
 			$('#spinner').show();
 
-			// Replace the last update's state with the default to refill it
-			convey.overall = overall_cpy;
-			convey.assertions = assertions_cpy;
+			// Empty out the data from the last update
+			convey.overall = emptyOverall();
+			convey.assertions = emptyAssertions();
 
 			// Remove existing/old test results
 			$('.overall').slideUp(convey.speed);
@@ -163,7 +145,7 @@ $(function()
 						}
 					}
 				}
-
+				console.log("PANICKED", convey.assertions.panicked);
 				convey.overall.passed = convey.assertions.passed.length;
 				convey.overall.panics = convey.assertions.panicked.length;
 				convey.overall.failures = convey.assertions.failed.length;
@@ -176,7 +158,7 @@ $(function()
 					convey.overall.status = convey.statuses.fail;
 
 				// Show the overall status: passed, failed, or panicked
-				if (convey.overall.status == 'pass')
+				if (convey.overall.status == convey.statuses.pass)
 					$('header').after(render('tpl-overall-ok', convey.overall));
 				else if (convey.overall.status == convey.statuses.fail)
 					$('header').after(render('tpl-overall-fail', convey.overall));
@@ -189,6 +171,7 @@ $(function()
 				// Show shortucts and failures/panics details
 				if (convey.overall.panics > 0)
 				{
+					console.log(convey.overall);
 					$('#left-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
 					$('#contents').append(render('tpl-panics', convey.assertions.panicked));
 				}
@@ -279,6 +262,31 @@ Mark.pipes.relativePath = function(str)
 	basePath = new RegExp($('#path').val(), 'g');
 	return str.replace(basePath, '');
 }
+
+
+function emptyOverall()
+{
+	return {
+		status: 'ok',
+		duration: 0,
+		assertions: 0,
+		passed: 0,
+		panics: 0,
+		failures: 0,
+		skipped: 0
+	};
+}
+
+function emptyAssertions()
+{
+	return {
+		passed: [],
+		failed: [],
+		panicked: [],
+		skipped: []
+	};
+}
+
 
 function suppress(event)
 {
