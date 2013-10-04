@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/smartystreets/goconvey/reporting"
+	"strings"
 	"testing"
 )
 
@@ -14,6 +15,11 @@ func TestParsePackage_OldSchoolWithFailureOutput(t *testing.T) {
 func TestParsePackage_OldSchoolWithSuccessOutput(t *testing.T) {
 	actual := parsePackageResults(inputOldSchool_Passes)
 	assertEqual(t, expectedOldSchool_Passes, *actual)
+}
+
+func TestParsePackage_OldSchoolWithPanicOutput(t *testing.T) {
+	actual := parsePackageResults(inputOldSchool_Panics)
+	assertEqual(t, expectedOldSchool_Panics, *actual)
 }
 
 func TestParsePackage_GoConveyOutput(t *testing.T) {
@@ -123,6 +129,70 @@ var expectedOldSchool_Fails = PackageResult{
 			Line:     18,
 			Message:  "I am a failing test.",
 			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
+
+const inputOldSchool_Panics = `
+=== RUN TestOldSchool_Panics
+--- FAIL: TestOldSchool_Panics (0.02 seconds)
+panic: runtime error: index out of range [recovered]
+	panic: runtime error: index out of range
+
+goroutine 3 [running]:
+testing.func·004()
+	/usr/local/go/src/pkg/testing/testing.go:348 +0xcd
+github.com/smartystreets/goconvey/webserver/examples.TestOldSchool_Panics(0x210292000)
+	/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/something_test.go:15 +0xec
+testing.tRunner(0x210292000, 0x1b09f0)
+	/usr/local/go/src/pkg/testing/testing.go:353 +0x8a
+created by testing.RunTests
+	/usr/local/go/src/pkg/testing/testing.go:433 +0x86b
+
+goroutine 1 [chan receive]:
+testing.RunTests(0x138f38, 0x1b09f0, 0x1, 0x1, 0x1, ...)
+	/usr/local/go/src/pkg/testing/testing.go:434 +0x88e
+testing.Main(0x138f38, 0x1b09f0, 0x1, 0x1, 0x1b7f60, ...)
+	/usr/local/go/src/pkg/testing/testing.go:365 +0x8a
+main.main()
+	github.com/smartystreets/goconvey/webserver/examples/_test/_testmain.go:43 +0x9a
+exit status 2
+FAIL	github.com/smartystreets/goconvey/webserver/examples	0.014s
+`
+
+var expectedOldSchool_Panics = PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.014,
+	Passed:      false,
+	TestResults: []TestResult{
+		TestResult{
+			TestName: "TestOldSchool_Panics",
+			Elapsed:  0.02,
+			Passed:   false,
+			File:     "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/something_test.go",
+			Line:     15,
+			Message:  "",
+			Error: strings.Replace(`panic: runtime error: index out of range [recovered]
+	panic: runtime error: index out of range
+
+goroutine 3 [running]:
+testing.func·004()
+	/usr/local/go/src/pkg/testing/testing.go:348 +0xcd
+github.com/smartystreets/goconvey/webserver/examples.TestOldSchool_Panics(0x210292000)
+	/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/something_test.go:15 +0xec
+testing.tRunner(0x210292000, 0x1b09f0)
+	/usr/local/go/src/pkg/testing/testing.go:353 +0x8a
+created by testing.RunTests
+	/usr/local/go/src/pkg/testing/testing.go:433 +0x86b
+
+goroutine 1 [chan receive]:
+testing.RunTests(0x138f38, 0x1b09f0, 0x1, 0x1, 0x1, ...)
+	/usr/local/go/src/pkg/testing/testing.go:434 +0x88e
+testing.Main(0x138f38, 0x1b09f0, 0x1, 0x1, 0x1b7f60, ...)
+	/usr/local/go/src/pkg/testing/testing.go:365 +0x8a
+main.main()
+	github.com/smartystreets/goconvey/webserver/examples/_test/_testmain.go:43 +0x9a`, "\u0009", "\t", -1),
+			Stories: []reporting.ScopeResult{},
 		},
 	},
 }

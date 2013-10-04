@@ -11,6 +11,12 @@ func TestPassingStory(t *testing.T) {
 	})
 }
 
+func TestOldSchool_Panics(t *testing.T) {
+	if []int{}[0] == 42 {
+		t.Log("We shouldn't EVER get here.")
+	}
+}
+
 func TestOldSchool_Passes(t *testing.T) {
 	// passes implicitly
 }

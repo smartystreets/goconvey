@@ -25,6 +25,13 @@ def main():
     pass
 
 
+def get(url, **query):
+    pass
+
+
+def post(url, **query):
+    pass
+
 if __name__ == '__main__':
     main()
 

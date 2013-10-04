@@ -118,6 +118,7 @@ func runTests(done chan bool) {
 		exec.Command("go", "test", "-i").Run()
 		output, _ := exec.Command("go", "test", "-v", "-timeout=-42s").CombinedOutput()
 		stringOutput := string(output)
+		fmt.Println(stringOutput)
 		io.WriteString(revision, stringOutput)
 		result := parsePackageResults(stringOutput)
 		fmt.Println("Result: ", result.Passed)
@@ -133,6 +134,7 @@ func runTests(done chan bool) {
 		fmt.Println("Problem serializing json test results!", err) // panic?
 	} else {
 		latestOutput = string(serialized)
+		fmt.Println(latestOutput)
 	}
 	done <- true
 }

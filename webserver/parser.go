@@ -76,6 +76,7 @@ func (self *outputParser) recordTestMetadata() {
 }
 func (self *outputParser) saveLineForParsingLater() {
 	self.line = strings.TrimSpace(self.line)
+	self.line = strings.Replace(self.line, "\u0009", "\t", -1)
 	self.test.rawLines = append(self.test.rawLines, self.line)
 }
 func (self *outputParser) recordPackageMetadata() {
@@ -108,7 +109,7 @@ func isJson(line string) bool {
 	return strings.HasPrefix(line, "{")
 }
 func (self *outputParser) deserializeScopes() {
-	// TODO: clean up
+	// TODO: clean up!
 	rawJson := strings.Join(self.test.rawLines, "")
 	var scopes []reporting.ScopeResult
 	if strings.HasSuffix(rawJson, ",") { // Shouldn't need this...
@@ -122,14 +123,31 @@ func (self *outputParser) deserializeScopes() {
 	self.test.Stories = scopes
 }
 func (self *outputParser) parseGoTestMessage() {
-	lineFields := self.test.rawLines[0]
-	fields := strings.Split(lineFields, ":")
-	self.test.File = strings.TrimSpace(fields[0])
-	self.test.Line, _ = strconv.Atoi(fields[1])
-	self.test.Message = strings.TrimSpace(fields[2])
-	if len(self.test.rawLines) > 1 {
-		additionalLines := strings.Join(self.test.rawLines[1:], "\n")
-		self.test.Message = self.test.Message + "\n" + additionalLines
+	// TODO: clean up!
+	if strings.HasPrefix(self.test.rawLines[0], "panic: ") {
+		for i, line := range self.test.rawLines {
+			if strings.HasPrefix(line, "goroutine") && strings.Contains(line, "[running]") {
+				metaLine := self.test.rawLines[i+4]
+				fields := strings.Split(metaLine, " ")
+				fileAndLine := strings.Split(fields[0], ":")
+				self.test.File = fileAndLine[0]
+				self.test.Line, _ = strconv.Atoi(fileAndLine[1])
+			}
+			if strings.Contains(line, "+") || (i > 0 && strings.Contains(line, "panic: ")) {
+				self.test.rawLines[i] = "\t" + line
+			}
+		}
+		self.test.Error = strings.Join(self.test.rawLines, "\n")
+	} else {
+		lineFields := self.test.rawLines[0]
+		fields := strings.Split(lineFields, ":")
+		self.test.File = strings.TrimSpace(fields[0])
+		self.test.Line, _ = strconv.Atoi(fields[1])
+		self.test.Message = strings.TrimSpace(fields[2])
+		if len(self.test.rawLines) > 1 {
+			additionalLines := strings.Join(self.test.rawLines[1:], "\n")
+			self.test.Message = self.test.Message + "\n" + additionalLines
+		}
 	}
 }
 
@@ -165,6 +183,7 @@ type TestResult struct {
 	File     string
 	Line     int
 	Message  string
+	Error    string
 	Stories  []reporting.ScopeResult
 
 	rawLines []string
