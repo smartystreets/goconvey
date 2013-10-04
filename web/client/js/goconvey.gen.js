@@ -1,14 +1,14 @@
 convey.zen.gen = {
 	tab: "\t",
 	template: ''
-}
-
-var tabText = "\t", template;
+};
 
 $(function()
 {
 	var maxRows = 15;
 	var lastKeyWasEnter = false;
+	var gen = convey.zen.gen;
+
 
 	$('#gen-input').keydown(function(e)
 	{
@@ -39,7 +39,7 @@ $(function()
 		generate($(this).val());
 	});
 
-	template = $('#tpl-convey').text();
+	gen.template = $('#tpl-convey').text();
 
 	// Inserts a sample
 	$('#gen-sample').click(function()
@@ -93,7 +93,7 @@ $(function()
 
 	Mark.pipes.recursivelyRender = function(val)
 	{
-		return !val || val.length == 0 ? "\n" : Mark.up(template, val);
+		return !val || val.length == 0 ? "\n" : Mark.up(gen.template, val);
 	}
 
 	Mark.pipes.indent = function(val)
@@ -108,14 +108,8 @@ $(function()
 
 function generate(input)
 {
-	/*if (input.length == 0)
-	{
-		$('#gen-output').html('<i style="color: #999;">Code will appear here</i>');
-		return;
-	}*/
-
 	var root = parseInput(input);
-	$('#gen-output').text(Mark.up(template, root.stories));
+	$('#gen-output').text(Mark.up(convey.zen.gen.template, root.stories));
 }
 
 function parseInput(input)

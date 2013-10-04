@@ -243,13 +243,14 @@ a.icon-2x:hover {
 .line,
 .panic-error,
 .stacktrace {
-	font-family: Monaco, 'monospace';
+	font-family: 'Monaco', monospace;
 	font-size: 14px;
 }
 
 .file {
 	line-height: 1em;
 	font-weight: bold;
+	word-break: break-word;
 }
 
 .line {
