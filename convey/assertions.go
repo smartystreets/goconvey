@@ -28,12 +28,14 @@ var (
 	ShouldBeIn       = assertions.ShouldBeIn
 	ShouldNotBeIn    = assertions.ShouldNotBeIn
 
-	ShouldStartWith    = assertions.ShouldStartWith
-	ShouldNotStartWith = assertions.ShouldNotStartWith
-	ShouldEndWith      = assertions.ShouldEndWith
-	ShouldNotEndWith   = assertions.ShouldNotEndWith
-	ShouldBeBlank      = assertions.ShouldBeBlank
-	ShouldNotBeBlank   = assertions.ShouldNotBeBlank
+	ShouldStartWith           = assertions.ShouldStartWith
+	ShouldNotStartWith        = assertions.ShouldNotStartWith
+	ShouldEndWith             = assertions.ShouldEndWith
+	ShouldNotEndWith          = assertions.ShouldNotEndWith
+	ShouldBeBlank             = assertions.ShouldBeBlank
+	ShouldNotBeBlank          = assertions.ShouldNotBeBlank
+	ShouldContainSubstring    = assertions.ShouldContainSubstring
+	ShouldNotContainSubstring = assertions.ShouldNotContainSubstring
 
 	ShouldPanic        = assertions.ShouldPanic
 	ShouldNotPanic     = assertions.ShouldNotPanic

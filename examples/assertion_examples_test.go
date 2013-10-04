@@ -49,6 +49,8 @@ func TestAssertions(t *testing.T) {
 			So("asdf", ShouldNotEndWith, "as")
 			So("", ShouldBeBlank)
 			So("asdf", ShouldNotBeBlank)
+			So("asdf", ShouldContainSubstring, "sd")
+			So("asdf", ShouldNotContainSubstring, "af")
 		})
 
 		Convey("Panic recovery assertions should be accessible", func() {
