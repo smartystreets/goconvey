@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>GoConvey</title>
+		<script src="js/jquery1_9_1.js"></script>
+		<script src="js/diff-match-patch.min.js"></script>
+		<script src="js/jquery.pretty-text-diff.min.js"></script>
+		<script src="js/markup.min.js"></script>
+		<script src="js/goconvey-gen.js"></script>
+		<script src="js/goconvey.js"></script>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+		<link rel="stylesheet" href="css/unsemantic.css">
+		<link rel="stylesheet" href="css/spinner.css">
+		<link rel="stylesheet" href="css/goconvey.css">
+	</head>
+	<body>
+		<header>
+			<div class="grid-container">
+				<div class="grid-20">
+					<h1>GoConvey</h1>
+				</div>
+				<div class="grid-60">
+					<input type="text" id="path" placeholder="/path/to/project/root" value="/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver">
+				</div>
+				<div class="grid-20 menu">
+					<a class="icon-code icon-large" id="show-gen" href="javascript:" title="Code Generator"> Code Gen</a>
+				</div>
+			</div>
+		</header>
+
+		
+		<script id="tpl-overall-ok" type="text/template">
+			<div class="overall ok clearfix templated">
+				<div class="grid-container">
+					<div class="prefix-20 grid-60 suffix-20">
+						<div class="status">
+							OK
+						</div>
+						<div class="summary">
+							PASS<br>
+							{{passed}}/{{assertions}} assertions
+							{{if skipped}} - {{skipped}} skipped{{/if}}
+							<br>
+							{{duration}}s
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="tpl-overall-fail" type="text/template">
+			<div class="overall fail clearfix templated">
+				<div class="grid-container">
+					<div class="prefix-20 grid-60 suffix-20">
+						<div class="status">
+							FAIL
+						</div>
+						<div class="summary">
+							{{assertions}} assertions<br>
+							{{failures}} failed<br>
+							{{duration}}s
+						</div>
+					</div>
+				</div>		
+			</div>
+		</script>
+
+		<script id="tpl-overall-panic" type="text/template">
+			<div class="overall panic clearfix templated">
+				<div class="grid-container">
+					<div class="prefix-20 grid-60 suffix-20">
+						<div class="status">
+							PANIC
+						</div>
+						<div class="summary">
+							{{assertions}} assertions<br>
+							{{failures}} failed - {{panics}} panic<br>
+							{{duration}}s
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<div class="grid-container" id="results">
+
+			<div class="grid-20" id="left-sidebar">
+				<script id="tpl-panic-shortcuts" type="text/template">
+					<div class="panic-shortcuts templated">
+						<b>Panics:</b><hr>
+						{{.}}
+							<a href="javascript:">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+						{{/.}}
+					</div>
+				</script>
+				<script id="tpl-failure-shortcuts" type="text/template">
+					<div class="failure-shortcuts templated">
+						<b>Failures:</b><hr>
+						{{.}}
+							<a href="javascript:">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+						{{/.}}
+					</div>
+				</script>
+			</div>
+			<div class="grid-60 suffix-20" id="contents">
+
+
+				<script id="tpl-panics" type="text/template">
+					<div class="panics templated">
+
+						{{.}}
+						<div class="panic">
+							<table>
+								<tr>
+									<td class="file">
+										{{File|relativePath}}
+									</td>
+									<td class="line">
+										Line {{Line}}
+									</td>
+								</tr>
+								{{if StackTrace|notempty}}
+								<tr>
+									<td colspan="2" class="panic-error">
+										<b>Panic:</b>{{Error}}
+									</td>
+								</tr>
+								{{/if}}
+								<tr>
+									<td colspan="2" style="padding: 0;">
+										<div class="stacktrace">{{if StackTrace|empty}}{{Error}}{{else}}{{StackTrace}}{{/if}}</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						{{/.}}
+
+					</div>
+				</script>
+
+				
+				<script id="tpl-failures" type="text/template">
+					<div class="failures templated">
+
+						{{.}}
+						<div class="failure">
+							<table>
+								<tr>
+									<td colspan="2" class="file">
+										{{File|relativePath}}
+									</td>
+									<td class="line">
+										Line {{Line}}
+									</td>
+								</tr>
+								<tr>
+									<th class="expected">
+										Expected
+									</th>
+									<th class="actual">
+										Actual
+									</th>
+									<th>
+										Diff
+									</th>
+								</tr>
+								<tr>
+									<td><code class="original">{{_parsedExpected}}</code></td>
+									<td><code class="changed">{{_parsedActual}}</code></td>
+									<td><code class="diff"></code></td>
+								</tr>
+							</table>
+						</div>
+						{{/.}}
+
+					</div>
+				</script>
+
+				<script id="tpl-stories" type="text/template">
+					{{Packages}}
+					<table class="package-story templated">
+						<tr class="depth-0">
+							<th colspan="3">
+								{{PackageName}}
+							</th>
+						</tr>
+						{{TestResults}}
+						<tr>
+							<td class="status {{_status}}"></td>
+							<td class="checks">
+							{{if Stories|empty}}
+								{{if _skipped}}<span class="skip">&#9888;&nbsp;S</span><br>
+								{{else}}{{if _panicked}}<span class="panic"><i class="icon-bolt"></i></span><br>
+								{{else}}{{if _failed}}<span class="fail">&#10007;</span><br>
+								{{else}}{{if _passed}}<span class="ok">&#10003;</span><br>{{/if}}{{/if}}{{/if}}{{/if}}
+							{{/if}}
+							</td>
+							<td class="title">
+								<b>{{TestName}}</b>{{if Message}}&nbsp; &nbsp;<small><i>{{Message}}</i></small>{{/if}}
+							</td>
+						</tr>
+							{{Stories}}
+							<tr class="depth-{{Depth}}">
+								<td class="status {{_status}}"></td>
+								<td class="checks">
+								{{if _passed}}<span class="ok">{{_passed}}&nbsp;&#10003;</span><br>{{/if}}
+								{{if _failed}}<span class="fail">{{_failed}}&nbsp;&#10007;</span><br>{{/if}}
+								{{if _panicked}}<span class="panic">{{_panicked}}&nbsp;<i class="icon-bolt"></i></span><br>{{/if}}
+								{{if _skipped}}<span class="skip">S&nbsp;&#9888;</span><br>{{/if}}
+								</td>
+								<td class="title">
+									{{Title}}
+								</td>
+							</tr>
+							{{/Stories}}
+						{{/TestResults}}
+					</table>
+					{{/Packages}}
+				</script>
+
+			</div>
+		</div>
+
+		<!--
+		<div class="grid-container">
+			<div class="grid-100" id="loading">
+				Loading...
+			</div>
+		</div>-->
+
+
+		<div class="grid-container">
+			<div class="prefix-10 grid-80 suffix-10" id="footer">
+				Powered by <a href="https://github.com/smartystreets/goconvey" target="_blank"><b>GoConvey</b></a> v1.0.3, brought to you by <a href="http://smartystreets.com" target="_blank">SmartyStreets</a>.
+			</div>
+		</div>
+
+		<div id="spinner">
+			<div id="floatingBarsG">
+				<div class="blockG" id="rotateG_01"></div>
+				<div class="blockG" id="rotateG_02"></div>
+				<div class="blockG" id="rotateG_03"></div>
+				<div class="blockG" id="rotateG_04"></div>
+				<div class="blockG" id="rotateG_05"></div>
+				<div class="blockG" id="rotateG_06"></div>
+				<div class="blockG" id="rotateG_07"></div>
+				<div class="blockG" id="rotateG_08"></div>
+			</div>
+		</div>
+
+
+
+
+		<div id="generator" class="zen">
+			<a class="zen-close icon-remove icon-2x" href="javascript:"></a>
+			
+			<div class="grid-container">
+				<div class="prefix-20 grid-60 suffix-20">
+					<h1>GoConvey Generator</h1>
+
+					<p>
+						Tell your program's story. Write one-line behavioral
+						comments to create a BDD test structure. Use tab
+						indentation to define scopes. Your test file will be
+						automatically stubbed out for you.
+						&nbsp;
+						[<a href="javascript:" id="gen-sample">See an example</a>]
+					</p>
+				</div>
+
+				<div class="prefix-10 grid-80 suffix-10">
+					<textarea rows="1" id="gen-input" placeholder="Type your behavioral tests here"></textarea>
+
+					<textarea id="gen-output" placeholder="Code will appear here" disabled></textarea>
+				</div>
+			</div>
+
+		</div>
+
+<script id="tpl-convey" type="text/template">{{.}}{{depth|indent}}Convey("{{title}}", {{if depth|equals>0}}t, {{/if}}{{if stories|empty}}nil{{else}}func() {
+{{stories|recursivelyRender}}{{depth|indent}}}{{/if}})
+{{/.}}</script>
+
+
+<!--
+
+/* IF GROUPING STORIES AT ALL (say, by file) */
+
+{{if Depth|empty}}
+<tr class="depth-0">
+	<th class="filename" colspan="3">
+		{{Title}}
+	</th>
+</tr>
+{{else}}
+
+-->
+
+	</body>
+</html>
