@@ -6,6 +6,8 @@ import (
 	"github.com/howeyc/fsnotify"
 	"net/http"
 	"os"
+	"path/filepath"
+	"runtime"
 )
 
 func init() {
@@ -32,7 +34,10 @@ func main() {
 	}
 	updateWatch(working)
 
-	http.HandleFunc("/", homeHandler)
+	_, file, _, _ := runtime.Caller(0)
+	here := filepath.Dir(file)
+	static := filepath.Join(here, "../client/")
+	http.Handle("/", http.FileServer(http.Dir(static)))
 	http.HandleFunc("/watch", watchHandler)
 	http.HandleFunc("/latest", reportHandler)
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
