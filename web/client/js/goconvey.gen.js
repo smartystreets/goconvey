@@ -1,3 +1,8 @@
+convey.zen.gen = {
+	tab: "\t",
+	template: ''
+}
+
 var tabText = "\t", template;
 
 $(function()

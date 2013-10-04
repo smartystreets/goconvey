@@ -5,6 +5,22 @@ var convey = {
 		panic: 'panic',
 		skip: 'skip'
 	},
+	assertions: {
+		passed: [],
+		failed: [],
+		panicked: [],
+		skipped: []
+	},
+	overall: {
+		status: 'ok',
+		duration: 0,
+		assertions: 0,
+		passed: 0,
+		panics: 0,
+		failures: 0,
+		skipped: 0
+	},
+	zen: {},
 	revisionHash: "",
 	speed: 'fast'
 };
@@ -37,7 +53,7 @@ $(function()
 
 	function update()
 	{
-		$.getJSON("oldschool-panic.json", function(data, status, jqxhr)
+		$.getJSON("/latest", function(data, status, jqxhr)
 		{
 			if (data.Revision == convey.revisionHash)
 				return;
@@ -48,31 +64,17 @@ $(function()
 
 			// Remove existing/old test results
 			$('.overall').slideUp(convey.speed);
+
 			$('#results').fadeOut(convey.speed, function()
 			{
 				// Remove them from the DOM as we'll put new ones back in
 				$('.templated').remove();
 
-				// Prepare to begin iterating the new results
-				var overallStatus = convey.statuses.pass;
-				var ctx_overall = {
-					duration: 0,
-					assertions: 0,
-					passed: 0,
-					panics: 0,
-					failures: 0,
-					skipped: 0
-				};
-				var asserts_passed = [];
-				var asserts_failed = [];
-				var asserts_panicked = [];
-				var asserts_skipped = [];
-
 				// Look for failures and panics through the packages->tests->stories...
 				for (var i in data.Packages)
 				{
 					pkg = makeContext(data.Packages[i]);
-					ctx_overall.duration += pkg.Elapsed;
+					convey.overall.duration += pkg.Elapsed;
 
 					for (var j in pkg.TestResults)
 					{
@@ -80,28 +82,28 @@ $(function()
 
 						if (test.Stories.length == 0)
 						{
-							ctx_overall.assertions ++;
+							convey.overall.assertions ++;
 
 							if (test.Error)
 							{
 								test._status = convey.statuses.panic;
 								pkg._panicked ++;
 								test._panicked ++;
-								asserts_panicked.push(test);
+								convey.assertions.panicked.push(test);
 							}
 							else if (test.Passed === false)
 							{
 								test._status = convey.statuses.fail;
 								pkg._failed ++;
 								test._failed ++;
-								asserts_failed.push(test);
+								convey.assertions.failed.push(test);
 							}
 							else
 							{
 								test._status = convey.statuses.pass;
 								pkg._passed ++;
 								test._passed ++;
-								asserts_passed.push(test);
+								convey.assertions.passed.push(test);
 							}
 						}
 						else
@@ -111,7 +113,7 @@ $(function()
 						{
 							var story = makeContext(test.Stories[k]);
 
-							ctx_overall.assertions += story.Assertions.length;
+							convey.overall.assertions += story.Assertions.length;
 
 							for (var l in story.Assertions)
 							{
@@ -121,28 +123,28 @@ $(function()
 									assertion._parsedExpected = parseExpected(assertion.Failure);
 									assertion._parsedActual = parseActual(assertion.Failure);
 
-									asserts_failed.push(assertion);
+									convey.assertions.failed.push(assertion);
 									pkg._failed ++;
 									test._failed ++;
 									story._failed ++;
 								}
 								if (assertion.Error)
 								{
-									asserts_panicked.push(assertion);
+									convey.assertions.panicked.push(assertion);
 									pkg._panicked ++;
 									test._panicked ++;
 									story._panicked ++;
 								}
 								if (assertion.Skipped)
 								{
-									asserts_skipped.push(assertion);
+									convey.assertions.skipped.push(assertion);
 									pkg._skipped ++;
 									test._skipped ++;
 									story._skipped ++;
 								}
 								if (!assertion.Failure && !assertion.Error && !assertion.Skipped)
 								{
-									asserts_passed.push(assertion);
+									convey.assertions.passed.push(assertion);
 									pkg._passed ++;
 									test._passed ++;
 									story._passed ++;
@@ -154,38 +156,38 @@ $(function()
 					}
 				}
 
-				ctx_overall.passed = asserts_passed.length;
-				ctx_overall.panics = asserts_panicked.length;
-				ctx_overall.failures = asserts_failed.length;
-				ctx_overall.skipped = asserts_skipped.length;
+				convey.overall.passed = convey.assertions.passed.length;
+				convey.overall.panics = convey.assertions.panicked.length;
+				convey.overall.failures = convey.assertions.failed.length;
+				convey.overall.skipped = convey.assertions.skipped.length;
 
 				// Panics trump failures overall
-				if (ctx_overall.panics)
-					overallStatus = convey.statuses.panic;
-				else if (ctx_overall.failures)
-					overallStatus = convey.statuses.fail;
+				if (convey.overall.panics)
+					convey.overall.status = convey.statuses.panic;
+				else if (convey.overall.failures)
+					convey.overall.status = convey.statuses.fail;
 
 				// Show the overall status: passed, failed, or panicked
-				if (overallStatus == 'pass')
-					$('header').after(render('tpl-overall-ok', ctx_overall));
-				else if (overallStatus == convey.statuses.fail)
-					$('header').after(render('tpl-overall-fail', ctx_overall));
+				if (convey.overall.status == 'pass')
+					$('header').after(render('tpl-overall-ok', convey.overall));
+				else if (convey.overall.status == convey.statuses.fail)
+					$('header').after(render('tpl-overall-fail', convey.overall));
 				else
-					$('header').after(render('tpl-overall-panic', ctx_overall));
+					$('header').after(render('tpl-overall-panic', convey.overall));
 
 				// Show overall status
 				$('.overall').slideDown();
 
 				// Show shortucts and failures/panics details
-				if (ctx_overall.panics > 0)
+				if (convey.overall.panics > 0)
 				{
-					$('#left-sidebar').append(render('tpl-panic-shortcuts', asserts_panicked));
-					$('#contents').append(render('tpl-panics', asserts_panicked));
+					$('#left-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
+					$('#contents').append(render('tpl-panics', convey.assertions.panicked));
 				}
-				if (ctx_overall.failures > 0)
+				if (convey.overall.failures > 0)
 				{
-					$('#left-sidebar').append(render('tpl-failure-shortcuts', asserts_failed));
-					$('#contents').append(render('tpl-failures', asserts_failed));
+					$('#left-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
+					$('#contents').append(render('tpl-failures', convey.assertions.failed));
 				}
 
 				// Show stories
@@ -229,7 +231,6 @@ $(function()
 			obj._status = convey.statuses.pass;
 	}
 
-
 	function render(templateID, context)
 	{
 		var tpl = $.trim($('#' + templateID).text());
@@ -270,7 +271,6 @@ Mark.pipes.relativePath = function(str)
 	basePath = new RegExp($('#path').val(), 'g');
 	return str.replace(basePath, '');
 }
-
 
 function suppress(event)
 {
