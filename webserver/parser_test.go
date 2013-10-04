@@ -8,15 +8,20 @@ import (
 
 func TestParsePackage_OldSchoolWithFailureOutput(t *testing.T) {
 	actual := parsePackageResults(inputOldSchool_Fails)
-	assertDeepEqual(t, expectedOldSchool_Fails, *actual)
+	assertEqual(t, expectedOldSchool_Fails, *actual)
 }
 
 func TestParsePackage_OldSchoolWithSuccessOutput(t *testing.T) {
 	actual := parsePackageResults(inputOldSchool_Passes)
-	assertDeepEqual(t, expectedOldSchool_Passes, *actual)
+	assertEqual(t, expectedOldSchool_Passes, *actual)
 }
 
-func assertDeepEqual(t *testing.T, expected, actual interface{}) {
+func TestParsePackage_GoConveyOutput(t *testing.T) {
+	actual := parsePackageResults(inputGoConvey)
+	assertEqual(t, expectedGoConvey, *actual)
+}
+
+func assertEqual(t *testing.T, expected, actual interface{}) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
 	if string(a) != string(b) {
@@ -24,30 +29,11 @@ func assertDeepEqual(t *testing.T, expected, actual interface{}) {
 	}
 }
 
-// TODO: tweak the durations and package names, make each test input unique...
-
-const inputOldSchool_Fails = `
-=== RUN TestOldSchool_Passes
---- PASS: TestOldSchool_Passes (0.00 seconds)
-=== RUN TestOldSchool_PassesWithMessage
---- PASS: TestOldSchool_PassesWithMessage (0.00 seconds)
-	old_school_test.go:10: I am a passing test.
-		With a newline.
-=== RUN TestOldSchool_Failure
---- FAIL: TestOldSchool_Failure (0.00 seconds)
-=== RUN TestOldSchool_FailureWithReason
---- FAIL: TestOldSchool_FailureWithReason (0.00 seconds)
-	old_school_test.go:18: I am a failing test.
-FAIL
-exit status 1
-FAIL	github.com/smartystreets/goconvey/webserver/examples	0.017s
-`
-
 const inputOldSchool_Passes = `
 === RUN TestOldSchool_Passes
---- PASS: TestOldSchool_Passes (0.00 seconds)
+--- PASS: TestOldSchool_Passes (0.02 seconds)
 === RUN TestOldSchool_PassesWithMessage
---- PASS: TestOldSchool_PassesWithMessage (0.00 seconds)
+--- PASS: TestOldSchool_PassesWithMessage (0.05 seconds)
 	old_school_test.go:10: I am a passing test.
 		With a newline.
 PASS
@@ -61,7 +47,7 @@ var expectedOldSchool_Passes = PackageResult{
 	TestResults: []TestResult{
 		TestResult{
 			TestName: "TestOldSchool_Passes",
-			Elapsed:  0.0,
+			Elapsed:  0.02,
 			Passed:   true,
 			File:     "",
 			Line:     0,
@@ -70,7 +56,7 @@ var expectedOldSchool_Passes = PackageResult{
 		},
 		TestResult{
 			TestName: "TestOldSchool_PassesWithMessage",
-			Elapsed:  0.0,
+			Elapsed:  0.05,
 			Passed:   true,
 			File:     "old_school_test.go",
 			Line:     10,
@@ -80,6 +66,23 @@ var expectedOldSchool_Passes = PackageResult{
 	},
 }
 
+const inputOldSchool_Fails = `
+=== RUN TestOldSchool_Passes
+--- PASS: TestOldSchool_Passes (0.01 seconds)
+=== RUN TestOldSchool_PassesWithMessage
+--- PASS: TestOldSchool_PassesWithMessage (0.03 seconds)
+	old_school_test.go:10: I am a passing test.
+		With a newline.
+=== RUN TestOldSchool_Failure
+--- FAIL: TestOldSchool_Failure (0.06 seconds)
+=== RUN TestOldSchool_FailureWithReason
+--- FAIL: TestOldSchool_FailureWithReason (0.11 seconds)
+	old_school_test.go:18: I am a failing test.
+FAIL
+exit status 1
+FAIL	github.com/smartystreets/goconvey/webserver/examples	0.017s
+`
+
 var expectedOldSchool_Fails = PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.017,
@@ -87,7 +90,7 @@ var expectedOldSchool_Fails = PackageResult{
 	TestResults: []TestResult{
 		TestResult{
 			TestName: "TestOldSchool_Passes",
-			Elapsed:  0.0,
+			Elapsed:  0.01,
 			Passed:   true,
 			File:     "",
 			Line:     0,
@@ -96,7 +99,7 @@ var expectedOldSchool_Fails = PackageResult{
 		},
 		TestResult{
 			TestName: "TestOldSchool_PassesWithMessage",
-			Elapsed:  0.0,
+			Elapsed:  0.03,
 			Passed:   true,
 			File:     "old_school_test.go",
 			Line:     10,
@@ -105,7 +108,7 @@ var expectedOldSchool_Fails = PackageResult{
 		},
 		TestResult{
 			TestName: "TestOldSchool_Failure",
-			Elapsed:  0.0,
+			Elapsed:  0.06,
 			Passed:   false,
 			File:     "",
 			Line:     0,
@@ -114,7 +117,7 @@ var expectedOldSchool_Fails = PackageResult{
 		},
 		TestResult{
 			TestName: "TestOldSchool_FailureWithReason",
-			Elapsed:  0.0,
+			Elapsed:  0.11,
 			Passed:   false,
 			File:     "old_school_test.go",
 			Line:     18,
@@ -124,85 +127,105 @@ var expectedOldSchool_Fails = PackageResult{
 	},
 }
 
+const inputGoConvey = `
+=== RUN TestPassingStory
+[
+  {
+    "Title": "A passing story",
+    "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+    "Line": 11,
+    "Depth": 0,
+    "Assertions": [
+      {
+        "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+        "Line": 10,
+        "Failure": "",
+        "Error": null,
+        "Skipped": false,
+        "StackTrace": "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/webserver/examples.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:10 +0xe3\ngithub.com/smartystreets/goconvey/webserver/examples.TestPassingStory(0x210314000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:11 +0xec\ntesting.tRunner(0x210314000, 0x21ab10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n"
+      }
+    ]
+  }
+],
+--- PASS: TestPassingStory (0.01 seconds)
+PASS
+ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
+`
+
+var expectedGoConvey = PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.019,
+	Passed:      true,
+	TestResults: []TestResult{
+		TestResult{
+			TestName: "TestPassingStory",
+			Elapsed:  0.01,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories: []reporting.ScopeResult{
+				reporting.ScopeResult{
+					Title: "A passing story",
+					File:  "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+					Line:  11,
+					Depth: 0,
+					Assertions: []reporting.AssertionResult{
+						reporting.AssertionResult{
+							File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+							Line:       10,
+							Failure:    "",
+							Error:      nil,
+							Skipped:    false,
+							StackTrace: "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/webserver/examples.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:10 +0xe3\ngithub.com/smartystreets/goconvey/webserver/examples.TestPassingStory(0x210314000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:11 +0xec\ntesting.tRunner(0x210314000, 0x21ab10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n",
+						},
+					},
+				},
+			},
+		},
+	},
+}
+
 const failureTemplate = "Comparison failed:\n  Expected: %v\n    Actual: %v\n"
 
 /*
-func TestParseJsonOutput(t *testing.T) {
-	var parsed PackageResult
+Test output for these tests was generated from the following test code:
 
-	Convey("Subject: Parse output from 'go test -json'", t, func() {
-		Convey("When the package passed all tests", func() {
-			parsed = parsePackageResult(PassingOutput)
+Old School style tests:
 
-			Convey("The parsed result should be correct", func() {
-				So(parsed, ShouldResemble, ParsedPassingOutput)
-			})
+	package examples
+
+	import "testing"
+
+	func TestOldSchool_Passes(t *testing.T) {
+		// passes implicitly
+	}
+
+	func TestOldSchool_PassesWithMessage(t *testing.T) {
+		t.Log("I am a passing test.\nWith a newline.")
+	}
+
+	func TestOldSchool_Failure(t *testing.T) {
+		t.Fail() // no message
+	}
+
+	func TestOldSchool_FailureWithReason(t *testing.T) {
+		t.Error("I am a failing test.")
+	}
+
+GoConvey style tests:
+
+	package examples
+
+	import (
+		. "github.com/smartystreets/goconvey/convey"
+		"testing"
+	)
+
+	func TestPassingStory(t *testing.T) {
+		Convey("A passing story", t, func() {
+			So("This test passes", ShouldContainSubstring, "pass")
 		})
-		Convey("When the package failed any tests", func() {
-			parsed = parsePackageResult(FailingOutput)
+	}
 
-			Convey("The parsed result should be correct", func() {
-				So(parsed, ShouldResemble, ParsedFailingOutput)
-			})
-		})
-	})
-}
-
-const PassingOutput = `[
-  {
-    "Title": "TestParseJsonOutput",
-    "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/goconvey-server/story_parse_test.go",
-    "Line": 11,
-    "Depth": 0,
-    "Assertions": []
-  }
-],PASS
-ok  	github.com/smartystreets/goconvey/web/goconvey-server	0.031s`
-
-var ParsedPassingOutput = PackageResult{
-	PackageName: "github.com/smartystreets/goconvey/web/goconvey-server",
-	Elapsed:     .031,
-	Passed:      true,
-	Stories: []StoryResult{
-		[]reporting.ScopeResult{
-			reporting.ScopeResult{
-				Title:      "TestParseJsonOutput",
-				File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/goconvey-server/story_parse_test.go",
-				Line:       11,
-				Depth:      0,
-				Assertions: []reporting.AssertionResult{},
-			},
-		},
-	},
-}
-
-const FailingOutput = `[
-  {
-    "Title": "TestParseJsonOutput",
-    "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/goconvey-server/story_parse_test.go",
-    "Line": 11,
-    "Depth": 0,
-    "Assertions": []
-  }
-],--- FAIL: TestParseJsonOutput (0.00 seconds)
-FAIL
-exit status 1
-FAIL	github.com/smartystreets/goconvey/web/goconvey-server	0.032s`
-
-var ParsedFailingOutput = PackageResult{
-	PackageName: "github.com/smartystreets/goconvey/web/goconvey-server",
-	Elapsed:     .032,
-	Passed:      false,
-	Stories: []StoryResult{
-		[]reporting.ScopeResult{
-			reporting.ScopeResult{
-				Title:      "TestParseJsonOutput",
-				File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/goconvey-server/story_parse_test.go",
-				Line:       11,
-				Depth:      0,
-				Assertions: []reporting.AssertionResult{},
-			},
-		},
-	},
-}
 */

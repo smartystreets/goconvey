@@ -2,10 +2,20 @@ package main
 
 import (
 	"math"
+	"strings"
 	"time"
 )
 
-func parseDuration(raw string, precision int) float64 {
+// parseTestFunctionDuration parses the duration in seconds as a float64
+// from a line of go test output that looks something like this:
+// --- PASS: TestOldSchool_PassesWithMessage (0.03 seconds)
+func parseTestFunctionDuration(line string) float64 {
+	line = strings.Replace(line, "(", "", 1)
+	fields := strings.Split(line, " ")
+	return parseDurationInSeconds(fields[3]+"s", 2)
+}
+
+func parseDurationInSeconds(raw string, precision int) float64 {
 	elapsed, _ := time.ParseDuration(raw)
 	return round(elapsed.Seconds(), precision)
 }

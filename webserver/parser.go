@@ -1,7 +1,8 @@
 package main
 
 import (
-	_ "fmt"
+	"encoding/json"
+	"fmt"
 	"github.com/smartystreets/goconvey/reporting"
 	"strconv"
 	"strings"
@@ -56,8 +57,10 @@ func isTestResult(line string) bool {
 	return strings.HasPrefix(line, "--- ")
 }
 func isPackageReport(line string) bool {
-	// TODO: passing test: strings.HasPrefix(line, "PASS\nok  \t")
-	return strings.HasPrefix(line, "FAIL") || strings.HasPrefix(line, "exit status")
+	return (strings.HasPrefix(line, "FAIL") ||
+		strings.HasPrefix(line, "exit status") ||
+		strings.HasPrefix(line, "PASS") ||
+		strings.HasPrefix(line, "ok  \t"))
 }
 
 func (self *outputParser) registerTestFunction() {
@@ -68,10 +71,8 @@ func (self *outputParser) registerTestFunction() {
 	self.tests = append(self.tests, self.test)
 }
 func (self *outputParser) recordTestMetadata() {
-	if strings.Contains(self.line, "--- PASS: ") {
-		self.test.Passed = true
-		// TODO: parse duration
-	}
+	self.test.Passed = strings.HasPrefix(self.line, "--- PASS: ")
+	self.test.Elapsed = parseTestFunctionDuration(self.line)
 }
 func (self *outputParser) saveLineForParsingLater() {
 	self.line = strings.TrimSpace(self.line)
@@ -79,24 +80,54 @@ func (self *outputParser) saveLineForParsingLater() {
 }
 func (self *outputParser) recordPackageMetadata() {
 	if strings.HasPrefix(self.line, "FAIL\t") {
-		fields := strings.Split(self.line, "\t")
-		self.result.PackageName = strings.TrimSpace(fields[1])
-		self.result.Elapsed = parseDuration(fields[2], 3)
+		self.parseLastLine()
+		self.result.Passed = false
+	} else if strings.HasPrefix(self.line, "ok  \t") {
+		self.parseLastLine()
+		self.result.Passed = true
 	}
+}
+func (self *outputParser) parseLastLine() {
+	fields := strings.Split(self.line, "\t")
+	self.result.PackageName = strings.TrimSpace(fields[1])
+	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
 }
 
 func (self *outputParser) parseTestFunctions() {
-	for _, test := range self.tests {
-		if len(test.rawLines) > 0 {
-			lineFields := test.rawLines[0]
-			fields := strings.Split(lineFields, ":")
-			test.File = strings.TrimSpace(fields[0])
-			test.Line, _ = strconv.Atoi(fields[1])
-			test.Message = strings.TrimSpace(fields[2])
-			if len(test.rawLines) > 1 {
-				test.Message = test.Message + "\n" + strings.Join(test.rawLines[1:], "\n")
-			}
+	for _, self.test = range self.tests {
+		if len(self.test.rawLines) == 0 {
+			continue
+		} else if isJson(self.test.rawLines[0]) {
+			self.deserializeScopes()
+		} else {
+			self.parseGoTestMessage()
 		}
+	}
+}
+func isJson(line string) bool {
+	return strings.HasPrefix(line, "[")
+}
+func (self *outputParser) deserializeScopes() {
+	rawJson := strings.Join(self.test.rawLines, "")
+	var scopes []reporting.ScopeResult
+	if strings.HasSuffix(rawJson, ",") {
+		rawJson = rawJson[:len(rawJson)-1]
+	}
+	err := json.Unmarshal([]byte(rawJson), &scopes)
+	if err != nil {
+		fmt.Println(err) // panic?
+	}
+	self.test.Stories = scopes
+}
+func (self *outputParser) parseGoTestMessage() {
+	lineFields := self.test.rawLines[0]
+	fields := strings.Split(lineFields, ":")
+	self.test.File = strings.TrimSpace(fields[0])
+	self.test.Line, _ = strconv.Atoi(fields[1])
+	self.test.Message = strings.TrimSpace(fields[2])
+	if len(self.test.rawLines) > 1 {
+		additionalLines := strings.Join(self.test.rawLines[1:], "\n")
+		self.test.Message = self.test.Message + "\n" + additionalLines
 	}
 }
 
