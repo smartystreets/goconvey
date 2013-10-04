@@ -166,7 +166,6 @@ $(function()
 						}
 					}
 				}
-				console.log("PANICKED", convey.assertions.panicked);
 				convey.overall.passed = convey.assertions.passed.length;
 				convey.overall.panics = convey.assertions.panicked.length;
 				convey.overall.failures = convey.assertions.failed.length;

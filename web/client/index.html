@@ -222,10 +222,10 @@
 								</td>
 							</tr>
 							{{/Stories}}
-						{{/if}}
 						{{/TestResults}}
+						{{/if}}
 					</table>
-					{{/if}
+					{{/if}}
 					{{/Packages}}
 				</script>
 
@@ -291,21 +291,6 @@
 <script id="tpl-convey" type="text/template">{{.}}{{depth|indent}}Convey("{{title}}", {{if depth|equals>0}}t, {{/if}}{{if stories|empty}}nil{{else}}func() {
 {{stories|recursivelyRender}}{{depth|indent}}}{{/if}})
 {{/.}}</script>
-
-
-<!--
-
-/* IF GROUPING STORIES AT ALL (say, by file) */
-
-{{if Depth|empty}}
-<tr class="depth-0">
-	<th class="filename" colspan="3">
-		{{Title}}
-	</th>
-</tr>
-{{else}}
-
--->
 
 	</body>
 </html>
