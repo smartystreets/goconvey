@@ -36,7 +36,10 @@ func (self *outputParser) gatherTestFunctionsAndMetadata() {
 	}
 }
 func (self *outputParser) processNextLine() {
-	if isNewTest(self.line) {
+	if noTestsRun(self.line) {
+		self.recordEmptyPackage()
+
+	} else if isNewTest(self.line) {
 		self.registerTestFunction()
 
 	} else if isTestResult(self.line) {
@@ -50,6 +53,12 @@ func (self *outputParser) processNextLine() {
 	}
 }
 
+func noTestsRun(line string) bool {
+	// TEST INPUT:
+	// ?   	pkg.smartystreets.net/liveaddress-zipapi	[no test files]
+	return strings.HasPrefix(line, "?") && strings.Contains(line, "[no test files]")
+}
+
 func isNewTest(line string) bool {
 	return strings.HasPrefix(line, "=== ")
 }
@@ -61,6 +70,11 @@ func isPackageReport(line string) bool {
 		strings.HasPrefix(line, "exit status") ||
 		strings.HasPrefix(line, "PASS") ||
 		strings.HasPrefix(line, "ok  \t"))
+}
+
+func (self *outputParser) recordEmptyPackage() {
+	fields := strings.Split(self.line, "\t")
+	self.result.PackageName = fields[1]
 }
 
 func (self *outputParser) registerTestFunction() {
