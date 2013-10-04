@@ -18,7 +18,15 @@ $(function()
 	if ($('input').first().val() == "")
 		$('input').first().focus();
 
-	// Show code generator
+
+	Mark.pipes.relativePath = function(str)
+	{
+		basePath = new RegExp($('#path').val(), 'g');
+		return str.replace(basePath, '');
+	}
+
+
+	// Show code generator if link is clicked
 	$('#show-gen').click(function()
 	{
 		$('#generator').fadeIn(convey.speed, function() {
@@ -33,17 +41,17 @@ $(function()
 	});
 
 	// Immediately get test results and on every interval, too
-	update();
+	updatePath(update);
 	var poller = setInterval(update, 1500);
 
-	function updatePath()
+	function updatePath(callback)
 	{
 		$.get('/watch', function(data) {
 			$('#path').val($.trim(data));
+			if (typeof callback === 'function')
+				callback();
 		});
 	}
-	
-	updatePath();
 
 	$('#path').change(function() {
 		var self = $(this)
@@ -250,18 +258,17 @@ $(function()
 
 	function parseExpected(str)
 	{
-		return stringBetween(str, "Expected: '", "'\nActual: '");
+		return stringBetween(str, "Expected: '", "'\nActual:   '");
 	}
 
 	function parseActual(str)
 	{
-		return stringBetween(str, "'\nActual: '", "'\n(Should");
+		return stringBetween(str, "'\nActual:   '", "'\n(Should");
 	}
 
 	function stringBetween(str, startStr, endStr)
 	{
 		var start = str.indexOf(startStr);
-		
 		if (start < 0)
 			return "";
 		
@@ -275,13 +282,6 @@ $(function()
 		return str.substring(start, end);
 	}
 });
-
-
-Mark.pipes.relativePath = function(str)
-{
-	basePath = new RegExp($('#path').val(), 'g');
-	return str.replace(basePath, '');
-}
 
 
 function emptyOverall()

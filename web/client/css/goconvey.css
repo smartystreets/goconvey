@@ -232,11 +232,11 @@ a.icon-2x:hover {
 }
 
 .failures .failure table {
-	border: 2px solid #E79C07;
+	border: 3px solid #E79C07;
 }
 
 .panics .panic table {
-	border: 2px solid #CC0000;
+	border: 3px solid #CC0000;
 }
 
 .file,
@@ -250,11 +250,21 @@ a.icon-2x:hover {
 .file {
 	line-height: 1em;
 	font-weight: bold;
-	word-break: break-word;
+	word-break: break-all;
 }
 
 .line {
+	white-space: nowrap;
+	text-align: right;
+	vertical-align: middle;
+	width: 100px;
+}
 
+.expected,
+.actual,
+.difference {
+	width: 75px;
+	text-align: left;
 }
 
 .stacktrace {
@@ -415,9 +425,9 @@ del, .failures th.expected {
 
 #footer {
 	text-align: center;
-	padding: 1em 0;
 	font-size: 12px;
-	margin-top: 5px;
+	margin-top: 1em;
+	margin-bottom: 4em;
 	color: #888;
 	line-height: 1.5em;
 }

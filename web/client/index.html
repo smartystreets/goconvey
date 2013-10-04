@@ -158,18 +158,25 @@
 									<th class="expected">
 										Expected
 									</th>
+									<td colspan="2"><code class="original">{{_parsedExpected}}</code></td>
+								</tr>
+								<tr>
 									<th class="actual">
 										Actual
 									</th>
-									<th>
+									<td colspan="2"><code class="changed">{{_parsedActual}}</code></td>
+								</tr>
+								<tr>
+									<th class="difference">
 										Diff
 									</th>
-								</tr>
+									<td colspan="2"><code class="diff"></code></td>
+								</tr><!--
 								<tr>
 									<td><code class="original">{{_parsedExpected}}</code></td>
 									<td><code class="changed">{{_parsedActual}}</code></td>
 									<td><code class="diff"></code></td>
-								</tr>
+								</tr>-->
 							</table>
 						</div>
 						{{/.}}
