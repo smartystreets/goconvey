@@ -1,4 +1,5 @@
 var convey = {
+	speed: 'fast',
 	statuses: {
 		pass: 'ok',
 		fail: 'fail',
@@ -21,13 +22,16 @@ var convey = {
 		skipped: 0
 	},
 	zen: {},
-	revisionHash: "",
-	speed: 'fast'
+	revisionHash: ""
 };
 
 
 $(function()
 {
+	// Copy the defaults so we can replace them on each update
+	var overall_cpy = $.clone(convey.overall);
+	var assertions_cpy = $.clone(convey.assertions);
+
 	// Focus on first textbox
 	if ($('input').first().val() == "")
 		$('input').first().focus();
@@ -61,6 +65,10 @@ $(function()
 			convey.revisionHash = data.Revision;
 
 			$('#spinner').show();
+
+			// Replace the last update's state with the default to refill it
+			convey.overall = overall_cpy;
+			convey.assertions = assertions_cpy;
 
 			// Remove existing/old test results
 			$('.overall').slideUp(convey.speed);
