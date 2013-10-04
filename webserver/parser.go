@@ -105,14 +105,15 @@ func (self *outputParser) parseTestFunctions() {
 	}
 }
 func isJson(line string) bool {
-	return strings.HasPrefix(line, "[")
+	return strings.HasPrefix(line, "{")
 }
 func (self *outputParser) deserializeScopes() {
 	rawJson := strings.Join(self.test.rawLines, "")
 	var scopes []reporting.ScopeResult
-	if strings.HasSuffix(rawJson, ",") {
+	if strings.HasSuffix(rawJson, ",") { // Shouldn't need this...
 		rawJson = rawJson[:len(rawJson)-1]
 	}
+	rawJson = "[" + rawJson + "]"
 	err := json.Unmarshal([]byte(rawJson), &scopes)
 	if err != nil {
 		fmt.Println(err) // panic?

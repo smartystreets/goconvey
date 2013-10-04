@@ -129,24 +129,22 @@ var expectedOldSchool_Fails = PackageResult{
 
 const inputGoConvey = `
 === RUN TestPassingStory
-[
-  {
-    "Title": "A passing story",
-    "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
-    "Line": 11,
-    "Depth": 0,
-    "Assertions": [
-      {
-        "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
-        "Line": 10,
-        "Failure": "",
-        "Error": null,
-        "Skipped": false,
-        "StackTrace": "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/webserver/examples.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:10 +0xe3\ngithub.com/smartystreets/goconvey/webserver/examples.TestPassingStory(0x210314000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:11 +0xec\ntesting.tRunner(0x210314000, 0x21ab10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n"
-      }
-    ]
-  }
-],
+{
+  "Title": "A passing story",
+  "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+  "Line": 11,
+  "Depth": 0,
+  "Assertions": [
+    {
+      "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+      "Line": 10,
+      "Failure": "",
+      "Error": null,
+      "Skipped": false,
+      "StackTrace": "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/webserver/examples.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:10 +0xe3\ngithub.com/smartystreets/goconvey/webserver/examples.TestPassingStory(0x210314000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:11 +0xec\ntesting.tRunner(0x210314000, 0x21ab10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n"
+    }
+  ]
+},
 --- PASS: TestPassingStory (0.01 seconds)
 PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s

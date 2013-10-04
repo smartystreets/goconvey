@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/smartystreets/goconvey/printing"
+	"strings"
 )
 
 func (self *jsonReporter) BeginStory(story *StoryReport) {}
@@ -38,10 +39,14 @@ func (self *jsonReporter) EndStory() {
 	self.reset()
 }
 func (self *jsonReporter) report() {
-	serialized, _ := json.Marshal(self.scopes)
-	var buffer bytes.Buffer
-	json.Indent(&buffer, serialized, "", "  ")
-	self.out.Print(buffer.String() + ",\n")
+	scopes := []string{}
+	for _, scope := range self.scopes {
+		serialized, _ := json.Marshal(scope)
+		var buffer bytes.Buffer
+		json.Indent(&buffer, serialized, "", "  ")
+		scopes = append(scopes, buffer.String())
+	}
+	self.out.Print(strings.Join(scopes, ",") + ",\n")
 }
 func (self *jsonReporter) reset() {
 	self.titlesById = make(map[string]string)

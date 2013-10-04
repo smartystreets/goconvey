@@ -1,7 +1,6 @@
 package convey
 
 import (
-	"flag"
 	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/reporting"
 	"os"
@@ -12,20 +11,22 @@ func init() {
 	configureRunner()
 }
 
+// parseFlags parses the command line args manually because the go test tool,
+// which shares the same process space with this code, already defines
+// the -v argument (verbosity) and we can't feed in a custom flag to old-style
+// go test packages (like -json, which I would prefer). So, we use the timeout
+// flag with a value of -42 to request json output. My deepest sympothies.
 func parseFlags() {
-	flag.BoolVar(&json, "json", false, "internal: output json for goconvey-server")
-	flag.Parse()
-	parseVerbosity()
+	verbose = flagFound(verboseEnabledValue)
+	json = flagFound(jsonEnabledValue)
 }
-
-// parseVerbosity parses the command line args manually because the go test tool,
-// which shares the same process space with this code, already defines the -v argument.
-func parseVerbosity() {
+func flagFound(flagValue string) bool {
 	for _, arg := range os.Args {
-		if verbose = arg == verboseEnabledValue; verbose {
-			return
+		if arg == flagValue {
+			return true
 		}
 	}
+	return false
 }
 
 func configureRunner() {
@@ -33,7 +34,6 @@ func configureRunner() {
 	runner = execution.NewRunner()
 	runner.UpgradeReporter(reporter)
 }
-
 func buildReporter() reporting.Reporter {
 	if json {
 		return reporting.BuildJsonReporter()
@@ -55,3 +55,4 @@ var (
 )
 
 const verboseEnabledValue = "-test.v=true"
+const jsonEnabledValue = "-test.timeout=-42s" // HACK! (see parseFlags() above)

@@ -1,10 +1,13 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
-	_ "os/exec"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -103,27 +106,38 @@ func reactToChanges() {
 }
 
 func runTests(done chan bool) {
-	results := []PackageResult{}
-	// for path, _ := range watched {
-	// fmt.Println("Running tests at:", path)
-	// if err := os.Chdir(path); err != nil {
-	// fmt.Println("Could not chdir to:", path)
-	// continue
-	// }
-	// output, err := exec.Command("go", "test", "-v", "-json").Output()
-	// if err != nil {
-	// fmt.Printf("Error from test execution at %s. Error: %v\n", path, err)
-	// continue // TODO: is the error expected on failure?
-	// }
-	// result := parsePackageResult(string(output))
-	// fmt.Println("Result: ", result.Passed)
-	// results = append(results, result)
-	// }
-	serialized, err := json.Marshal(results)
+	results := []*PackageResult{}
+	revision := md5.New()
+
+	for path, _ := range watched {
+		fmt.Println("Running tests at:", path)
+		if err := os.Chdir(path); err != nil {
+			fmt.Println("Could not chdir to:", path)
+			continue
+		}
+		exec.Command("go", "test", "-i").Run()
+		output, _ := exec.Command("go", "test", "-v", "-timeout=-42s").CombinedOutput()
+		stringOutput := string(output)
+		io.WriteString(revision, stringOutput)
+		result := parsePackageResults(stringOutput)
+		fmt.Println("Result: ", result.Passed)
+		results = append(results, result)
+	}
+
+	output := CompleteOutput{
+		Revision: hex.EncodeToString(revision.Sum(nil)),
+		Packages: results,
+	}
+	serialized, err := json.Marshal(output)
 	if err != nil {
-		fmt.Println("Problem serializing json test results!", err)
+		fmt.Println("Problem serializing json test results!", err) // panic?
 	} else {
 		latestOutput = string(serialized)
 	}
 	done <- true
+}
+
+type CompleteOutput struct {
+	Packages []*PackageResult
+	Revision string
 }
