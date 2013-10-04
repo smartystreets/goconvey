@@ -14,17 +14,14 @@ import sys
 import time
 
 
-def main(verbose, output):
+def main(verbose):
     working = os.path.abspath(os.path.join(os.getcwd()))    
-    output = OutputWriter(output)
     scanner = WorkspaceScanner(working)
-    runner = TestRunner(working, output, verbose)
+    runner = TestRunner(working, verbose)
 
     while True:
         if scanner.scan():
-            output.start()
             runner.run()
-            output.finish()
 
 
 class WorkspaceScanner(object):
@@ -49,10 +46,9 @@ class WorkspaceScanner(object):
 
 
 class TestRunner(object):
-    def __init__(self, top, out, verbosity):
+    def __init__(self, top, verbosity):
         self.repetitions = 0
         self.top = top
-        self.out = out
         self.working = self.top
         self.verbosity = verbosity
 
@@ -66,7 +62,7 @@ class TestRunner(object):
             'Wow, are you going for a top score? Keep it up!')
         half_delimiter = (EVEN if not self.repetitions % 2 else ODD) * \
                          ((80 - len(number)) / 2)
-        self.out.write('\n{0}{1}{0}\n'.format(half_delimiter, number))
+        write('\n{0}{1}{0}\n'.format(half_delimiter, number))
 
     def _run_tests(self):
         self._chdir(self.top)
@@ -101,48 +97,19 @@ class TestRunner(object):
         except subprocess.CalledProcessError as error:
             self.write_output(error.output)
 
-        self.out.write('\n')
+        write('\n')
 
     def write_output(self, output):
-        self.out.write(output)
+        write(output)
 
     def _chdir(self, new):
         os.chdir(new)
         self.working = new
 
 
-class OutputWriter(object):
-    def __init__(self, output):
-        self.output = output
-        self.logfile = None
-        self.working = None
-        self.finished = None
-        
-    def start(self):
-        if self.output:
-            self.finished = os.path.join(output, 'latest.txt')
-            self.working = os.path.join(output, 'running.txt')
-            self.logfile = open(self.working, 'w')
-
-    def write(self, value):
-        sys.stdout.write(value)
-        sys.stdout.flush()
-        if self.logfile is not None:
-            self._write_to_log(value)
-        
-    def _write_to_log(self, value):
-        output = value\
-            .replace(RED_COLOR, '')\
-            .replace(YELLOW_COLOR, '')\
-            .replace(GREEN_COLOR, '')\
-            .replace(RESET_COLOR, '')
-        self.logfile.write(output)
-        self.logfile.flush()
-
-    def finish(self):
-        if self.logfile is not None:
-            self.logfile.close()
-            os.rename(self.working, self.finished)
+def write(value):
+    sys.stdout.write(value)
+    sys.stdout.flush()
 
 
 EVEN = '='
@@ -160,14 +127,6 @@ def parse_bool_arg(name):
     return False
 
 
-def parse_string_arg(name):
-    for arg in sys.argv:
-        if arg.startswith(name + '='):
-            return arg.split('=')[-1]
-    return None
-
-
 if __name__ == '__main__':
     verbose = '-v' if parse_bool_arg('-v') else ''
-    output = parse_string_arg('--output')
-    main(verbose, output)
+    main(verbose)
