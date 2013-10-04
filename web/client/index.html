@@ -90,7 +90,7 @@
 					<div class="panic-shortcuts templated">
 						<b>Panics:</b><hr>
 						{{.}}
-							<a href="javascript:">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
 						{{/.}}
 					</div>
 				</script>
@@ -98,7 +98,7 @@
 					<div class="failure-shortcuts templated">
 						<b>Failures:</b><hr>
 						{{.}}
-							<a href="javascript:">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
 						{{/.}}
 					</div>
 				</script>
@@ -232,7 +232,7 @@
 
 		<div class="grid-container">
 			<div class="prefix-10 grid-80 suffix-10" id="footer">
-				Powered by <a href="https://github.com/smartystreets/goconvey" target="_blank"><b>GoConvey</b></a> v1.0.3, brought to you by <a href="http://smartystreets.com" target="_blank">SmartyStreets</a>.
+				Powered by <a href="https://github.com/smartystreets/goconvey" target="_blank"><b>GoConvey</b></a>, brought to you by <a href="http://smartystreets.com" target="_blank">SmartyStreets</a>.
 			</div>
 		</div>
 
