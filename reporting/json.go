@@ -6,17 +6,13 @@ import (
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func (self *jsonReporter) BeginStory(story *StoryReport) {
-	top := newScopeResult(story.Name, self.depth, story.File, story.Line)
-	self.scopes = append(self.scopes, top)
-	self.stack = append(self.stack, top)
-}
+func (self *jsonReporter) BeginStory(story *StoryReport) {}
 
 func (self *jsonReporter) Enter(scope *ScopeReport) {
-	self.depth++
 	if _, found := self.titlesById[scope.ID]; !found {
 		self.registerScope(scope)
 	}
+	self.depth++
 }
 func (self *jsonReporter) registerScope(scope *ScopeReport) {
 	self.titlesById[scope.ID] = scope.ID
