@@ -179,12 +179,20 @@
 
 				<script id="tpl-stories" type="text/template">
 					{{Packages}}
+					{{if PackageName|notempty}}
 					<table class="package-story templated">
 						<tr class="depth-0">
 							<th colspan="3">
 								{{PackageName}}
 							</th>
 						</tr>
+						{{if TestResults|empty}}
+						<tr>
+							<th class="filename" colspan="3">
+								No test cases
+							</th>
+						</tr>
+						{{else}}
 						{{TestResults}}
 						<tr>
 							<td class="status {{_status}}"></td>
@@ -214,8 +222,10 @@
 								</td>
 							</tr>
 							{{/Stories}}
+						{{/if}}
 						{{/TestResults}}
 					</table>
+					{{/if}
 					{{/Packages}}
 				</script>
 
