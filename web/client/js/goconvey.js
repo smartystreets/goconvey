@@ -29,8 +29,8 @@ var convey = {
 $(function()
 {
 	// Copy the defaults so we can replace them on each update
-	var overall_cpy = $.clone(convey.overall);
-	var assertions_cpy = $.clone(convey.assertions);
+	var overall_cpy = $.extend({}, convey.overall);
+	var assertions_cpy = $.extend({}, convey.assertions);
 
 	// Focus on first textbox
 	if ($('input').first().val() == "")
