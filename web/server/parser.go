@@ -36,7 +36,10 @@ func (self *outputParser) gatherTestFunctionsAndMetadata() {
 	}
 }
 func (self *outputParser) processNextLine() {
-	if noTestsRun(self.line) {
+	if noTestFunctions(self.line) {
+		// no-op
+
+	} else if noTestFiles(self.line) {
 		self.recordEmptyPackage()
 
 	} else if isNewTest(self.line) {
@@ -53,7 +56,11 @@ func (self *outputParser) processNextLine() {
 	}
 }
 
-func noTestsRun(line string) bool {
+func noTestFunctions(line string) bool {
+	return line == "testing: warning: no tests to run"
+}
+
+func noTestFiles(line string) bool {
 	// TEST INPUT:
 	// ?   	pkg.smartystreets.net/liveaddress-zipapi	[no test files]
 	return strings.HasPrefix(line, "?") && strings.Contains(line, "[no test files]")
