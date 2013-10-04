@@ -32,10 +32,29 @@ $(function()
 		$('.zen').fadeOut(convey.speed);
 	});
 
-	// Immediately get test results
+	// Immediately get test results and on every interval, too
 	update();
-
 	var poller = setInterval(update, 1500);
+
+	function updatePath()
+	{
+		$.get('/watch', function(data) {
+			$('#path').val($.trim(data));
+		});
+	}
+	
+	updatePath();
+
+	$('#path').change(function() {
+		var self = $(this)
+		$.post('/watch?root='+encodeURIComponent($.trim($(this).val())))
+			.done(function() {
+				self.css('color', '');
+			})
+			.fail(function() {
+				self.css('color', '#DD0000');
+			});
+	});
 
 	function update()
 	{
@@ -47,6 +66,8 @@ $(function()
 			convey.revisionHash = data.Revision;
 
 			$('#spinner').show();
+
+			updatePath();
 
 			// Empty out the data from the last update
 			convey.overall = emptyOverall();

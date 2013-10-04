@@ -526,7 +526,7 @@ del, .failures th.expected {
 	font-size: 16px;
 	font-family: 'Monaco', monospace;
 	padding: 10px;
-	color: #444;
+	color: #333;
 	background: #F0F0F0;
 	display: block;
 	border: 0;

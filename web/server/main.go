@@ -19,7 +19,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Initialized watcher...")
 }
 
 func main() {
