@@ -110,7 +110,7 @@ func runTests(done chan bool) {
 	// fmt.Println("Could not chdir to:", path)
 	// continue
 	// }
-	// output, err := exec.Command("go", "test", "-json").Output()
+	// output, err := exec.Command("go", "test", "-v", "-json").Output()
 	// if err != nil {
 	// fmt.Printf("Error from test execution at %s. Error: %v\n", path, err)
 	// continue // TODO: is the error expected on failure?
