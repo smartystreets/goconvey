@@ -347,6 +347,7 @@ del, .failures th.expected {
 .package-story .filename {
 	padding: 5px 10px;
 	font-size: 12px;
+	background: #F8F8F8;
 }
 
 .package-story .status {
@@ -393,6 +394,10 @@ del, .failures th.expected {
 .package-story .title {
 	padding: .75em .5em;
 	line-height: 1.25em;
+}
+
+.package-story .title small {
+	white-space: pre;
 }
 
 .depth-0 .title { padding-left: 1.5em; }

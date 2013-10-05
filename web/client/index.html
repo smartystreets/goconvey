@@ -91,7 +91,7 @@
 						<b>Panics:</b><hr>
 						{{.}}
 							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
-							<a href="#assert-{{_id}}" class="goto"><i class="icon-level-down"></i></a>
+							<a href="#assert-{{_id}}" class="goto" title="See in context"><i class="icon-level-down"></i></a>
 						{{/.}}
 					</div>
 				</script>
@@ -156,6 +156,14 @@
 										Line {{Line}}
 									</td>
 								</tr>
+								{{if Stories|empty}}
+								<tr>
+									<td colspan="3" class="raw-output">
+										<code>{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}
+										{{StackTrace|showhtml}}{{/if}}{{/if}}</code>
+									</td>
+								</tr>
+								{{/if}}
 								{{if _parsed}}
 								<tr>
 									<th class="expected">
@@ -175,13 +183,14 @@
 									</th>
 									<td colspan="2"><code class="diff"></code></td>
 								</tr>
-								{{else}}
+								{{else}}{{if Stories|notempty}}
 								<tr>
 									<td colspan="3" class="raw-output">
-										<code>{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}</code>
+										<code>{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}
+										{{StackTrace|showhtml}}{{/if}}{{/if}}</code>
 									</td>
 								</tr>
-								{{/if}}
+								{{/if}}{{/if}}
 							</table>
 						</div>
 						{{/.}}
@@ -206,7 +215,7 @@
 						</tr>
 						{{else}}
 						{{TestResults}}
-						<tr>
+						<tr{{if Stories|empty}} id="assert-{{_id}}"{{/if}}>
 							<td class="status {{_status}}"></td>
 							<td class="checks">
 							{{if Stories|empty}}
@@ -217,7 +226,7 @@
 							{{/if}}
 							</td>
 							<td class="title">
-								<b>{{TestName}}</b>{{if Message}}&nbsp; &nbsp;<small><i>{{Message}}</i></small>{{/if}}
+								<b>{{TestName}}</b>{{if Message}}<small><br><i>{{Message}}</i></small>{{/if}}
 							</td>
 						</tr>
 							{{Stories}}

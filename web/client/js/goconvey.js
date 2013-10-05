@@ -9,7 +9,7 @@ var convey = {
 	regex: {
 		expected: /Expected:?\s+'?/,
 		actual: /'?\s+(Actual:)\s+'?/,
-		actualEnd: /$|('?\s+(\((Should|but))?)/
+		actualEnd: /$|('?\s+(\((Should|but))|$)/
 	},
 	assertions: emptyAssertions(),
 	overall: emptyOverall(),
@@ -131,7 +131,11 @@ $(function()
 
 						if (test.Stories.length == 0)
 						{
+							// We've got ourselves a classic Go test,
+							// not a GoConvey test that has stories and assertions
+							// so we'll treat this whole test as a single assertion
 							convey.overall.assertions ++;
+							test._id = storyID;
 
 							if (test.Error)
 							{
@@ -145,6 +149,9 @@ $(function()
 								test._status = convey.statuses.fail;
 								pkg._failed ++;
 								test._failed ++;
+								test._parsedExpected = parseExpected(test.Message);
+								test._parsedActual = parseActual(test.Message);
+								test._parsed = test._parsedExpected != "" && test._parsedActual != "";
 								convey.assertions.failed.push(test);
 							}
 							else
@@ -154,6 +161,8 @@ $(function()
 								test._passed ++;
 								convey.assertions.passed.push(test);
 							}
+
+							storyID ++;
 						}
 						else
 							test._status = convey.statuses.pass;
@@ -174,8 +183,7 @@ $(function()
 								{
 									assertion._parsedExpected = parseExpected(assertion.Failure);
 									assertion._parsedActual = parseActual(assertion.Failure);
-									assertion._parsed = assertion._parsedExpected != "" && assertion._parsedActual != ""
-
+									assertion._parsed = assertion._parsedExpected != "" && assertion._parsedActual != "";
 									convey.assertions.failed.push(assertion);
 									pkg._failed ++;
 									test._failed ++;
@@ -317,7 +325,7 @@ $(function()
 
 		if (!endMatch)
 			return "";
-
+		
 		var end = start + endMatch.index;
 
 		return str.substring(start, end);
