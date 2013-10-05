@@ -12,6 +12,7 @@ Client:
 Server
   - Failing builds
   - possible bug in parser when starting the server in the /server directory
+  - handle "can't load package: package ... no Go source files in ..." output without crashing
   - cleanup
   - run all tests on startup
   - Integration test
