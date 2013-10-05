@@ -267,16 +267,6 @@ a.icon-2x:hover {
 	text-align: left;
 }
 
-.stacktrace {
-	font-size: 10px;
-	white-space: pre-wrap;
-	line-height: 1.5em;
-	overflow-y: scroll;
-	max-height: 200px;
-	word-break: break-all;
-	background: #F0F0F0;
-	padding: 5px;
-}
 
 .failures .failure th,
 .failures .failure td,
@@ -291,6 +281,21 @@ a.icon-2x:hover {
 	text-transform: uppercase;
 }
 
+.raw-output {
+	padding: 0 !important;
+}
+
+.raw-output code {
+	display: block;
+	max-height: 200px;
+	overflow-y: scroll;
+	font-size: 10px;
+	white-space: pre-wrap;
+	line-height: 1.5em;
+	word-break: break-all;
+	background: #F0F0F0;
+	padding: 5px;
+}
 
 
 

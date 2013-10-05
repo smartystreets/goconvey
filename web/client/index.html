@@ -128,8 +128,8 @@
 								</tr>
 								{{/if}}
 								<tr>
-									<td colspan="2" style="padding: 0;">
-										<div class="stacktrace">{{if StackTrace|empty}}{{Error}}{{else}}{{StackTrace}}{{/if}}</div>
+									<td colspan="2" class="raw-output">
+										<code>{{if StackTrace|empty}}{{Error|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}</code>
 									</td>
 								</tr>
 							</table>
@@ -154,29 +154,32 @@
 										Line {{Line}}
 									</td>
 								</tr>
+								{{if _parsed}}
 								<tr>
 									<th class="expected">
 										Expected
 									</th>
-									<td colspan="2"><code class="original">{{_parsedExpected}}</code></td>
+									<td colspan="2"><code class="original">{{_parsedExpected|showhtml}}</code></td>
 								</tr>
 								<tr>
 									<th class="actual">
 										Actual
 									</th>
-									<td colspan="2"><code class="changed">{{_parsedActual}}</code></td>
+									<td colspan="2"><code class="changed">{{_parsedActual|showhtml}}</code></td>
 								</tr>
 								<tr>
 									<th class="difference">
 										Diff
 									</th>
 									<td colspan="2"><code class="diff"></code></td>
-								</tr><!--
+								</tr>
+								{{else}}
 								<tr>
-									<td><code class="original">{{_parsedExpected}}</code></td>
-									<td><code class="changed">{{_parsedActual}}</code></td>
-									<td><code class="diff"></code></td>
-								</tr>-->
+									<td colspan="3" class="raw-output">
+										<code>{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}</code>
+									</td>
+								</tr>
+								{{/if}}
 							</table>
 						</div>
 						{{/.}}
@@ -196,7 +199,7 @@
 						{{if TestResults|empty}}
 						<tr>
 							<th class="filename" colspan="3">
-								No test cases
+								(No test cases)
 							</th>
 						</tr>
 						{{else}}

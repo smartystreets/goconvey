@@ -6,11 +6,17 @@ var convey = {
 		panic: 'panic',
 		skip: 'skip'
 	},
+	regex: {
+		expected: /Expected:?\s+'?/,
+		actual: /'?\s+(Actual:)\s+'?/,
+		actualEnd: /$|('?\s+(\((Should|but))?)/
+	},
 	assertions: emptyAssertions(),
 	overall: emptyOverall(),
 	zen: {},
 	revisionHash: ""
 };
+
 
 $(function()
 {
@@ -19,10 +25,15 @@ $(function()
 		$('input').first().focus();
 
 
+	// Markup.js custom pipes
 	Mark.pipes.relativePath = function(str)
 	{
 		basePath = new RegExp($('#path').val(), 'g');
 		return str.replace(basePath, '');
+	}
+	Mark.pipes.showhtml = function(str)
+	{
+		return str.replace(/</g, "&lt;").replace(/</g, "&gt;");
 	}
 
 
@@ -141,6 +152,7 @@ $(function()
 								{
 									assertion._parsedExpected = parseExpected(assertion.Failure);
 									assertion._parsedActual = parseActual(assertion.Failure);
+									assertion._parsed = assertion._parsedExpected != "" && assertion._parsedActual != ""
 
 									convey.assertions.failed.push(assertion);
 									pkg._failed ++;
@@ -178,6 +190,8 @@ $(function()
 				convey.overall.panics = convey.assertions.panicked.length;
 				convey.overall.failures = convey.assertions.failed.length;
 				convey.overall.skipped = convey.assertions.skipped.length;
+
+				convey.overall.duration = Math.round(convey.overall.duration * 1000) / 1000;
 
 				// Panics trump failures overall
 				if (convey.overall.panics)
@@ -258,27 +272,30 @@ $(function()
 
 	function parseExpected(str)
 	{
-		return stringBetween(str, "Expected: '", "'\nActual:   '");
+		return stringBetween(str, convey.regex.expected, convey.regex.actual);
 	}
 
 	function parseActual(str)
 	{
-		return stringBetween(str, "'\nActual:   '", "'\n(Should");
+		return stringBetween(str, convey.regex.actual, convey.regex.actualEnd);
 	}
 
-	function stringBetween(str, startStr, endStr)
+	function stringBetween(str, startExpr, endExpr)
 	{
-		var start = str.indexOf(startStr);
-		if (start < 0)
-			return "";
+		var startMatch = str.match(startExpr);
 		
-		start += startStr.length;
-
-		var end = str.indexOf(endStr, start);
-
-		if (end < 0)
+		if (!startMatch)
 			return "";
 
+		var start = startMatch.index + startMatch[0].length;
+
+		var endMatch = str.substr(start).match(endExpr);
+		console.log(startMatch, endMatch);
+		if (!endMatch)
+			return "";
+
+		var end = start + endMatch.index;
+		console.log(str.substring(start, end));
 		return str.substring(start, end);
 	}
 });
