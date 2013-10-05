@@ -91,7 +91,7 @@
 						<b>Panics:</b><hr>
 						{{.}}
 							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
-							<a href="#assert-{{_id}}" class="goto" title="See in context"><i class="icon-level-down"></i></a>
+							<a href="#assert-{{_id}}" class="goto" title="See in context"><i class="icon-level-down"></i></a><br>
 						{{/.}}
 					</div>
 				</script>
@@ -100,7 +100,7 @@
 						<b>Failures:</b><hr>
 						{{.}}
 							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
-							<a href="#assert-{{_id}}" class="goto"><i class="icon-level-down"></i></a>
+							<a href="#assert-{{_id}}" class="goto"><i class="icon-level-down"></i></a><br>
 						{{/.}}
 					</div>
 				</script>
@@ -309,8 +309,9 @@
 
 		</div>
 
-<script id="tpl-convey" type="text/template">{{.}}{{depth|indent}}Convey("{{title}}", {{if depth|equals>0}}t, {{/if}}{{if stories|empty}}nil{{else}}func() {
-{{stories|recursivelyRender}}{{depth|indent}}}{{/if}})
+<script id="tpl-convey" type="text/template">{{.}}{{if .|notTestFunc}}{{depth|indent}}Convey("{{title}}", {{if depth|equals>0}}t, {{/if}}{{if stories|empty}}nil{{else}}func() {
+{{stories|recursivelyRender}}{{depth|indent}}}{{/if}}){{else}}func {{title|safeFunc}}(t *testing.T) {
+{{stories|recursivelyRender}}}{{/if}}
 {{/.}}</script>
 
 	</body>

@@ -101,6 +101,17 @@ $(function()
 		return new Array(val + 1).join("\t");
 	}
 
+	Mark.pipes.notTestFunc = function(scope)
+	{
+		console.log(scope);
+		return scope.depth > 0 || scope.title.indexOf("Test") !== 0;
+	}
+
+	Mark.pipes.safeFunc = function(val)
+	{
+		return val.replace(/[^a-z0-9_]/gi, '');
+	}
+
 });
 
 
@@ -133,14 +144,14 @@ function parseInput(input)
 			continue;
 
 		// Figure out how deep to put this story
-		indent = line.match(new RegExp("^" + tabText + "+"));
-		tabs = indent ? indent[0].length / tabText.length : 0;
+		indent = line.match(new RegExp("^" + convey.zen.gen.tab + "+"));
+		tabs = indent ? indent[0].length / convey.zen.gen.tab.length : 0;
 
 		// Starting at root, traverse into the right spot in the arrays
 		var curScope = root;
 		for (j = 0; j < tabs && curScope.stories.length > 0; j++)
 			curScope = curScope.stories[curScope.stories.length - 1];
-			
+		
 		// Don't go crazy, though! (avoid excessive indentation)
 		if (tabs > curScope.depth + 1)
 			tabs = curScope.depth + 1;
