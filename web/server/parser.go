@@ -38,8 +38,7 @@ func (self *outputParser) gatherTestFunctionsAndMetadata() {
 func (self *outputParser) processNextLine() {
 	if noTestFunctions(self.line) {
 		// no-op
-
-	} else if noTestFiles(self.line) {
+	} else if noTestFiles(self.line) || noSourceFiles(self.line) {
 		self.recordEmptyPackage()
 
 	} else if isNewTest(self.line) {
@@ -66,6 +65,12 @@ func noTestFiles(line string) bool {
 	return strings.HasPrefix(line, "?") && strings.Contains(line, "[no test files]")
 }
 
+func noSourceFiles(line string) bool {
+	// TEST INPUT:
+	// can't load package: package github.com/smartystreets/goconvey: no Go source files in /Users/matt/Work/Dev/goconvey/src/github.com/smartystreets/goconvey
+	return strings.Index(line, "no Go source files") >= 0
+}
+
 func isNewTest(line string) bool {
 	return strings.HasPrefix(line, "=== ")
 }
@@ -81,7 +86,14 @@ func isPackageReport(line string) bool {
 
 func (self *outputParser) recordEmptyPackage() {
 	fields := strings.Split(self.line, "\t")
-	self.result.PackageName = fields[1]
+	if len(fields) > 1 {
+		self.result.PackageName = fields[1]
+	} else {
+		before := "can't load package: package "
+		start := strings.Index(self.line, before) + len(before)
+		end := strings.Index(self.line[start:], ":")
+		self.result.PackageName = self.line[start : start+end]
+	}
 }
 
 func (self *outputParser) registerTestFunction() {

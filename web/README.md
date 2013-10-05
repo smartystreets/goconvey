@@ -3,8 +3,8 @@ TODO:
 Client:
   - DONE: Project path bar (read upon startup and update)
   - DONE: Generate file links
-  - Generate scrolling link
-  - Diff polish (common assertions)
+  - DONE: Generate scrolling link
+  - DONE: Diff polish (common assertions)
   - Cleanup
   - Server offline (crashed?)
 
@@ -12,7 +12,7 @@ Client:
 Server
   - Failing builds
   - possible bug in parser when starting the server in the /server directory
-  - handle "can't load package: package ... no Go source files in ..." output without crashing
+  - DONE: handle "can't load package: package ... no Go source files in ..." output without crashing
   - cleanup
   - run all tests on startup
   - Integration test
