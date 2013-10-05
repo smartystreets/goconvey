@@ -10,7 +10,7 @@ Client:
 
 
 Server
-  - Failing builds
+  - Failing builds (look for "#" at start of line...)
   - possible bug in parser when starting the server in the /server directory
   - DONE: handle "can't load package: package ... no Go source files in ..." output without crashing
   - cleanup

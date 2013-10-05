@@ -11,6 +11,7 @@ Welcome to GoConvey, a yummy BDD tool for gophers. Use it in the browser or in t
 - Fully-automatic web UI (works with native Go tests, too)
 - Test code generator
 - Idler script automatically runs tests in the terminal
+- Immediately open problem lines in [Sublime Text](http://www.sublimetext.com) ([some assembly required](https://github.com/asuth/subl-handler))
 
 
 Installation
@@ -65,7 +66,7 @@ If not all your tests are yet written in GoConvey, the web UI you opened in your
 Writing tests
 -------------
 
-The easy way: open your browser to the web UI and click "Code Gen" in the top-right. Then describe your program's behavior in a natural, flowing way, for example:
+The easy way: open your browser to the web UI and click "Code Gen" in the top-right. Then describe your program's behavior in a natural, flowing way, for example (make sure you convert indents to tabs, as GitHub transformed them to spaces):
 
 
 	TestSpec
