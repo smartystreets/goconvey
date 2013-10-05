@@ -1,26 +1,94 @@
-GoConvey - BDD in Go - by SmartyStreets, LLC
-============================================
+GoConvey is awesome BDD in Go
+=============================
 
-Welcome to GoConvey, a yummy BDD tool for gophers. You'll soon be enjoying the benefits of
-this robust, descriptive and fun-to-use bit of code. Among those benefits are the following:
+Welcome to GoConvey, a yummy BDD tool for gophers. Use it in the browser or in the terminal. Either way you choose, the output is a pleasure to read and work with.
 
-- An ever-growing suite of regression tests
-- Tests which are formatted to the console as a readable specification, understandable by any manager (IT or not).
-- Integration with the already excellent `go test` tool
-- Constant updates on the working state of your application via the bundled `idle.py` script (more below).
+**Features:**
+
+- Huge suite of regression tests
+- Directly integrates with `go test`
+- Readable, colorized console output (understandable by any manager, IT or not)
+- Fully-automatic web UI (works with native Go tests, too)
+- Test code generator
+- Idler script automatically runs tests in the terminal
 
 
-Installation:
--------------
-
-Assuming you have set your $GOPATH environment variable:
+Installation
+------------
 
 	$ go get github.com/smartystreets/goconvey
+	$ go install github.com/smartystreets/goconvey/web/server
 
+
+Quick start
+-----------
+
+Make a test, for example:
+
+```go
+func TestSpec(t *testing.T) {
+	Convey("Given some integer with a starting value", t, func() {
+		x := 1
+
+		Convey("When the integer is incremented", func() {
+			x++
+
+			Convey("The value should be greater by one", func() {
+				So(x, ShouldEqual, 2)
+			})
+		})
+	})
+}
+```
+
+Start up the GoConvey web server at your project's path:
+
+    $ $GOPATH/bin/server
+
+Then open your browser to:
+
+	http://localhost:8080
+
+There you have it. As long as GoConvey is running, test results will automatically update in your browser window. The design is responsive, so you can squish the browser real tight if you need to put it beside your code.
+
+Want to use the terminal instead? Just do what you do best:
+
+    $ go test
+
+Or if you want the output to include the story:
+
+    $ go test -v
+
+If not all your tests are yet written in GoConvey, the web UI you opened in your browser also works for traditional Go tests! (But it's not quite as cool that way.)
+
+
+Writing tests
+-------------
+
+The easy way: open your browser to the web UI and click "Code Gen" in the top-right. Then describe your program's behavior in a natural, flowing way, for example:
+
+
+	TestSpec
+		Subject: Integer incrementation and decrementation
+			Given a starting integer value
+				When incremented
+					The value should be greater by one
+					The value should NOT be what it used to be
+				When decremented
+					The value should be lesser by one
+					The value should NOT be what it used to be
+
+
+The skeleton of your test file will be stubbed out automatically as you type. There
+are a few things to notice about this:
+
+- Lines starting with "Test" (case-sensitive), without indentation, are treated as the name of the function in which all nested tests will be included
+- Indentation defines scope
+- Assertions are not made here; you'll do that later after pasting the generated code into your `_test.go` file.
 
 
 Verbose output:
---------------
+---------------
 
 **Tests pass:**
 
