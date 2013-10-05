@@ -46,6 +46,23 @@ $(function()
 		});
 	});
 
+	// Smooth scroll within page (props to css-tricks.com)
+	$('body').on('click', 'a[href^=#]:not([href=#])', function()
+	{
+		if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') 
+			|| location.hostname == this.hostname)
+		{
+			var target = $(this.hash);
+			target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+			   if (target.length) {
+				 $('html,body').animate({
+					 scrollTop: target.offset().top - 150
+				}, 400);
+				return false;
+			}
+		}
+	});
+
 	// Hide code generator (or any 'zen'-like window)
 	$('.zen-close').click(function() {
 		$('.zen').fadeOut(convey.speed);
@@ -100,6 +117,8 @@ $(function()
 				// Remove them from the DOM as we'll put new ones back in
 				$('.templated').remove();
 
+				var storyID = 0;
+
 				// Look for failures and panics through the packages->tests->stories...
 				for (var i in data.Packages)
 				{
@@ -143,11 +162,14 @@ $(function()
 						{
 							var story = makeContext(test.Stories[k]);
 
+							story._id = storyID;
 							convey.overall.assertions += story.Assertions.length;
 
 							for (var l in story.Assertions)
 							{
 								var assertion = story.Assertions[l];
+								assertion._id = storyID;
+
 								if (assertion.Failure)
 								{
 									assertion._parsedExpected = parseExpected(assertion.Failure);
@@ -183,9 +205,11 @@ $(function()
 							}
 
 							assignStatus(story);
+							storyID ++;
 						}
 					}
 				}
+
 				convey.overall.passed = convey.assertions.passed.length;
 				convey.overall.panics = convey.assertions.panicked.length;
 				convey.overall.failures = convey.assertions.failed.length;
@@ -290,12 +314,12 @@ $(function()
 		var start = startMatch.index + startMatch[0].length;
 
 		var endMatch = str.substr(start).match(endExpr);
-		console.log(startMatch, endMatch);
+
 		if (!endMatch)
 			return "";
 
 		var end = start + endMatch.index;
-		console.log(str.substring(start, end));
+
 		return str.substring(start, end);
 	}
 });

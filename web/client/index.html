@@ -24,7 +24,7 @@
 					<input type="text" id="path" placeholder="/path/to/project/root">
 				</div>
 				<div class="grid-20 menu">
-					<a class="icon-code icon-large" id="show-gen" href="javascript:" title="Code Generator"> Code Gen</a>
+					<a class="icon-edit icon-large" id="show-gen" href="javascript:" title="Code Generator"> Code Gen</a>
 				</div>
 			</div>
 		</header>
@@ -91,6 +91,7 @@
 						<b>Panics:</b><hr>
 						{{.}}
 							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="#assert-{{_id}}" class="goto"><i class="icon-level-down"></i></a>
 						{{/.}}
 					</div>
 				</script>
@@ -99,6 +100,7 @@
 						<b>Failures:</b><hr>
 						{{.}}
 							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="#assert-{{_id}}" class="goto"><i class="icon-level-down"></i></a>
 						{{/.}}
 					</div>
 				</script>
@@ -123,7 +125,7 @@
 								{{if StackTrace|notempty}}
 								<tr>
 									<td colspan="2" class="panic-error">
-										<b>Panic:</b>{{Error}}
+										<b>Panic:</b> {{Error}}
 									</td>
 								</tr>
 								{{/if}}
@@ -219,7 +221,7 @@
 							</td>
 						</tr>
 							{{Stories}}
-							<tr class="depth-{{Depth}}">
+							<tr class="depth-{{Depth}}" id="assert-{{_id}}">
 								<td class="status {{_status}}"></td>
 								<td class="checks">
 								{{if _passed}}<span class="ok">{{_passed}}&nbsp;&#10003;</span><br>{{/if}}

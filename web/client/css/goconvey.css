@@ -181,20 +181,20 @@ a.icon-2x:hover {
 
 .failure-shortcuts a,
 .panic-shortcuts a {
-	display: block;
+	display: inline-block;
 	line-height: 1.5em;
-	margin-left: 5px;
 }
 
-.failure-shortcuts a:before,
-.panic-shortcuts a:before {
-	content: '\2022';
-	color: #333;
-	text-decoration: none;
-	position: relative;
-	left: -3px;
+a.goto {
+	text-decoration: none !important;
+	color: #666 !important;
+	padding: 0 5px;
+	display: inline-block;
 }
 
+a.goto:hover {
+	color: #000 !important;
+}
 .failure-shortcuts a {
 	color: #E79C07;
 }
