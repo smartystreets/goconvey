@@ -13,6 +13,21 @@ Welcome to GoConvey, a yummy BDD tool for gophers. Use it in the browser or in t
 - Idler script automatically runs tests in the terminal
 - Immediately open problem lines in [Sublime Text](http://www.sublimetext.com) ([some assembly required](https://github.com/asuth/subl-handler))
 
+**Jump to:**
+
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Writing tests](#writing-tests)
+- [Web UI](#web-ui)
+- [Documentation](#documentation)
+- [Execution](#execution)
+- [Assertions](#assertions)
+- [Writing your own assertions](#writing-your-own-assertions)
+- [Skipping Convey() registrations](#skipping-convey-registrations)
+- [Unimplemented Convey() registrations](#unimplemented-convey-registrations)
+- [Skipping So() assertions](#skipping-so-assertions)
+- [Contributors](#contributors-thanks)
+
 
 Installation
 ------------
@@ -66,7 +81,11 @@ If not all your tests are yet written in GoConvey, the web UI you opened in your
 Writing tests
 -------------
 
-The easy way: open your browser to the web UI and click "Code Gen" in the top-right. Then describe your program's behavior in a natural, flowing way, for example (make sure you convert indents to tabs, as GitHub transformed them to spaces):
+See the [examples folder](https://github.com/smartystreets/goconvey/tree/master/examples).
+We recommend reviewing [isolated_execution_test.go](https://github.com/smartystreets/goconvey/blob/master/convey/isolated_execution_test.go) for a more thorough understanding of how tests are
+composed, and how they actually work.
+
+For an easier way: open your browser to the web UI and click "Code Gen" in the top-right. Then describe your program's behavior in a natural, flowing way, for example (make sure you convert indents to tabs, as GitHub transformed them to spaces):
 
 
 	TestSpec
@@ -88,7 +107,12 @@ are a few things to notice about this:
 - Assertions are not made here; you'll do that later after pasting the generated code into your `_test.go` file.
 
 
-Verbose output:
+Web UI
+-----------
+![GoConvey rocks](http://i.imgur.com/O7uVvoq.png)
+
+
+Terminal output (with `go test -v`):
 ---------------
 
 **Tests pass:**
@@ -104,13 +128,6 @@ Verbose output:
 ![Panic](http://i.imgur.com/iG2EZ5C.png)
 
 
-
-Composition:
-------------
-
-See the [examples folder](https://github.com/smartystreets/goconvey/tree/master/examples).
-We recommend reviewing [isolated_execution_test.go](https://github.com/smartystreets/goconvey/blob/master/convey/isolated_execution_test.go) for a more thorough understanding of how tests are
-composed, and how they actually work.
 
 
 
