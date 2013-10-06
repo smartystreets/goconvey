@@ -6,14 +6,15 @@ Client:
   - DONE: Generate scrolling link
   - DONE: Diff polish (common assertions)
   - Cleanup
+  - Failing builds (show a gray bar with build output below)
   - Server offline (crashed?)
 
 
 Server
   - Failing builds (look for "#" at start of line...)
-  - possible bug in parser when starting the server in the /server directory
+  - Possible bug in parser when starting the server in the /server directory
   - DONE: handle "can't load package: package ... no Go source files in ..." output without crashing
-  - cleanup
-  - run all tests on startup
+  - Cleanup
+  - DONE: run all tests on startup
   - Integration test
   - When the "watching" directory is changed, re-run tests (this way the web UI can update)
