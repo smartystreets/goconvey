@@ -39,7 +39,7 @@
 						</div>
 						<div class="summary">
 							PASS<br>
-							{{passed}}/{{assertions}} assertions
+							{{passed}}/{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}}
 							{{if skipped}} - {{skipped}} skipped{{/if}}
 							<br>
 							{{duration}}s
@@ -57,7 +57,7 @@
 							FAIL
 						</div>
 						<div class="summary">
-							{{assertions}} assertions<br>
+							{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}}<br>
 							{{failures}} failed<br>
 							{{duration}}s
 						</div>
@@ -74,8 +74,8 @@
 							PANIC
 						</div>
 						<div class="summary">
-							{{assertions}} assertions<br>
-							{{failures}} failed - {{panics}} panic<br>
+							{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}}<br>
+							{{failures}} failed - {{panics}} panic{{if panics|notequal>1}}s{{/if}}<br>
 							{{duration}}s
 						</div>
 					</div>

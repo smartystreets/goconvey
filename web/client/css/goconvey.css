@@ -181,7 +181,6 @@ a.icon-2x:hover {
 
 .failure-shortcuts a,
 .panic-shortcuts a {
-	display: inline-block;
 	line-height: 1.5em;
 }
 
