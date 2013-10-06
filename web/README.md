@@ -6,12 +6,12 @@ Client:
   - DONE: Generate scrolling link
   - DONE: Diff polish (common assertions)
   - Cleanup
-  - Failing builds (show a gray bar with build output below)
+  - DONE: Failing builds (show a gray bar with build output below)
   - Server offline (crashed?)
 
 
 Server
-  - Failing builds (look for "#" at start of line...)
+  - DONE: Failing builds (look for "#" at start of line...)
   - Possible bug in parser when starting the server in the /server directory
   - DONE: handle "can't load package: package ... no Go source files in ..." output without crashing
   - Cleanup

@@ -83,9 +83,41 @@
 			</div>
 		</script>
 
+
+		<script id="tpl-overall-buildfail" type="text/template">
+			<div class="overall buildfail clearfix templated">
+				<div class="grid-container">
+					<div class="prefix-20 grid-60 suffix-20">
+						<div class="status">
+							BUILD FAILED
+						</div>
+						<div class="summary">
+							{{failedBuilds}} package{{if failedBuilds|notlike>1}}s{{/if}} not built
+							<br>
+							{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}} -
+							{{failures}} failed -
+							{{panics}} panic{{if panics|notequal>1}}s{{/if}}
+							<br>
+							{{duration}}s
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+
 		<div class="grid-container" id="results">
 
 			<div class="grid-20" id="left-sidebar">
+				<script id="tpl-builds-shortcuts" type="text/template">
+					<div class="builds-shortcuts templated">
+						<b>Failed builds:</b><hr>
+						{{.}}
+							<a href="#package-{{_id}}">{{PackageName}}</a>
+							<a href="#package-{{_id}}" class="goto"><i class="icon-level-down"></i></a><br>
+						{{/.}}
+					</div>
+				</script>
 				<script id="tpl-panic-shortcuts" type="text/template">
 					<div class="panic-shortcuts templated">
 						<b>Panics:</b><hr>
@@ -106,6 +138,29 @@
 				</script>
 			</div>
 			<div class="grid-60 suffix-20" id="contents">
+
+				<script id="tpl-builds" type="text/template">
+					<div class="builds templated">
+
+						{{.}}
+						<div class="build">
+							<table>
+								<tr>
+									<td class="file">
+										{{PackageName}}
+									</td>
+								</tr>
+								<tr>
+									<td class="raw-output">
+										<code>{{BuildOutput|showhtml}}</code>
+									</td>
+								</tr>
+							</table>
+						</div>
+						{{/.}}
+
+					</div>
+				</script>
 
 
 				<script id="tpl-panics" type="text/template">
@@ -202,17 +257,30 @@
 					{{Packages}}
 					{{if PackageName|notempty}}
 					<table class="package-story templated">
-						<tr class="depth-0">
+						<tr class="depth-0" id="package-{{_id}}">
 							<th colspan="3">
 								{{PackageName}}
 							</th>
 						</tr>
 						{{if TestResults|empty}}
-						<tr>
-							<th class="filename" colspan="3">
-								(No test cases)
-							</th>
-						</tr>
+							{{if BuildOutput|empty}}
+							<tr>
+								<th class="pkg-summary" colspan="3">
+									(No test cases)
+								</th>
+							</tr>
+							{{else}}
+							<tr>
+								<th class="pkg-summary inverse" colspan="3">
+									<i class="icon-warning-sign"></i> (BUILD FAILED)
+								</th>
+							</tr>
+							<tr>
+								<td style="padding: 5px; line-height: 1.25em;">
+									<code class="raw-output" style="white-space: pre-wrap;">{{BuildOutput|showhtml}}</code>
+								</td>
+							</tr>
+							{{/if}}
 						{{else}}
 						{{TestResults}}
 						<tr{{if Stories|empty}} id="assert-{{_id}}"{{/if}}>

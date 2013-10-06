@@ -7,6 +7,11 @@ import (
 	"testing"
 )
 
+func TestParsePackage_BuildFails(t *testing.T) {
+	actual := parsePackageResults(build_Fails)
+	assertEqual(t, expectedBuild_Fails, *actual)
+}
+
 func TestParsePackage_OldSchoolWithFailureOutput(t *testing.T) {
 	actual := parsePackageResults(inputOldSchool_Fails)
 	assertEqual(t, expectedOldSchool_Fails, *actual)
@@ -33,6 +38,21 @@ func assertEqual(t *testing.T, expected, actual interface{}) {
 	if string(a) != string(b) {
 		t.Errorf(failureTemplate, string(a), string(b))
 	}
+}
+
+const build_Fails = `
+# github.com/smartystreets/goconvey/web/server
+./parser.go:104: non-declaration statement outside function body
+./parser.go:104: syntax error: unexpected }
+FAIL	github.com/smartystreets/goconvey/web/server [build failed]
+`
+
+var expectedBuild_Fails = PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/web/server",
+	Elapsed:     0,
+	Passed:      false,
+	TestResults: []TestResult{},
+	BuildOutput: "# github.com/smartystreets/goconvey/web/server\n./parser.go:104: non-declaration statement outside function body\n./parser.go:104: syntax error: unexpected }\n",
 }
 
 const inputOldSchool_Passes = `
@@ -70,6 +90,7 @@ var expectedOldSchool_Passes = PackageResult{
 			Stories:  []reporting.ScopeResult{},
 		},
 	},
+	BuildOutput: "",
 }
 
 const inputOldSchool_Fails = `
@@ -131,6 +152,7 @@ var expectedOldSchool_Fails = PackageResult{
 			Stories:  []reporting.ScopeResult{},
 		},
 	},
+	BuildOutput: "",
 }
 
 const inputOldSchool_Panics = `
@@ -195,6 +217,7 @@ main.main()
 			Stories: []reporting.ScopeResult{},
 		},
 	},
+	BuildOutput: "",
 }
 
 const inputGoConvey = `
@@ -252,6 +275,7 @@ var expectedGoConvey = PackageResult{
 			},
 		},
 	},
+	BuildOutput: "",
 }
 
 const failureTemplate = "Comparison failed:\n  Expected: %v\n    Actual: %v\n"

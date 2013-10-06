@@ -139,12 +139,20 @@ a.icon-2x:hover {
 	background: #AA0000;
 }
 
+.overall.buildfail {
+	background: #AAA;
+}
+
 .overall .status {
 	float: left;
 	margin-right: .75em;
 	color: #FFF;
 	font: bold 80px 'Georgia', serif;
 	text-transform: uppercase;
+}
+
+.overall.buildfail .status {
+	font-size: 65px;
 }
 
 .overall .summary {
@@ -175,12 +183,14 @@ a.icon-2x:hover {
 
 
 .failure-shortcuts,
-.panic-shortcuts {
+.panic-shortcuts,
+.builds-shortcuts {
 	margin-bottom: 1em;
 }
 
 .failure-shortcuts a,
-.panic-shortcuts a {
+.panic-shortcuts a,
+.builds-shortcuts a {
 	line-height: 1.5em;
 }
 
@@ -197,18 +207,20 @@ a.goto:hover {
 .failure-shortcuts a {
 	color: #E79C07;
 }
-
 .failure-shortcuts a:hover {
 	color: #FFAD2B;
 }
-
-
 .panic-shortcuts a {
 	color: #CC0000;
 }
-
 .panic-shortcuts a:hover {
 	color: #FF0000;
+}
+.builds-shortcuts a {
+	color: #666;
+}
+.builds-shortcuts a:hover {
+	color: #AAA;
 }
 
 
@@ -220,13 +232,15 @@ a.goto:hover {
 
 
 .failures,
-.panics {
+.panics,
+.builds {
 	font-size: 12px;
 	margin-bottom: 2em;
 }
 
 .failures .failure table,
-.panics .panic table {
+.panics .panic table,
+.builds .build table {
 	margin-bottom: 1em;
 }
 
@@ -237,6 +251,11 @@ a.goto:hover {
 .panics .panic table {
 	border: 3px solid #CC0000;
 }
+
+.builds .build table {
+	border: 3px solid #888;
+}
+
 
 .file,
 .line,
@@ -270,7 +289,9 @@ a.goto:hover {
 .failures .failure th,
 .failures .failure td,
 .panics .panic th,
-.panics .panic td {
+.panics .panic td,
+.builds .build th,
+.builds .build td {
 	border: 1px solid #CCC;
 	padding: 5px;
 }
@@ -343,10 +364,15 @@ del, .failures th.expected {
 	border: 1px solid #E0E0E0;
 }
 
-.package-story .filename {
+.package-story .pkg-summary {
 	padding: 5px 10px;
 	font-size: 12px;
 	background: #F8F8F8;
+}
+
+.package-story .pkg-summary.inverse {
+	background: #333;
+	color: #FFF;	
 }
 
 .package-story .status {
@@ -398,7 +424,7 @@ del, .failures th.expected {
 }
 
 .package-story .title small {
-	white-space: pre;
+	white-space: pre-wrap;
 }
 
 .depth-0 .title { padding-left: 1.5em; }

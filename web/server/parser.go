@@ -36,8 +36,22 @@ func (self *outputParser) gatherTestFunctionsAndMetadata() {
 	}
 }
 func (self *outputParser) processNextLine() {
-	if noTestFunctions(self.line) {
+	if !self.parsingBuildOutput {
+		self.parsingBuildOutput = isFailedBuild(self.line)
+		if self.parsingBuildOutput {
+			self.result.PackageName = self.line[2:]
+		}
+	} else if isEndBuildOutput(self.line) {
+		self.parsingBuildOutput = false
+		return
+	}
+
+	if self.parsingBuildOutput {
+		self.recordFailedBuild()
+
+	} else if noTestFunctions(self.line) {
 		// no-op
+
 	} else if noTestFiles(self.line) || noSourceFiles(self.line) {
 		self.recordEmptyPackage()
 
@@ -82,6 +96,16 @@ func isPackageReport(line string) bool {
 		strings.HasPrefix(line, "exit status") ||
 		strings.HasPrefix(line, "PASS") ||
 		strings.HasPrefix(line, "ok  \t"))
+}
+func isFailedBuild(line string) bool {
+	return strings.HasPrefix(line, "#")
+}
+func isEndBuildOutput(line string) bool {
+	return strings.HasPrefix(line, "FAIL\t") && strings.HasSuffix(line, "[build failed]")
+}
+
+func (self *outputParser) recordFailedBuild() {
+	self.result.BuildOutput += self.line + "\n"
 }
 
 func (self *outputParser) recordEmptyPackage() {
@@ -198,8 +222,9 @@ type outputParser struct {
 	tests  []*TestResult
 
 	// place holders for loops
-	line string
-	test *TestResult
+	line               string
+	test               *TestResult
+	parsingBuildOutput bool
 }
 
 type PackageResult struct {
@@ -207,6 +232,7 @@ type PackageResult struct {
 	Elapsed     float64
 	Passed      bool
 	TestResults []TestResult
+	BuildOutput string
 }
 
 type TestResult struct {

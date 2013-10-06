@@ -4,6 +4,7 @@ var convey = {
 		pass: 'ok',
 		fail: 'fail',
 		panic: 'panic',
+		failedBuild: 'failbuild',
 		skip: 'skip'
 	},
 	regex: {
@@ -12,6 +13,7 @@ var convey = {
 		actualEnd: /$|('?\s+(\((Should|but))|$)/
 	},
 	assertions: emptyAssertions(),
+	failedBuilds: [],
 	overall: emptyOverall(),
 	zen: {},
 	revisionHash: ""
@@ -108,6 +110,7 @@ $(function()
 			// Empty out the data from the last update
 			convey.overall = emptyOverall();
 			convey.assertions = emptyAssertions();
+			convey.failedBuilds = [];
 
 			// Remove existing/old test results
 			$('.overall').slideUp(convey.speed);
@@ -117,13 +120,21 @@ $(function()
 				// Remove them from the DOM as we'll put new ones back in
 				$('.templated').remove();
 
-				var storyID = 0;
+				var uniqueID = 0;
 
 				// Look for failures and panics through the packages->tests->stories...
 				for (var i in data.Packages)
 				{
 					pkg = makeContext(data.Packages[i]);
 					convey.overall.duration += pkg.Elapsed;
+					pkg._id = uniqueID++;
+
+					if (pkg.BuildOutput != "")
+					{
+						convey.overall.failedBuilds ++;
+						convey.failedBuilds.push(pkg);
+						continue;
+					}
 
 					for (var j in pkg.TestResults)
 					{
@@ -135,7 +146,7 @@ $(function()
 							// not a GoConvey test that has stories and assertions
 							// so we'll treat this whole test as a single assertion
 							convey.overall.assertions ++;
-							test._id = storyID;
+							test._id = uniqueID;
 
 							if (test.Error)
 							{
@@ -162,7 +173,7 @@ $(function()
 								convey.assertions.passed.push(test);
 							}
 
-							storyID ++;
+							uniqueID ++;
 						}
 						else
 							test._status = convey.statuses.pass;
@@ -171,13 +182,13 @@ $(function()
 						{
 							var story = makeContext(test.Stories[k]);
 
-							story._id = storyID;
+							story._id = uniqueID;
 							convey.overall.assertions += story.Assertions.length;
 
 							for (var l in story.Assertions)
 							{
 								var assertion = story.Assertions[l];
-								assertion._id = storyID;
+								assertion._id = uniqueID;
 
 								if (assertion.Failure)
 								{
@@ -213,7 +224,7 @@ $(function()
 							}
 
 							assignStatus(story);
-							storyID ++;
+							uniqueID ++;
 						}
 					}
 				}
@@ -225,8 +236,12 @@ $(function()
 
 				convey.overall.duration = Math.round(convey.overall.duration * 1000) / 1000;
 
-				// Panics trump failures overall
-				if (convey.overall.panics)
+				// Build failures trump panics,
+				// Panics trump failures,
+				// Failures trump passing.
+				if (convey.overall.failedBuilds)
+					convey.overall.status = convey.statuses.failedBuild;
+				else if (convey.overall.panics)
 					convey.overall.status = convey.statuses.panic;
 				else if (convey.overall.failures)
 					convey.overall.status = convey.statuses.fail;
@@ -236,13 +251,20 @@ $(function()
 					$('header').after(render('tpl-overall-ok', convey.overall));
 				else if (convey.overall.status == convey.statuses.fail)
 					$('header').after(render('tpl-overall-fail', convey.overall));
-				else
+				else if (convey.overall.status == convey.statuses.panic)
 					$('header').after(render('tpl-overall-panic', convey.overall));
+				else
+					$('header').after(render('tpl-overall-buildfail', convey.overall));
 
 				// Show overall status
 				$('.overall').slideDown();
 
-				// Show shortucts and failures/panics details
+				// Show shortucts and builds/failures/panics details
+				if (convey.overall.failedBuilds > 0)
+				{
+					$('#left-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
+					$('#contents').append(render('tpl-builds', convey.failedBuilds));
+				}
 				if (convey.overall.panics > 0)
 				{
 					console.log(convey.overall);
@@ -342,7 +364,8 @@ function emptyOverall()
 		passed: 0,
 		panics: 0,
 		failures: 0,
-		skipped: 0
+		skipped: 0,
+		failedBuilds: 0
 	};
 }
 
