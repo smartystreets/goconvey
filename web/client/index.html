@@ -39,7 +39,7 @@
 						</div>
 						<div class="summary">
 							PASS<br>
-							{{passed}}/{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}}
+							{{passed}}/{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}}
 							{{if skipped}} - {{skipped}} skipped{{/if}}
 							<br>
 							{{duration}}s
@@ -57,7 +57,7 @@
 							FAIL
 						</div>
 						<div class="summary">
-							{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}}<br>
+							{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}}<br>
 							{{failures}} failed<br>
 							{{duration}}s
 						</div>
@@ -74,8 +74,8 @@
 							PANIC
 						</div>
 						<div class="summary">
-							{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}}<br>
-							{{failures}} failed - {{panics}} panic{{if panics|notequal>1}}s{{/if}}<br>
+							{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}}<br>
+							{{failures}} failed - {{panics}} panic{{if panics|notequals>1}}s{{/if}}<br>
 							{{duration}}s
 						</div>
 					</div>
@@ -92,11 +92,11 @@
 							BUILD FAILED
 						</div>
 						<div class="summary">
-							{{failedBuilds}} package{{if failedBuilds|notlike>1}}s{{/if}} not built
+							{{failedBuilds}} package{{if failedBuilds|notequals>1}}s{{/if}} not built
 							<br>
-							{{assertions}} assertion{{if assertions|notequal>1}}s{{/if}} -
+							{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}} -
 							{{failures}} failed -
-							{{panics}} panic{{if panics|notequal>1}}s{{/if}}
+							{{panics}} panic{{if panics|notequals>1}}s{{/if}}
 							<br>
 							{{duration}}s
 						</div>
