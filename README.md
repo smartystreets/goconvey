@@ -17,8 +17,9 @@ Welcome to GoConvey, a yummy BDD tool for gophers. Use it in the browser or in t
 
 - [Installation](#installation)
 - [Quick start](#quick-start)
-- [Writing tests](#writing-tests)
 - [Web UI](#web-ui)
+- [Terminal output](#terminal-output-with-go-test--v)
+- [Writing tests](#writing-tests)
 - [Documentation](#documentation)
 - [Execution](#execution)
 - [Assertions](#assertions)
@@ -78,6 +79,28 @@ Or if you want the output to include the story:
 If not all your tests are yet written in GoConvey, the web UI you opened in your browser also works for traditional Go tests! (But it's not quite as cool that way.)
 
 
+Web UI
+-----------
+![GoConvey rocks](http://i.imgur.com/O7uVvoq.png)
+
+
+Terminal output (with `go test -v`):
+---------------
+
+**Tests pass:**
+
+![Pass](http://i.imgur.com/c2qAQcR.png)
+
+**Test fail:**
+
+![Fail](http://i.imgur.com/sRcyZBr.png)
+
+**Test panic:**
+
+![Panic](http://i.imgur.com/iG2EZ5C.png)
+
+
+
 Writing tests
 -------------
 
@@ -105,29 +128,6 @@ are a few things to notice about this:
 - Lines starting with "Test" (case-sensitive), without indentation, are treated as the name of the function in which all nested tests will be included
 - Indentation defines scope
 - Assertions are not made here; you'll do that later after pasting the generated code into your `_test.go` file.
-
-
-Web UI
------------
-![GoConvey rocks](http://i.imgur.com/O7uVvoq.png)
-
-
-Terminal output (with `go test -v`):
----------------
-
-**Tests pass:**
-
-![Pass](http://i.imgur.com/c2qAQcR.png)
-
-**Test fail:**
-
-![Fail](http://i.imgur.com/sRcyZBr.png)
-
-**Test panic:**
-
-![Panic](http://i.imgur.com/iG2EZ5C.png)
-
-
 
 
 
