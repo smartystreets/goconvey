@@ -16,3 +16,4 @@ Server
   - cleanup
   - run all tests on startup
   - Integration test
+  - When the "watching" directory is changed, re-run tests (this way the web UI can update)
