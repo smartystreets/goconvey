@@ -352,6 +352,7 @@ del, .failures th.expected {
 
 .package-story .status {
 	width: 5px;
+	min-width: 5px;
 }
 
 .package-story .status.ok {
@@ -373,6 +374,7 @@ del, .failures th.expected {
 	color: #5AA02C;
 	font-weight: bold;
 	border-right: 0;
+	min-width: 25px;
 }
 
 .package-story .checks .ok {
@@ -461,21 +463,6 @@ del, .failures th.expected {
 }
 
 
-@media (max-width: 1024px) {
-	h1 {
-		text-align: center;
-	}
-
-	.menu {
-		display: none;
-	}
-
-	.package-story th {
-		font-size: 12px;
-	}
-}
-
-
 
 
 
@@ -552,4 +539,62 @@ del, .failures th.expected {
 	border: 0;
 	resize: vertical;
 	height: 300px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 1024px) {
+	h1 {
+		text-align: center;
+	}
+
+	.menu {
+		display: none;
+	}
+
+	.package-story th {
+		font-size: 12px;
+	}
+}
+
+@media (max-width: 600px) {
+	.overall .status {
+		font-size: 60px;
+		margin-right: .4em;
+	}
+
+	.overall .summary {
+		font-size: 14px;
+	}
+
+	.package-story th,
+	.package-story .title {
+		word-break: break-word;
+		font-size: 12px;
+	}
+
+	.package-story .title {
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
 }
