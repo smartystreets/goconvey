@@ -308,7 +308,7 @@ a.goto:hover {
 .raw-output code {
 	display: block;
 	max-height: 200px;
-	overflow-y: scroll;
+	overflow-y: auto;
 	font-size: 10px;
 	white-space: pre-wrap;
 	line-height: 1.5em;

@@ -38,6 +38,11 @@ $(function()
 		return str.replace(/</g, "&lt;").replace(/</g, "&gt;");
 	}
 
+	Mark.pipes.nothing = function(str)
+	{
+		return str == "no test files" || str == "no test functions" || str == "no go code"
+	}
+
 
 	// Show code generator if link is clicked
 	$('#show-gen').click(function()
@@ -114,7 +119,6 @@ $(function()
 
 			// Remove existing/old test results
 			$('.overall').slideUp(convey.speed);
-
 			$('#results').fadeOut(convey.speed, function()
 			{
 				// Remove them from the DOM as we'll put new ones back in
@@ -129,7 +133,7 @@ $(function()
 					convey.overall.duration += pkg.Elapsed;
 					pkg._id = uniqueID++;
 
-					if (pkg.BuildOutput != "")
+					if (pkg.Outcome == "build failure")
 					{
 						convey.overall.failedBuilds ++;
 						convey.failedBuilds.push(pkg);
@@ -142,7 +146,7 @@ $(function()
 
 						if (test.Stories.length == 0)
 						{
-							// We've got ourselves a classic Go test,
+							// Here we've got ourselves a classic Go test,
 							// not a GoConvey test that has stories and assertions
 							// so we'll treat this whole test as a single assertion
 							convey.overall.assertions ++;
@@ -312,7 +316,7 @@ $(function()
 			obj._status = 'skip';
 		else if (obj._panicked)
 			obj._status = convey.statuses.panic;
-		else if (obj._failed || obj.Passed === false)
+		else if (obj._failed || obj.Outcome == "failed")
 			obj._status = convey.statuses.fail;
 		else
 			obj._status = convey.statuses.pass;
