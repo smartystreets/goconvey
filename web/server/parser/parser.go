@@ -1,28 +1,29 @@
-package main
+package parser
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/web/server/results"
 	"strconv"
 	"strings"
 )
 
-func parsePackageResults(packageName, raw string) *PackageResult {
+func ParsePackageResults(packageName, raw string) *results.PackageResult {
 	parser := newOutputParser(packageName, raw)
-	return parser.Parse()
+	return parser.parse()
 }
 
 func newOutputParser(packageName, raw string) *outputParser {
 	self := &outputParser{}
 	self.raw = strings.TrimSpace(raw)
 	self.lines = strings.Split(self.raw, "\n")
-	self.result = newPackageResult(packageName)
-	self.tests = []*TestResult{}
+	self.result = results.NewPackageResult(packageName)
+	self.tests = []*results.TestResult{}
 	return self
 }
 
-func (self *outputParser) Parse() *PackageResult {
+func (self *outputParser) parse() *results.PackageResult {
 	self.separateTestFunctionsAndMetadata()
 	self.parseEachTestFunction()
 	self.attachParsedTestFunctionsToResult()
@@ -39,16 +40,16 @@ func (self *outputParser) separateTestFunctionsAndMetadata() {
 }
 func (self *outputParser) processNonTestOutput() bool {
 	if noGoFiles(self.line) {
-		self.recordFinalOutcome(noGo)
+		self.recordFinalOutcome(results.NoGoFiles)
 
 	} else if buildFailed(self.line) {
-		self.recordFinalOutcome(buildFailure)
+		self.recordFinalOutcome(results.BuildFailure)
 
 	} else if noTestFiles(self.line) {
-		self.recordFinalOutcome(noTestFile)
+		self.recordFinalOutcome(results.NoTestFiles)
 
 	} else if noTestFunctions(self.line) {
-		self.recordFinalOutcome(noTestFunction)
+		self.recordFinalOutcome(results.NoTestFunctions)
 
 	} else {
 		return false
@@ -78,7 +79,7 @@ func (self *outputParser) processTestOutput() {
 }
 
 func (self *outputParser) registerTestFunction() {
-	self.test = newTestResult(self.line[len("=== RUN "):])
+	self.test = results.NewTestResult(self.line[len("=== RUN "):])
 	self.tests = append(self.tests, self.test)
 }
 func (self *outputParser) recordTestMetadata() {
@@ -87,10 +88,10 @@ func (self *outputParser) recordTestMetadata() {
 }
 func (self *outputParser) recordPackageMetadata() {
 	if packageFailed(self.line) {
-		self.recordTestingOutcome(failed)
+		self.recordTestingOutcome(results.Failed)
 
 	} else if packagePassed(self.line) {
-		self.recordTestingOutcome(passed)
+		self.recordTestingOutcome(results.Passed)
 	}
 }
 func (self *outputParser) recordTestingOutcome(outcome string) {
@@ -105,14 +106,14 @@ func (self *outputParser) saveLineForParsingLater() {
 		fmt.Println("LINE:", self.line)
 		return
 	}
-	self.test.rawLines = append(self.test.rawLines, self.line)
+	self.test.RawLines = append(self.test.RawLines, self.line)
 }
 
 func (self *outputParser) parseEachTestFunction() {
 	for _, self.test = range self.tests {
-		if len(self.test.rawLines) == 0 {
+		if len(self.test.RawLines) == 0 {
 			continue
-		} else if isJson(self.test.rawLines[0]) {
+		} else if isJson(self.test.RawLines[0]) {
 			self.deserializeScopes()
 		} else {
 			self.parseAdditionalGoTestOutput()
@@ -120,7 +121,7 @@ func (self *outputParser) parseEachTestFunction() {
 	}
 }
 func (self *outputParser) deserializeScopes() {
-	formatted := createArrayForJsonItems(self.test.rawLines)
+	formatted := createArrayForJsonItems(self.test.RawLines)
 	var scopes []reporting.ScopeResult
 	err := json.Unmarshal(formatted, &scopes)
 	if err != nil {
@@ -129,7 +130,7 @@ func (self *outputParser) deserializeScopes() {
 	self.test.Stories = scopes
 }
 func (self *outputParser) parseAdditionalGoTestOutput() {
-	if strings.HasPrefix(self.test.rawLines[0], "panic: ") {
+	if strings.HasPrefix(self.test.RawLines[0], "panic: ") {
 		self.parsePanicOutput()
 	} else {
 		self.parseLoggedOutput()
@@ -137,18 +138,18 @@ func (self *outputParser) parseAdditionalGoTestOutput() {
 	}
 }
 func (self *outputParser) parsePanicOutput() {
-	self.result.Outcome = panicked
-	for index, line := range self.test.rawLines {
+	self.result.Outcome = results.Panicked
+	for index, line := range self.test.RawLines {
 		self.parsePanicMetadata(index, line)
 		self.preserveStackTraceIndentation(index, line)
 	}
-	self.test.Error = strings.Join(self.test.rawLines, "\n")
+	self.test.Error = strings.Join(self.test.RawLines, "\n")
 }
 func (self *outputParser) parsePanicMetadata(index int, line string) {
 	if !panicLineHasMetadata(line) {
 		return
 	}
-	metaLine := self.test.rawLines[index+4]
+	metaLine := self.test.RawLines[index+4]
 	fields := strings.Split(metaLine, " ")
 	fileAndLine := strings.Split(fields[0], ":")
 	self.test.File = fileAndLine[0]
@@ -156,26 +157,26 @@ func (self *outputParser) parsePanicMetadata(index int, line string) {
 }
 func (self *outputParser) preserveStackTraceIndentation(index int, line string) {
 	if panicLineShouldBeIndented(index, line) {
-		self.test.rawLines[index] = "\t" + line
+		self.test.RawLines[index] = "\t" + line
 	}
 }
 func (self *outputParser) parseLoggedOutput() {
-	lineFields := self.test.rawLines[0]
+	lineFields := self.test.RawLines[0]
 	fields := strings.Split(lineFields, ":")
 	self.test.File = strings.TrimSpace(fields[0])
 	self.test.Line, _ = strconv.Atoi(fields[1])
 	self.test.Message = strings.TrimSpace(fields[2])
 }
 func (self *outputParser) compileCompleteMessage() {
-	if len(self.test.rawLines) > 1 {
-		additionalLines := strings.Join(self.test.rawLines[1:], "\n")
+	if len(self.test.RawLines) > 1 {
+		additionalLines := strings.Join(self.test.RawLines[1:], "\n")
 		self.test.Message = self.test.Message + "\n" + additionalLines
 	}
 }
 
 func (self *outputParser) attachParsedTestFunctionsToResult() {
 	for _, test := range self.tests {
-		test.rawLines = []string{}
+		test.RawLines = []string{}
 		self.result.TestResults = append(self.result.TestResults, *test)
 	}
 }
@@ -183,12 +184,12 @@ func (self *outputParser) attachParsedTestFunctionsToResult() {
 type outputParser struct {
 	raw    string
 	lines  []string
-	result *PackageResult
-	tests  []*TestResult
+	result *results.PackageResult
+	tests  []*results.TestResult
 
 	// place holders for loops
 	line string
-	test *TestResult
+	test *results.TestResult
 }
 
 func noGoFiles(line string) bool {

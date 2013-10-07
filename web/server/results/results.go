@@ -1,15 +1,20 @@
-package main
+package results
 
 import "github.com/smartystreets/goconvey/reporting"
 
+type CompleteOutput struct {
+	Packages []*PackageResult
+	Revision string
+}
+
 var ( // PackageResult.Outcome values:
-	passed         = "passed"
-	failed         = "failed"
-	panicked       = "panicked"
-	buildFailure   = "build failure"
-	noTestFile     = "no test files"
-	noTestFunction = "no test functions"
-	noGo           = "no go code"
+	Passed          = "passed"
+	Failed          = "failed"
+	Panicked        = "panicked"
+	BuildFailure    = "build failure"
+	NoTestFiles     = "no test files"
+	NoTestFunctions = "no test functions"
+	NoGoFiles       = "no go code"
 )
 
 type PackageResult struct {
@@ -20,7 +25,7 @@ type PackageResult struct {
 	TestResults []TestResult
 }
 
-func newPackageResult(packageName string) *PackageResult {
+func NewPackageResult(packageName string) *PackageResult {
 	self := &PackageResult{}
 	self.PackageName = packageName
 	self.TestResults = []TestResult{}
@@ -37,13 +42,13 @@ type TestResult struct {
 	Error    string
 	Stories  []reporting.ScopeResult
 
-	rawLines []string
+	RawLines []string `json:",omitempty"`
 }
 
-func newTestResult(testName string) *TestResult {
+func NewTestResult(testName string) *TestResult {
 	self := &TestResult{}
 	self.Stories = []reporting.ScopeResult{}
-	self.rawLines = []string{}
+	self.RawLines = []string{}
 	self.TestName = testName
 	return self
 }

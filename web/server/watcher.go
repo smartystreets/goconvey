@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/smartystreets/goconvey/web/server/parser"
+	"github.com/smartystreets/goconvey/web/server/results"
 	"io"
 	"os"
 	"os/exec"
@@ -107,7 +109,7 @@ func reactToChanges() {
 }
 
 func runTests(done chan bool) {
-	results := []*PackageResult{}
+	packageResults := []*results.PackageResult{}
 	revision := md5.New()
 
 	fmt.Println("")
@@ -124,14 +126,14 @@ func runTests(done chan bool) {
 		io.WriteString(revision, stringOutput)
 		packageIndex := strings.Index(path, "/src/")
 		packageName := path[packageIndex+len("/src/"):]
-		result := parsePackageResults(packageName, stringOutput)
+		result := parser.ParsePackageResults(packageName, stringOutput)
 		fmt.Printf("[%s]\n", result.Outcome)
-		results = append(results, result)
+		packageResults = append(packageResults, result)
 	}
 
-	output := CompleteOutput{
+	output := results.CompleteOutput{
+		Packages: packageResults,
 		Revision: hex.EncodeToString(revision.Sum(nil)),
-		Packages: results,
 	}
 	serialized, err := json.Marshal(output)
 	if err != nil {
@@ -140,9 +142,4 @@ func runTests(done chan bool) {
 		latestOutput = string(serialized)
 	}
 	done <- true
-}
-
-type CompleteOutput struct {
-	Packages []*PackageResult
-	Revision string
 }

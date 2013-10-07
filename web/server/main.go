@@ -42,10 +42,6 @@ func main() {
 	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
 
-func homeHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprint(writer, "<html>...</html>") // TODO: setup static handler for html and javascript?
-}
-
 func reportHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")

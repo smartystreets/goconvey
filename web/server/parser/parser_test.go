@@ -1,68 +1,69 @@
-package main
+package parser
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/web/server/results"
 	"strings"
 	"testing"
 )
 
 func TestParsePackage_NoGoFiles_ReturnsPackageResult(t *testing.T) {
 	packageName := expected_NoGoFiles.PackageName
-	actual := parsePackageResults(packageName, input_NoGoFiles)
+	actual := ParsePackageResults(packageName, input_NoGoFiles)
 	assertEqual(t, expected_NoGoFiles, *actual)
 }
 
 func TestParsePackage_NoTestFiles_ReturnsPackageResult(t *testing.T) {
 	packageName := expected_NoTestFiles.PackageName
-	actual := parsePackageResults(packageName, input_NoTestFiles)
+	actual := ParsePackageResults(packageName, input_NoTestFiles)
 	assertEqual(t, expected_NoTestFiles, *actual)
 }
 
 func TestParsePacakge_NoTestFunctions_ReturnsPackageResult(t *testing.T) {
 	packageName := expected_NoTestFunctions.PackageName
-	actual := parsePackageResults(packageName, input_NoTestFunctions)
+	actual := ParsePackageResults(packageName, input_NoTestFunctions)
 	assertEqual(t, expected_NoTestFunctions, *actual)
 }
 
 func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
 	packageName := expected_BuildFailed_InvalidPackageDeclaration.PackageName
-	actual := parsePackageResults(packageName, input_BuildFailed_InvalidPackageDeclaration)
+	actual := ParsePackageResults(packageName, input_BuildFailed_InvalidPackageDeclaration)
 	assertEqual(t, expected_BuildFailed_InvalidPackageDeclaration, *actual)
 
 	packageName = expected_BuildFailed_OtherErrors.PackageName
-	actual = parsePackageResults(packageName, input_BuildFailed_OtherErrors)
+	actual = ParsePackageResults(packageName, input_BuildFailed_OtherErrors)
 	assertEqual(t, expected_BuildFailed_OtherErrors, *actual)
 }
 
 func TestParsePackage_OldSchoolWithFailureOutput_ReturnsCompletePackageResult(t *testing.T) {
 	packageName := expectedOldSchool_Fails.PackageName
-	actual := parsePackageResults(packageName, inputOldSchool_Fails)
+	actual := ParsePackageResults(packageName, inputOldSchool_Fails)
 	assertEqual(t, expectedOldSchool_Fails, *actual)
 }
 
 func TestParsePackage_OldSchoolWithSuccessOutput_ReturnsCompletePackageResult(t *testing.T) {
 	packageName := expectedOldSchool_Passes.PackageName
-	actual := parsePackageResults(packageName, inputOldSchool_Passes)
+	actual := ParsePackageResults(packageName, inputOldSchool_Passes)
 	assertEqual(t, expectedOldSchool_Passes, *actual)
 }
 
 func TestParsePackage_OldSchoolWithPanicOutput_ReturnsCompletePackageResult(t *testing.T) {
 	packageName := expectedOldSchool_Panics.PackageName
-	actual := parsePackageResults(packageName, inputOldSchool_Panics)
+	actual := ParsePackageResults(packageName, inputOldSchool_Panics)
 	assertEqual(t, expectedOldSchool_Panics, *actual)
 }
 
 func TestParsePackage_GoConveyOutput_ReturnsCompletePackageResult(t *testing.T) {
 	packageName := expectedGoConvey.PackageName
-	actual := parsePackageResults(packageName, inputGoConvey)
+	actual := ParsePackageResults(packageName, inputGoConvey)
 	assertEqual(t, expectedGoConvey, *actual)
 }
 
 func TestParsePackage_ActualPackageNameDifferentThanDirectoryName_ReturnsActualPackageName(t *testing.T) {
 	packageName := strings.Replace(expectedGoConvey.PackageName, "examples", "stuff", -1)
-	actual := parsePackageResults(packageName, inputGoConvey)
+	actual := ParsePackageResults(packageName, inputGoConvey)
 	assertEqual(t, expectedGoConvey, *actual)
 }
 
@@ -78,7 +79,7 @@ func TestParsePackage_GoConveyOutputMalformed_CausesPanic(t *testing.T) {
 		}
 	}()
 
-	parsePackageResults(expectedGoConvey.PackageName, inputGoConvey_Malformed)
+	ParsePackageResults(expectedGoConvey.PackageName, inputGoConvey_Malformed)
 }
 
 func assertEqual(t *testing.T, expected, actual interface{}) {
@@ -91,29 +92,29 @@ func assertEqual(t *testing.T, expected, actual interface{}) {
 
 const input_NoGoFiles = `can't load package: package github.com/smartystreets/goconvey: no Go source files in /Users/matt/Work/Dev/goconvey/src/github.com/smartystreets/goconvey`
 
-var expected_NoGoFiles = PackageResult{
+var expected_NoGoFiles = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey",
-	Outcome:     noGo,
+	Outcome:     results.NoGoFiles,
 	BuildOutput: input_NoGoFiles,
-	TestResults: []TestResult{},
+	TestResults: []results.TestResult{},
 }
 
 const input_NoTestFiles = `?   	pkg.smartystreets.net/liveaddress-zipapi	[no test files]`
 
-var expected_NoTestFiles = PackageResult{
+var expected_NoTestFiles = results.PackageResult{
 	PackageName: "pkg.smartystreets.net/liveaddress-zipapi",
-	Outcome:     noTestFile,
+	Outcome:     results.NoTestFiles,
 	BuildOutput: input_NoTestFiles,
-	TestResults: []TestResult{},
+	TestResults: []results.TestResult{},
 }
 
 const input_NoTestFunctions = `testing: warning: no tests to run`
 
-var expected_NoTestFunctions = PackageResult{
+var expected_NoTestFunctions = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
-	Outcome:     noTestFunction,
+	Outcome:     results.NoTestFunctions,
 	BuildOutput: input_NoTestFunctions,
-	TestResults: []TestResult{},
+	TestResults: []results.TestResult{},
 }
 
 const input_BuildFailed_InvalidPackageDeclaration = `
@@ -122,11 +123,11 @@ bowling_game_test.go:9:1: expected 'package', found 'IDENT' asdf
 bowling_game_test.go:10:1: invalid package name _
 `
 
-var expected_BuildFailed_InvalidPackageDeclaration = PackageResult{
+var expected_BuildFailed_InvalidPackageDeclaration = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/examples",
-	Outcome:     buildFailure,
+	Outcome:     results.BuildFailure,
 	BuildOutput: strings.TrimSpace(input_BuildFailed_InvalidPackageDeclaration),
-	TestResults: []TestResult{},
+	TestResults: []results.TestResult{},
 }
 
 const input_BuildFailed_OtherErrors = `
@@ -145,11 +146,11 @@ const input_BuildFailed_OtherErrors = `
 FAIL	github.com/smartystreets/goconvey/examples [build failed]
 `
 
-var expected_BuildFailed_OtherErrors = PackageResult{
+var expected_BuildFailed_OtherErrors = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/examples",
-	Outcome:     buildFailure,
+	Outcome:     results.BuildFailure,
 	BuildOutput: strings.TrimSpace(input_BuildFailed_OtherErrors),
-	TestResults: []TestResult{},
+	TestResults: []results.TestResult{},
 }
 
 const inputOldSchool_Passes = `
@@ -163,12 +164,12 @@ PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.018s
 `
 
-var expectedOldSchool_Passes = PackageResult{
+var expectedOldSchool_Passes = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.018,
-	Outcome:     passed,
-	TestResults: []TestResult{
-		TestResult{
+	Outcome:     results.Passed,
+	TestResults: []results.TestResult{
+		results.TestResult{
 			TestName: "TestOldSchool_Passes",
 			Elapsed:  0.02,
 			Passed:   true,
@@ -177,7 +178,7 @@ var expectedOldSchool_Passes = PackageResult{
 			Message:  "",
 			Stories:  []reporting.ScopeResult{},
 		},
-		TestResult{
+		results.TestResult{
 			TestName: "TestOldSchool_PassesWithMessage",
 			Elapsed:  0.05,
 			Passed:   true,
@@ -206,12 +207,12 @@ exit status 1
 FAIL	github.com/smartystreets/goconvey/webserver/examples	0.017s
 `
 
-var expectedOldSchool_Fails = PackageResult{
+var expectedOldSchool_Fails = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
-	Outcome:     failed,
+	Outcome:     results.Failed,
 	Elapsed:     0.017,
-	TestResults: []TestResult{
-		TestResult{
+	TestResults: []results.TestResult{
+		results.TestResult{
 			TestName: "TestOldSchool_Passes",
 			Elapsed:  0.01,
 			Passed:   true,
@@ -220,7 +221,7 @@ var expectedOldSchool_Fails = PackageResult{
 			Message:  "",
 			Stories:  []reporting.ScopeResult{},
 		},
-		TestResult{
+		results.TestResult{
 			TestName: "TestOldSchool_PassesWithMessage",
 			Elapsed:  0.03,
 			Passed:   true,
@@ -229,7 +230,7 @@ var expectedOldSchool_Fails = PackageResult{
 			Message:  "I am a passing test.\nWith a newline.",
 			Stories:  []reporting.ScopeResult{},
 		},
-		TestResult{
+		results.TestResult{
 			TestName: "TestOldSchool_Failure",
 			Elapsed:  0.06,
 			Passed:   false,
@@ -238,7 +239,7 @@ var expectedOldSchool_Fails = PackageResult{
 			Message:  "",
 			Stories:  []reporting.ScopeResult{},
 		},
-		TestResult{
+		results.TestResult{
 			TestName: "TestOldSchool_FailureWithReason",
 			Elapsed:  0.11,
 			Passed:   false,
@@ -277,12 +278,12 @@ exit status 2
 FAIL	github.com/smartystreets/goconvey/webserver/examples	0.014s
 `
 
-var expectedOldSchool_Panics = PackageResult{
+var expectedOldSchool_Panics = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.014,
-	Outcome:     panicked,
-	TestResults: []TestResult{
-		TestResult{
+	Outcome:     results.Panicked,
+	TestResults: []results.TestResult{
+		results.TestResult{
 			TestName: "TestOldSchool_Panics",
 			Elapsed:  0.02,
 			Passed:   false,
@@ -363,12 +364,12 @@ PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
 `
 
-var expectedGoConvey = PackageResult{
+var expectedGoConvey = results.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.019,
-	Outcome:     passed,
-	TestResults: []TestResult{
-		TestResult{
+	Outcome:     results.Passed,
+	TestResults: []results.TestResult{
+		results.TestResult{
 			TestName: "TestPassingStory",
 			Elapsed:  0.01,
 			Passed:   true,
