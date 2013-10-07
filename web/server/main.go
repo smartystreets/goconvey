@@ -25,13 +25,13 @@ func main() {
 	flag.Parse()
 	defer watcher.Close()
 
-	go reactToChanges()
-
 	working, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
 	updateWatch(working)
+
+	go reactToChanges()
 
 	_, file, _, _ := runtime.Caller(0)
 	here := filepath.Dir(file)
