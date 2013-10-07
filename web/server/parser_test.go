@@ -2,10 +2,39 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/smartystreets/goconvey/reporting"
 	"strings"
 	"testing"
 )
+
+func TestParsePackage_NoGoFiles_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_NoGoFiles.PackageName
+	actual := parsePackageResults(packageName, input_NoGoFiles)
+	assertEqual(t, expected_NoGoFiles, *actual)
+}
+
+func TestParsePackage_NoTestFiles_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_NoTestFiles.PackageName
+	actual := parsePackageResults(packageName, input_NoTestFiles)
+	assertEqual(t, expected_NoTestFiles, *actual)
+}
+
+func TestParsePacakge_NoTestFunctions_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_NoTestFunctions.PackageName
+	actual := parsePackageResults(packageName, input_NoTestFunctions)
+	assertEqual(t, expected_NoTestFunctions, *actual)
+}
+
+func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_BuildFailed_InvalidPackageDeclaration.PackageName
+	actual := parsePackageResults(packageName, input_BuildFailed_InvalidPackageDeclaration)
+	assertEqual(t, expected_BuildFailed_InvalidPackageDeclaration, *actual)
+
+	packageName = expected_BuildFailed_OtherErrors.PackageName
+	actual = parsePackageResults(packageName, input_BuildFailed_OtherErrors)
+	assertEqual(t, expected_BuildFailed_OtherErrors, *actual)
+}
 
 func TestParsePackage_OldSchoolWithFailureOutput_ReturnsCompletePackageResult(t *testing.T) {
 	packageName := expectedOldSchool_Fails.PackageName
@@ -31,28 +60,25 @@ func TestParsePackage_GoConveyOutput_ReturnsCompletePackageResult(t *testing.T) 
 	assertEqual(t, expectedGoConvey, *actual)
 }
 
-func TestParsePackage_NoGoFiles_ReturnsPackageResult(t *testing.T) {
-	packageName := expected_NoGoFiles.PackageName
-	actual := parsePackageResults(packageName, input_NoGoFiles)
-	assertEqual(t, expected_NoGoFiles, *actual)
+func TestParsePackage_ActualPackageNameDifferentThanDirectoryName_ReturnsActualPackageName(t *testing.T) {
+	packageName := strings.Replace(expectedGoConvey.PackageName, "examples", "stuff", -1)
+	actual := parsePackageResults(packageName, inputGoConvey)
+	assertEqual(t, expectedGoConvey, *actual)
 }
 
-func TestParsePackage_NoTestFiles_ReturnsPackageResult(t *testing.T) {
-	packageName := expected_NoTestFiles.PackageName
-	actual := parsePackageResults(packageName, input_NoTestFiles)
-	assertEqual(t, expected_NoTestFiles, *actual)
-}
+func TestParsePackage_GoConveyOutputMalformed_CausesPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			message := fmt.Sprintf("%v", r)
+			if !strings.Contains(message, "bug report") {
+				t.Errorf("Should have panicked with a request to file a bug report but we received this error instead: %s", message)
+			}
+		} else {
+			t.Errorf("Should have panicked with a request to file a bug report but we received no error.")
+		}
+	}()
 
-func TestParsePacakge_NoTestFunctions_ReturnsPackageResult(t *testing.T) {
-	packageName := expected_NoTestFunctions.PackageName
-	actual := parsePackageResults(packageName, input_NoTestFunctions)
-	assertEqual(t, expected_NoTestFunctions, *actual)
-}
-
-func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
-	packageName := expected_BuildFailed_InvalidPackageDeclaration.PackageName
-	actual := parsePackageResults(packageName, input_BuildFailed_InvalidPackageDeclaration)
-	assertEqual(t, expected_BuildFailed_InvalidPackageDeclaration, *actual)
+	parsePackageResults(expectedGoConvey.PackageName, inputGoConvey_Malformed)
 }
 
 func assertEqual(t *testing.T, expected, actual interface{}) {
@@ -122,7 +148,7 @@ FAIL	github.com/smartystreets/goconvey/examples [build failed]
 var expected_BuildFailed_OtherErrors = PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/examples",
 	Outcome:     buildFailure,
-	BuildOutput: input_BuildFailed_OtherErrors,
+	BuildOutput: strings.TrimSpace(input_BuildFailed_OtherErrors),
 	TestResults: []TestResult{},
 }
 
@@ -287,6 +313,32 @@ main.main()
 		},
 	},
 }
+
+const inputGoConvey_Malformed = `
+=== RUN TestPassingStory
+{
+  "Title": "A passing story",
+  "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+  "Line": 11,
+  "Depth": 0,
+  "Assertions": [
+    {
+      "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
+      "Line": 10,
+      "Failure": "",
+
+      ;aiwheopinen39 n3902n92m
+
+      "Error": null,
+      "Skipped": false,
+      "StackTrace": "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/webserver/examples.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:10 +0xe3\ngithub.com/smartystreets/goconvey/webserver/examples.TestPassingStory(0x210314000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:11 +0xec\ntesting.tRunner(0x210314000, 0x21ab10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n"
+    }
+  ]
+},
+--- PASS: TestPassingStory (0.01 seconds)
+PASS
+ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
+`
 
 const inputGoConvey = `
 === RUN TestPassingStory

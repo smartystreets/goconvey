@@ -41,16 +41,16 @@ func (self *outputParser) separateTestFunctionsAndMetadata() {
 }
 func (self *outputParser) processNonTestOutput() bool {
 	if noGoFiles(self.line) {
-		self.recordOutcome(noGo)
+		self.recordFinalOutcome(noGo)
 
 	} else if buildFailed(self.line) {
-		self.recordOutcome(buildFailure)
+		self.recordFinalOutcome(buildFailure)
 
 	} else if noTestFiles(self.line) {
-		self.recordOutcome(noTestFile)
+		self.recordFinalOutcome(noTestFile)
 
 	} else if noTestFunctions(self.line) {
-		self.recordOutcome(noTestFunction)
+		self.recordFinalOutcome(noTestFunction)
 
 	} else {
 		return false
@@ -58,7 +58,7 @@ func (self *outputParser) processNonTestOutput() bool {
 	return true
 }
 
-func (self *outputParser) recordOutcome(outcome string) {
+func (self *outputParser) recordFinalOutcome(outcome string) {
 	self.result.Outcome = outcome
 	self.result.BuildOutput = strings.Join(self.lines, "\n")
 }
@@ -91,15 +91,15 @@ func (self *outputParser) recordTestMetadata() {
 	self.test.Elapsed = parseTestFunctionDuration(self.line)
 }
 func (self *outputParser) recordPackageMetadata() {
-	if strings.HasPrefix(self.line, "FAIL\t") {
-		self.parseLastLine()
-		self.result.Outcome = failed
-	} else if strings.HasPrefix(self.line, "ok  \t") {
-		self.parseLastLine()
-		self.result.Outcome = passed
+	if packageFailed(self.line) {
+		self.recordTestingOutcome(failed)
+
+	} else if packagePassed(self.line) {
+		self.recordTestingOutcome(passed)
 	}
 }
-func (self *outputParser) parseLastLine() {
+func (self *outputParser) recordTestingOutcome(outcome string) {
+	self.result.Outcome = outcome
 	fields := strings.Split(self.line, "\t")
 	self.result.PackageName = strings.TrimSpace(fields[1])
 	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
@@ -124,20 +124,12 @@ func (self *outputParser) parseEachTestFunction() {
 		}
 	}
 }
-func isJson(line string) bool {
-	return strings.HasPrefix(line, "{")
-}
 func (self *outputParser) deserializeScopes() {
-	// TODO: clean up!
-	rawJson := strings.Join(self.test.rawLines, "")
+	formatted := createArrayForJsonItems(self.test.rawLines)
 	var scopes []reporting.ScopeResult
-	if strings.HasSuffix(rawJson, ",") { // Shouldn't need this...
-		rawJson = rawJson[:len(rawJson)-1]
-	}
-	rawJson = "[" + rawJson + "]"
-	err := json.Unmarshal([]byte(rawJson), &scopes)
+	err := json.Unmarshal(formatted, &scopes)
 	if err != nil {
-		fmt.Println(err) // panic?
+		panic(fmt.Sprintf(bugReportRequest, err, formatted))
 	}
 	self.test.Stories = scopes
 }
@@ -198,6 +190,7 @@ type PackageResult struct {
 }
 
 var (
+	parseError     = "parse error"
 	passed         = "passed"
 	failed         = "failed"
 	panicked       = "panicked"
@@ -225,8 +218,9 @@ func noGoFiles(line string) bool {
 		strings.Contains(line, ": no Go source files in ")
 }
 func buildFailed(line string) bool {
-	return strings.HasPrefix(line, "can't load package: ") &&
-		!strings.Contains(line, ": no Go source files in ")
+	return strings.HasPrefix(line, "# ") ||
+		(strings.HasPrefix(line, "can't load package: ") &&
+			!strings.Contains(line, ": no Go source files in "))
 }
 func noTestFunctions(line string) bool {
 	return line == "testing: warning: no tests to run"
@@ -246,3 +240,44 @@ func isPackageReport(line string) bool {
 		strings.HasPrefix(line, "PASS") ||
 		strings.HasPrefix(line, "ok  \t"))
 }
+
+func packageFailed(line string) bool {
+	return strings.HasPrefix(line, "FAIL\t")
+}
+func packagePassed(line string) bool {
+	return strings.HasPrefix(line, "ok  \t")
+}
+
+func isJson(line string) bool {
+	return strings.HasPrefix(line, "{")
+}
+
+func createArrayForJsonItems(lines []string) []byte {
+	jsonArrayItems := strings.Join(lines, "")
+	jsonArrayItems = removeTrailingComma(jsonArrayItems)
+	return []byte(fmt.Sprintf("[%s]\n", jsonArrayItems))
+}
+func removeTrailingComma(rawJson string) string {
+	if trailingComma(rawJson) {
+		return rawJson[:len(rawJson)-1]
+	}
+	return rawJson
+}
+func trailingComma(value string) bool {
+	return strings.HasSuffix(value, ",")
+}
+
+const bugReportRequest = `
+Uh-oh! Looks like something went wrong. Please copy the following text and file a bug report at: 
+
+https://github.com/smartystreets/goconvey/issues?state=open
+
+======= BEGIN BUG REPORT =======
+
+ERROR: %v
+
+OUTPUT: %s
+
+======= END BUG REPORT =======
+
+`
