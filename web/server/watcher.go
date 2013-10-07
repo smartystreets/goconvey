@@ -77,9 +77,10 @@ func exists(directory string) bool {
 }
 
 func reactToChanges() {
-	busy := false
-	done := make(chan bool)
-	ready := make(chan bool)
+	done, ready := make(chan bool), make(chan bool)
+	busy := true
+
+	go runTests(done)
 
 	for {
 		select {
