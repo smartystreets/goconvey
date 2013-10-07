@@ -8,54 +8,63 @@ import (
 	"strings"
 )
 
-func parsePackageResults(raw string) *PackageResult {
-	parser := newOutputParser(raw)
+func parsePackageResults(packageName, raw string) *PackageResult {
+	parser := newOutputParser(packageName, raw)
 	return parser.Parse()
 }
 
-func newOutputParser(raw string) *outputParser {
+func newOutputParser(packageName, raw string) *outputParser {
 	self := &outputParser{}
 	self.raw = strings.TrimSpace(raw)
 	self.lines = strings.Split(self.raw, "\n")
 	self.result = &PackageResult{}
+	self.result.PackageName = packageName
 	self.tests = []*TestResult{}
 	self.result.TestResults = []TestResult{}
 	return self
 }
 
 func (self *outputParser) Parse() *PackageResult {
-	self.gatherTestFunctionsAndMetadata()
-	self.parseTestFunctions()
-	self.attachTestFunctionsToResult()
+	self.separateTestFunctionsAndMetadata()
+	self.parseEachTestFunction()
+	self.attachParsedTestFunctionsToResult()
 	return self.result
 }
 
-func (self *outputParser) gatherTestFunctionsAndMetadata() {
+func (self *outputParser) separateTestFunctionsAndMetadata() {
 	for _, self.line = range self.lines {
-		self.processNextLine()
+		if self.processNonTestOutput() {
+			break
+		}
+		self.processTestOutput()
 	}
 }
-func (self *outputParser) processNextLine() {
-	if !self.parsingBuildOutput {
-		self.parsingBuildOutput = isFailedBuild(self.line)
-		if self.parsingBuildOutput {
-			self.result.PackageName = self.line[2:]
-		}
-	} else if isEndBuildOutput(self.line) {
-		self.parsingBuildOutput = false
-		return
-	}
+func (self *outputParser) processNonTestOutput() bool {
+	if noGoFiles(self.line) {
+		self.recordOutcome(noGo)
 
-	if self.parsingBuildOutput {
-		self.recordFailedBuild()
+	} else if buildFailed(self.line) {
+		self.recordOutcome(buildFailure)
+
+	} else if noTestFiles(self.line) {
+		self.recordOutcome(noTestFile)
 
 	} else if noTestFunctions(self.line) {
-		// no-op
+		self.recordOutcome(noTestFunction)
 
-	} else if noTestFiles(self.line) || noSourceFiles(self.line) {
-		self.recordEmptyPackage()
+	} else {
+		return false
+	}
+	return true
+}
 
-	} else if isNewTest(self.line) {
+func (self *outputParser) recordOutcome(outcome string) {
+	self.result.Outcome = outcome
+	self.result.BuildOutput = strings.Join(self.lines, "\n")
+}
+
+func (self *outputParser) processTestOutput() {
+	if isNewTest(self.line) {
 		self.registerTestFunction()
 
 	} else if isTestResult(self.line) {
@@ -66,57 +75,7 @@ func (self *outputParser) processNextLine() {
 
 	} else {
 		self.saveLineForParsingLater()
-	}
-}
 
-func noTestFunctions(line string) bool {
-	return line == "testing: warning: no tests to run"
-}
-
-func noTestFiles(line string) bool {
-	// TEST INPUT:
-	// ?   	pkg.smartystreets.net/liveaddress-zipapi	[no test files]
-	return strings.HasPrefix(line, "?") && strings.Contains(line, "[no test files]")
-}
-
-func noSourceFiles(line string) bool {
-	// TEST INPUT:
-	// can't load package: package github.com/smartystreets/goconvey: no Go source files in /Users/matt/Work/Dev/goconvey/src/github.com/smartystreets/goconvey
-	return strings.Index(line, "no Go source files") >= 0
-}
-
-func isNewTest(line string) bool {
-	return strings.HasPrefix(line, "=== ")
-}
-func isTestResult(line string) bool {
-	return strings.HasPrefix(line, "--- ")
-}
-func isPackageReport(line string) bool {
-	return (strings.HasPrefix(line, "FAIL") ||
-		strings.HasPrefix(line, "exit status") ||
-		strings.HasPrefix(line, "PASS") ||
-		strings.HasPrefix(line, "ok  \t"))
-}
-func isFailedBuild(line string) bool {
-	return strings.HasPrefix(line, "#")
-}
-func isEndBuildOutput(line string) bool {
-	return strings.HasPrefix(line, "FAIL\t") && strings.HasSuffix(line, "[build failed]")
-}
-
-func (self *outputParser) recordFailedBuild() {
-	self.result.BuildOutput += self.line + "\n"
-}
-
-func (self *outputParser) recordEmptyPackage() {
-	fields := strings.Split(self.line, "\t")
-	if len(fields) > 1 {
-		self.result.PackageName = fields[1]
-	} else {
-		before := "can't load package: package "
-		start := strings.Index(self.line, before) + len(before)
-		end := strings.Index(self.line[start:], ":")
-		self.result.PackageName = self.line[start : start+end]
 	}
 }
 
@@ -131,18 +90,13 @@ func (self *outputParser) recordTestMetadata() {
 	self.test.Passed = strings.HasPrefix(self.line, "--- PASS: ")
 	self.test.Elapsed = parseTestFunctionDuration(self.line)
 }
-func (self *outputParser) saveLineForParsingLater() {
-	self.line = strings.TrimSpace(self.line)
-	self.line = strings.Replace(self.line, "\u0009", "\t", -1)
-	self.test.rawLines = append(self.test.rawLines, self.line)
-}
 func (self *outputParser) recordPackageMetadata() {
 	if strings.HasPrefix(self.line, "FAIL\t") {
 		self.parseLastLine()
-		self.result.Passed = false
+		self.result.Outcome = failed
 	} else if strings.HasPrefix(self.line, "ok  \t") {
 		self.parseLastLine()
-		self.result.Passed = true
+		self.result.Outcome = passed
 	}
 }
 func (self *outputParser) parseLastLine() {
@@ -150,8 +104,16 @@ func (self *outputParser) parseLastLine() {
 	self.result.PackageName = strings.TrimSpace(fields[1])
 	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
 }
+func (self *outputParser) saveLineForParsingLater() {
+	self.line = strings.TrimSpace(self.line)
+	if self.test == nil {
+		fmt.Println("LINE:", self.line)
+		return
+	}
+	self.test.rawLines = append(self.test.rawLines, self.line)
+}
 
-func (self *outputParser) parseTestFunctions() {
+func (self *outputParser) parseEachTestFunction() {
 	for _, self.test = range self.tests {
 		if len(self.test.rawLines) == 0 {
 			continue
@@ -182,6 +144,7 @@ func (self *outputParser) deserializeScopes() {
 func (self *outputParser) parseGoTestMessage() {
 	// TODO: clean up!
 	if strings.HasPrefix(self.test.rawLines[0], "panic: ") {
+		self.result.Outcome = panicked
 		for i, line := range self.test.rawLines {
 			if strings.HasPrefix(line, "goroutine") && strings.Contains(line, "[running]") {
 				metaLine := self.test.rawLines[i+4]
@@ -208,7 +171,7 @@ func (self *outputParser) parseGoTestMessage() {
 	}
 }
 
-func (self *outputParser) attachTestFunctionsToResult() {
+func (self *outputParser) attachParsedTestFunctionsToResult() {
 	for _, test := range self.tests {
 		test.rawLines = []string{}
 		self.result.TestResults = append(self.result.TestResults, *test)
@@ -222,18 +185,27 @@ type outputParser struct {
 	tests  []*TestResult
 
 	// place holders for loops
-	line               string
-	test               *TestResult
-	parsingBuildOutput bool
+	line string
+	test *TestResult
 }
 
 type PackageResult struct {
 	PackageName string
 	Elapsed     float64
-	Passed      bool
-	TestResults []TestResult
+	Outcome     string
 	BuildOutput string
+	TestResults []TestResult
 }
+
+var (
+	passed         = "passed"
+	failed         = "failed"
+	panicked       = "panicked"
+	buildFailure   = "build failure"
+	noTestFile     = "no test files"
+	noTestFunction = "no test functions"
+	noGo           = "no go code"
+)
 
 type TestResult struct {
 	TestName string
@@ -246,4 +218,31 @@ type TestResult struct {
 	Stories  []reporting.ScopeResult
 
 	rawLines []string
+}
+
+func noGoFiles(line string) bool {
+	return strings.HasPrefix(line, "can't load package: ") &&
+		strings.Contains(line, ": no Go source files in ")
+}
+func buildFailed(line string) bool {
+	return strings.HasPrefix(line, "can't load package: ") &&
+		!strings.Contains(line, ": no Go source files in ")
+}
+func noTestFunctions(line string) bool {
+	return line == "testing: warning: no tests to run"
+}
+func noTestFiles(line string) bool {
+	return strings.HasPrefix(line, "?") && strings.Contains(line, "[no test files]")
+}
+func isNewTest(line string) bool {
+	return strings.HasPrefix(line, "=== ")
+}
+func isTestResult(line string) bool {
+	return strings.HasPrefix(line, "--- ")
+}
+func isPackageReport(line string) bool {
+	return (strings.HasPrefix(line, "FAIL") ||
+		strings.HasPrefix(line, "exit status") ||
+		strings.HasPrefix(line, "PASS") ||
+		strings.HasPrefix(line, "ok  \t"))
 }

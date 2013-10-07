@@ -7,29 +7,52 @@ import (
 	"testing"
 )
 
-func TestParsePackage_BuildFails(t *testing.T) {
-	actual := parsePackageResults(build_Fails)
-	assertEqual(t, expectedBuild_Fails, *actual)
-}
-
-func TestParsePackage_OldSchoolWithFailureOutput(t *testing.T) {
-	actual := parsePackageResults(inputOldSchool_Fails)
+func TestParsePackage_OldSchoolWithFailureOutput_ReturnsCompletePackageResult(t *testing.T) {
+	packageName := expectedOldSchool_Fails.PackageName
+	actual := parsePackageResults(packageName, inputOldSchool_Fails)
 	assertEqual(t, expectedOldSchool_Fails, *actual)
 }
 
-func TestParsePackage_OldSchoolWithSuccessOutput(t *testing.T) {
-	actual := parsePackageResults(inputOldSchool_Passes)
+func TestParsePackage_OldSchoolWithSuccessOutput_ReturnsCompletePackageResult(t *testing.T) {
+	packageName := expectedOldSchool_Passes.PackageName
+	actual := parsePackageResults(packageName, inputOldSchool_Passes)
 	assertEqual(t, expectedOldSchool_Passes, *actual)
 }
 
-func TestParsePackage_OldSchoolWithPanicOutput(t *testing.T) {
-	actual := parsePackageResults(inputOldSchool_Panics)
+func TestParsePackage_OldSchoolWithPanicOutput_ReturnsCompletePackageResult(t *testing.T) {
+	packageName := expectedOldSchool_Panics.PackageName
+	actual := parsePackageResults(packageName, inputOldSchool_Panics)
 	assertEqual(t, expectedOldSchool_Panics, *actual)
 }
 
-func TestParsePackage_GoConveyOutput(t *testing.T) {
-	actual := parsePackageResults(inputGoConvey)
+func TestParsePackage_GoConveyOutput_ReturnsCompletePackageResult(t *testing.T) {
+	packageName := expectedGoConvey.PackageName
+	actual := parsePackageResults(packageName, inputGoConvey)
 	assertEqual(t, expectedGoConvey, *actual)
+}
+
+func TestParsePackage_NoGoFiles_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_NoGoFiles.PackageName
+	actual := parsePackageResults(packageName, input_NoGoFiles)
+	assertEqual(t, expected_NoGoFiles, *actual)
+}
+
+func TestParsePackage_NoTestFiles_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_NoTestFiles.PackageName
+	actual := parsePackageResults(packageName, input_NoTestFiles)
+	assertEqual(t, expected_NoTestFiles, *actual)
+}
+
+func TestParsePacakge_NoTestFunctions_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_NoTestFunctions.PackageName
+	actual := parsePackageResults(packageName, input_NoTestFunctions)
+	assertEqual(t, expected_NoTestFunctions, *actual)
+}
+
+func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
+	packageName := expected_BuildFailed_InvalidPackageDeclaration.PackageName
+	actual := parsePackageResults(packageName, input_BuildFailed_InvalidPackageDeclaration)
+	assertEqual(t, expected_BuildFailed_InvalidPackageDeclaration, *actual)
 }
 
 func assertEqual(t *testing.T, expected, actual interface{}) {
@@ -40,19 +63,67 @@ func assertEqual(t *testing.T, expected, actual interface{}) {
 	}
 }
 
-const build_Fails = `
-# github.com/smartystreets/goconvey/web/server
-./parser.go:104: non-declaration statement outside function body
-./parser.go:104: syntax error: unexpected }
-FAIL	github.com/smartystreets/goconvey/web/server [build failed]
+const input_NoGoFiles = `can't load package: package github.com/smartystreets/goconvey: no Go source files in /Users/matt/Work/Dev/goconvey/src/github.com/smartystreets/goconvey`
+
+var expected_NoGoFiles = PackageResult{
+	PackageName: "github.com/smartystreets/goconvey",
+	Outcome:     noGo,
+	BuildOutput: input_NoGoFiles,
+	TestResults: []TestResult{},
+}
+
+const input_NoTestFiles = `?   	pkg.smartystreets.net/liveaddress-zipapi	[no test files]`
+
+var expected_NoTestFiles = PackageResult{
+	PackageName: "pkg.smartystreets.net/liveaddress-zipapi",
+	Outcome:     noTestFile,
+	BuildOutput: input_NoTestFiles,
+	TestResults: []TestResult{},
+}
+
+const input_NoTestFunctions = `testing: warning: no tests to run`
+
+var expected_NoTestFunctions = PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Outcome:     noTestFunction,
+	BuildOutput: input_NoTestFunctions,
+	TestResults: []TestResult{},
+}
+
+const input_BuildFailed_InvalidPackageDeclaration = `
+can't load package: package github.com/smartystreets/goconvey/examples:
+bowling_game_test.go:9:1: expected 'package', found 'IDENT' asdf
+bowling_game_test.go:10:1: invalid package name _
 `
 
-var expectedBuild_Fails = PackageResult{
-	PackageName: "github.com/smartystreets/goconvey/web/server",
-	Elapsed:     0,
-	Passed:      false,
+var expected_BuildFailed_InvalidPackageDeclaration = PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/examples",
+	Outcome:     buildFailure,
+	BuildOutput: strings.TrimSpace(input_BuildFailed_InvalidPackageDeclaration),
 	TestResults: []TestResult{},
-	BuildOutput: "# github.com/smartystreets/goconvey/web/server\n./parser.go:104: non-declaration statement outside function body\n./parser.go:104: syntax error: unexpected }\n",
+}
+
+const input_BuildFailed_OtherErrors = `
+# github.com/smartystreets/goconvey/examples
+./bowling_game_test.go:22: undefined: game
+./bowling_game_test.go:22: cannot assign to game
+./bowling_game_test.go:25: undefined: game
+./bowling_game_test.go:28: undefined: game
+./bowling_game_test.go:33: undefined: game
+./bowling_game_test.go:36: undefined: game
+./bowling_game_test.go:41: undefined: game
+./bowling_game_test.go:42: undefined: game
+./bowling_game_test.go:43: undefined: game
+./bowling_game_test.go:46: undefined: game
+./bowling_game_test.go:46: too many errors
+FAIL	github.com/smartystreets/goconvey/examples [build failed]
+`
+
+var expected_BuildFailed_OtherErrors = PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/examples",
+	Outcome:     buildFailure,
+	BuildOutput: input_BuildFailed_OtherErrors,
+	TestResults: []TestResult{},
 }
 
 const inputOldSchool_Passes = `
@@ -69,7 +140,7 @@ ok  	github.com/smartystreets/goconvey/webserver/examples	0.018s
 var expectedOldSchool_Passes = PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.018,
-	Passed:      true,
+	Outcome:     passed,
 	TestResults: []TestResult{
 		TestResult{
 			TestName: "TestOldSchool_Passes",
@@ -90,7 +161,6 @@ var expectedOldSchool_Passes = PackageResult{
 			Stories:  []reporting.ScopeResult{},
 		},
 	},
-	BuildOutput: "",
 }
 
 const inputOldSchool_Fails = `
@@ -112,8 +182,8 @@ FAIL	github.com/smartystreets/goconvey/webserver/examples	0.017s
 
 var expectedOldSchool_Fails = PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Outcome:     failed,
 	Elapsed:     0.017,
-	Passed:      false,
 	TestResults: []TestResult{
 		TestResult{
 			TestName: "TestOldSchool_Passes",
@@ -152,7 +222,6 @@ var expectedOldSchool_Fails = PackageResult{
 			Stories:  []reporting.ScopeResult{},
 		},
 	},
-	BuildOutput: "",
 }
 
 const inputOldSchool_Panics = `
@@ -185,7 +254,7 @@ FAIL	github.com/smartystreets/goconvey/webserver/examples	0.014s
 var expectedOldSchool_Panics = PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.014,
-	Passed:      false,
+	Outcome:     panicked,
 	TestResults: []TestResult{
 		TestResult{
 			TestName: "TestOldSchool_Panics",
@@ -217,7 +286,6 @@ main.main()
 			Stories: []reporting.ScopeResult{},
 		},
 	},
-	BuildOutput: "",
 }
 
 const inputGoConvey = `
@@ -246,7 +314,7 @@ ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
 var expectedGoConvey = PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.019,
-	Passed:      true,
+	Outcome:     passed,
 	TestResults: []TestResult{
 		TestResult{
 			TestName: "TestPassingStory",
@@ -275,7 +343,6 @@ var expectedGoConvey = PackageResult{
 			},
 		},
 	},
-	BuildOutput: "",
 }
 
 const failureTemplate = "Comparison failed:\n  Expected: %v\n    Actual: %v\n"

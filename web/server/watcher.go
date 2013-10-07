@@ -77,11 +77,9 @@ func exists(directory string) bool {
 }
 
 func reactToChanges() {
-	var busy bool
-	done, ready := make(chan bool), make(chan bool)
-
-	busy = true
-	go runTests(done)
+	busy := false
+	done := make(chan bool)
+	ready := make(chan bool)
 
 	for {
 		select {
@@ -111,19 +109,22 @@ func runTests(done chan bool) {
 	results := []*PackageResult{}
 	revision := md5.New()
 
+	fmt.Println("")
 	for path, _ := range watched {
-		fmt.Println("Running tests at:", path)
+		fmt.Printf("Running tests for: %s ...", path)
 		if err := os.Chdir(path); err != nil {
 			fmt.Println("Could not chdir to:", path)
 			continue
 		}
+
 		exec.Command("go", "test", "-i").Run()
 		output, _ := exec.Command("go", "test", "-v", "-timeout=-42s").CombinedOutput()
 		stringOutput := string(output)
-		fmt.Println(stringOutput)
 		io.WriteString(revision, stringOutput)
-		result := parsePackageResults(stringOutput)
-		fmt.Println("Result: ", result.Passed)
+		packageIndex := strings.Index(path, "/src/")
+		packageName := path[packageIndex+len("/src/"):]
+		result := parsePackageResults(packageName, stringOutput)
+		fmt.Printf("[%s]\n", result.Outcome)
 		results = append(results, result)
 	}
 
@@ -136,7 +137,6 @@ func runTests(done chan bool) {
 		fmt.Println("Problem serializing json test results!", err) // panic?
 	} else {
 		latestOutput = string(serialized)
-		fmt.Println(latestOutput)
 	}
 	done <- true
 }
