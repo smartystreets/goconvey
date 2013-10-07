@@ -17,10 +17,8 @@ func newOutputParser(packageName, raw string) *outputParser {
 	self := &outputParser{}
 	self.raw = strings.TrimSpace(raw)
 	self.lines = strings.Split(self.raw, "\n")
-	self.result = &PackageResult{}
-	self.result.PackageName = packageName
+	self.result = newPackageResult(packageName)
 	self.tests = []*TestResult{}
-	self.result.TestResults = []TestResult{}
 	return self
 }
 
@@ -80,10 +78,7 @@ func (self *outputParser) processTestOutput() {
 }
 
 func (self *outputParser) registerTestFunction() {
-	self.test = &TestResult{}
-	self.test.Stories = []reporting.ScopeResult{}
-	self.test.rawLines = []string{}
-	self.test.TestName = self.line[len("=== RUN "):]
+	self.test = newTestResult(self.line[len("=== RUN "):])
 	self.tests = append(self.tests, self.test)
 }
 func (self *outputParser) recordTestMetadata() {
@@ -120,7 +115,7 @@ func (self *outputParser) parseEachTestFunction() {
 		} else if isJson(self.test.rawLines[0]) {
 			self.deserializeScopes()
 		} else {
-			self.parseGoTestMessage()
+			self.parseAdditionalGoTestOutput()
 		}
 	}
 }
@@ -133,33 +128,48 @@ func (self *outputParser) deserializeScopes() {
 	}
 	self.test.Stories = scopes
 }
-func (self *outputParser) parseGoTestMessage() {
-	// TODO: clean up!
+func (self *outputParser) parseAdditionalGoTestOutput() {
 	if strings.HasPrefix(self.test.rawLines[0], "panic: ") {
-		self.result.Outcome = panicked
-		for i, line := range self.test.rawLines {
-			if strings.HasPrefix(line, "goroutine") && strings.Contains(line, "[running]") {
-				metaLine := self.test.rawLines[i+4]
-				fields := strings.Split(metaLine, " ")
-				fileAndLine := strings.Split(fields[0], ":")
-				self.test.File = fileAndLine[0]
-				self.test.Line, _ = strconv.Atoi(fileAndLine[1])
-			}
-			if strings.Contains(line, "+") || (i > 0 && strings.Contains(line, "panic: ")) {
-				self.test.rawLines[i] = "\t" + line
-			}
-		}
-		self.test.Error = strings.Join(self.test.rawLines, "\n")
+		self.parsePanicOutput()
 	} else {
-		lineFields := self.test.rawLines[0]
-		fields := strings.Split(lineFields, ":")
-		self.test.File = strings.TrimSpace(fields[0])
-		self.test.Line, _ = strconv.Atoi(fields[1])
-		self.test.Message = strings.TrimSpace(fields[2])
-		if len(self.test.rawLines) > 1 {
-			additionalLines := strings.Join(self.test.rawLines[1:], "\n")
-			self.test.Message = self.test.Message + "\n" + additionalLines
-		}
+		self.parseLoggedOutput()
+		self.compileCompleteMessage()
+	}
+}
+func (self *outputParser) parsePanicOutput() {
+	self.result.Outcome = panicked
+	for index, line := range self.test.rawLines {
+		self.parsePanicMetadata(index, line)
+		self.preserveStackTraceIndentation(index, line)
+	}
+	self.test.Error = strings.Join(self.test.rawLines, "\n")
+}
+func (self *outputParser) parsePanicMetadata(index int, line string) {
+	if !panicLineHasMetadata(line) {
+		return
+	}
+	metaLine := self.test.rawLines[index+4]
+	fields := strings.Split(metaLine, " ")
+	fileAndLine := strings.Split(fields[0], ":")
+	self.test.File = fileAndLine[0]
+	self.test.Line, _ = strconv.Atoi(fileAndLine[1])
+}
+func (self *outputParser) preserveStackTraceIndentation(index int, line string) {
+	if panicLineShouldBeIndented(index, line) {
+		self.test.rawLines[index] = "\t" + line
+	}
+}
+func (self *outputParser) parseLoggedOutput() {
+	lineFields := self.test.rawLines[0]
+	fields := strings.Split(lineFields, ":")
+	self.test.File = strings.TrimSpace(fields[0])
+	self.test.Line, _ = strconv.Atoi(fields[1])
+	self.test.Message = strings.TrimSpace(fields[2])
+}
+func (self *outputParser) compileCompleteMessage() {
+	if len(self.test.rawLines) > 1 {
+		additionalLines := strings.Join(self.test.rawLines[1:], "\n")
+		self.test.Message = self.test.Message + "\n" + additionalLines
 	}
 }
 
@@ -179,38 +189,6 @@ type outputParser struct {
 	// place holders for loops
 	line string
 	test *TestResult
-}
-
-type PackageResult struct {
-	PackageName string
-	Elapsed     float64
-	Outcome     string
-	BuildOutput string
-	TestResults []TestResult
-}
-
-var (
-	parseError     = "parse error"
-	passed         = "passed"
-	failed         = "failed"
-	panicked       = "panicked"
-	buildFailure   = "build failure"
-	noTestFile     = "no test files"
-	noTestFunction = "no test functions"
-	noGo           = "no go code"
-)
-
-type TestResult struct {
-	TestName string
-	Elapsed  float64
-	Passed   bool
-	File     string
-	Line     int
-	Message  string
-	Error    string
-	Stories  []reporting.ScopeResult
-
-	rawLines []string
 }
 
 func noGoFiles(line string) bool {
@@ -251,7 +229,6 @@ func packagePassed(line string) bool {
 func isJson(line string) bool {
 	return strings.HasPrefix(line, "{")
 }
-
 func createArrayForJsonItems(lines []string) []byte {
 	jsonArrayItems := strings.Join(lines, "")
 	jsonArrayItems = removeTrailingComma(jsonArrayItems)
@@ -265,6 +242,13 @@ func removeTrailingComma(rawJson string) string {
 }
 func trailingComma(value string) bool {
 	return strings.HasSuffix(value, ",")
+}
+
+func panicLineHasMetadata(line string) bool {
+	return strings.HasPrefix(line, "goroutine") && strings.Contains(line, "[running]")
+}
+func panicLineShouldBeIndented(index int, line string) bool {
+	return strings.Contains(line, "+") || (index > 0 && strings.Contains(line, "panic: "))
 }
 
 const bugReportRequest = `
