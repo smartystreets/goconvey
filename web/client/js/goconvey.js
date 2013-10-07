@@ -103,6 +103,8 @@ $(function()
 	{
 		$.getJSON("/latest", function(data, status, jqxhr)
 		{
+			$('#server-down').slideUp(convey.speed);
+
 			if (data.Revision == convey.revisionHash)
 				return;
 
@@ -297,6 +299,19 @@ $(function()
 					$('#spinner').hide();
 				});
 			});
+		}).fail(function(jqxhr, message, error)
+		{
+			// If the server is still just starting up... faux that.
+			if (jqxhr.responseText == "" && message == "parsererror")
+				message = "starting";
+
+			$('#server-down').remove();
+
+			$('header').after(render('tpl-server-down', {
+				jqxhr: jqxhr,
+				message: message,
+				error: error
+			}));
 		});
 	}
 	

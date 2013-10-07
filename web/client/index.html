@@ -29,6 +29,20 @@
 			</div>
 		</header>
 
+		<script id="tpl-server-down" type="text/template">
+			<div id="server-down">
+				<div class="grid-container">
+					<div class="prefix-20 grid-60 suffix-20">
+					{{if message|like>starting}}
+						Server is starting...
+					{{else}}
+						Server is down... waiting for it to come back up...
+					{{/if}}
+					</div>
+				</div>
+			</div>
+		</script>
+
 		
 		<script id="tpl-overall-ok" type="text/template">
 			<div class="overall ok clearfix templated">
