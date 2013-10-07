@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/parser"
 	"github.com/smartystreets/goconvey/web/server/results"
+	"hash"
 	"io"
 	"os"
 	"os/exec"
@@ -94,11 +95,10 @@ func reactToChanges() {
 			}
 
 		case err := <-watcher.Error:
-			fmt.Println(err)
+			panic(err)
 
 		case <-done:
-			// TODO: rethink this delay?
-			time.AfterFunc(1500*time.Millisecond, func() {
+			time.AfterFunc(500*time.Millisecond, func() {
 				ready <- true
 			})
 
@@ -109,37 +109,55 @@ func reactToChanges() {
 }
 
 func runTests(done chan bool) {
-	packageResults := []*results.PackageResult{}
 	revision := md5.New()
-
-	fmt.Println("")
-	for path, _ := range watched {
-		fmt.Printf("Running tests for: %s ...", path)
-		if err := os.Chdir(path); err != nil {
-			fmt.Println("Could not chdir to:", path)
-			continue
-		}
-
-		exec.Command("go", "test", "-i").Run()
-		output, _ := exec.Command("go", "test", "-v", "-timeout=-42s").CombinedOutput()
-		stringOutput := string(output)
-		io.WriteString(revision, stringOutput)
-		packageIndex := strings.Index(path, "/src/")
-		packageName := path[packageIndex+len("/src/"):]
-		result := parser.ParsePackageResults(packageName, stringOutput)
-		fmt.Printf("[%s]\n", result.Outcome)
-		packageResults = append(packageResults, result)
-	}
+	packageResults := aggregateResults(revision)
 
 	output := results.CompleteOutput{
 		Packages: packageResults,
 		Revision: hex.EncodeToString(revision.Sum(nil)),
 	}
+
+	remember(output)
+	done <- true
+}
+
+func aggregateResults(revision hash.Hash) []*results.PackageResult {
+	packageResults := []*results.PackageResult{}
+
+	fmt.Println("")
+	for path, _ := range watched {
+		stringOutput := executeTests(path)
+		io.WriteString(revision, stringOutput)
+		result := parseTestOutput(path, stringOutput)
+		packageResults = append(packageResults, result)
+	}
+	return packageResults
+}
+
+func executeTests(path string) string {
+	fmt.Printf("Running tests for: %s ...", path)
+	if err := os.Chdir(path); err != nil {
+		panic(fmt.Sprintf("Could not chdir to: %s", path))
+	}
+
+	exec.Command("go", "test", "-i").Run()
+	output, _ := exec.Command("go", "test", "-v", "-timeout=-42s").CombinedOutput()
+	return string(output)
+}
+
+func parseTestOutput(path, stringOutput string) *results.PackageResult {
+	packageIndex := strings.Index(path, "/src/")
+	packageName := path[packageIndex+len("/src/"):]
+	result := parser.ParsePackageResults(packageName, stringOutput)
+	fmt.Printf("[%s]\n", result.Outcome)
+	return result
+}
+
+func remember(output results.CompleteOutput) {
 	serialized, err := json.Marshal(output)
 	if err != nil {
-		fmt.Println("Problem serializing json test results!", err) // panic?
+		panic(err)
 	} else {
 		latestOutput = string(serialized)
 	}
-	done <- true
 }
