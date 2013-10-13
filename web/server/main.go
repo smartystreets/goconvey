@@ -39,7 +39,10 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir(static)))
 	http.HandleFunc("/watch", watchHandler)
 	http.HandleFunc("/latest", reportHandler)
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func reportHandler(writer http.ResponseWriter, request *http.Request) {

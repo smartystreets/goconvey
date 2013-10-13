@@ -5,22 +5,23 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/smartystreets/goconvey/web/server/parser"
-	"github.com/smartystreets/goconvey/web/server/results"
-	"hash"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/howeyc/fsnotify"
+	"github.com/smartystreets/goconvey/web/server/parser"
+	"github.com/smartystreets/goconvey/web/server/results"
 )
 
 func updateWatch(root string) {
-	addWatches(root)
-	removeWatches()
+	addNewWatches(root)
+	removeExpiredWatches()
 }
-func addWatches(root string) {
+func addNewWatches(root string) {
 	if rootWatch != root {
 		// TODO: set gopath...
 		adjustRoot(root)
@@ -29,26 +30,29 @@ func addWatches(root string) {
 	watchNestedPaths(root)
 }
 func adjustRoot(root string) {
+	clearAllWatches()
+	addWatch(root)
+	rootWatch = root
 	fmt.Println("Watching new root:", root)
+}
+func clearAllWatches() {
 	for path, _ := range watched {
 		removeWatch(path)
 	}
-	rootWatch = root
-	watch(root)
 }
 func watchNestedPaths(root string) {
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if matches, _ := filepath.Glob(filepath.Join(path, "*test.go")); len(matches) > 0 {
-			watch(path)
+			addWatch(path)
 		}
 		return nil
 	})
 }
-func watch(path string) {
+func addWatch(path string) {
 	if !watching(path) {
-		fmt.Println("Watching:", path)
 		watched[path] = true
 		watcher.Watch(path)
+		fmt.Println("Watching:", path)
 	}
 }
 
@@ -61,7 +65,7 @@ func watching(path string) bool {
 	return false
 }
 
-func removeWatches() {
+func removeExpiredWatches() {
 	for path, _ := range watched {
 		if !exists(path) {
 			removeWatch(path)
@@ -80,77 +84,114 @@ func exists(directory string) bool {
 }
 
 func reactToChanges() {
-	done, ready := make(chan bool), make(chan bool)
-	busy := true
+	// TODO: encapsulate in a struct to reduce parameter passing (and facilitate testing?)
 
+	done := make(chan bool)
 	go runTests(done)
+	engageWithFileSystem(done)
+}
+func engageWithFileSystem(done chan bool) {
+	busy := true
+	ready := make(chan bool)
 
 	for {
 		select {
-		case ev := <-watcher.Event:
-			updateWatch(rootWatch)
-			if strings.HasSuffix(ev.Name, ".go") && !busy {
-				busy = true
-				go runTests(done)
-			}
+		case event := <-watcher.Event:
+			busy = runFullTestSuite(event, busy, done)
 
 		case err := <-watcher.Error:
 			panic(err)
 
 		case <-done:
-			time.AfterFunc(500*time.Millisecond, func() {
-				ready <- true
-			})
+			prepareForNextTestRun(ready)
 
 		case <-ready:
 			busy = false
 		}
 	}
 }
+func runFullTestSuite(event *fsnotify.FileEvent, busy bool, done chan bool) bool {
+	updateWatch(rootWatch)
+	if strings.HasSuffix(event.Name, ".go") && !busy {
+		go runTests(done)
+		return true
+	}
+	return false
+}
+func prepareForNextTestRun(ready chan bool) {
+	time.AfterFunc(500*time.Millisecond, func() {
+		ready <- true
+	})
+}
 
 func runTests(done chan bool) {
-	revision := md5.New()
-	packageResults := aggregateResults(revision)
+	// TODO: encapsulate in a struct to avoid parameter passing (and facilitate testing?)
 
-	output := results.CompleteOutput{
+	input, output := make(chan string), make(chan *TestPackage)
+	spawnTestExecutors(input, output)
+	go scheduleTestExecution(input)
+	result := aggregateResults(output)
+	remember(result)
+	done <- true
+}
+func spawnTestExecutors(input chan string, output chan *TestPackage) {
+	for i := 0; i < len(watched); i++ {
+		go worker(input, output)
+	}
+}
+func worker(in chan string, out chan *TestPackage) {
+	for path := range in {
+		out <- executeTests(path)
+	}
+}
+func scheduleTestExecution(input chan string) {
+	for folder, _ := range watched {
+		input <- folder
+	}
+}
+func aggregateResults(output chan *TestPackage) results.CompleteOutput {
+	revision := md5.New()
+	var packageResults []*results.PackageResult
+
+	for _ = range watched {
+		result := <-output
+		io.WriteString(revision, result.Path)
+		packageResults = append(packageResults, result.Parsed)
+		fmt.Printf("Result for %s: [%s]\n", result.Parsed.PackageName, result.Parsed.Outcome)
+	}
+
+	return results.CompleteOutput{
 		Packages: packageResults,
 		Revision: hex.EncodeToString(revision.Sum(nil)),
 	}
-
-	remember(output)
-	done <- true
 }
 
-func aggregateResults(revision hash.Hash) []*results.PackageResult {
-	packageResults := []*results.PackageResult{}
-
-	fmt.Println("")
-	for path, _ := range watched {
-		stringOutput := executeTests(path)
-		io.WriteString(revision, stringOutput)
-		result := parseTestOutput(path, stringOutput)
-		packageResults = append(packageResults, result)
-	}
-	return packageResults
-}
-
-func executeTests(path string) string {
-	fmt.Printf("Running tests for: %s ...", path)
-	if err := os.Chdir(path); err != nil {
-		panic(fmt.Sprintf("Could not chdir to: %s", path))
-	}
-
-	exec.Command("go", "test", "-i").Run()
-	output, _ := exec.Command("go", "test", "-v", "-timeout=-42s").CombinedOutput()
-	return string(output)
-}
-
-func parseTestOutput(path, stringOutput string) *results.PackageResult {
-	packageIndex := strings.Index(path, "/src/")
-	packageName := path[packageIndex+len("/src/"):]
+func executeTests(path string) *TestPackage {
+	buildDependencies()
+	packageName := resolvePackageName(path)
+	stringOutput := testPackage(packageName)
 	result := parser.ParsePackageResults(packageName, stringOutput)
-	fmt.Printf("[%s]\n", result.Outcome)
-	return result
+
+	return &TestPackage{
+		Path:   path,
+		Output: stringOutput,
+		Parsed: result,
+	}
+}
+func buildDependencies() {
+	for path, _ := range watched {
+		packageName := resolvePackageName(path)
+		exec.Command("go", "test", "-i", packageName).Run()
+	}
+}
+func resolvePackageName(path string) string {
+	index := strings.Index(path, "/src/")
+	return path[index+len("/src/"):]
+}
+func testPackage(name string) string {
+	fmt.Printf("Testing %s ...\n", name)
+	output, _ := exec.Command("go", "test", "-v", "-timeout=-42s", name).CombinedOutput()
+	return string(output)
 }
 
 func remember(output results.CompleteOutput) {
@@ -160,4 +201,10 @@ func remember(output results.CompleteOutput) {
 	} else {
 		latestOutput = string(serialized)
 	}
+}
+
+type TestPackage struct {
+	Path   string
+	Output string
+	Parsed *results.PackageResult
 }
