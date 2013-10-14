@@ -1,5 +1,5 @@
 GoConvey makes Go testing awesome
-=============================
+=================================
 
 Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure.
 
@@ -245,57 +245,57 @@ Here's the listing of assertions that this project aims to implement
 | Assertions
 |--------------------------------------------------------------
 | __General Equality__
-| So(thing, ShouldEqual, thing2)
-| So(thing, ShouldNotEqual, thing2)
-| So(thing, ShouldResemble, thing2)
-| So(thing, ShouldNotResemble, thing2)
-| So(thing, ShouldPointTo, thing2)
-| So(thing, ShouldNotPointTo, thing2)
-| So(thing, ShouldBeNil, thing2)
-| So(thing, ShouldNotBeNil, thing2)
-| So(thing, ShouldBeTrue)
-| So(thing, ShouldBeFalse)
+| `So(thing, ShouldEqual, thing2)`
+| `So(thing, ShouldNotEqual, thing2)`
+| `So(thing, ShouldResemble, thing2)`
+| `So(thing, ShouldNotResemble, thing2)`
+| `So(thing, ShouldPointTo, thing2)`
+| `So(thing, ShouldNotPointTo, thing2)`
+| `So(thing, ShouldBeNil, thing2)`
+| `So(thing, ShouldNotBeNil, thing2)`
+| `So(thing, ShouldBeTrue)`
+| `So(thing, ShouldBeFalse)`
 | __Numeric Quantity comparison__
-| So(1, ShouldBeGreaterThan, 0)
-| So(1, ShouldBeGreaterThanOrEqualTo, 0)
-| So(1, ShouldBeLessThan, 2)
-| So(1, ShouldBeLessThanOrEqualTo, 2)
-| So(1.1, ShouldBeBetween, .8, 1.2)
-| So(1.1, ShouldNotBeBetween, 2, 3)
-| So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)
-| So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)
+| `So(1, ShouldBeGreaterThan, 0)`
+| `So(1, ShouldBeGreaterThanOrEqualTo, 0)`
+| `So(1, ShouldBeLessThan, 2)`
+| `So(1, ShouldBeLessThanOrEqualTo, 2)`
+| `So(1.1, ShouldBeBetween, .8, 1.2)`
+| `So(1.1, ShouldNotBeBetween, 2, 3)`
+| `So(1.1, ShouldBeBetweenOrEqual, .9, 1.1)`
+| `So(1.1, ShouldNotBeBetweenOrEqual, 1000, 2000)`
 | __Collections__
-| So([]int{2, 4, 6}, ShouldContain, 4)
-| So([]int{2, 4, 6}, ShouldNotContain, 5)
-| So(4, ShouldBeIn, ...[]int{2, 4, 6})
-| So(4, ShouldNotBeIn, ...[]int{1, 3, 5})
+| `So([]int{2, 4, 6}, ShouldContain, 4)`
+| `So([]int{2, 4, 6}, ShouldNotContain, 5)`
+| `So(4, ShouldBeIn, ...[]int{2, 4, 6})`
+| `So(4, ShouldNotBeIn, ...[]int{1, 3, 5})`
 | __Strings__ (and []byte?)
-| So("asdf", ShouldStartWith, "as")
-| So("asdf", ShouldNotStartWith, "df")
-| So("asdf", ShouldEndWith, "df")
-| So("asdf", ShouldNotEndWith, "df")
-| So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments?
-| So("asdf", ShouldNotContain, "er")
-| So("adsf", ShouldBeBlank)
-| So("asdf", ShouldNotBeBlank)
+| `So("asdf", ShouldStartWith, "as")`
+| `So("asdf", ShouldNotStartWith, "df")`
+| `So("asdf", ShouldEndWith, "df")`
+| `So("asdf", ShouldNotEndWith, "df")`
+| `So("asdf", ShouldContain, "sd")  // optional 'expected occurences' arguments?`
+| `So("asdf", ShouldNotContain, "er")`
+| `So("adsf", ShouldBeBlank)`
+| `So("asdf", ShouldNotBeBlank)`
 | __panics__
-| So(func(), ShouldPanic)
-| So(func(), ShouldNotPanic)
-| So(func(), ShouldPanicWith, "") // or errors.New("something")
-| So(func(), ShouldNotPanicWith, "") // or errors.New("something")
+| `So(func(), ShouldPanic)`
+| `So(func(), ShouldNotPanic)`
+| `So(func(), ShouldPanicWith, "") // or errors.New("something")`
+| `So(func(), ShouldNotPanicWith, "") // or errors.New("something")`
 | __Type checking__
-| So(1, ShouldHaveSameTypeAs, 0)
-| So(1, ShouldNotHaveSameTypeAs, "asdf")
+| `So(1, ShouldHaveSameTypeAs, 0)`
+| `So(1, ShouldNotHaveSameTypeAs, "asdf")`
 | __time__
-| So(time.Now(), ShouldHappenBefore, time.Now())
-| So(time.Now(), ShouldHappenOnOrBefore, time.Now())
-| So(time.Now(), ShouldHappenAfter, time.Now())
-| So(time.Now(), ShouldHappenOnOrAfter, time.Now())
-| So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())
-| So(time.Now(), ShouldHappenOnOrBetween, time.Now(), time.Now())
-| So(time.Now(), ShouldNotHappenOnOrBetween, time.Now(), time.Now())
-| So(time.New(), ShouldHappenWithin, duration, time.Now())
-| So(time.New(), ShouldNotHappenWithin, duration, time.Now())
+| `So(time.Now(), ShouldHappenBefore, time.Now())`
+| `So(time.Now(), ShouldHappenOnOrBefore, time.Now())`
+| `So(time.Now(), ShouldHappenAfter, time.Now())`
+| `So(time.Now(), ShouldHappenOnOrAfter, time.Now())`
+| `So(time.Now(), ShouldHappenBetween, time.Now(), time.Now())`
+| `So(time.Now(), ShouldHappenOnOrBetween, time.Now(), time.Now())`
+| `So(time.Now(), ShouldNotHappenOnOrBetween, time.Now(), time.Now())`
+| `So(time.New(), ShouldHappenWithin, duration, time.Now())`
+| `So(time.New(), ShouldNotHappenWithin, duration, time.Now())`
 
 Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 
 [oglematchers](https://github.com/smartystreets/oglmatchers) library, which
