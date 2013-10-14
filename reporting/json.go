@@ -91,14 +91,11 @@ func newScopeResult(title string, depth int, file string, line int) *ScopeResult
 }
 
 type AssertionResult struct {
-	File    string
-	Line    int
-	Failure string
-	Error   interface{}
-	Skipped bool
-
-	// TODO: I'm going to have to parse this turn it into a structure that
-	// can accomodate turning the file paths into urls when templated...
+	File       string
+	Line       int
+	Failure    string
+	Error      interface{}
+	Skipped    bool
 	StackTrace string
 }
 

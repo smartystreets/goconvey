@@ -16,8 +16,6 @@ import (
 )
 
 func reactToChanges() {
-	// TODO: encapsulate in a struct to reduce parameter passing (and facilitate testing?)
-
 	busy := true
 	ready := make(chan bool)
 
@@ -75,8 +73,6 @@ func watchRemoved(event *fsnotify.FileEvent) bool {
 }
 
 func runTests(done chan bool) {
-	// TODO: encapsulate in a struct to avoid parameter passing (and facilitate testing?)
-
 	updateWatch(rootWatch)
 	input, output := make(chan string), make(chan *TestPackage)
 	spawnTestExecutors(input, output)
