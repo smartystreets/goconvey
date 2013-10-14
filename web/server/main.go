@@ -13,6 +13,7 @@ import (
 func init() {
 	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
 	watched = make(map[string]bool)
+	done = make(chan bool)
 
 	var err error
 	watcher, err = fsnotify.NewWatcher()
@@ -69,6 +70,7 @@ func watchHandler(writer http.ResponseWriter, request *http.Request) {
 		http.Error(writer, "The 'root' value provided is not an existing directory.", http.StatusNotFound)
 	} else {
 		updateWatch(newRoot)
+		go runTests(done)
 	}
 }
 
@@ -78,4 +80,5 @@ var (
 	rootWatch    string
 	watched      map[string]bool
 	watcher      *fsnotify.Watcher
+	done         chan bool
 )

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func updateWatch(root string) {
@@ -12,11 +13,25 @@ func updateWatch(root string) {
 }
 func addNewWatches(root string) {
 	if rootWatch != root {
-		// TODO: set gopath...
+		setGoPath(root)
 		adjustRoot(root)
 	}
 
 	watchNestedPaths(root)
+}
+func setGoPath(root string) {
+	goPath := root
+	fmt.Println("GOPATH (before):", os.Getenv("GOPATH"))
+	index := strings.Index(root, "/src")
+	if index > -1 {
+		goPath = root[:index]
+	}
+	err := os.Setenv("GOPATH", goPath)
+	if err != nil {
+		fmt.Println("Error setting GOPATH:", err)
+	}
+
+	fmt.Println("GOPATH (after):", os.Getenv("GOPATH"))
 }
 func adjustRoot(root string) {
 	clearAllWatches()
@@ -31,7 +46,7 @@ func clearAllWatches() {
 }
 func watchNestedPaths(root string) {
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if matches, _ := filepath.Glob(filepath.Join(path, "*test.go")); len(matches) > 0 {
+		if matches, _ := filepath.Glob(filepath.Join(path, "*.go")); len(matches) > 0 {
 			addWatch(path)
 		}
 		return nil

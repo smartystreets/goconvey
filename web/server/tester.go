@@ -19,7 +19,7 @@ func reactToChanges() {
 	// TODO: encapsulate in a struct to reduce parameter passing (and facilitate testing?)
 
 	busy := true
-	done, ready := make(chan bool), make(chan bool)
+	ready := make(chan bool)
 
 	go runTests(done)
 
