@@ -1,12 +1,12 @@
-GoConvey is awesome BDD in Go
+GoConvey makes Go testing awesome
 =============================
 
-Welcome to GoConvey, a yummy BDD tool for gophers. Use it in the browser or in the terminal. Either way you choose, the output is a pleasure to read and work with.
+Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure.
 
 **Features:**
 
-- Huge suite of regression tests
 - Directly integrates with `go test`
+- Huge suite of regression tests
 - Readable, colorized console output (understandable by any manager, IT or not)
 - Fully-automatic web UI (works with native Go tests, too)
 - Test code generator
@@ -58,6 +58,8 @@ func TestSpec(t *testing.T) {
 }
 ```
 
+### In the browser
+
 Start up the GoConvey web server at your project's path:
 
     $ $GOPATH/bin/server
@@ -68,15 +70,18 @@ Then open your browser to:
 
 There you have it. As long as GoConvey is running, test results will automatically update in your browser window. The design is responsive, so you can squish the browser real tight if you need to put it beside your code.
 
-Want to use the terminal instead? Just do what you do best:
+The browser UI supports traditional Go tests, so feel free to use it even if you're not using the GoConvey style of testing.
+
+
+### In the terminal
+
+Just do what you do best:
 
     $ go test
 
 Or if you want the output to include the story:
 
     $ go test -v
-
-If not all your tests are yet written in GoConvey, the web UI you opened in your browser also works for traditional Go tests! (But it's not quite as cool that way.)
 
 
 Web UI
@@ -104,11 +109,12 @@ Terminal output (with `go test -v`):
 Writing tests
 -------------
 
-See the [examples folder](https://github.com/smartystreets/goconvey/tree/master/examples).
-We recommend reviewing [isolated_execution_test.go](https://github.com/smartystreets/goconvey/blob/master/convey/isolated_execution_test.go) for a more thorough understanding of how tests are
-composed, and how they actually work.
+You can write GoConvey tests manually or with a nice code generator.
 
-For an easier way: open your browser to the web UI and click "Code Gen" in the top-right. Then describe your program's behavior in a natural, flowing way, for example (make sure you convert indents to tabs, as GitHub transformed them to spaces):
+
+### Code Generator
+
+From the web UI served by GoConvey, click "Code Gen" in the top-right. Then describe your program's behavior in a natural, flowing way, for example (make sure you convert indents to tabs, as GitHub transformed them to spaces):
 
 
 	TestSpec
@@ -128,6 +134,13 @@ are a few things to notice about this:
 - Lines starting with "Test" (case-sensitive), without indentation, are treated as the name of the function in which all nested tests will be included
 - Indentation defines scope
 - Assertions are not made here; you'll do that later after pasting the generated code into your `_test.go` file.
+
+
+### Manually
+
+See the [examples folder](https://github.com/smartystreets/goconvey/tree/master/examples).
+We recommend reviewing [isolated_execution_test.go](https://github.com/smartystreets/goconvey/blob/master/convey/isolated_execution_test.go) for a more thorough understanding of how tests are
+composed and how they actually work.
 
 
 
@@ -389,5 +402,5 @@ temporary code alterations.
 Contributors (Thanks!):
 -----------------------
 
-#### [Michael Whatcott](https://github.com/mdwhatcott)
-#### [Matt Holt](https://github.com/mholt)
+ - [Michael Whatcott](https://github.com/mdwhatcott)
+ - [Matt Holt](https://github.com/mholt)
