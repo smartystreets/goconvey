@@ -11,7 +11,7 @@ import (
 
 func parseTestOutput(test *results.TestResult) *results.TestResult {
 	parser := newTestParser(test)
-	parser.parse()
+	parser.parseTestFunctionOutput()
 	return test
 }
 
@@ -21,18 +21,47 @@ func newTestParser(test *results.TestResult) *testParser {
 	return self
 }
 
-func (self *testParser) parse() {
-	if len(self.test.RawLines) == 0 {
-		return
-	} else if isJson(self.test.RawLines[0]) {
-		self.deserializeScopes()
-	} else {
-		self.parseAdditionalGoTestOutput()
+func (self *testParser) parseTestFunctionOutput() {
+	if len(self.test.RawLines) > 0 {
+		self.processLines()
+		self.deserializeJson()
+		self.composeCapturedOutput()
 	}
 }
 
-func (self *testParser) deserializeScopes() {
-	formatted := createArrayForJsonItems(self.test.RawLines)
+func (self *testParser) processLines() {
+	for self.index, self.line = range self.test.RawLines {
+		if !self.processLine() {
+			break
+		}
+	}
+}
+
+func (self *testParser) processLine() bool {
+	if self.line == reporting.OpenJson {
+		self.inJson = true
+
+	} else if self.line == reporting.CloseJson {
+		self.inJson = false
+
+	} else if self.inJson {
+		self.jsonLines = append(self.jsonLines, self.line)
+
+	} else if isPanic(self.line) {
+		self.parsePanicOutput()
+		return false
+
+	} else if isGoTestLogOutput(self.line) {
+		self.parseLogLocation()
+
+	} else {
+		self.otherLines = append(self.otherLines, self.line)
+	}
+	return true
+}
+
+func (self *testParser) deserializeJson() {
+	formatted := createArrayForJsonItems(self.jsonLines)
 	var scopes []reporting.ScopeResult
 	err := json.Unmarshal(formatted, &scopes)
 	if err != nil {
@@ -40,22 +69,14 @@ func (self *testParser) deserializeScopes() {
 	}
 	self.test.Stories = scopes
 }
-func (self *testParser) parseAdditionalGoTestOutput() {
-	if strings.HasPrefix(self.test.RawLines[0], "panic: ") {
-		self.parsePanicOutput()
-	} else {
-		self.parseLoggedOutput()
-		self.compileCompleteMessage()
-	}
-}
 func (self *testParser) parsePanicOutput() {
-	for index, line := range self.test.RawLines {
-		self.parsePanicMetadata(index, line)
+	for index, line := range self.test.RawLines[self.index:] {
+		self.parsePanicLocation(index, line)
 		self.preserveStackTraceIndentation(index, line)
 	}
 	self.test.Error = strings.Join(self.test.RawLines, "\n")
 }
-func (self *testParser) parsePanicMetadata(index int, line string) {
+func (self *testParser) parsePanicLocation(index int, line string) {
 	if !panicLineHasMetadata(line) {
 		return
 	}
@@ -70,22 +91,25 @@ func (self *testParser) preserveStackTraceIndentation(index int, line string) {
 		self.test.RawLines[index] = "\t" + line
 	}
 }
-func (self *testParser) parseLoggedOutput() {
-	lineFields := self.test.RawLines[0]
+func (self *testParser) parseLogLocation() {
+	self.otherLines = append(self.otherLines, self.line)
+	lineFields := self.line
 	fields := strings.Split(lineFields, ":")
 	self.test.File = strings.TrimSpace(fields[0])
 	self.test.Line, _ = strconv.Atoi(fields[1])
-	self.test.Message = strings.TrimSpace(fields[2])
 }
-func (self *testParser) compileCompleteMessage() {
-	if len(self.test.RawLines) > 1 {
-		additionalLines := strings.Join(self.test.RawLines[1:], "\n")
-		self.test.Message = self.test.Message + "\n" + additionalLines
-	}
+
+func (self *testParser) composeCapturedOutput() {
+	self.test.Message = strings.Join(self.otherLines, "\n")
 }
 
 type testParser struct {
-	test *results.TestResult
+	test       *results.TestResult
+	line       string
+	index      int
+	inJson     bool
+	jsonLines  []string
+	otherLines []string
 }
 
 func isJson(line string) bool {
@@ -104,6 +128,14 @@ func removeTrailingComma(rawJson string) string {
 }
 func trailingComma(value string) bool {
 	return strings.HasSuffix(value, ",")
+}
+
+func isGoTestLogOutput(line string) bool {
+	return strings.Count(line, ":") == 2
+}
+
+func isPanic(line string) bool {
+	return strings.HasPrefix(line, "panic: ")
 }
 
 func panicLineHasMetadata(line string) bool {

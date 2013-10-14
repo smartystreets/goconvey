@@ -33,15 +33,14 @@ func NewPackageResult(packageName string) *PackageResult {
 }
 
 type TestResult struct {
-	TestName       string
-	Elapsed        float64
-	Passed         bool
-	File           string
-	Line           int
-	Message        string
-	Error          string
-	Stories        []reporting.ScopeResult
-	CapturedOutput string
+	TestName string
+	Elapsed  float64
+	Passed   bool
+	File     string
+	Line     int
+	Message  string
+	Error    string
+	Stories  []reporting.ScopeResult
 
 	RawLines []string `json:",omitempty"`
 }

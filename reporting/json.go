@@ -39,6 +39,7 @@ func (self *jsonReporter) EndStory() {
 	self.reset()
 }
 func (self *jsonReporter) report() {
+	self.out.Print(OpenJson + "\n")
 	scopes := []string{}
 	for _, scope := range self.scopes {
 		serialized, _ := json.Marshal(scope)
@@ -47,6 +48,7 @@ func (self *jsonReporter) report() {
 		scopes = append(scopes, buffer.String())
 	}
 	self.out.Print(strings.Join(scopes, ",") + ",\n")
+	self.out.Print(CloseJson + "\n")
 }
 func (self *jsonReporter) reset() {
 	self.titlesById = make(map[string]string)
@@ -110,3 +112,6 @@ func newAssertionResult(report *AssertionReport) AssertionResult {
 	self.Skipped = report.Skipped
 	return self
 }
+
+const OpenJson = ">>>>>"  // "⌦"
+const CloseJson = "<<<<<" // "⌫"

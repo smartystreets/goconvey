@@ -82,6 +82,12 @@ func TestParsePackage_GoConveyOutputMalformed_CausesPanic(t *testing.T) {
 	ParsePackageResults(expectedGoConvey.PackageName, inputGoConvey_Malformed)
 }
 
+func TestParsePackage_GoConveyWithRandomOutput_ReturnsPackageResult(t *testing.T) {
+	packageName := expectedGoConvey_WithRandomOutput.PackageName
+	actual := ParsePackageResults(packageName, inputGoConvey_WithRandomOutput)
+	assertEqual(t, expectedGoConvey_WithRandomOutput, *actual)
+}
+
 func assertEqual(t *testing.T, expected, actual interface{}) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
@@ -184,7 +190,7 @@ var expectedOldSchool_Passes = results.PackageResult{
 			Passed:   true,
 			File:     "old_school_test.go",
 			Line:     10,
-			Message:  "I am a passing test.\nWith a newline.",
+			Message:  "old_school_test.go:10: I am a passing test.\nWith a newline.",
 			Stories:  []reporting.ScopeResult{},
 		},
 	},
@@ -227,7 +233,7 @@ var expectedOldSchool_Fails = results.PackageResult{
 			Passed:   true,
 			File:     "old_school_test.go",
 			Line:     10,
-			Message:  "I am a passing test.\nWith a newline.",
+			Message:  "old_school_test.go:10: I am a passing test.\nWith a newline.",
 			Stories:  []reporting.ScopeResult{},
 		},
 		results.TestResult{
@@ -245,7 +251,7 @@ var expectedOldSchool_Fails = results.PackageResult{
 			Passed:   false,
 			File:     "old_school_test.go",
 			Line:     18,
-			Message:  "I am a failing test.",
+			Message:  "old_school_test.go:18: I am a failing test.",
 			Stories:  []reporting.ScopeResult{},
 		},
 	},
@@ -317,6 +323,7 @@ main.main()
 
 const inputGoConvey_Malformed = `
 === RUN TestPassingStory
+>>>>>
 {
   "Title": "A passing story",
   "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
@@ -336,6 +343,7 @@ const inputGoConvey_Malformed = `
     }
   ]
 },
+<<<<<
 --- PASS: TestPassingStory (0.01 seconds)
 PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
@@ -343,6 +351,7 @@ ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
 
 const inputGoConvey = `
 === RUN TestPassingStory
+>>>>>
 {
   "Title": "A passing story",
   "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
@@ -359,6 +368,7 @@ const inputGoConvey = `
     }
   ]
 },
+<<<<<
 --- PASS: TestPassingStory (0.01 seconds)
 PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
@@ -390,6 +400,105 @@ var expectedGoConvey = results.PackageResult{
 							Error:      nil,
 							Skipped:    false,
 							StackTrace: "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/webserver/examples.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:10 +0xe3\ngithub.com/smartystreets/goconvey/webserver/examples.TestPassingStory(0x210314000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go:11 +0xec\ntesting.tRunner(0x210314000, 0x21ab10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n",
+						},
+					},
+				},
+			},
+		},
+	},
+}
+
+const inputGoConvey_WithRandomOutput = `
+=== RUN TestPassingStory
+*** Hello, World! (1) ***
+*** Hello, World! (2) ***
+*** Hello, World! (3) ***
+>>>>>
+{
+  "Title": "A passing story",
+  "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+  "Line": 16,
+  "Depth": 0,
+  "Assertions": [
+    {
+      "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+      "Line": 14,
+      "Failure": "",
+      "Error": null,
+      "Skipped": false,
+      "StackTrace": "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/web/server/testing.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:14 +0x186\ngithub.com/smartystreets/goconvey/web/server/testing.TestPassingStory(0x210315000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:16 +0x1b9\ntesting.tRunner(0x210315000, 0x21bb10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n"
+    }
+  ]
+},
+<<<<<
+*** Hello, World! (4)***
+*** Hello, World! (5) ***
+>>>>>
+{
+  "Title": "A passing story",
+  "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+  "Line": 22,
+  "Depth": 0,
+  "Assertions": [
+    {
+      "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+      "Line": 20,
+      "Failure": "",
+      "Error": null,
+      "Skipped": false,
+      "StackTrace": "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/web/server/testing.func·002()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:20 +0x186\ngithub.com/smartystreets/goconvey/web/server/testing.TestPassingStory(0x210315000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:22 +0x294\ntesting.tRunner(0x210315000, 0x21bb10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n"
+    }
+  ]
+},
+<<<<<
+*** Hello, World! (6) ***
+--- PASS: TestPassingStory (0.03 seconds)
+PASS
+ok  	github.com/smartystreets/goconvey/web/server/testing	0.024s
+`
+
+var expectedGoConvey_WithRandomOutput = results.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/web/server/testing",
+	Elapsed:     0.024,
+	Outcome:     results.Passed,
+	TestResults: []results.TestResult{
+		results.TestResult{
+			TestName: "TestPassingStory",
+			Elapsed:  0.03,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "*** Hello, World! (1) ***\n*** Hello, World! (2) ***\n*** Hello, World! (3) ***\n*** Hello, World! (4)***\n*** Hello, World! (5) ***\n*** Hello, World! (6) ***",
+			Stories: []reporting.ScopeResult{
+				reporting.ScopeResult{
+					Title: "A passing story",
+					File:  "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+					Line:  16,
+					Depth: 0,
+					Assertions: []reporting.AssertionResult{
+						reporting.AssertionResult{
+							File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+							Line:       14,
+							Failure:    "",
+							Error:      nil,
+							Skipped:    false,
+							StackTrace: "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/web/server/testing.func·001()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:14 +0x186\ngithub.com/smartystreets/goconvey/web/server/testing.TestPassingStory(0x210315000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:16 +0x1b9\ntesting.tRunner(0x210315000, 0x21bb10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n",
+						},
+					},
+				},
+				reporting.ScopeResult{
+					Title: "A passing story",
+					File:  "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+					Line:  22,
+					Depth: 0,
+					Assertions: []reporting.AssertionResult{
+						reporting.AssertionResult{
+							File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
+							Line:       20,
+							Failure:    "",
+							Error:      nil,
+							Skipped:    false,
+							StackTrace: "goroutine 3 [running]:\ngithub.com/smartystreets/goconvey/web/server/testing.func·002()\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:20 +0x186\ngithub.com/smartystreets/goconvey/web/server/testing.TestPassingStory(0x210315000)\n\u0009/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go:22 +0x294\ntesting.tRunner(0x210315000, 0x21bb10)\n\u0009/usr/local/go/src/pkg/testing/testing.go:353 +0x8a\ncreated by testing.RunTests\n\u0009/usr/local/go/src/pkg/testing/testing.go:433 +0x86b\n",
 						},
 					},
 				},
@@ -439,5 +548,34 @@ GoConvey style tests:
 			So("This test passes", ShouldContainSubstring, "pass")
 		})
 	}
+
+GoConvey style tests with random output:
+
+	package examples
+
+	import (
+		"fmt"
+		. "github.com/smartystreets/goconvey/convey"
+		"testing"
+	)
+
+	func TestPassingStory(t *testing.T) {
+		fmt.Println("*** Hello, World! (1) ***")
+
+		Convey("A passing story", t, func() {
+			fmt.Println("*** Hello, World! (2) ***")
+			So("This test passes", ShouldContainSubstring, "pass")
+			fmt.Println("*** Hello, World! (3) ***")
+		})
+
+		Convey("A passing story", t, func() {
+			fmt.Println("*** Hello, World! (4)***")
+			So("This test passes", ShouldContainSubstring, "pass")
+			fmt.Println("*** Hello, World! (5) ***")
+		})
+
+		fmt.Println("*** Hello, World! (6) ***")
+	}
+
 
 */
