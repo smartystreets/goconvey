@@ -1,11 +1,8 @@
 package parser
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/smartystreets/goconvey/reporting"
 	"github.com/smartystreets/goconvey/web/server/results"
-	"strconv"
 	"strings"
 )
 
@@ -26,7 +23,6 @@ func newOutputParser(packageName, raw string) *outputParser {
 func (self *outputParser) parse() *results.PackageResult {
 	self.separateTestFunctionsAndMetadata()
 	self.parseEachTestFunction()
-	self.attachParsedTestFunctionsToResult()
 	return self.result
 }
 
@@ -111,73 +107,12 @@ func (self *outputParser) saveLineForParsingLater() {
 
 func (self *outputParser) parseEachTestFunction() {
 	for _, self.test = range self.tests {
-		if len(self.test.RawLines) == 0 {
-			continue
-		} else if isJson(self.test.RawLines[0]) {
-			self.deserializeScopes()
-		} else {
-			self.parseAdditionalGoTestOutput()
+		self.test = parseTestOutput(self.test)
+		if self.test.Error != "" {
+			self.result.Outcome = results.Panicked
 		}
-	}
-}
-func (self *outputParser) deserializeScopes() {
-	formatted := createArrayForJsonItems(self.test.RawLines)
-	var scopes []reporting.ScopeResult
-	err := json.Unmarshal(formatted, &scopes)
-	if err != nil {
-		panic(fmt.Sprintf(bugReportRequest, err, formatted))
-	}
-	self.test.Stories = scopes
-}
-func (self *outputParser) parseAdditionalGoTestOutput() {
-	if strings.HasPrefix(self.test.RawLines[0], "panic: ") {
-		self.parsePanicOutput()
-	} else {
-		self.parseLoggedOutput()
-		self.compileCompleteMessage()
-	}
-}
-func (self *outputParser) parsePanicOutput() {
-	self.result.Outcome = results.Panicked
-	for index, line := range self.test.RawLines {
-		self.parsePanicMetadata(index, line)
-		self.preserveStackTraceIndentation(index, line)
-	}
-	self.test.Error = strings.Join(self.test.RawLines, "\n")
-}
-func (self *outputParser) parsePanicMetadata(index int, line string) {
-	if !panicLineHasMetadata(line) {
-		return
-	}
-	metaLine := self.test.RawLines[index+4]
-	fields := strings.Split(metaLine, " ")
-	fileAndLine := strings.Split(fields[0], ":")
-	self.test.File = fileAndLine[0]
-	self.test.Line, _ = strconv.Atoi(fileAndLine[1])
-}
-func (self *outputParser) preserveStackTraceIndentation(index int, line string) {
-	if panicLineShouldBeIndented(index, line) {
-		self.test.RawLines[index] = "\t" + line
-	}
-}
-func (self *outputParser) parseLoggedOutput() {
-	lineFields := self.test.RawLines[0]
-	fields := strings.Split(lineFields, ":")
-	self.test.File = strings.TrimSpace(fields[0])
-	self.test.Line, _ = strconv.Atoi(fields[1])
-	self.test.Message = strings.TrimSpace(fields[2])
-}
-func (self *outputParser) compileCompleteMessage() {
-	if len(self.test.RawLines) > 1 {
-		additionalLines := strings.Join(self.test.RawLines[1:], "\n")
-		self.test.Message = self.test.Message + "\n" + additionalLines
-	}
-}
-
-func (self *outputParser) attachParsedTestFunctionsToResult() {
-	for _, test := range self.tests {
-		test.RawLines = []string{}
-		self.result.TestResults = append(self.result.TestResults, *test)
+		self.test.RawLines = []string{}
+		self.result.TestResults = append(self.result.TestResults, *self.test)
 	}
 }
 
@@ -226,43 +161,3 @@ func packageFailed(line string) bool {
 func packagePassed(line string) bool {
 	return strings.HasPrefix(line, "ok  \t")
 }
-
-func isJson(line string) bool {
-	return strings.HasPrefix(line, "{")
-}
-func createArrayForJsonItems(lines []string) []byte {
-	jsonArrayItems := strings.Join(lines, "")
-	jsonArrayItems = removeTrailingComma(jsonArrayItems)
-	return []byte(fmt.Sprintf("[%s]\n", jsonArrayItems))
-}
-func removeTrailingComma(rawJson string) string {
-	if trailingComma(rawJson) {
-		return rawJson[:len(rawJson)-1]
-	}
-	return rawJson
-}
-func trailingComma(value string) bool {
-	return strings.HasSuffix(value, ",")
-}
-
-func panicLineHasMetadata(line string) bool {
-	return strings.HasPrefix(line, "goroutine") && strings.Contains(line, "[running]")
-}
-func panicLineShouldBeIndented(index int, line string) bool {
-	return strings.Contains(line, "+") || (index > 0 && strings.Contains(line, "panic: "))
-}
-
-const bugReportRequest = `
-Uh-oh! Looks like something went wrong. Please copy the following text and file a bug report at: 
-
-https://github.com/smartystreets/goconvey/issues?state=open
-
-======= BEGIN BUG REPORT =======
-
-ERROR: %v
-
-OUTPUT: %s
-
-======= END BUG REPORT =======
-
-`
