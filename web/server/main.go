@@ -65,7 +65,7 @@ func watchHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	newRoot := value[0]
-	if !exists(newRoot) {
+	if !isDirectory(newRoot) {
 		http.Error(writer, "The 'root' value provided is not an existing directory.", http.StatusNotFound)
 	} else {
 		updateWatch(newRoot)

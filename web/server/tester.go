@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/howeyc/fsnotify"
 	"io"
 	"os/exec"
 	"strings"
@@ -25,9 +26,15 @@ func reactToChanges() {
 	for {
 		select {
 		case event := <-watcher.Event:
-			if strings.HasSuffix(event.Name, ".go") && !busy {
-				go runTests(done)
+			if busy {
+				continue
+			}
+			if isIgnored(event) {
+				continue
+			}
+			if event.IsCreate() || watchRemoved(event) || goFileTouched(event) {
 				busy = true
+				go runTests(done)
 			}
 
 		case err := <-watcher.Error:
@@ -44,9 +51,33 @@ func reactToChanges() {
 	}
 }
 
+func isIgnored(event *fsnotify.FileEvent) bool {
+	ignoredFilenames := []string{
+		".DS_Store",
+		"Thumbs.db",
+		"__MAC_OSX",
+	}
+
+	for _, ignoredName := range ignoredFilenames {
+		if strings.HasSuffix(event.Name, ignoredName) {
+			return true
+		}
+	}
+	return false
+}
+
+func goFileTouched(event *fsnotify.FileEvent) bool {
+	return (event.IsModify() || event.IsRename()) && strings.HasSuffix(event.Name, ".go")
+}
+
+func watchRemoved(event *fsnotify.FileEvent) bool {
+	return event.IsDelete() && watching(event.Name)
+}
+
 func runTests(done chan bool) {
 	// TODO: encapsulate in a struct to avoid parameter passing (and facilitate testing?)
 
+	updateWatch(rootWatch)
 	input, output := make(chan string), make(chan *TestPackage)
 	spawnTestExecutors(input, output)
 	go scheduleTestExecution(input)
