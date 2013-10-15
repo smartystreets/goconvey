@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/smartystreets/goconvey/web/server/parser"
-	"github.com/smartystreets/goconvey/web/server/results"
+	"github.com/smartystreets/goconvey/web/goconvey-server/parser"
+	"github.com/smartystreets/goconvey/web/goconvey-server/results"
 )
 
 func reactToChanges() {

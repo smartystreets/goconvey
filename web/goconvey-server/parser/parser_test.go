@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/smartystreets/goconvey/reporting"
-	"github.com/smartystreets/goconvey/web/server/results"
+	"github.com/smartystreets/goconvey/web/goconvey-server/results"
 	"strings"
 	"testing"
 )

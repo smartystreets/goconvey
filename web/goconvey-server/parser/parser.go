@@ -2,7 +2,7 @@ package parser
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/web/server/results"
+	"github.com/smartystreets/goconvey/web/goconvey-server/results"
 	"strings"
 )
 
