@@ -34,7 +34,7 @@ Installation
 ------------
 
 	$ go get github.com/smartystreets/goconvey
-	$ go install github.com/smartystreets/goconvey/web/server
+	$ go install github.com/smartystreets/goconvey/web/goconvey-server
 
 
 Quick start
@@ -61,8 +61,9 @@ func TestSpec(t *testing.T) {
 ### In the browser
 
 Start up the GoConvey web server at your project's path:
-
-    $ $GOPATH/bin/server
+    $ go install github.com/smartystreets/goconvey/web/goconvey-server
+    ...
+    $ $GOPATH/bin/goconvey-server
 
 Then open your browser to:
 
