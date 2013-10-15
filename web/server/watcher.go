@@ -22,7 +22,7 @@ func addNewWatches(root string) {
 func setGoPath(root string) {
 	goPath := root
 	fmt.Println("GOPATH (before):", os.Getenv("GOPATH"))
-	index := strings.Index(root, "/src")
+	index := strings.Index(root, separator+"src")
 	if index > -1 {
 		goPath = root[:index]
 	}

@@ -36,7 +36,7 @@ func main() {
 
 	_, file, _, _ := runtime.Caller(0)
 	here := filepath.Dir(file)
-	static := filepath.Join(here, "../client/")
+	static := filepath.Join(here, "..", "client")
 	http.Handle("/", http.FileServer(http.Dir(static)))
 	http.HandleFunc("/watch", watchHandler)
 	http.HandleFunc("/latest", reportHandler)
@@ -82,3 +82,5 @@ var (
 	watcher      *fsnotify.Watcher
 	done         chan bool
 )
+
+const separator = string(filepath.Separator)

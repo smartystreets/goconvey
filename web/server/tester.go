@@ -132,8 +132,9 @@ func buildDependencies() {
 	}
 }
 func resolvePackageName(path string) string {
-	index := strings.Index(path, "/src/")
-	return path[index+len("/src/"):]
+	const endGoPath = separator + "src" + separator
+	index := strings.Index(path, endGoPath)
+	return path[index+len(endGoPath):]
 }
 func testPackage(name string) string {
 	fmt.Printf("Testing %s ...\n", name)
