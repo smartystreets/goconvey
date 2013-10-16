@@ -99,7 +99,7 @@ func (self *outputParser) recordTestingOutcome(outcome string) {
 func (self *outputParser) saveLineForParsingLater() {
 	self.line = strings.TrimSpace(self.line)
 	if self.test == nil {
-		fmt.Println("LINE:", self.line)
+		fmt.Println("Potential parsing output of", self.result.PackageName, "; couldn't handle this stray line:", self.line)
 		return
 	}
 	self.test.RawLines = append(self.test.RawLines, self.line)
