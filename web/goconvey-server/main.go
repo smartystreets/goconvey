@@ -13,6 +13,7 @@ import (
 
 func init() {
 	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
+	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	watched = make(map[string]bool)
 	done = make(chan bool)
 
@@ -83,6 +84,7 @@ func watchHandler(writer http.ResponseWriter, request *http.Request) {
 
 var (
 	port         int
+	host         string
 	latestOutput string
 	rootWatch    string
 	watched      map[string]bool
