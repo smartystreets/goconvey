@@ -7,7 +7,7 @@ import (
 )
 
 import (
-	"github.com/smartystreets/oglematchers"
+	"github.com/jacobsa/oglematchers"
 )
 
 // ShouldEqual receives exactly two parameters and does an equality check.

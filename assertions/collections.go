@@ -6,7 +6,7 @@ import (
 )
 
 import (
-	"github.com/smartystreets/oglematchers"
+	"github.com/jacobsa/oglematchers"
 )
 
 // ShouldContain receives exactly two parameters. The first is a slice and the

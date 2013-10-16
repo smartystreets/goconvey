@@ -310,8 +310,8 @@ Here's the listing of assertions that this project aims to implement
 	So(time.New(), ShouldHappenWithin, duration, time.Now())
 	So(time.New(), ShouldNotHappenWithin, duration, time.Now())
 
-Thanks to [github.com/jacobsa](https://github.com/jacobsa/oglematchers) for his excellent 
-[oglematchers](https://github.com/smartystreets/oglmatchers) library, which
+Thanks to [github.com/jacobsa](https://github.com/jacobsa) for his excellent 
+[oglematchers](https://github.com/jacobsa/oglmatchers) library, which
 is what many of these methods make use of to do their jobs.
 
 

@@ -5,7 +5,7 @@ import (
 )
 
 import (
-	"github.com/smartystreets/oglematchers"
+	"github.com/jacobsa/oglematchers"
 )
 
 // ShouldBeGreaterThan receives exactly two parameters and ensures that the first is greater than the second.
