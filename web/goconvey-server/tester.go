@@ -102,7 +102,7 @@ func aggregateResults(output chan *TestPackage) results.CompleteOutput {
 
 	for _ = range watched {
 		result := <-output
-		io.WriteString(revision, result.Path)
+		io.WriteString(revision, result.Output)
 		packageResults = append(packageResults, result.Parsed)
 		fmt.Printf("Result for %s: [%s]\n", result.Parsed.PackageName, result.Parsed.Outcome)
 	}
