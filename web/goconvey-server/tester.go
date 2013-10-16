@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -83,7 +82,7 @@ func runTests(done chan bool) {
 	done <- true
 }
 func spawnTestExecutors(input chan string, output chan *TestPackage) {
-	for path, _ := range watched {
+	for i := 0; i < len(watched); i++ {
 		go worker(input, output)
 	}
 }
@@ -145,7 +144,7 @@ func resolvePackageName(path string) (string, bool) {
 func testPackage(name string) string {
 	fmt.Printf("Testing %s ...\n", name)
 	output, err := exec.Command("go", "test", "-v", "-timeout=-42s", name).CombinedOutput()
-	if err != nil {
+	if len(output) == 0 && err != nil {
 		panic(err)
 	}
 	return string(output)

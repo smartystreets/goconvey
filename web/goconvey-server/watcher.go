@@ -66,7 +66,7 @@ func addWatch(path string) {
 	fmt.Println("Watching:", path)
 }
 
-func looksLikeGoPackage(path string) {
+func looksLikeGoPackage(path string) bool {
 	_, resolved := resolvePackageName(path)
 	return resolved
 }
