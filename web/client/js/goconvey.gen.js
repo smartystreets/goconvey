@@ -1,6 +1,13 @@
 convey.zen.gen = {
 	tab: "\t",
-	template: ''
+	template: '',
+	isFunc: function(scope)
+	{
+		if (!scope.title || typeof scope.depth === 'undefined')
+			return false;
+
+		return scope.title.indexOf("Test") === 0 && scope.depth == 0;
+	}
 };
 
 $(function()
@@ -103,8 +110,7 @@ $(function()
 
 	Mark.pipes.notTestFunc = function(scope)
 	{
-		console.log(scope);
-		return scope.depth > 0 || scope.title.indexOf("Test") !== 0;
+		return !convey.zen.gen.isFunc(scope);
 	}
 
 	Mark.pipes.safeFunc = function(val)
@@ -148,19 +154,28 @@ function parseInput(input)
 		tabs = indent ? indent[0].length / convey.zen.gen.tab.length : 0;
 
 		// Starting at root, traverse into the right spot in the arrays
-		var curScope = root;
+		var curScope = root, prevScope = root;
 		for (j = 0; j < tabs && curScope.stories.length > 0; j++)
+		{
 			curScope = curScope.stories[curScope.stories.length - 1];
+			prevScope = curScope;
+		}
 		
 		// Don't go crazy, though! (avoid excessive indentation)
 		if (tabs > curScope.depth + 1)
 			tabs = curScope.depth + 1;
 
+		// Only top-level Convey() calls need the *testing.T object passed in
+		var showT = convey.zen.gen.isFunc(prevScope)
+					|| (!convey.zen.gen.isFunc(curScope)
+							&& tabs == 0);
+
 		// Save the story at this scope
 		curScope.stories.push({
 			title: lineText.replace(/"/g, "\\\""),		// escape quotes
 			stories: [],
-			depth: tabs
+			depth: tabs,
+			showT: showT
 		});
 	}
 
