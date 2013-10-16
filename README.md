@@ -33,7 +33,7 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 Installation
 ------------
 
-	$ go get github.com/smartystreets/goconvey
+	$ go get github.com/smartystreets/goconvey/convey
 	$ go install github.com/smartystreets/goconvey/web/goconvey-server
 
 
