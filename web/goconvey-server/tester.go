@@ -5,12 +5,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/howeyc/fsnotify"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
 
+	"github.com/howeyc/fsnotify"
 	"github.com/smartystreets/goconvey/web/goconvey-server/parser"
 	"github.com/smartystreets/goconvey/web/goconvey-server/results"
 )
@@ -82,7 +83,7 @@ func runTests(done chan bool) {
 	done <- true
 }
 func spawnTestExecutors(input chan string, output chan *TestPackage) {
-	for i := 0; i < len(watched); i++ {
+	for path, _ := range watched {
 		go worker(input, output)
 	}
 }
@@ -115,7 +116,7 @@ func aggregateResults(output chan *TestPackage) results.CompleteOutput {
 
 func executeTests(path string) *TestPackage {
 	buildDependencies()
-	packageName := resolvePackageName(path)
+	packageName, _ := resolvePackageName(path)
 	stringOutput := testPackage(packageName)
 	result := parser.ParsePackageResults(packageName, stringOutput)
 
@@ -127,18 +128,26 @@ func executeTests(path string) *TestPackage {
 }
 func buildDependencies() {
 	for path, _ := range watched {
-		packageName := resolvePackageName(path)
+		packageName, _ := resolvePackageName(path)
 		exec.Command("go", "test", "-i", packageName).Run()
 	}
 }
-func resolvePackageName(path string) string {
+func resolvePackageName(path string) (string, bool) {
+	success := true
 	const endGoPath = separator + "src" + separator
 	index := strings.Index(path, endGoPath)
-	return path[index+len(endGoPath):]
+	if index < 0 {
+		success = false
+	}
+	name := path[index+len(endGoPath):]
+	return name, success
 }
 func testPackage(name string) string {
 	fmt.Printf("Testing %s ...\n", name)
-	output, _ := exec.Command("go", "test", "-v", "-timeout=-42s", name).CombinedOutput()
+	output, err := exec.Command("go", "test", "-v", "-timeout=-42s", name).CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
 	return string(output)
 }
 

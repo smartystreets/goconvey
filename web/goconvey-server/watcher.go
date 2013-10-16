@@ -53,11 +53,22 @@ func watchNestedPaths(root string) {
 	})
 }
 func addWatch(path string) {
-	if !watching(path) {
-		watched[path] = true
-		watcher.Watch(path)
-		fmt.Println("Watching:", path)
+	if watching(path) {
+		return
 	}
+
+	if !looksLikeGoPackage(path) {
+		return
+	}
+
+	watched[path] = true
+	watcher.Watch(path)
+	fmt.Println("Watching:", path)
+}
+
+func looksLikeGoPackage(path string) {
+	_, resolved := resolvePackageName(path)
+	return resolved
 }
 
 func watching(path string) bool {
