@@ -6,6 +6,7 @@ import (
 	"github.com/howeyc/fsnotify"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 )
@@ -15,11 +16,17 @@ func init() {
 	watched = make(map[string]bool)
 	done = make(chan bool)
 
+	startWatcher()
+}
+func startWatcher() {
 	var err error
 	watcher, err = fsnotify.NewWatcher()
 	if err != nil {
 		panic(err)
 	}
+}
+func ensureEnoughOpenFiles() {
+	exec.Command("ulimit", "-n", "4096").Run()
 }
 
 func main() {
