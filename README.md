@@ -44,8 +44,10 @@ Make a test, for example:
 
 ```go
 func TestSpec(t *testing.T) {
+	var x int
+	
 	Convey("Given some integer with a starting value", t, func() {
-		x := 1
+		x = 1
 
 		Convey("When the integer is incremented", func() {
 			x++
