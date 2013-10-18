@@ -36,16 +36,16 @@ func TestNestedScopes(t *testing.T) {
 	Convey("a", t, func() {
 		output += "a "
 
-		Convey("aa", func() {
-			output += "aa "
+		Convey("bb", func() {
+			output += "bb "
 
-			Convey("aaa", func() {
-				output += "aaa | "
+			Convey("ccc", func() {
+				output += "ccc | "
 			})
 		})
 	})
 
-	expectEqual(t, "a aa aaa | ", output)
+	expectEqual(t, "a bb ccc | ", output)
 }
 
 func TestNestedScopesWithIsolatedExecution(t *testing.T) {
