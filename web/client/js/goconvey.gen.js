@@ -17,6 +17,13 @@ $(function()
 	var gen = convey.zen.gen;
 
 
+	window.onbeforeunload = function()
+	{
+		if ($('#gen-input').val().length > 20)
+			return "Wait! You still have test cases in the GoConvey generator!";
+	};
+
+
 	$('#gen-input').keydown(function(e)
 	{
 		var rows = parseInt($(this).attr('rows'));
