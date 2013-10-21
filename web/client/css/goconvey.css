@@ -588,6 +588,10 @@ del, .failures th.expected {
 	width: 100%;
 }
 
+.stuck .overall {
+	box-shadow: 0px 1px 3px #333;
+}
+
 .stuck .status {
 	font-size: 22px !important;
 }

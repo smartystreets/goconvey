@@ -4,7 +4,7 @@ var convey = {
 		pass: 'ok',
 		fail: 'fail',
 		panic: 'panic',
-		failedBuild: 'failbuild',
+		failedBuild: 'buildfail',
 		skip: 'skip'
 	},
 	regex: {
@@ -272,6 +272,7 @@ $(function()
 
 				// Show overall status
 				$('.overall').slideDown();
+				$('.favicon').attr('href', '/ico/goconvey-'+convey.overall.status+'.ico');
 
 				// Show shortucts and builds/failures/panics details
 				if (convey.overall.failedBuilds > 0)
@@ -300,9 +301,17 @@ $(function()
 					$(this).prettyTextDiff();
 				});
 
-				// Finally, show all the results at once, which appear below the banner
-				// and hide the loading spinner
+
+				// Finally, show all the results at once, which appear below the banner,
+				// and hide the loading spinner, and update the title
+
 				$('#loading').hide();
+				
+				var cleanedStatus = $.trim($('.overall .summary').text())
+									.replace(/\n+\s*|\s-\s/g, ', ')
+									.replace(/\s+|\t|-/ig, ' ');
+				$('title').text("GoConvey: " + cleanedStatus);
+				
 				$(this).fadeIn(function()
 				{
 					// Loading is finished
