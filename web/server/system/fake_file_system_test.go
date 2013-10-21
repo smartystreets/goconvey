@@ -3,59 +3,9 @@ package system
 import (
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
-	"path/filepath"
 	"testing"
 	"time"
 )
-
-type FakeFileSystem struct {
-	steps []*FakeFileInfo
-}
-
-func (self *FakeFileSystem) Create(path string, size int64, modified time.Time) {
-	self.steps = append(self.steps, newFileInfo(path, size, modified))
-}
-
-func (self *FakeFileSystem) Walk(root string, step filepath.WalkFunc) {
-	for _, info := range self.steps {
-		step(info.path, info, nil)
-	}
-}
-func (self *FakeFileSystem) Exists(directory string) bool {
-	for _, info := range self.steps {
-		if info.IsDir() && info.path == directory {
-			return true
-		}
-	}
-	return false
-}
-
-func NewFakeFileSystem() *FakeFileSystem {
-	self := &FakeFileSystem{}
-	self.steps = []*FakeFileInfo{}
-	return self
-}
-
-type FakeFileInfo struct {
-	path     string
-	size     int64
-	modified time.Time
-}
-
-func (self *FakeFileInfo) Name() string       { return filepath.Base(self.path) }
-func (self *FakeFileInfo) Size() int64        { return self.size }
-func (self *FakeFileInfo) Mode() os.FileMode  { return 0 }
-func (self *FakeFileInfo) ModTime() time.Time { return self.modified }
-func (self *FakeFileInfo) IsDir() bool        { return filepath.Ext(self.path) == "" }
-func (self *FakeFileInfo) Sys() interface{}   { return nil }
-
-func newFileInfo(path string, size int64, modified time.Time) *FakeFileInfo {
-	self := &FakeFileInfo{}
-	self.path = path
-	self.size = size
-	self.modified = modified
-	return self
-}
 
 func TestFakeFileSystem(t *testing.T) {
 	var fs *FakeFileSystem
@@ -96,7 +46,40 @@ func TestFakeFileSystem(t *testing.T) {
 					So(errors, ShouldResemble, []error{nil, nil, nil})
 				})
 			})
+		})
 
+		Convey("When an existing file system item is modified", func() {
+			fs.Create("/a.txt", 1, time.Now())
+			fs.Modify("/a.txt")
+			var size int64
+
+			Convey("And the file system is then walked", func() {
+				fs.Walk("/", func(path string, info os.FileInfo, err error) error {
+					size = info.Size()
+					return nil
+				})
+				Convey("The modification should be persistent", func() {
+					So(size, ShouldEqual, 2)
+				})
+			})
+		})
+
+		Convey("When an existing file system item is deleted", func() {
+			fs.Create("/a.txt", 1, time.Now())
+			fs.Delete("/a.txt")
+			var found bool
+
+			Convey("And the file system is then walked", func() {
+				fs.Walk("/", func(path string, info os.FileInfo, err error) error {
+					if info.Name() == "a.txt" {
+						found = true
+					}
+					return nil
+				})
+				Convey("The deleted entry should NOT be visited", func() {
+					So(found, ShouldBeFalse)
+				})
+			})
 		})
 
 		Convey("When a directory does NOT exist it should NOT be found", func() {

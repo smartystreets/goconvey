@@ -24,13 +24,13 @@ type (
 
 		Adjust(root string) error
 
-		Deletion(path string)
-		Creation(path string)
+		Deletion(folder string)
+		Creation(folder string)
 
-		Ignore(path string) error
-		Reinstate(path string) error
+		Ignore(folder string) error
+		Reinstate(folder string) error
 
-		ActivePackages() []*Package
+		WatchedFolders() []*Package
 	}
 
 	Executor interface {
