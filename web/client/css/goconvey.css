@@ -326,6 +326,12 @@ a.goto:hover {
 	padding: 5px;
 }
 
+.message {
+	white-space: pre-wrap;
+	word-break: break-all;
+	font: 12px/1.5em 'Monaco', monospace;
+	color: #666;
+}
 
 
 
@@ -576,9 +582,19 @@ del, .failures th.expected {
 }
 
 
+.stuck {
+	position: fixed;
+	top: 0;
+	width: 100%;
+}
 
+.stuck .status {
+	font-size: 22px !important;
+}
 
-
+.stuck .summary {
+	display: none;
+}
 
 
 

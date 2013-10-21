@@ -12,6 +12,7 @@ var convey = {
 		actual: /'?\s+(Actual:)\s+'?/,
 		actualEnd: /$|('?\s+(\((Should|but))|$)/
 	},
+	lastScrollPos: 0,
 	assertions: emptyAssertions(),
 	failedBuilds: [],
 	overall: emptyOverall(),
@@ -26,6 +27,7 @@ $(function()
 	if ($('input').first().val() == "")
 		$('input').first().focus();
 
+	$('#banners').waypoint('sticky');
 
 	// Markup.js custom pipes
 	Mark.pipes.relativePath = function(str)
@@ -101,6 +103,9 @@ $(function()
 
 	function update()
 	{
+		// Save this so we can revert to the same place we were before the update
+		convey.lastScrollPos = $(document).scrollTop();
+
 		$.getJSON("/latest", function(data, status, jqxhr)
 		{
 			$('#server-down').slideUp(convey.speed);
@@ -118,6 +123,9 @@ $(function()
 			convey.overall = emptyOverall();
 			convey.assertions = emptyAssertions();
 			convey.failedBuilds = [];
+
+			// Force page height to help smooth out the transition
+			$('html,body').css('height', $(document).outerHeight());
 
 			// Remove existing/old test results
 			$('.overall').slideUp(convey.speed);
@@ -254,13 +262,13 @@ $(function()
 
 				// Show the overall status: passed, failed, or panicked
 				if (convey.overall.status == convey.statuses.pass)
-					$('header').after(render('tpl-overall-ok', convey.overall));
+					$('#banners').append(render('tpl-overall-ok', convey.overall));
 				else if (convey.overall.status == convey.statuses.fail)
-					$('header').after(render('tpl-overall-fail', convey.overall));
+					$('#banners').append(render('tpl-overall-fail', convey.overall));
 				else if (convey.overall.status == convey.statuses.panic)
-					$('header').after(render('tpl-overall-panic', convey.overall));
+					$('#banners').append(render('tpl-overall-panic', convey.overall));
 				else
-					$('header').after(render('tpl-overall-buildfail', convey.overall));
+					$('#banners').append(render('tpl-overall-buildfail', convey.overall));
 
 				// Show overall status
 				$('.overall').slideDown();
@@ -295,8 +303,16 @@ $(function()
 				// Finally, show all the results at once, which appear below the banner
 				// and hide the loading spinner
 				$('#loading').hide();
-				$(this).fadeIn(function() {
+				$(this).fadeIn(function()
+				{
+					// Loading is finished
 					$('#spinner').hide();
+
+					// Scroll to same position as before (doesn't account for different-sized content)
+					$(document).scrollTop(convey.lastScrollPos);
+
+					// Remove the height attribute which smoothed out the transition
+					$('html,body').css('height', '');
 				});
 			});
 		}).fail(function(jqxhr, message, error)
@@ -307,7 +323,7 @@ $(function()
 
 			$('#server-down').remove();
 
-			$('header').after(render('tpl-server-down', {
+			$('#banners').prepend(render('tpl-server-down', {
 				jqxhr: jqxhr,
 				message: message,
 				error: error
