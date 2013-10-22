@@ -64,8 +64,6 @@ func TestSpec(t *testing.T) {
 
 Start up the GoConvey web server at your project's path:
 
-    $ go install github.com/smartystreets/goconvey/web/goconvey-server
-    ...
     $ $GOPATH/bin/goconvey-server
 
 Then open your browser to:
