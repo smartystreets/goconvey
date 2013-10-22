@@ -43,10 +43,23 @@ func (self *Watcher) Creation(folder string) {
 	self.watched = append(self.watched, &contract.Package{Active: true, Path: folder, Name: filepath.Base(folder)})
 }
 
-func (self *Watcher) Ignore(folder string) error    { return nil }
+func (self *Watcher) Ignore(folder string) error {
+	for x, _ := range self.watched {
+		if self.watched[x].Path == folder {
+			self.watched[x].Active = false
+		}
+	}
+	return nil
+}
 func (self *Watcher) Reinstate(folder string) error { return nil }
 func (self *Watcher) WatchedFolders() []*contract.Package {
-	return self.watched
+	filtered := []*contract.Package{}
+	for _, package_ := range self.watched {
+		if package_.Active {
+			filtered = append(filtered, package_)
+		}
+	}
+	return filtered
 }
 
 func NewWatcher(fs contract.FileSystem) *Watcher {

@@ -86,8 +86,17 @@ func TestWatcher(t *testing.T) {
 			})
 		})
 
-		Convey("When a folder is ignored", func() {
-			Convey("The folder should not be included in the watched folders", nil)
+		Convey("When a watched folder is ignored", func() {
+			watcher.Creation("/root/sub2")
+			watcher.Ignore("/root/sub2")
+
+			Convey("The folder should not be included in the watched folders", func() {
+				So(len(watcher.WatchedFolders()), ShouldEqual, 0)
+			})
+		})
+
+		Convey("When a folder that is not being watched is ignored", func() {
+			Convey("The request should be ignored", nil)
 		})
 
 		Convey("When a folder that does not exist is ignored", func() {
@@ -99,7 +108,11 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When an ignored folder is deleted and then reinstated", func() {
-			Convey("The folder should not be included in the watched folders", nil)
+			Convey("The reinstatement request should be ignored", nil)
+		})
+
+		Convey("When a folder that is not being watched is reinstated", func() {
+			Convey("The request should be ignored", nil)
 		})
 	})
 }
