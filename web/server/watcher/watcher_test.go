@@ -185,7 +185,7 @@ func (self *watcherFixture) ignoreWatchedFolder() (actual, expected interface{})
 	self.watcher.Ignore("/root/sub2")
 
 	actual = self.watched()
-	expected = []*contract.Package{}
+	expected = []*contract.Package{&contract.Package{Active: false, Path: "/root/sub2", Name: "sub2"}}
 	return
 }
 

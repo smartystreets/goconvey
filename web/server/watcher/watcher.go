@@ -60,13 +60,7 @@ func (self *Watcher) Reinstate(folder string) error {
 	return nil
 }
 func (self *Watcher) WatchedFolders() []*contract.Package {
-	filtered := []*contract.Package{}
-	for _, package_ := range self.watched {
-		if package_.Active {
-			filtered = append(filtered, package_)
-		}
-	}
-	return filtered
+	return self.watched
 }
 
 func NewWatcher(fs contract.FileSystem) *Watcher {
