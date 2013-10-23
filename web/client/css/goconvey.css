@@ -56,6 +56,7 @@ code {
 	font-family: 'Monaco', monospace;
 	line-height: 1.5em;
 	font-size: 10px;
+	white-space: pre-wrap;
 }
 
 table {
@@ -319,7 +320,6 @@ a.goto:hover {
 	max-height: 200px;
 	overflow-y: auto;
 	font-size: 10px;
-	white-space: pre-wrap;
 	line-height: 1.5em;
 	word-break: break-all;
 	background: #F0F0F0;

@@ -37,7 +37,7 @@ $(function()
 	}
 	Mark.pipes.showhtml = function(str)
 	{
-		return str.replace(/</g, "&lt;").replace(/</g, "&gt;");
+		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	}
 
 	Mark.pipes.nothing = function(str)
