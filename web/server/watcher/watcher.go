@@ -51,7 +51,14 @@ func (self *Watcher) Ignore(folder string) error {
 	}
 	return nil
 }
-func (self *Watcher) Reinstate(folder string) error { return nil }
+func (self *Watcher) Reinstate(folder string) error {
+	for x, _ := range self.watched {
+		if self.watched[x].Path == folder {
+			self.watched[x].Active = true
+		}
+	}
+	return nil
+}
 func (self *Watcher) WatchedFolders() []*contract.Package {
 	filtered := []*contract.Package{}
 	for _, package_ := range self.watched {
