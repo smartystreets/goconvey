@@ -586,6 +586,8 @@ del, .failures th.expected {
 	position: fixed;
 	top: 0;
 	width: 100%;
+	background: white;
+	z-index: 48;
 }
 
 .stuck .overall {
