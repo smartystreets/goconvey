@@ -22,14 +22,15 @@ func TestFakeFileSystem(t *testing.T) {
 		})
 
 		Convey("When a file system is populated...", func() {
-			first, second, third := time.Now(), time.Now(), time.Now()
-			fs.Create("/a", 1, first)
-			fs.Create("/b", 2, second)
-			fs.Create("/c", 3, third)
+			first, second, third, fourth := time.Now(), time.Now(), time.Now(), time.Now()
+			fs.Create("/root", 0, first)
+			fs.Create("/root/a", 1, second)
+			fs.Create("/elsewhere/c", 2, third)
+			fs.Create("/root/b", 3, fourth)
 
 			Convey("...and then walked", func() {
 				paths, names, sizes, times, errors := []string{}, []string{}, []int64{}, []time.Time{}, []error{}
-				fs.Walk("/", func(path string, info os.FileInfo, err error) error {
+				fs.Walk("/root", func(path string, info os.FileInfo, err error) error {
 					paths = append(paths, path)
 					names = append(names, info.Name())
 					sizes = append(sizes, info.Size())
@@ -38,11 +39,11 @@ func TestFakeFileSystem(t *testing.T) {
 					return nil
 				})
 
-				Convey("Each path should be visited once", func() {
-					So(paths, ShouldResemble, []string{"/a", "/b", "/c"})
-					So(names, ShouldResemble, []string{"a", "b", "c"})
-					So(sizes, ShouldResemble, []int64{1, 2, 3})
-					So(times, ShouldResemble, []time.Time{first, second, third})
+				Convey("Each nested path should be visited once", func() {
+					So(paths, ShouldResemble, []string{"/root", "/root/a", "/root/b"})
+					So(names, ShouldResemble, []string{"root", "a", "b"})
+					So(sizes, ShouldResemble, []int64{0, 1, 3})
+					So(times, ShouldResemble, []time.Time{first, second, fourth})
 					So(errors, ShouldResemble, []error{nil, nil, nil})
 				})
 			})

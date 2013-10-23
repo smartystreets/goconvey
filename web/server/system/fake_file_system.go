@@ -3,6 +3,7 @@ package system
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -31,7 +32,9 @@ func (self *FakeFileSystem) Delete(path string) {
 
 func (self *FakeFileSystem) Walk(root string, step filepath.WalkFunc) {
 	for _, info := range self.steps {
-		step(info.path, info, nil)
+		if strings.HasPrefix(info.path, root) {
+			step(info.path, info, nil)
+		}
 	}
 }
 func (self *FakeFileSystem) Exists(directory string) bool {
