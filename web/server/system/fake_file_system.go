@@ -21,6 +21,15 @@ func (self *FakeFileSystem) Modify(path string) {
 		}
 	}
 }
+func (self *FakeFileSystem) Rename(original, modified string) {
+	for _, step := range self.steps {
+		if step.path == original {
+			step.path = modified
+			step.modified = step.modified.Add(time.Second * time.Duration(10))
+			break
+		}
+	}
+}
 func (self *FakeFileSystem) Delete(path string) {
 	for i := 0; i < len(self.steps); i++ {
 		if self.steps[i].path == path {

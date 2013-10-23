@@ -65,6 +65,26 @@ func TestFakeFileSystem(t *testing.T) {
 			})
 		})
 
+		Convey("When an existing file system item is renamed", func() {
+			initial := time.Now()
+			fs.Create("/a.txt", 1, initial)
+			fs.Rename("/a.txt", "/z.txt")
+			var modified time.Time
+			var newName string
+
+			Convey("And the file system is then walked", func() {
+				fs.Walk("/", func(path string, info os.FileInfo, err error) error {
+					modified = info.ModTime()
+					newName = info.Name()
+					return nil
+				})
+				Convey("The modification should be persistent", func() {
+					So(modified, ShouldHappenAfter, initial)
+					So(newName, ShouldEqual, "z.txt")
+				})
+			})
+		})
+
 		Convey("When an existing file system item is deleted", func() {
 			fs.Create("/a.txt", 1, time.Now())
 			fs.Delete("/a.txt")
