@@ -10,7 +10,7 @@
 		<script src="js/goconvey.gen.js"></script>
 		<script src="js/jquery.waypoints.sticky.min.js"></script>
 		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Oswald|Open+Sans:300italic,400italic,400,300,700,600,800">
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css">
 		<link rel="stylesheet" href="css/unsemantic.css">
 		<link rel="stylesheet" href="css/spinner.css">
 		<link rel="stylesheet" href="css/goconvey.css">
@@ -27,7 +27,7 @@
 					<input type="text" id="path" placeholder="/path/to/project/root">
 				</div>
 				<div class="grid-20 menu">
-					<a class="icon-edit icon-large" id="show-gen" href="javascript:" title="Code Generator"> Code Gen</a>
+					<a class="fa fa-pencil-square-o link-fa" id="show-gen" href="javascript:" title="Code Generator"> Code Gen</a>
 				</div>
 			</div>
 		</header>
@@ -65,6 +65,7 @@
 							<br>
 							{{duration}}s
 						</div>
+						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
 					</div>
 				</div>
 			</div>
@@ -82,6 +83,7 @@
 							{{failures}} failed<br>
 							{{duration}}s
 						</div>
+						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
 					</div>
 				</div>		
 			</div>
@@ -99,6 +101,7 @@
 							{{failures}} failed - {{panics}} panic{{if panics|notequals>1}}s{{/if}}<br>
 							{{duration}}s
 						</div>
+						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
 					</div>
 				</div>
 			</div>
@@ -121,6 +124,7 @@
 							<br>
 							{{duration}}s
 						</div>
+						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
 					</div>
 				</div>
 			</div>
@@ -129,36 +133,22 @@
 
 		<div class="grid-container" id="results">
 
-			<div class="grid-20" id="left-sidebar">
-				<script id="tpl-builds-shortcuts" type="text/template">
-					<div class="builds-shortcuts templated">
-						<b>Failed builds:</b><hr>
+			<div class="grid-20 sidebar" id="left-sidebar">
+
+				<script id="tpl-packages" type="text/template">
+					<div class="templated">
+						<b>Packages</b>
+						<hr>
+						<ul class="package-list">
 						{{.}}
-							<a href="#package-{{_id}}">{{PackageName}}</a>
-							<a href="#package-{{_id}}" class="goto"><i class="icon-level-down"></i></a><br>
+							<li><a href="#package-{{_id}}" title="Scroll to {{PackageName}}">{{PackageName|chopEnd>23|boldPkgName}}</a></li>
 						{{/.}}
+						</ul>
 					</div>
 				</script>
-				<script id="tpl-panic-shortcuts" type="text/template">
-					<div class="panic-shortcuts templated">
-						<b>Panics:</b><hr>
-						{{.}}
-							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
-							<a href="#assert-{{_id}}" class="goto" title="See in context"><i class="icon-level-down"></i></a><br>
-						{{/.}}
-					</div>
-				</script>
-				<script id="tpl-failure-shortcuts" type="text/template">
-					<div class="failure-shortcuts templated">
-						<b>Failures:</b><hr>
-						{{.}}
-							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
-							<a href="#assert-{{_id}}" class="goto"><i class="icon-level-down"></i></a><br>
-						{{/.}}
-					</div>
-				</script>
+
 			</div>
-			<div class="grid-60 suffix-20" id="contents">
+			<div class="grid-60" id="contents">
 
 				<script id="tpl-builds" type="text/template">
 					<div class="builds templated">
@@ -293,7 +283,7 @@
 							{{else}}
 							<tr>
 								<th class="pkg-summary inverse" colspan="3">
-									<i class="icon-warning-sign"></i> BUILD FAILED
+									<i class="fa fa-exclamation-triangle"></i> BUILD FAILED
 								</th>
 							</tr>
 							<tr>
@@ -304,12 +294,12 @@
 							{{/if}}
 						{{else}}
 						{{TestResults}}
-						<tr{{if Stories|empty}} id="assert-{{_id}}"{{/if}}>
+						<tr{{if Stories|empty}} id="test-{{_id}}"{{/if}}>
 							<td class="status {{_status}}"></td>
 							<td class="checks">
 							{{if Stories|empty}}
 								{{if _skipped}}<span class="skip">&#9888;&nbsp;S</span><br>
-								{{else}}{{if _panicked}}<span class="panic"><i class="icon-bolt"></i></span><br>
+								{{else}}{{if _panicked}}<span class="panic"><i class="fa fa-bolt"></i></span><br>
 								{{else}}{{if _failed}}<span class="fail">&#10007;</span><br>
 								{{else}}{{if _passed}}<span class="ok">&#10003;</span><br>{{/if}}{{/if}}{{/if}}{{/if}}
 							{{/if}}
@@ -319,12 +309,12 @@
 							</td>
 						</tr>
 							{{Stories}}
-							<tr class="depth-{{Depth}}" id="assert-{{_id}}">
+							<tr class="depth-{{Depth}}" id="test-{{_id}}">
 								<td class="status {{_status}}"></td>
 								<td class="checks">
 								{{if _passed}}<span class="ok">{{_passed}}&nbsp;&#10003;</span><br>{{/if}}
 								{{if _failed}}<span class="fail">{{_failed}}&nbsp;&#10007;</span><br>{{/if}}
-								{{if _panicked}}<span class="panic">{{_panicked}}&nbsp;<i class="icon-bolt"></i></span><br>{{/if}}
+								{{if _panicked}}<span class="panic">{{_panicked}}&nbsp;<i class="fa fa-bolt"></i></span><br>{{/if}}
 								{{if _skipped}}<span class="skip">S&nbsp;&#9888;</span><br>{{/if}}
 								</td>
 								<td class="title">
@@ -340,14 +330,40 @@
 				</script>
 
 			</div>
-		</div>
 
-		<!--
-		<div class="grid-container">
-			<div class="grid-100" id="loading">
-				Loading...
+			<div class="grid-20 sidebar" id="right-sidebar">
+
+				<script id="tpl-builds-shortcuts" type="text/template">
+					<div class="builds-shortcuts templated">
+						<b>Failed builds:</b><hr>
+						{{.}}
+							<a href="#package-{{_id}}">{{PackageName}}</a>
+							<a href="#package-{{_id}}" class="goto"><i class="fa fa-level-down"></i></a><br>
+						{{/.}}
+					</div>
+				</script>
+				<script id="tpl-panic-shortcuts" type="text/template">
+					<div class="panic-shortcuts templated">
+						<b>Panics:</b><hr>
+						{{.}}
+							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="#test-{{_id}}" class="goto" title="See in context"><i class="fa fa-level-down"></i></a><br>
+						{{/.}}
+					</div>
+				</script>
+				<script id="tpl-failure-shortcuts" type="text/template">
+					<div class="failure-shortcuts templated">
+						<b>Failures:</b><hr>
+						{{.}}
+							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="#test-{{_id}}" class="goto"><i class="fa fa-level-down"></i></a><br>
+						{{/.}}
+					</div>
+				</script>
+
 			</div>
-		</div>-->
+
+		</div>
 
 
 		<div class="grid-container">
@@ -373,7 +389,7 @@
 
 
 		<div id="generator" class="zen">
-			<a class="zen-close icon-remove icon-2x" href="javascript:"></a>
+			<a class="zen-close fa fa-times link-fa" href="javascript:"></a>
 			
 			<div class="grid-container">
 				<div class="prefix-20 grid-60 suffix-20">

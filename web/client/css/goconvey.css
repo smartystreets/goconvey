@@ -95,6 +95,20 @@ textarea {
 	width: 100%;
 }
 
+ul, ol {
+	margin: .75em 0;
+}
+
+ul li {
+	list-style: disc;
+	margin-left: 1.5em;
+	margin-bottom: .5em;
+}
+
+.package-list li a {
+	display: block;
+}
+
 #path {
 	width: 100%;
 	display: block;
@@ -102,14 +116,18 @@ textarea {
 	margin-top: 1.5%;
 }
 
-a.icon-large,
-a.icon-2x {
+a.link-fa {
 	color: #444;
+	font-size: 16px;
+	margin-top: 5px;
 	cursor: pointer;
 }
 
-a.icon-large:hover,
-a.icon-2x:hover {
+a.zen-close {
+	font-size: 24px;
+}
+
+a.link-fa:hover {
 	color: #000;
 	text-decoration: none;
 }
@@ -159,6 +177,13 @@ a.icon-2x:hover {
 	color: #FFF;
 	font: bold 80px 'Georgia', serif;
 	text-transform: uppercase;
+}
+
+.overall .go-up {
+	display: none;
+	margin-top: .3em;
+	float: right;
+	color: #FFF;
 }
 
 .overall.buildfail .status {
@@ -436,6 +461,7 @@ del, .failures th.expected {
 .package-story .title {
 	padding: .75em .5em;
 	line-height: 1.25em;
+	word-break: break-word;
 }
 
 .package-story .title small {
@@ -457,13 +483,11 @@ del, .failures th.expected {
 
 
 
-
-#left-sidebar {
+.sidebar {
 	font: 12px 'Open Sans', sans-serif;
 	margin-bottom: 2em;
 	word-break: break-word;
 }
-
 
 #loading {
 	text-align: center;
@@ -594,14 +618,17 @@ del, .failures th.expected {
 	box-shadow: 0px 1px 3px #333;
 }
 
-.stuck .status {
+.stuck .overall .status {
 	font-size: 22px !important;
 }
 
-.stuck .summary {
+.stuck .overall .summary {
 	display: none;
 }
 
+.stuck .overall .go-up {
+	display: block;
+}
 
 
 

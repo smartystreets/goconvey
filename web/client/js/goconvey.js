@@ -13,6 +13,7 @@ var convey = {
 		actualEnd: /$|('?\s+(\((Should|but))|$)/
 	},
 	lastScrollPos: 0,
+	payload: {},
 	assertions: emptyAssertions(),
 	failedBuilds: [],
 	overall: emptyOverall(),
@@ -27,7 +28,14 @@ $(function()
 	if ($('input').first().val() == "")
 		$('input').first().focus();
 
-	$('#banners').waypoint('sticky');
+	// Make certain elements stick to the top of the screen when scrolling down
+	$('#banners').waypoint('sticky').waypoint(function(direction)
+	{
+		if (direction == "down")
+			bannerClickToTop(true);
+		else if (direction == "up" && $('.overall').parent('a.to-top').length > 0)
+			bannerClickToTop(false);
+	});
 
 	// Markup.js custom pipes
 	Mark.pipes.relativePath = function(str)
@@ -39,10 +47,19 @@ $(function()
 	{
 		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	}
-
 	Mark.pipes.nothing = function(str)
 	{
 		return str == "no test files" || str == "no test functions" || str == "no go code"
+	}
+	Mark.pipes.boldPkgName = function(str)
+	{
+		var pkg = splitPathName(str);
+		pkg.parts[pkg.parts.length - 1] = "<b>" + pkg.parts[pkg.parts.length - 1] + "</b>";
+		return pkg.parts.join(pkg.delim);
+	}
+	Mark.pipes.chopEnd = function(str, n)
+	{
+		return str.length > n ? "..." + str.substr(str.length - n) : str;
 	}
 
 
@@ -63,13 +80,19 @@ $(function()
 		{
 			var target = $(this.hash);
 			target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
-			   if (target.length) {
-				 $('html,body').animate({
-					 scrollTop: target.offset().top - 150
+			if (target.length)
+			{
+				$('html, body').animate({
+					scrollTop: target.offset().top - 150
 				}, 400);
-				return false;
+				return suppress(event);
 			}
 		}
+	}).on('click', 'a[href=#]', function(event) {
+		$('html, body').animate({
+			scrollTop: 0
+		}, 400);
+		return suppress(event);
 	});
 
 	// Hide code generator (or any 'zen'-like window)
@@ -114,6 +137,7 @@ $(function()
 				return;
 
 			convey.revisionHash = data.Revision;
+			convey.payload = data;
 
 			$('#spinner').show();
 
@@ -277,24 +301,25 @@ $(function()
 				// Show shortucts and builds/failures/panics details
 				if (convey.overall.failedBuilds > 0)
 				{
-					$('#left-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
+					$('#right-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
 					$('#contents').append(render('tpl-builds', convey.failedBuilds));
 				}
 				if (convey.overall.panics > 0)
 				{
-					console.log(convey.overall);
-					$('#left-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
+					$('#right-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
 					$('#contents').append(render('tpl-panics', convey.assertions.panicked));
 				}
 				if (convey.overall.failures > 0)
 				{
-					$('#left-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
+					$('#right-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
 					$('#contents').append(render('tpl-failures', convey.assertions.failed));
 				}
 
 				// Show stories
 				$('#contents').append(render('tpl-stories', data));
 
+				// Show shortcut links to packages
+				$('#left-sidebar').append(render('tpl-packages', data.Packages.sort(sortPackages)));
 
 				// Compute diffs
 				$(".failure").each(function() {
@@ -319,6 +344,9 @@ $(function()
 
 					// Scroll to same position as before (doesn't account for different-sized content)
 					$(document).scrollTop(convey.lastScrollPos);
+
+					if ($('.stuck .overall').is(':visible'))
+						bannerClickToTop(true);	// make the banner across the top clickable again
 
 					// Remove the height attribute which smoothed out the transition
 					$('html,body').css('height', '');
@@ -396,6 +424,44 @@ $(function()
 
 		return str.substring(start, end);
 	}
+
+	function bannerClickToTop(enable)
+	{
+		if (enable)
+			$('.overall').wrap('<a href="#" class="to-top"></a>');
+		else
+		{
+			$('.overall').unwrap();
+			$('a.to-top').remove();
+		}
+	}
+
+	function sortPackages(a, b)
+	{
+		// sorts packages ascending by only the last part of their name
+		var aPkg = splitPathName(a.PackageName);
+		var bPkg = splitPathName(b.PackageName);
+
+		if (aPkg.length == 0 || bPkg.length == 0)
+			return 0;
+
+		var aName = aPkg.parts[aPkg.parts.length - 1];
+		var bName = bPkg.parts[bPkg.parts.length - 1];
+
+		if (aName < bName)
+			return -1;
+		else if (aName > bName)
+			return 1;
+		else
+			return 0;
+
+		/*
+		Use to sort by entire package name:
+		if (a.PackageName < b.PackageName) return -1;
+		else if (a.PackageName > b.PackageName) return 1;
+		else return 0;
+		*/
+	}
 });
 
 
@@ -421,6 +487,13 @@ function emptyAssertions()
 		panicked: [],
 		skipped: []
 	};
+}
+
+
+function splitPathName(str)
+{
+	var delim = str.indexOf('\\') > -1 ? '\\' : '/';
+	return { delim: delim, parts: str.split(delim) };
 }
 
 
