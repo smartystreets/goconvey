@@ -103,6 +103,35 @@ func TestFakeFileSystem(t *testing.T) {
 			})
 		})
 
+		Convey("When an existing folder is deleted", func() {
+			first, second, third := time.Now(), time.Now(), time.Now()
+			fs.Create("/a", 1, first)
+			fs.Create("/a/1.txt", 2, second)
+			fs.Create("/b", 3, third)
+
+			fs.Delete("/a")
+
+			Convey("And the file system is then walked", func() {
+				paths, names, sizes, times, errors := []string{}, []string{}, []int64{}, []time.Time{}, []error{}
+				fs.Walk("/", func(path string, info os.FileInfo, err error) error {
+					paths = append(paths, path)
+					names = append(names, info.Name())
+					sizes = append(sizes, info.Size())
+					times = append(times, info.ModTime())
+					errors = append(errors, err)
+					return nil
+				})
+
+				Convey("All nested items and the folder should have been removed", func() {
+					So(paths, ShouldResemble, []string{"/b"})
+					So(names, ShouldResemble, []string{"b"})
+					So(sizes, ShouldResemble, []int64{3})
+					So(times, ShouldResemble, []time.Time{third})
+					So(errors, ShouldResemble, []error{nil})
+				})
+			})
+		})
+
 		Convey("When a directory does NOT exist it should NOT be found", func() {
 			So(fs.Exists("/not/there"), ShouldBeFalse)
 		})

@@ -31,12 +31,13 @@ func (self *FakeFileSystem) Rename(original, modified string) {
 	}
 }
 func (self *FakeFileSystem) Delete(path string) {
-	for i := 0; i < len(self.steps); i++ {
-		if self.steps[i].path == path {
-			self.steps = append(self.steps[:i], self.steps[i+1:]...)
-			break
+	newSteps := []*FakeFileInfo{}
+	for _, step := range self.steps {
+		if !strings.HasPrefix(step.path, path) {
+			newSteps = append(newSteps, step)
 		}
 	}
+	self.steps = newSteps
 }
 
 func (self *FakeFileSystem) Walk(root string, step filepath.WalkFunc) {
