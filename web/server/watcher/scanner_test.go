@@ -33,7 +33,11 @@ func TestScanner(t *testing.T) {
 			})
 
 			Convey("When a new go file is created within a watched folder", func() {
-				Convey("The scanner should report a change in state", nil)
+				fixture.fs.Create("/root/new_stuff.go", 42, time.Now())
+
+				Convey("The scanner should report a change in state", func() {
+					So(fixture.scan(), ShouldBeTrue)
+				})
 			})
 
 			Convey("When an existing go file within a watched folder has been modified", func() {
@@ -61,55 +65,130 @@ func TestScanner(t *testing.T) {
 			})
 
 			Convey("When a go file is created outside any watched folders", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/outside/new_stuff.go", 42, time.Now())
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a go file is modified outside any watched folders", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/outside/new_stuff.go", 42, time.Now())
+				fixture.scan() // reset
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a go file is renamed outside any watched folders", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/outside/new_stuff.go", 42, time.Now())
+				fixture.scan() // reset
+				fixture.fs.Rename("/outside/new_stuff.go", "/outside/newer_stoff.go")
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a go file is deleted outside any watched folders", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/outside/new_stuff.go", 42, time.Now())
+				fixture.scan() // reset
+				fixture.fs.Delete("/outside/new_stuff.go")
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a miscellaneous file is created", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/root/new_stuff.MISC", 42, time.Now())
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a miscellaneous file is modified", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/root/new_stuff.MISC", 42, time.Now())
+				fixture.scan() // reset
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a miscellaneous file is renamed", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/root/new_stuff.MISC", 42, time.Now())
+				fixture.scan() // reset
+				fixture.fs.Rename("/root/new_stuff.MISC", "/root/newer_stoff.MISC")
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a miscellaneous file is deleted", func() {
-				Convey("The scanner should NOT report a change in state", nil)
+				fixture.fs.Create("/root/new_stuff.MISC", 42, time.Now())
+				fixture.scan() // reset
+				fixture.fs.Delete("/root/new_stuff.MISC")
+
+				Convey("The scanner should NOT report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
 			})
 
 			Convey("When a new folder is created inside a watched folder", func() {
-				Convey("The scanner should report the change", nil)
-				Convey("The scanner should notify the watcher of the creation", nil)
+				fixture.fs.Create("/root/new", 41, time.Now())
+				changed := fixture.scan()
+
+				Convey("The scanner should report the change", func() {
+					So(changed, ShouldBeTrue)
+				})
+
+				Convey("The scanner should notify the watcher of the creation", func() {
+					So(fixture.wasCreated("/root/new"), ShouldBeTrue)
+				})
 			})
 
-			Convey("When a watched folder is deleted", func() {
-				Convey("The scanner should report the change", nil)
-				Convey("The scanner should notify the watcher of the deletion", nil)
+			Convey("When an empty watched folder is deleted", func() {
+				fixture.fs.Delete("/root/sub/empty")
+				changed := fixture.scan()
+
+				Convey("The scanner should report the change", func() {
+					So(changed, ShouldBeTrue)
+				})
+
+				Convey("The scanner should notify the watcher of the deletion", func() {
+					So(fixture.wasDeleted("/root/sub/empty"), ShouldBeTrue)
+				})
 			})
 
 			Convey("When a folder is created outside any watched folders", func() {
-				Convey("The scanner should NOT report the change", nil)
-				Convey("The scanner should NOT notify the watcher of the change", nil)
+				fixture.fs.Create("/outside/asdf", 41, time.Now())
+				changed := fixture.scan()
+
+				Convey("The scanner should NOT report the change", func() {
+					So(changed, ShouldBeFalse)
+				})
+
+				Convey("The scanner should NOT notify the watcher of the change", func() {
+					So(fixture.wasCreated("/outside/asdf"), ShouldBeFalse)
+				})
 			})
 
-			Convey("When a folder that is not being watched is deleted", func() {
-				Convey("The scanner should NOT report the change", nil)
-				Convey("The scanner should NOT notify the watcher of the change", nil)
+			Convey("When an ignored folder is deleted", func() {
+				fixture.watcher.Ignore("/root/sub/empty")
+				fixture.fs.Delete("/root/sub/empty")
+				changed := fixture.scan()
+
+				Convey("The scanner should report the change", func() {
+					So(changed, ShouldBeTrue)
+				})
+
+				Convey("The scanner should notify the watcher of the change", func() {
+					So(fixture.wasDeleted("/root/sub/empty"), ShouldBeTrue)
+				})
 			})
 		})
 	})

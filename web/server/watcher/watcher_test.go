@@ -118,7 +118,7 @@ func TestWatcher(t *testing.T) {
 		Convey("Regardless of the status of the watched folders", func() {
 			folders := fixture.setupSeveralFoldersWithWatcher()
 
-			Convey("The IsActive query method should conform to the actual state returned", func() {
+			Convey("The IsActive query method should be correct", func() {
 				So(fixture.watcher.IsActive(folders["active"]), ShouldBeTrue)
 				So(fixture.watcher.IsActive(folders["reinstated"]), ShouldBeTrue)
 
@@ -127,7 +127,7 @@ func TestWatcher(t *testing.T) {
 				So(fixture.watcher.IsActive(folders["irrelevant"]), ShouldBeFalse)
 			})
 
-			Convey("The IsIgnored query method should conform to the actual state returned", func() {
+			Convey("The IsIgnored query method should be correct", func() {
 				So(fixture.watcher.IsIgnored(folders["ignored"]), ShouldBeTrue)
 
 				So(fixture.watcher.IsIgnored(folders["active"]), ShouldBeFalse)
@@ -136,7 +136,7 @@ func TestWatcher(t *testing.T) {
 				So(fixture.watcher.IsIgnored(folders["irrelevant"]), ShouldBeFalse)
 			})
 
-			Convey("The IsWatched query method should conform to the actual state returned", func() {
+			Convey("The IsWatched query method should be correct", func() {
 				So(fixture.watcher.IsWatched(folders["active"]), ShouldBeTrue)
 				So(fixture.watcher.IsWatched(folders["reinstated"]), ShouldBeTrue)
 				So(fixture.watcher.IsWatched(folders["ignored"]), ShouldBeTrue)
