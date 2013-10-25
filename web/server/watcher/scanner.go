@@ -19,15 +19,6 @@ func (self *Scanner) Scan(root string) (changed bool) {
 	return self.determineIfChanged()
 }
 
-func (self *Scanner) determineIfChanged() bool {
-	defer func() {
-		self.current = self.working
-		self.working = 0
-	}()
-
-	return self.working != self.current
-}
-
 func (self *Scanner) calculateWorkingChecksum(root string) {
 	self.fs.Walk(root, func(path string, info os.FileInfo, err error) error {
 		step := newWalkStep(root, path, info)
@@ -44,6 +35,15 @@ func (self *Scanner) calculateWorkingChecksum(root string) {
 
 		return nil
 	})
+}
+
+func (self *Scanner) determineIfChanged() bool {
+	defer func() {
+		self.current = self.working
+		self.working = 0
+	}()
+
+	return self.working != self.current
 }
 
 func NewScanner(fs contract.FileSystem, watcher contract.Watcher) *Scanner {
