@@ -58,7 +58,6 @@ func (self *Scanner) calculateWorkingChecksum(path string, info os.FileInfo, err
 
 	if !self.watched[folder] && strings.HasPrefix(path, self.root) && info.IsDir() {
 		self.working += info.Size() + info.ModTime().Unix()
-		self.watcher.Creation(folder)
 	} else if self.watched[folder] && filepath.Ext(path) == ".go" {
 		self.working += info.Size() + info.ModTime().Unix()
 	}
