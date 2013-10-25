@@ -105,10 +105,6 @@ ul li {
 	margin-bottom: .5em;
 }
 
-.package-list li a {
-	display: block;
-}
-
 #path {
 	width: 100%;
 	display: block;
@@ -229,14 +225,19 @@ a.link-fa:hover {
 	line-height: 1.5em;
 }
 
-a.goto {
-	text-decoration: none !important;
-	color: #666 !important;
+a.toggle, .toggle-spacing {
 	padding: 0 5px;
 	display: inline-block;
 }
 
-a.goto:hover {
+a.goto,
+a.toggle {
+	text-decoration: none !important;
+	color: #666 !important;
+}
+
+a.goto:hover,
+a.toggle:hover {
 	color: #000 !important;
 }
 .failure-shortcuts a {
@@ -256,6 +257,22 @@ a.goto:hover {
 }
 .builds-shortcuts a:hover {
 	color: #AAA;
+}
+
+.package-shortcut {
+	padding: .15em 0;
+}
+
+.testfunc-list {
+	max-height: 200px;
+	overflow-y: auto;
+	padding-left: .75em;
+	margin-top: .5em;
+	display: none;
+}
+
+.testfunc-list a {
+	display: block;
 }
 
 
@@ -361,12 +378,12 @@ a.goto:hover {
 
 
 ins, .failures th.actual {
-	background: #C6FFC6;
+	background: #FFC6C6;
 	text-decoration: none;
 }
 
 del, .failures th.expected {
-	background: #FFC6C6;
+	background: #C6FFC6;
 }
 
 

@@ -113,6 +113,8 @@ $(function()
 		});
 	}
 
+	// When the watched directory changes, change it with the server and
+	// make sure it exists
 	$('#path').change(function() {
 		var self = $(this)
 		$.post('/watch?root='+encodeURIComponent($.trim($(this).val())))
@@ -122,6 +124,13 @@ $(function()
 			.fail(function() {
 				self.css('color', '#DD0000');
 			});
+	});
+
+	// For expanding-collapsing the package/testfunc lists
+	$('body').on('click', '.toggle', function()
+	{
+		$(this).next('a').next('.testfunc-list').toggle(65);
+		$('.fa', this).toggleClass('fa-collapse-o').toggleClass('fa-expand-o');
 	});
 
 	function update()
@@ -177,6 +186,8 @@ $(function()
 					for (var j in pkg.TestResults)
 					{
 						test = makeContext(pkg.TestResults[j]);
+						test._id = uniqueID;
+						uniqueID ++;
 
 						if (test.Stories.length == 0)
 						{
@@ -184,7 +195,6 @@ $(function()
 							// not a GoConvey test that has stories and assertions
 							// so we'll treat this whole test as a single assertion
 							convey.overall.assertions ++;
-							test._id = uniqueID;
 
 							if (test.Error)
 							{
@@ -210,8 +220,6 @@ $(function()
 								test._passed ++;
 								convey.assertions.passed.push(test);
 							}
-
-							uniqueID ++;
 						}
 						else
 							test._status = convey.statuses.pass;

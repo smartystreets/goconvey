@@ -139,11 +139,24 @@
 					<div class="templated">
 						<b>Packages</b>
 						<hr>
-						<ul class="package-list">
 						{{.}}
-							<li><a href="#package-{{_id}}" title="Scroll to {{PackageName}}">{{PackageName|chopEnd>23|boldPkgName}}</a></li>
+						<div class="package-shortcut">
+							{{if TestResults|notempty}}
+								<a href="javascript:" class="toggle"><i class="fa fa-expand-o fa-lg"></i></a>
+							{{else}}
+								<span class="toggle-spacing"><i class="fa fa-square-o"></i></span>
+							{{/if}}
+
+							<a href="#package-{{_id}}" class="goto-package">{{PackageName|chopEnd>23|boldPkgName}}</a>
+
+							{{if TestResults|notempty}}<div class="testfunc-list">
+								{{TestResults}}
+								<a href="#test-{{_id}}" class="goto">{{TestName}} <i class="fa fa-level-down"></i></a>
+								{{/TestResults}}
+							</div>
+							{{/if}}
+						</div>
 						{{/.}}
-						</ul>
 					</div>
 				</script>
 
@@ -214,9 +227,22 @@
 						{{.}}
 						<div class="failure">
 							<table>
+								<!--
+								TODO: See if scope can be put inline here...
+								<tr>
+									<td colspan="3">
+										Testing
+									</td>
+								</tr>
+								<tr>
+									<td colspan="3">
+										&nbsp; &nbsp; &nbsp; Testing again
+									</td>
+								</tr>
+								-->
 								<tr>
 									<td colspan="2" class="file">
-										{{File|relativePath}}
+										<a href="#test-{{_id}}" class="block">{{File|relativePath}} <i class="fa fa-level-down"></i></a>
 									</td>
 									<td class="line">
 										Line {{Line}}
