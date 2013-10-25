@@ -114,6 +114,37 @@ func TestWatcher(t *testing.T) {
 				So(actualWatches, ShouldResemble, expectedWatches)
 			})
 		})
+
+		Convey("Regardless of the status of the watched folders", func() {
+			folders := fixture.setupSeveralFoldersWithWatcher()
+
+			Convey("The IsActive query method should conform to the actual state returned", func() {
+				So(fixture.watcher.IsActive(folders["active"]), ShouldBeTrue)
+				So(fixture.watcher.IsActive(folders["reinstated"]), ShouldBeTrue)
+
+				So(fixture.watcher.IsActive(folders["ignored"]), ShouldBeFalse)
+				So(fixture.watcher.IsActive(folders["deleted"]), ShouldBeFalse)
+				So(fixture.watcher.IsActive(folders["irrelevant"]), ShouldBeFalse)
+			})
+
+			Convey("The IsIgnored query method should conform to the actual state returned", func() {
+				So(fixture.watcher.IsIgnored(folders["ignored"]), ShouldBeTrue)
+
+				So(fixture.watcher.IsIgnored(folders["active"]), ShouldBeFalse)
+				So(fixture.watcher.IsIgnored(folders["reinstated"]), ShouldBeFalse)
+				So(fixture.watcher.IsIgnored(folders["deleted"]), ShouldBeFalse)
+				So(fixture.watcher.IsIgnored(folders["irrelevant"]), ShouldBeFalse)
+			})
+
+			Convey("The IsWatched query method should conform to the actual state returned", func() {
+				So(fixture.watcher.IsWatched(folders["active"]), ShouldBeTrue)
+				So(fixture.watcher.IsWatched(folders["reinstated"]), ShouldBeTrue)
+				So(fixture.watcher.IsWatched(folders["ignored"]), ShouldBeTrue)
+
+				So(fixture.watcher.IsWatched(folders["deleted"]), ShouldBeFalse)
+				So(fixture.watcher.IsWatched(folders["irrelevant"]), ShouldBeFalse)
+			})
+		})
 	})
 }
 
@@ -124,6 +155,10 @@ type watcherFixture struct {
 
 func (self *watcherFixture) watched() []*contract.Package {
 	return self.watcher.WatchedFolders()
+}
+
+func (self *watcherFixture) verifyQueryMethodsInSync() bool {
+	return false
 }
 
 func (self *watcherFixture) pointToExistingRoot(folder string) (actual, expected interface{}) {
@@ -252,6 +287,30 @@ func (self *watcherFixture) reinstateIrrelevantFolder() (actual, expected interf
 	actual = self.watched()
 	expected = []*contract.Package{&contract.Package{Active: true, Path: "/root", Name: "root"}}
 	return
+}
+
+func (self *watcherFixture) setupSeveralFoldersWithWatcher() map[string]string {
+	self.fs.Create("/folder", 0, time.Now())
+	self.fs.Create("/folder/active", 1, time.Now())
+	self.fs.Create("/folder/reinstated", 2, time.Now())
+	self.fs.Create("/folder/ignored", 3, time.Now())
+	self.fs.Create("/folder/deleted", 4, time.Now())
+	self.fs.Create("/irrelevant", 5, time.Now())
+
+	self.watcher.Adjust("/folder")
+	self.watcher.Ignore("/folder/ignored")
+	self.watcher.Ignore("/folder/reinstated")
+	self.watcher.Reinstate("/folder/reinstated")
+	self.watcher.Deletion("/folder/deleted")
+	self.fs.Delete("/folder/deleted")
+
+	return map[string]string{
+		"active":     "/folder/active",
+		"reinstated": "/folder/reinstated",
+		"ignored":    "/folder/ignored",
+		"deleted":    "/folder/deleted",
+		"irrelevant": "/irrelevant",
+	}
 }
 
 func newWatcherFixture() *watcherFixture {
