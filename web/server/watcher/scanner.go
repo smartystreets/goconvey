@@ -52,10 +52,7 @@ func (self *Scanner) accountForNewFolders(latest map[string]bool) {
 }
 
 func (self *Scanner) latestTestResultsAreStale(checksum int64) bool {
-	defer func() {
-		self.previous = checksum
-	}()
-
+	defer func() { self.previous = checksum }()
 	return self.previous != checksum
 }
 
