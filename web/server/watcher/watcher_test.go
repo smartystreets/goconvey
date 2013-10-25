@@ -118,13 +118,13 @@ func TestWatcher(t *testing.T) {
 		Convey("Regardless of the status of the watched folders", func() {
 			folders := fixture.setupSeveralFoldersWithWatcher()
 
-			Convey("The IsActive query method should be correct", func() {
-				So(fixture.watcher.IsActive(folders["active"]), ShouldBeTrue)
-				So(fixture.watcher.IsActive(folders["reinstated"]), ShouldBeTrue)
+			Convey("The IsWatched query method should be correct", func() {
+				So(fixture.watcher.IsWatched(folders["active"]), ShouldBeTrue)
+				So(fixture.watcher.IsWatched(folders["reinstated"]), ShouldBeTrue)
 
-				So(fixture.watcher.IsActive(folders["ignored"]), ShouldBeFalse)
-				So(fixture.watcher.IsActive(folders["deleted"]), ShouldBeFalse)
-				So(fixture.watcher.IsActive(folders["irrelevant"]), ShouldBeFalse)
+				So(fixture.watcher.IsWatched(folders["ignored"]), ShouldBeFalse)
+				So(fixture.watcher.IsWatched(folders["deleted"]), ShouldBeFalse)
+				So(fixture.watcher.IsWatched(folders["irrelevant"]), ShouldBeFalse)
 			})
 
 			Convey("The IsIgnored query method should be correct", func() {
@@ -134,15 +134,6 @@ func TestWatcher(t *testing.T) {
 				So(fixture.watcher.IsIgnored(folders["reinstated"]), ShouldBeFalse)
 				So(fixture.watcher.IsIgnored(folders["deleted"]), ShouldBeFalse)
 				So(fixture.watcher.IsIgnored(folders["irrelevant"]), ShouldBeFalse)
-			})
-
-			Convey("The IsWatched query method should be correct", func() {
-				So(fixture.watcher.IsWatched(folders["active"]), ShouldBeTrue)
-				So(fixture.watcher.IsWatched(folders["reinstated"]), ShouldBeTrue)
-				So(fixture.watcher.IsWatched(folders["ignored"]), ShouldBeTrue)
-
-				So(fixture.watcher.IsWatched(folders["deleted"]), ShouldBeFalse)
-				So(fixture.watcher.IsWatched(folders["irrelevant"]), ShouldBeFalse)
 			})
 		})
 	})

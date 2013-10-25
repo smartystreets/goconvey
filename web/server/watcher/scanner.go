@@ -8,58 +8,55 @@ import (
 type Scanner struct {
 	fs                 contract.FileSystem
 	watcher            contract.Watcher
-	currentChecksum    int64
-	workingChecksum    int64
+	previous           int64
 	latestFolders      map[string]bool
 	preExistingFolders map[string]bool
 }
 
-func (self *Scanner) Scan(root string) (changed bool) {
-	self.analyzeCurrentFileSystemState(root)
-	self.accountForRecentlyDeletedFolders()
-	return self.latestTestResultsAreStale()
+func (self *Scanner) Scan(root string) bool {
+	checksum, folders := self.analyzeCurrentFileSystemState(root)
+	self.notifyWatcherOfChangesInFolderStructure(folders)
+	return self.latestTestResultsAreStale(checksum)
 }
 
-func (self *Scanner) analyzeCurrentFileSystemState(root string) {
+func (self *Scanner) analyzeCurrentFileSystemState(root string) (checksum int64, folders map[string]bool) {
+	folders = make(map[string]bool)
+
 	self.fs.Walk(root, func(path string, info os.FileInfo, err error) error {
 		step := newWalkStep(root, path, info, self.watcher)
-
-		step.includeIn(self.latestFolders)
-
-		if step.isIgnored() {
-			return nil
-		}
-
-		if step.isNewWatchedFolder() {
-			self.workingChecksum += step.sum()
-			step.registerWatchedFolder()
-		} else if step.isCurrentlyWatchedFolder() {
-			self.workingChecksum += step.sum()
-		} else if step.isWatchedFile() {
-			self.workingChecksum += step.sum()
-		}
-
+		step.IncludeIn(folders)
+		checksum += step.Sum()
 		return nil
 	})
+	return checksum, folders
 }
 
-func (self *Scanner) accountForRecentlyDeletedFolders() {
+func (self *Scanner) notifyWatcherOfChangesInFolderStructure(latest map[string]bool) {
+	self.accountForDeletedFolders(latest)
+	self.accountForNewFolders(latest)
+	self.preExistingFolders = latest
+}
+func (self *Scanner) accountForDeletedFolders(latest map[string]bool) {
 	for folder, _ := range self.preExistingFolders {
-		if _, exists := self.latestFolders[folder]; !exists {
+		if _, exists := latest[folder]; !exists {
 			self.watcher.Deletion(folder)
 		}
 	}
-	self.preExistingFolders = self.latestFolders
-	self.latestFolders = make(map[string]bool)
+}
+func (self *Scanner) accountForNewFolders(latest map[string]bool) {
+	for folder, _ := range latest {
+		if _, exists := self.preExistingFolders[folder]; !exists {
+			self.watcher.Creation(folder)
+		}
+	}
 }
 
-func (self *Scanner) latestTestResultsAreStale() bool {
+func (self *Scanner) latestTestResultsAreStale(checksum int64) bool {
 	defer func() {
-		self.currentChecksum = self.workingChecksum
-		self.workingChecksum = 0
+		self.previous = checksum
 	}()
 
-	return self.workingChecksum != self.currentChecksum
+	return self.previous != checksum
 }
 
 func NewScanner(fs contract.FileSystem, watcher contract.Watcher) *Scanner {
@@ -68,11 +65,11 @@ func NewScanner(fs contract.FileSystem, watcher contract.Watcher) *Scanner {
 	self.watcher = watcher
 	self.latestFolders = make(map[string]bool)
 	self.preExistingFolders = make(map[string]bool)
-	self.accountForWatchedFolders()
+	self.rememberCurrentlyWatchedFolders()
 
 	return self
 }
-func (self *Scanner) accountForWatchedFolders() {
+func (self *Scanner) rememberCurrentlyWatchedFolders() {
 	for _, item := range self.watcher.WatchedFolders() {
 		self.preExistingFolders[item.Path] = true
 	}

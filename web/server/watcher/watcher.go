@@ -59,7 +59,7 @@ func (self *Watcher) WatchedFolders() []*contract.Package {
 	return watched
 }
 
-func (self *Watcher) IsActive(folder string) bool {
+func (self *Watcher) IsWatched(folder string) bool {
 	if value, exists := self.watched[folder]; exists {
 		return value.Active
 	}
@@ -71,11 +71,6 @@ func (self *Watcher) IsIgnored(folder string) bool {
 		return !value.Active
 	}
 	return false
-}
-
-func (self *Watcher) IsWatched(folder string) bool {
-	_, exists := self.watched[folder]
-	return exists
 }
 
 func NewWatcher(fs contract.FileSystem) *Watcher {

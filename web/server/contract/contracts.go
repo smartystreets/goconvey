@@ -31,9 +31,8 @@ type (
 		Reinstate(folder string) error
 
 		WatchedFolders() []*Package
-		IsActive(folder string) bool
-		IsIgnored(folder string) bool
 		IsWatched(folder string) bool
+		IsIgnored(folder string) bool
 	}
 
 	Executor interface {
