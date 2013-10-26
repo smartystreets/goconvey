@@ -15,13 +15,20 @@ type (
 		Execute(writer http.ResponseWriter, request *http.Request)
 	}
 
+	Executor interface {
+		// contains the executor.Parser
+		// contains the Server
+		// contains the Shell
+
+		ExecuteTests([]*Package) *parser.CompleteOutput
+		IsRunning() bool
+	}
+
 	Scanner interface {
 		Scan(root string) (changed bool)
 	}
 
 	Watcher interface {
-		// contains the FileSystem
-
 		Adjust(root string) error
 
 		Deletion(folder string)
@@ -33,15 +40,6 @@ type (
 		WatchedFolders() []*Package
 		IsWatched(folder string) bool
 		IsIgnored(folder string) bool
-	}
-
-	Executor interface {
-		// contains the executor.Parser
-		// contains the Server
-		// contains the Shell
-
-		ExecuteTests([]*Package) *parser.CompleteOutput
-		IsRunning() bool
 	}
 
 	FileSystem interface {

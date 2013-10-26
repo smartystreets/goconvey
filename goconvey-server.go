@@ -14,6 +14,21 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	// initialize file system
+	// initialize shell
+
+	// initialize a watcher
+	// adjust watcher
+
+	// initialize parser
+	// initialize executor
+	// initialize server
+
+	// initialize scanner
+	// start scanning
+
+	// serve http
 }
 
 var (
