@@ -8,6 +8,7 @@ import (
 type FakeShell struct {
 	outputByCommand map[string]string // name + args: output
 	errorsByOutput  map[string]error  // output: err
+	environment     map[string]string
 }
 
 func (self *FakeShell) Register(fullCommand string, output string, err error) {
@@ -25,9 +26,19 @@ func (self *FakeShell) Execute(name string, args ...string) (output string, err 
 	return
 }
 
+func (self *FakeShell) Getenv(key string) string {
+	return self.environment[key]
+}
+
+func (self *FakeShell) Setenv(key, value string) error {
+	self.environment[key] = value
+	return nil
+}
+
 func NewFakeShell() *FakeShell {
 	self := &FakeShell{}
 	self.outputByCommand = map[string]string{}
 	self.errorsByOutput = map[string]error{}
+	self.environment = map[string]string{}
 	return self
 }

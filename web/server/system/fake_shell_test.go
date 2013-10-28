@@ -47,5 +47,17 @@ func TestFakeShell(t *testing.T) {
 				So(err.Error(), ShouldEqual, "Hi")
 			})
 		})
+
+		Convey("When setting an environment variable", func() {
+			err := shell.Setenv("variable", "42")
+
+			Convey("The value should persist", func() {
+				So(shell.Getenv("variable"), ShouldEqual, "42")
+			})
+
+			Convey("The error should be nil", func() {
+				So(err, ShouldBeNil)
+			})
+		})
 	})
 }

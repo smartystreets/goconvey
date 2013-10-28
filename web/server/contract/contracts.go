@@ -8,11 +8,11 @@ import (
 
 type (
 	Server interface {
-		ReceiveUpdate(*parser.CompleteOutput)
-		Watch(writer http.ResponseWriter, request *http.Request)
-		Status(writer http.ResponseWriter, request *http.Request)
-		Results(writer http.ResponseWriter, request *http.Request)
-		Execute(writer http.ResponseWriter, request *http.Request)
+		ReceiveUpdate(*parser.CompleteOutput)                      // internal
+		Watch(writer http.ResponseWriter, request *http.Request)   // GET vs POST
+		Status(writer http.ResponseWriter, request *http.Request)  // GET
+		Results(writer http.ResponseWriter, request *http.Request) // GET
+		Execute(writer http.ResponseWriter, request *http.Request) // POST
 	}
 
 	Executor interface {
@@ -49,6 +49,8 @@ type (
 
 	Shell interface {
 		Execute(name string, args ...string) (output string, err error)
+		Getenv(key string) string
+		Setenv(key, value string) error
 	}
 )
 
