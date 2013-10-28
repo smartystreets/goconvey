@@ -27,7 +27,7 @@ func TestWatcher(t *testing.T) {
 			So(len(fixture.watched()), ShouldEqual, 0)
 		})
 
-		Convey("When pointing to a folder", func() {
+		Convey("When pointing to a root folder", func() {
 			actualWatches, expectedWatches = fixture.pointToExistingRoot("/root")
 
 			Convey("That folder should be included as the first watched folder", func() {
@@ -35,7 +35,7 @@ func TestWatcher(t *testing.T) {
 			})
 		})
 
-		Convey("When pointing to a folder that does not exist", func() {
+		Convey("When pointing to a root folder that does not exist", func() {
 			actualError, expectedError = fixture.pointToImaginaryRoot("/not/there")
 
 			Convey("An appropriate error should be returned", func() {
@@ -43,11 +43,27 @@ func TestWatcher(t *testing.T) {
 			})
 		})
 
-		Convey("When pointing to a folder with nested folders", func() {
+		Convey("When pointing to a root folder with nested folders", func() {
 			actualWatches, expectedWatches = fixture.pointToExistingRootWithNestedFolders()
 
 			Convey("All nested folders should be added recursively to the watched folders", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
+			})
+		})
+
+		Convey("When pointing to a root folder that could be a GOPATH itself", func() {
+			fixture.pointToRootOfGoPath()
+
+			Convey("The $GOPATH should be set accordingly", func() {
+				So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/home/gopath")
+			})
+		})
+
+		Convey("When pointing to a root folder that is probably nested within a GOPATH", func() {
+			fixture.pointToNestedPartOfGoPath()
+
+			Convey("The $GOPATH should be set accordingly", func() {
+				So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/home/gopath")
 			})
 		})
 
@@ -142,6 +158,7 @@ func TestWatcher(t *testing.T) {
 type watcherFixture struct {
 	watcher *Watcher
 	fs      *system.FakeFileSystem
+	shell   *system.FakeShell
 }
 
 func (self *watcherFixture) watched() []*contract.Package {
@@ -184,6 +201,19 @@ func (self *watcherFixture) pointToExistingRootWithNestedFolders() (actual, expe
 		&contract.Package{Active: true, Path: "/root/sub/subsub", Name: "subsub"},
 	}
 	return
+}
+
+func (self *watcherFixture) pointToRootOfGoPath() {
+	self.fs.Create("/home/gopath", 5, time.Now())
+
+	self.watcher.Adjust("/home/gopath")
+}
+
+func (self *watcherFixture) pointToNestedPartOfGoPath() {
+	self.fs.Create("/home/gopath", 5, time.Now())
+	self.fs.Create("/home/gopath/src/github.com/smartystreets/goconvey", 6, time.Now())
+
+	self.watcher.Adjust("/home/gopath/src/github.com/smartystreets/goconvey")
 }
 
 func (self *watcherFixture) receiveNotificationOfNewFolder() (actual, expected interface{}) {
@@ -307,7 +337,8 @@ func (self *watcherFixture) setupSeveralFoldersWithWatcher() map[string]string {
 func newWatcherFixture() *watcherFixture {
 	self := &watcherFixture{}
 	self.fs = system.NewFakeFileSystem()
-	self.watcher = NewWatcher(self.fs)
+	self.shell = system.NewFakeShell()
+	self.watcher = NewWatcher(self.fs, self.shell)
 	return self
 }
 

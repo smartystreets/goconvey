@@ -6,10 +6,12 @@ import (
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Watcher struct {
 	fs      contract.FileSystem
+	shell   contract.Shell
 	watched map[string]*contract.Package
 }
 
@@ -20,6 +22,7 @@ func (self *Watcher) Adjust(root string) error {
 
 	self.watched = make(map[string]*contract.Package)
 	self.fs.Walk(root, self.includeFolders)
+	self.setGoPath(root)
 
 	return nil
 }
@@ -28,6 +31,13 @@ func (self *Watcher) includeFolders(path string, info os.FileInfo, err error) er
 		self.watched[path] = &contract.Package{Active: true, Path: path, Name: info.Name()}
 	}
 	return nil
+}
+func (self *Watcher) setGoPath(root string) {
+	if rootGoPathEnd := strings.Index(root, "/src"); rootGoPathEnd >= 0 {
+		self.shell.Setenv("GOPATH", root[:rootGoPathEnd])
+	} else {
+		self.shell.Setenv("GOPATH", root)
+	}
 }
 
 func (self *Watcher) Deletion(folder string) {
@@ -73,9 +83,10 @@ func (self *Watcher) IsIgnored(folder string) bool {
 	return false
 }
 
-func NewWatcher(fs contract.FileSystem) *Watcher {
+func NewWatcher(fs contract.FileSystem, shell contract.Shell) *Watcher {
 	self := &Watcher{}
 	self.fs = fs
+	self.shell = shell
 	self.watched = map[string]*contract.Package{}
 	return self
 }

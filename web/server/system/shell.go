@@ -18,5 +18,8 @@ func (self *Shell) Getenv(key string) string {
 }
 
 func (self *Shell) Setenv(key, value string) error {
-	return os.Setenv(key, value)
+	if self.Getenv(key) != value {
+		return os.Setenv(key, value)
+	}
+	return nil
 }

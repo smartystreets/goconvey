@@ -223,7 +223,7 @@ func newScannerFixture() *scannerFixture {
 	self.fs.Create("/root/sub", 0, time.Now())
 	self.fs.Create("/root/sub/file.go", 2, time.Now())
 	self.fs.Create("/root/sub/empty", 0, time.Now())
-	self.watcher = NewWatcher(self.fs)
+	self.watcher = NewWatcher(self.fs, system.NewFakeShell())
 	self.watcher.Adjust("/root")
 	self.scanner = NewScanner(self.fs, self.watcher)
 	return self
