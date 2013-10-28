@@ -17,11 +17,10 @@ type (
 
 	Executor interface {
 		// contains the executor.Parser
-		// contains the Server
 		// contains the Shell
 
 		ExecuteTests([]*Package) *parser.CompleteOutput
-		IsRunning() bool
+		Status() string // executing, aggregating, idle
 	}
 
 	Scanner interface {
