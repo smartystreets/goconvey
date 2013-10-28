@@ -142,9 +142,9 @@
 						{{.}}
 						<div class="package-shortcut">
 							{{if TestResults|notempty}}
-								<a href="javascript:" class="toggle"><i class="fa fa-expand-o fa-lg"></i></a>
+								<a href="javascript:" class="toggle toggle-package-shortcuts"><i class="fa fa-expand-o fa-lg"></i></a>
 							{{else}}
-								<span class="toggle-spacing"><i class="fa fa-square-o"></i></span>
+								<span class="toggle-spacer"><i class="fa fa-square-o"></i></span>
 							{{/if}}
 
 							<a href="#package-{{_id}}" class="goto-package">{{PackageName|chopEnd>23|boldPkgName}}</a>
@@ -296,6 +296,7 @@
 					<table class="package-story templated">
 						<tr class="depth-0" id="package-{{_id}}">
 							<th colspan="3">
+								<a href="javascript:" class="toggle toggle-package-stories"><i class="fa fa-collapse-o fa-lg"></i></a>
 								{{PackageName}}
 							</th>
 						</tr>

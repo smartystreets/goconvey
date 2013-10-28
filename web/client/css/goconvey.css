@@ -213,6 +213,35 @@ a.link-fa:hover {
 
 
 
+.toggle {
+	text-decoration: none !important;
+	color: #666 !important;
+}
+
+.toggle-package-shortcuts,
+.toggle-spacer {
+	padding: 0 5px;
+	display: inline-block;
+}
+
+.goto,
+.toggle {
+	text-decoration: none !important;
+	color: #666 !important;
+}
+
+.goto:hover,
+.toggle:hover {
+	color: #000 !important;
+}
+
+
+
+
+
+
+
+
 .failure-shortcuts,
 .panic-shortcuts,
 .builds-shortcuts {
@@ -225,21 +254,6 @@ a.link-fa:hover {
 	line-height: 1.5em;
 }
 
-a.toggle, .toggle-spacing {
-	padding: 0 5px;
-	display: inline-block;
-}
-
-a.goto,
-a.toggle {
-	text-decoration: none !important;
-	color: #666 !important;
-}
-
-a.goto:hover,
-a.toggle:hover {
-	color: #000 !important;
-}
 .failure-shortcuts a {
 	color: #E79C07;
 }

@@ -126,12 +126,23 @@ $(function()
 			});
 	});
 
-	// For expanding-collapsing the package/testfunc lists
+	// TOGGLES
+	// Toggle a toggle's icon to expand/contract when clicked
 	$('body').on('click', '.toggle', function()
 	{
-		$(this).next('a').next('.testfunc-list').toggle(65);
 		$('.fa', this).toggleClass('fa-collapse-o').toggleClass('fa-expand-o');
 	});
+	// Package/testfunc lists
+	$('body').on('click', '.toggle-package-shortcuts', function()
+	{
+		$(this).next('a').next('.testfunc-list').toggle(65);
+	});
+	// Package stories
+	$('body').on('click', '.toggle-package-stories', function()
+	{
+		$(this).closest('tr').siblings().toggle();
+	});
+	// END TOGGLES
 
 	function update()
 	{
