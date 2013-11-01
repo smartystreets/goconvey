@@ -8,13 +8,15 @@ import (
 	"time"
 )
 
+const concurrentBatchSize = 2
+
 func TestConcurrentTester(t *testing.T) {
 	var fixture *TesterFixture
 
-	Convey("Subject: Controlled (and concurrent) execution of test packages", t, func() {
+	Convey("Subject: Controlled execution of test packages", t, func() {
 		fixture = NewTesterFixture()
 
-		Convey("When tests for each package are executed", func() {
+		Convey("Whenever tests for each package are executed", func() {
 			fixture.RunTests()
 
 			Convey("The tester should build all dependencies of input packages",
@@ -31,14 +33,17 @@ func TestConcurrentTester(t *testing.T) {
 		})
 
 		Convey("When the tests for each package are executed synchronously", func() {
-			fixture.RunTests()
+			fixture.InBatchesOf(1).RunTests()
 
 			Convey("Each package should be run synchronously and in the given order",
-				fixture.CheckContiguousExecution)
+				fixture.TestsShouldHaveRunContiguously)
 		})
 
-		Convey("When packages are tested in batches", func() {
-			Convey("packages should be tested in batches while maintaining the given order", nil)
+		Convey("When packages are tested concurrently", func() {
+			fixture.InBatchesOf(concurrentBatchSize).RunTests()
+
+			Convey("Packages should be arranged and tested in batches of the appropriate size",
+				fixture.TestsShouldHaveRunInBatchesOfTwo)
 		})
 	})
 }
@@ -56,7 +61,12 @@ func NewTesterFixture() *TesterFixture {
 	self := &TesterFixture{}
 	self.shell = NewTimedShell()
 	self.tester = NewConcurrentTester(self.shell)
-	self.packages = []string{"a", "b", "c", "d"}
+	self.packages = []string{"a", "b", "c", "d", "e", "f"}
+	return self
+}
+
+func (self *TesterFixture) InBatchesOf(batchSize int) *TesterFixture {
+	self.tester.SetBatchSize(batchSize)
 	return self
 }
 
@@ -89,13 +99,19 @@ func (self *TesterFixture) OutputShouldBeAsExpected() {
 	}
 }
 
-func (self *TesterFixture) CheckContiguousExecution() {
+func (self *TesterFixture) TestsShouldHaveRunContiguously() {
+	So(self.shell.MaxConcurrentCommands(), ShouldEqual, 1)
+
 	for i := 0; i < len(self.executions)-1; i++ {
 		current := self.executions[i]
 		next := self.executions[i+1]
 		So(current.Started, ShouldHappenBefore, next.Started)
 		So(current.Ended, ShouldHappenOnOrBefore, next.Started)
 	}
+}
+
+func (self *TesterFixture) TestsShouldHaveRunInBatchesOfTwo() {
+	So(self.shell.MaxConcurrentCommands(), ShouldEqual, concurrentBatchSize)
 }
 
 /**** Fakes ****/
@@ -117,6 +133,29 @@ func (self *TimedShell) Compilations() []*ShellCommand {
 
 func (self *TimedShell) Executions() []*ShellCommand {
 	return self.executions
+}
+
+func (self *TimedShell) MaxConcurrentCommands() int {
+	var concurrent int
+
+	for x, current := range self.executions {
+		concurrentWith_x := 1
+		for y, comparison := range self.executions {
+			if y == x {
+				continue
+			} else if concurrentWith(current, comparison) {
+				concurrentWith_x++
+			}
+		}
+		if concurrentWith_x > concurrent {
+			concurrent = concurrentWith_x
+		}
+	}
+	return concurrent
+}
+
+func concurrentWith(current, comparison *ShellCommand) bool {
+	return comparison.Started.After(current.Started) && comparison.Started.Before(current.Ended)
 }
 
 func (self *TimedShell) Execute(name string, args ...string) (output string, err error) {
