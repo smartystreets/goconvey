@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-const concurrentBatchSize = 2
-
 func TestConcurrentTester(t *testing.T) {
 	var fixture *TesterFixture
 
@@ -47,6 +45,8 @@ func TestConcurrentTester(t *testing.T) {
 		})
 	})
 }
+
+const concurrentBatchSize = 2
 
 type TesterFixture struct {
 	tester       *ConcurrentTester
