@@ -49,12 +49,14 @@ func (self *Watcher) Creation(folder string) {
 }
 
 func (self *Watcher) Ignore(folder string) error {
+	// TODO: a package name is all we have from the server!!!!
 	if value, exists := self.watched[folder]; exists {
 		value.Active = false
 	}
 	return nil
 }
 func (self *Watcher) Reinstate(folder string) error {
+	// TODO: a package name is all we have from the server!!!!
 	if value, exists := self.watched[folder]; exists {
 		value.Active = true
 	}

@@ -60,9 +60,7 @@ type (
 )
 
 type Package struct {
-	Active       bool
-	Path         string
-	Name         string
-	RawOutput    string
-	ParsedOutput *parser.PackageResult
+	Active bool
+	Path   string
+	Name   string
 }
