@@ -25,7 +25,6 @@ func (self *Executor) Status() string {
 
 func (self *Executor) ExecuteTests(folders []string) *parser.CompleteOutput {
 	defer func() { self.status = Idle }()
-
 	output := self.execute(folders)
 	result := self.parse(output, folders)
 	return result
@@ -40,22 +39,17 @@ func (self *Executor) parse(outputs, folders []string) *parser.CompleteOutput {
 	self.status = Parsing
 	result := &parser.CompleteOutput{Revision: now().String()}
 	for i, output := range outputs {
-		packageName, _ := resolvePackageName(folders[i])
+		packageName := resolvePackageName(folders[i])
 		parsed := self.parser.Parse(packageName, output)
 		result.Packages = append(result.Packages, parsed)
 	}
 	return result
 }
 
-func resolvePackageName(path string) (string, bool) {
-	success := true
-	const endGoPath = separator + "src" + separator
+func resolvePackageName(path string) string {
 	index := strings.Index(path, endGoPath)
-	if index < 0 {
-		success = false
-	}
 	name := path[index+len(endGoPath):]
-	return name, success
+	return name
 }
 
 func NewExecutor(tester Tester, parser Parser) *Executor {
@@ -70,4 +64,7 @@ var now = func() time.Time {
 	return time.Now()
 }
 
-const separator = string(filepath.Separator)
+const (
+	separator = string(filepath.Separator)
+	endGoPath = separator + "src" + separator
+)
