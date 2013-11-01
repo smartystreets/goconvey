@@ -15,7 +15,7 @@ func TestConcurrentTester(t *testing.T) {
 		fixture = NewTesterFixture()
 
 		Convey("Whenever tests for each package are executed", func() {
-			fixture.RunTests()
+			fixture.InBatchesOf(1).RunTests()
 
 			Convey("The tester should build all dependencies of input packages",
 				fixture.ShouldHaveRecordOfCompilationCommands)
