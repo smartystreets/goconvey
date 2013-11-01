@@ -8,14 +8,17 @@ import (
 
 type (
 	Monitor interface {
-		// contains everything but the server
-		Tick()
-		Engage() // infinite for loop, calls Tick between time.Sleep()
+		// contains the Server
+		// contains the Watcher
+		// contains the Scanner
+		// contains the Executor
+		Tick()   // one round of scanning and test execution
+		Engage() // infinite for loop, calls Tick() between time.Sleep() (when no tests were run)
 	}
 
 	Server interface {
-		ReceiveUpdate(*parser.CompleteOutput)                      // internal
-		Watch(writer http.ResponseWriter, request *http.Request)   // GET vs POST
+		ReceiveUpdate(*parser.CompleteOutput)
+		Watch(writer http.ResponseWriter, request *http.Request)   // GET (query root) vs PUT (adjust root) vs POST (reinstate) vs DELETE (ignore)
 		Status(writer http.ResponseWriter, request *http.Request)  // GET
 		Results(writer http.ResponseWriter, request *http.Request) // GET
 		Execute(writer http.ResponseWriter, request *http.Request) // POST
