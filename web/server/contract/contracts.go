@@ -7,6 +7,12 @@ import (
 )
 
 type (
+	Monitor interface {
+		// contains everything but the server
+		Tick()
+		Engage() // infinite for loop, calls Tick between time.Sleep()
+	}
+
 	Server interface {
 		ReceiveUpdate(*parser.CompleteOutput)                      // internal
 		Watch(writer http.ResponseWriter, request *http.Request)   // GET vs POST
@@ -16,11 +22,8 @@ type (
 	}
 
 	Executor interface {
-		// contains the executor.Parser
-		// contains the Shell
-
 		ExecuteTests([]*Package) *parser.CompleteOutput
-		Status() string // executing, aggregating, idle
+		Status() string
 	}
 
 	Scanner interface {
