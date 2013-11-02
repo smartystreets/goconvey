@@ -1,9 +1,8 @@
 package executor
 
 import (
+	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/parser"
-	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -39,17 +38,11 @@ func (self *Executor) parse(outputs, folders []string) *parser.CompleteOutput {
 	self.status = Parsing
 	result := &parser.CompleteOutput{Revision: now().String()}
 	for i, output := range outputs {
-		packageName := resolvePackageName(folders[i])
+		packageName := contract.ResolvePackageName(folders[i])
 		parsed := self.parser.Parse(packageName, output)
 		result.Packages = append(result.Packages, parsed)
 	}
 	return result
-}
-
-func resolvePackageName(path string) string {
-	index := strings.Index(path, endGoPath)
-	name := path[index+len(endGoPath):]
-	return name
 }
 
 func NewExecutor(tester Tester, parser Parser) *Executor {
@@ -63,8 +56,3 @@ func NewExecutor(tester Tester, parser Parser) *Executor {
 var now = func() time.Time {
 	return time.Now()
 }
-
-const (
-	separator = string(filepath.Separator)
-	endGoPath = separator + "src" + separator
-)

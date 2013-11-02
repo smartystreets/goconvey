@@ -1,9 +1,11 @@
 package contract
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/web/server/parser"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
 
 type (
@@ -64,3 +66,20 @@ type Package struct {
 	Path   string
 	Name   string
 }
+
+// TODO: Test
+func ResolvePackageName(path string) string {
+	index := strings.Index(path, endGoPath)
+	if index < 0 {
+		return path
+	}
+	packageBeginning := index + len(endGoPath)
+	name := path[packageBeginning:]
+	fmt.Println(name)
+	return name
+}
+
+const (
+	separator = string(filepath.Separator)
+	endGoPath = separator + "src" + separator
+)
