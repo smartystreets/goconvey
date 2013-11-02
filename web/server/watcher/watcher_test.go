@@ -239,7 +239,7 @@ func (self *watcherFixture) receiveNotificationOfDeletedFolder() (actual, expect
 func (self *watcherFixture) ignoreWatchedFolder() (actual, expected interface{}) {
 	self.watcher.Creation(goProject + "/sub2")
 
-	self.watcher.Ignore(goProject + "/sub2")
+	self.watcher.Ignore(goPackagePrefix + "/sub2")
 
 	actual = self.watched()
 	expected = []*contract.Package{&contract.Package{Active: false, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2"}}
@@ -273,7 +273,7 @@ func (self *watcherFixture) reinstateIgnoredFolder() (actual, expected interface
 	self.files.Create(goProject, 1, time.Now())
 	self.files.Create(goProject+"/sub", 2, time.Now())
 	self.watcher.Adjust(goProject)
-	self.watcher.Ignore(goProject + "/sub")
+	self.watcher.Ignore(goPackagePrefix + "/sub")
 
 	self.watcher.Reinstate(goProject + "/sub")
 
@@ -289,10 +289,10 @@ func (self *watcherFixture) reinstateDeletedFolder() (actual, expected interface
 	self.files.Create(goProject, 1, time.Now())
 	self.files.Create(goProject+"/sub", 2, time.Now())
 	self.watcher.Adjust(goProject)
-	self.watcher.Ignore(goProject + "/sub")
+	self.watcher.Ignore(goPackagePrefix + "/sub")
 	self.watcher.Deletion(goProject + "/sub")
 
-	self.watcher.Reinstate(goProject + "/sub")
+	self.watcher.Reinstate(goPackagePrefix + "/sub")
 
 	actual = self.watched()
 	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix}}
@@ -320,9 +320,9 @@ func (self *watcherFixture) setupSeveralFoldersWithWatcher() map[string]string {
 	self.files.Create("/irrelevant", 5, time.Now())
 
 	self.watcher.Adjust(goProject)
-	self.watcher.Ignore(goProject + "/ignored")
-	self.watcher.Ignore(goProject + "/reinstated")
-	self.watcher.Reinstate(goProject + "/reinstated")
+	self.watcher.Ignore(goPackagePrefix + "/ignored")
+	self.watcher.Ignore(goPackagePrefix + "/reinstated")
+	self.watcher.Reinstate(goPackagePrefix + "/reinstated")
 	self.watcher.Deletion(goProject + "/deleted")
 	self.files.Delete(goProject + "/deleted")
 

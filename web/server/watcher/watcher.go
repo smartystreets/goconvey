@@ -48,20 +48,26 @@ func (self *Watcher) Deletion(folder string) {
 }
 
 func (self *Watcher) Creation(folder string) {
-	self.watched[folder] = &contract.Package{Active: true, Path: folder, Name: contract.ResolvePackageName(folder)}
+	self.watched[folder] = &contract.Package{
+		Active: true,
+		Path:   folder,
+		Name:   contract.ResolvePackageName(folder),
+	}
 }
 
-func (self *Watcher) Ignore(folder string) error {
-	// TODO: a package name is all we have from the server!!!!
-	if value, exists := self.watched[folder]; exists {
-		value.Active = false
+func (self *Watcher) Ignore(packageName string) error {
+	for key, value := range self.watched {
+		if strings.HasSuffix(key, packageName) {
+			value.Active = false
+		}
 	}
 	return nil
 }
-func (self *Watcher) Reinstate(folder string) error {
-	// TODO: a package name is all we have from the server!!!!
-	if value, exists := self.watched[folder]; exists {
-		value.Active = true
+func (self *Watcher) Reinstate(packageName string) error {
+	for key, value := range self.watched {
+		if strings.HasSuffix(key, packageName) {
+			value.Active = true
+		}
 	}
 	return nil
 }
