@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -28,7 +27,11 @@ func (self *Watcher) Adjust(root string) error {
 }
 func (self *Watcher) includeFolders(path string, info os.FileInfo, err error) error {
 	if info.IsDir() {
-		self.watched[path] = &contract.Package{Active: true, Path: path, Name: info.Name()}
+		self.watched[path] = &contract.Package{
+			Active: true,
+			Path:   path,
+			Name:   contract.ResolvePackageName(path),
+		}
 	}
 	return nil
 }
@@ -45,7 +48,7 @@ func (self *Watcher) Deletion(folder string) {
 }
 
 func (self *Watcher) Creation(folder string) {
-	self.watched[folder] = &contract.Package{Active: true, Path: folder, Name: filepath.Base(folder)}
+	self.watched[folder] = &contract.Package{Active: true, Path: folder, Name: contract.ResolvePackageName(folder)}
 }
 
 func (self *Watcher) Ignore(folder string) error {
