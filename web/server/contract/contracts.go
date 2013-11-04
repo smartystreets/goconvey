@@ -67,7 +67,6 @@ type Package struct {
 	Name   string
 }
 
-// TODO: Test
 func ResolvePackageName(path string) string {
 	index := strings.Index(path, endGoPath)
 	if index < 0 {
