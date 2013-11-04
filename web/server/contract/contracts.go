@@ -8,15 +8,6 @@ import (
 )
 
 type (
-	Monitor interface {
-		// contains the Server
-		// contains the Watcher
-		// contains the Scanner
-		// contains the Executor
-		Tick()   // one round of scanning and test execution
-		Engage() // infinite for loop, calls Tick() between time.Sleep() (when no tests were run)
-	}
-
 	Server interface {
 		ReceiveUpdate(*parser.CompleteOutput)
 		Watch(writer http.ResponseWriter, request *http.Request)
