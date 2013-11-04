@@ -86,7 +86,7 @@ func TestWatcher(t *testing.T) {
 		Convey("When a watched folder is ignored", func() {
 			actualWatches, expectedWatches = fixture.ignoreWatchedFolder()
 
-			Convey("The folder should not be included in the watched folders", func() {
+			Convey("The folder should be marked as inactive in the watched folders listing", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
 			})
 		})
