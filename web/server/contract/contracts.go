@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+/*
+
+TODO: Watcher needs to return brand-new references of *Package in the watch list.
+TODO: Concrete Executor needs to accept []*Package, not []string.
+TODO: Tester needs to accept []*Package, not []string. (and filter on .Active accorrdingly)
+TODO: Coorinator needs to accpt []*Packge, not []string. (and filter on .Active accorrdingly)
+TODO: Parser needs to accept []*Package, not (packageName, output string) (and filter on .Active accordingly)
+
+*/
+
 type (
 	Server interface {
 		ReceiveUpdate(*parser.CompleteOutput)
