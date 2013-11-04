@@ -233,12 +233,12 @@ func (self *FakeWatcher) Adjust(root string) error {
 	self.root = root
 	return nil
 }
-func (self *FakeWatcher) Deletion(folder string)        { panic("NOT SUPPORTED") }
-func (self *FakeWatcher) Creation(folder string)        { panic("NOT SUPPORTED") }
-func (self *FakeWatcher) Ignore(folder string) error    { panic("NOT SUPPORTED") }
-func (self *FakeWatcher) Reinstate(folder string) error { panic("NOT SUPPORTED") }
-func (self *FakeWatcher) IsWatched(folder string) bool  { panic("NOT SUPPORTED") }
-func (self *FakeWatcher) IsIgnored(folder string) bool  { panic("NOT SUPPORTED") }
+func (self *FakeWatcher) Deletion(folder string)       { panic("NOT SUPPORTED") }
+func (self *FakeWatcher) Creation(folder string)       { panic("NOT SUPPORTED") }
+func (self *FakeWatcher) Ignore(folder string)         { panic("NOT SUPPORTED") }
+func (self *FakeWatcher) Reinstate(folder string)      { panic("NOT SUPPORTED") }
+func (self *FakeWatcher) IsWatched(folder string) bool { panic("NOT SUPPORTED") }
+func (self *FakeWatcher) IsIgnored(folder string) bool { panic("NOT SUPPORTED") }
 
 func newFakeWatcher() *FakeWatcher {
 	return &FakeWatcher{}

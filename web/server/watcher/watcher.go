@@ -55,21 +55,19 @@ func (self *Watcher) Creation(folder string) {
 	}
 }
 
-func (self *Watcher) Ignore(packageName string) error {
+func (self *Watcher) Ignore(packageName string) {
 	for key, value := range self.watched {
 		if strings.HasSuffix(key, packageName) {
 			value.Active = false
 		}
 	}
-	return nil
 }
-func (self *Watcher) Reinstate(packageName string) error {
+func (self *Watcher) Reinstate(packageName string) {
 	for key, value := range self.watched {
 		if strings.HasSuffix(key, packageName) {
 			value.Active = true
 		}
 	}
-	return nil
 }
 func (self *Watcher) WatchedFolders() []*contract.Package {
 	i, watched := 0, make([]*contract.Package, len(self.watched))
