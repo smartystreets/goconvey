@@ -16,6 +16,7 @@ import (
 
 const initialRoot = "/root/gopath/src/github.com/smartystreets/project"
 const nonexistentRoot = "I don't exist"
+const unreadableContent = "!!error!!"
 
 func TestHTTPServer(t *testing.T) {
 	var fixture *ServerFixture
@@ -61,7 +62,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should provide a helpful error message", func() {
-					So(body, ShouldEqual, "You must provide a non-blank path to watch.")
+					So(body, ShouldEqual, "You must provide a non-blank path.")
 				})
 
 				Convey("The server should not change the existing root", func() {
@@ -71,7 +72,7 @@ func TestHTTPServer(t *testing.T) {
 			})
 
 			Convey("But the request cannot be read", func() {
-				status, body := fixture.AdjustRootWatch("!!error!!")
+				status, body := fixture.AdjustRootWatch(unreadableContent)
 
 				Convey("The server returns HTTP 400 - Bad Input", func() {
 					So(status, ShouldEqual, http.StatusBadRequest)
@@ -123,29 +124,82 @@ func TestHTTPServer(t *testing.T) {
 		})
 
 		Convey("When a packge is ignored", func() {
-			Convey("But the request is malformed", func() {
-				Convey("The server returns HTTP 400 - Bad Input", nil)
+
+			Convey("But the request is blank", func() {
+				status, body := fixture.Ignore("")
+
+				Convey("The server returns HTTP 400 - Bad Input", func() {
+					So(status, ShouldEqual, http.StatusBadRequest)
+				})
+
+				Convey("The body should contain a helpful error message", func() {
+					So(body, ShouldEqual, "You must provide a non-blank path.")
+				})
+			})
+
+			Convey("But the reqeust cannot be read", func() {
+				status, body := fixture.Ignore(unreadableContent)
+
+				Convey("The server returns HTTP 400 - Bad Input", func() {
+					So(status, ShouldEqual, http.StatusBadRequest)
+				})
+
+				Convey("The body should contain a helpful error message", func() {
+					So(body, ShouldEqual, fmt.Sprintf("The request body could not be read: (error: '%s')", readError))
+				})
 			})
 
 			Convey("And the request is well formed", func() {
-				Convey("The server informs the watcher", nil)
-				Convey("The server returns HTTP 200 - OK", nil)
+				status, _ := fixture.Ignore(initialRoot)
+
+				Convey("The server informs the watcher", func() {
+					So(fixture.watcher.ignored, ShouldEqual, initialRoot)
+				})
+				Convey("The server returns HTTP 200 - OK", func() {
+					So(status, ShouldEqual, http.StatusOK)
+				})
 			})
 		})
 
 		Convey("When a package is reinstated", func() {
-			Convey("But the request is malformed", func() {
-				Convey("The server returns 400", nil)
+			Convey("But the request is blank", func() {
+				status, body := fixture.Reinstate("")
+
+				Convey("The server returns HTTP 400 - Bad Input", func() {
+					So(status, ShouldEqual, http.StatusBadRequest)
+				})
+
+				Convey("The body should contain a helpful error message", func() {
+					So(body, ShouldEqual, "You must provide a non-blank path.")
+				})
+			})
+
+			Convey("But the reqeust cannot be read", func() {
+				status, body := fixture.Reinstate(unreadableContent)
+
+				Convey("The server returns HTTP 400 - Bad Input", func() {
+					So(status, ShouldEqual, http.StatusBadRequest)
+				})
+
+				Convey("The body should contain a helpful error message", func() {
+					So(body, ShouldEqual, fmt.Sprintf("The request body could not be read: (error: '%s')", readError))
+				})
 			})
 
 			Convey("And the request is well formed", func() {
-				Convey("The server informs the watcher", nil)
-				Convey("The server returns HTTP 200 - OK", nil)
+				status, _ := fixture.Reinstate(initialRoot)
+
+				Convey("The server informs the watcher", func() {
+					So(fixture.watcher.reinstated, ShouldEqual, initialRoot)
+				})
+				Convey("The server returns HTTP 200 - OK", func() {
+					So(status, ShouldEqual, http.StatusOK)
+				})
 			})
 		})
 
-		Convey("When the status is requested", func() {
-			Convey("The server returns it", nil)
+		Convey("When the status of the executor is requested", func() {
+			Convey("The server asks the executor its status and returns it", nil)
 			Convey("The server returns HTTP 200 - OK", nil)
 		})
 
@@ -159,10 +213,8 @@ func TestHTTPServer(t *testing.T) {
 /********* Server Fixture *********/
 
 type ServerFixture struct {
-	server         *HTTPServer
-	watcher        *FakeWatcher
-	queriedRoot    string
-	lastHTTPStatus int
+	server  *HTTPServer
+	watcher *FakeWatcher
 }
 
 func (self *ServerFixture) ReceiveUpdate(update *parser.CompleteOutput) {
@@ -192,10 +244,38 @@ func (self *ServerFixture) QueryRootWatch() (string, int) {
 
 func (self *ServerFixture) AdjustRootWatch(newRoot string) (status int, body string) {
 	var reader io.Reader = strings.NewReader(newRoot)
-	if newRoot == "!!error!!" {
+	if newRoot == unreadableContent {
 		reader = &ErrorReadCloser{}
 	}
 	request, _ := http.NewRequest("PUT", "http://localhost:8080/watch", reader)
+	response := httptest.NewRecorder()
+
+	self.server.Watch(response, request)
+
+	status, body = response.Code, strings.TrimSpace(response.Body.String())
+	return
+}
+
+func (self *ServerFixture) Ignore(package_ string) (status int, body string) {
+	var reader io.Reader = strings.NewReader(package_)
+	if package_ == unreadableContent {
+		reader = &ErrorReadCloser{}
+	}
+	request, _ := http.NewRequest("DELETE", "http://localhost:8080/watch", reader)
+	response := httptest.NewRecorder()
+
+	self.server.Watch(response, request)
+
+	status, body = response.Code, strings.TrimSpace(response.Body.String())
+	return
+}
+
+func (self *ServerFixture) Reinstate(package_ string) (status int, body string) {
+	var reader io.Reader = strings.NewReader(package_)
+	if package_ == unreadableContent {
+		reader = &ErrorReadCloser{}
+	}
+	request, _ := http.NewRequest("POST", "http://localhost:8080/watch", reader)
 	response := httptest.NewRecorder()
 
 	self.server.Watch(response, request)
@@ -215,7 +295,9 @@ func newServerFixture() *ServerFixture {
 /********* Fake Watcher *********/
 
 type FakeWatcher struct {
-	root string
+	root       string
+	ignored    string
+	reinstated string
 }
 
 func (self *FakeWatcher) SetRootWatch(root string) {
@@ -233,10 +315,11 @@ func (self *FakeWatcher) Adjust(root string) error {
 	self.root = root
 	return nil
 }
+func (self *FakeWatcher) Ignore(folder string)    { self.ignored = folder }
+func (self *FakeWatcher) Reinstate(folder string) { self.reinstated = folder }
+
 func (self *FakeWatcher) Deletion(folder string)       { panic("NOT SUPPORTED") }
 func (self *FakeWatcher) Creation(folder string)       { panic("NOT SUPPORTED") }
-func (self *FakeWatcher) Ignore(folder string)         { panic("NOT SUPPORTED") }
-func (self *FakeWatcher) Reinstate(folder string)      { panic("NOT SUPPORTED") }
 func (self *FakeWatcher) IsWatched(folder string) bool { panic("NOT SUPPORTED") }
 func (self *FakeWatcher) IsIgnored(folder string) bool { panic("NOT SUPPORTED") }
 

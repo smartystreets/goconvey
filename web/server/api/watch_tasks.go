@@ -19,27 +19,47 @@ func (self *WatchRequestHandler) ProvideCurrentRoot() {
 }
 
 func (self *WatchRequestHandler) AdjustRoot() {
+	root := self.extractPayload()
+	if root == "" {
+		return
+	}
+
+	err := self.watcher.Adjust(root)
+	if err != nil {
+		http.Error(self.response, err.Error(), http.StatusNotFound)
+	}
+}
+
+func (self *WatchRequestHandler) IgnorePackage() {
+	if folder := self.extractPayload(); folder != "" {
+		self.watcher.Ignore(folder)
+	}
+}
+
+func (self *WatchRequestHandler) ReinstatePackage() {
+	if folder := self.extractPayload(); folder != "" {
+		self.watcher.Reinstate(folder)
+	}
+}
+
+func (self *WatchRequestHandler) extractPayload() (payload string) {
 	rawBody, err := ioutil.ReadAll(self.request.Body)
+
 	if err != nil {
 		self.returnReadError(err)
 	} else if len(rawBody) == 0 {
 		self.returnBlankError()
 	} else {
-		self.adjust(rawBody)
+		payload = string(rawBody)
 	}
+	return
 }
 func (self *WatchRequestHandler) returnReadError(err error) {
 	message := fmt.Sprintf("The request body could not be read: (error: '%s')", err.Error())
 	http.Error(self.response, message, http.StatusBadRequest)
 }
 func (self *WatchRequestHandler) returnBlankError() {
-	http.Error(self.response, "You must provide a non-blank path to watch.", http.StatusBadRequest)
-}
-func (self *WatchRequestHandler) adjust(rawBody []byte) {
-	err := self.watcher.Adjust(string(rawBody))
-	if err != nil {
-		http.Error(self.response, err.Error(), http.StatusNotFound)
-	}
+	http.Error(self.response, "You must provide a non-blank path.", http.StatusBadRequest)
 }
 
 func newWatchRequestHandler(request *http.Request, response http.ResponseWriter, watcher contract.Watcher) *WatchRequestHandler {

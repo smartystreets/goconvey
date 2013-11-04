@@ -17,15 +17,18 @@ func (self *HTTPServer) ReceiveUpdate(update *parser.CompleteOutput) {
 	self.latest = update
 }
 
-// GET (query root) vs PUT (adjust root) vs POST (reinstate) vs DELETE (ignore)
 func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Request) {
-	handler := newWatchRequestHandler(request, response, self.watcher)
+	watch := newWatchRequestHandler(request, response, self.watcher)
 
 	switch request.Method {
 	case "PUT":
-		handler.AdjustRoot()
-	default: // GET
-		handler.ProvideCurrentRoot()
+		watch.AdjustRoot()
+	case "DELETE":
+		watch.IgnorePackage()
+	case "POST":
+		watch.ReinstatePackage()
+	case "GET":
+		watch.ProvideCurrentRoot()
 	}
 }
 
