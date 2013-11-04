@@ -31,7 +31,6 @@ func TestWatcher(t *testing.T) {
 			actualWatches, expectedWatches = fixture.pointToExistingRoot(goProject)
 
 			Convey("That folder should be included as the first watched folder", func() {
-				fmt.Println(actualWatches.([]*contract.Package)[0].Name)
 				So(actualWatches, ShouldResemble, expectedWatches)
 			})
 		})

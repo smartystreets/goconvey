@@ -1,7 +1,6 @@
 package contract
 
 import (
-	"fmt"
 	"github.com/smartystreets/goconvey/web/server/parser"
 	"net/http"
 	"path/filepath"
@@ -74,7 +73,6 @@ func ResolvePackageName(path string) string {
 	}
 	packageBeginning := index + len(endGoPath)
 	name := path[packageBeginning:]
-	fmt.Println(name)
 	return name
 }
 
