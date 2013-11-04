@@ -9,8 +9,9 @@ import (
 )
 
 type HTTPServer struct {
-	watcher contract.Watcher
-	latest  *parser.CompleteOutput
+	watcher  contract.Watcher
+	executor contract.Executor
+	latest   *parser.CompleteOutput
 }
 
 func (self *HTTPServer) ReceiveUpdate(update *parser.CompleteOutput) {
@@ -32,18 +33,26 @@ func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Reques
 	}
 }
 
-func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Request) {}
+func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Request) {
+	status := self.executor.Status()
+	response.Write([]byte(status))
+}
 
 func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
 	stuff, _ := json.Marshal(self.latest)
 	response.Write(stuff)
 }
 
-func (self *HTTPServer) Execute(response http.ResponseWriter, request *http.Request) {}
+func (self *HTTPServer) Execute(response http.ResponseWriter, request *http.Request) {
+	go func() {
+		self.latest = self.executor.ExecuteTests(self.watcher.WatchedFolders())
+	}()
+}
 
-func NewHTTPServer(watcher contract.Watcher) *HTTPServer {
+func NewHTTPServer(watcher contract.Watcher, executor contract.Executor) *HTTPServer {
 	self := &HTTPServer{}
 	self.watcher = watcher
+	self.executor = executor
 	return self
 }
 

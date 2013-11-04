@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 const initialRoot = "/root/gopath/src/github.com/smartystreets/project"
@@ -44,7 +45,7 @@ func TestHTTPServer(t *testing.T) {
 			root, status := fixture.QueryRootWatch()
 
 			Convey("The server returns it", func() {
-				So(root, ShouldEqual, "/root/gopath/src/github.com/smartystreets/project")
+				So(root, ShouldEqual, initialRoot)
 			})
 
 			Convey("The server returns HTTP 200 - OK", func() {
@@ -199,13 +200,29 @@ func TestHTTPServer(t *testing.T) {
 		})
 
 		Convey("When the status of the executor is requested", func() {
-			Convey("The server asks the executor its status and returns it", nil)
-			Convey("The server returns HTTP 200 - OK", nil)
+			fixture.SetExecutorStatus("blah blah blah")
+			statusCode, statusBody := fixture.RequestExecutorStatus()
+
+			Convey("The server asks the executor its status and returns it", func() {
+				So(statusBody, ShouldEqual, "blah blah blah")
+			})
+
+			Convey("The server returns HTTP 200 - OK", func() {
+				So(statusCode, ShouldEqual, http.StatusOK)
+			})
 		})
 
 		Convey("When a manual execution of the test packages is requested", func() {
-			Convey("The server invokes the executor using the watcher's listing", nil)
-			Convey("The server returns HTTP 200 - OK", nil)
+			status := fixture.ManualExecution()
+			update, _ := fixture.RequestLatest()
+
+			Convey("The server invokes the executor using the watcher's listing and save the result", func() {
+				So(update, ShouldResemble, &parser.CompleteOutput{Revision: initialRoot})
+			})
+
+			Convey("The server returns HTTP 200 - OK", func() {
+				So(status, ShouldEqual, http.StatusOK)
+			})
 		})
 	})
 }
@@ -213,8 +230,9 @@ func TestHTTPServer(t *testing.T) {
 /********* Server Fixture *********/
 
 type ServerFixture struct {
-	server  *HTTPServer
-	watcher *FakeWatcher
+	server   *HTTPServer
+	watcher  *FakeWatcher
+	executor *FakeExecutor
 }
 
 func (self *ServerFixture) ReceiveUpdate(update *parser.CompleteOutput) {
@@ -284,11 +302,36 @@ func (self *ServerFixture) Reinstate(package_ string) (status int, body string) 
 	return
 }
 
+func (self *ServerFixture) SetExecutorStatus(status string) {
+	self.executor.status = status
+}
+
+func (self *ServerFixture) RequestExecutorStatus() (code int, status string) {
+	request, _ := http.NewRequest("GET", "http://localhost:8080/status", nil)
+	response := httptest.NewRecorder()
+
+	self.server.Status(response, request)
+
+	code, status = response.Code, strings.TrimSpace(response.Body.String())
+	return
+}
+
+func (self *ServerFixture) ManualExecution() int {
+	request, _ := http.NewRequest("POST", "http://localhost:8080/execute", nil)
+	response := httptest.NewRecorder()
+
+	self.server.Execute(response, request)
+	nap, _ := time.ParseDuration("100ms")
+	time.Sleep(nap)
+	return response.Code
+}
+
 func newServerFixture() *ServerFixture {
 	self := &ServerFixture{}
 	self.watcher = newFakeWatcher()
 	self.watcher.SetRootWatch(initialRoot)
-	self.server = NewHTTPServer(self.watcher)
+	self.executor = newFakeExecutor("")
+	self.server = NewHTTPServer(self.watcher, self.executor)
 	return self
 }
 
@@ -325,6 +368,27 @@ func (self *FakeWatcher) IsIgnored(folder string) bool { panic("NOT SUPPORTED") 
 
 func newFakeWatcher() *FakeWatcher {
 	return &FakeWatcher{}
+}
+
+/********* Fake Executor *********/
+
+type FakeExecutor struct {
+	status   string
+	executed bool
+}
+
+func (self *FakeExecutor) Status() string {
+	return self.status
+}
+
+func (self *FakeExecutor) ExecuteTests(watched []*contract.Package) *parser.CompleteOutput {
+	return &parser.CompleteOutput{Revision: watched[0].Path}
+}
+
+func newFakeExecutor(status string) *FakeExecutor {
+	self := &FakeExecutor{}
+	self.status = status
+	return self
 }
 
 /********* Error Read Closer *********/
