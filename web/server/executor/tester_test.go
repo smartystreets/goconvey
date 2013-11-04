@@ -1,6 +1,7 @@
 package executor
 
 import (
+	"errors"
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"strings"
@@ -43,6 +44,22 @@ func TestConcurrentTester(t *testing.T) {
 			Convey("Packages should be arranged and tested in batches of the appropriate size",
 				fixture.TestsShouldHaveRunInBatchesOfTwo)
 		})
+
+		Convey("When running a test package produces no output and exits with an error", func() {
+			fixture.InBatchesOf(1).SetupAbnormalError("This really shouldn't happen...").RunTests()
+
+			Convey("Panic should ensue", func() {
+				So(fixture.recovered.Error(), ShouldEqual, "This really shouldn't happen...")
+			})
+		})
+
+		Convey("When running test packages concurrently and a test package produces no output and exits with an error", func() {
+			fixture.InBatchesOf(2).SetupAbnormalError("This really shouldn't happen...").RunTests()
+
+			Convey("Panic should ensue", func() {
+				So(fixture.recovered.Error(), ShouldEqual, "This really shouldn't happen...")
+			})
+		})
 	})
 }
 
@@ -55,6 +72,7 @@ type TesterFixture struct {
 	compilations []*ShellCommand
 	executions   []*ShellCommand
 	packages     []string
+	recovered    error
 }
 
 func NewTesterFixture() *TesterFixture {
@@ -70,7 +88,18 @@ func (self *TesterFixture) InBatchesOf(batchSize int) *TesterFixture {
 	return self
 }
 
+func (self *TesterFixture) SetupAbnormalError(message string) *TesterFixture {
+	self.shell.setTripWire(message)
+	return self
+}
+
 func (self *TesterFixture) RunTests() {
+	defer func() {
+		if r := recover(); r != nil {
+			self.recovered = r.(error)
+		}
+	}()
+
 	self.results = self.tester.TestAll(self.packages)
 	self.compilations = self.shell.Compilations()
 	self.executions = self.shell.Executions()
@@ -125,6 +154,7 @@ type ShellCommand struct {
 type TimedShell struct {
 	executions   []*ShellCommand
 	compilations []*ShellCommand
+	panicMessage string
 }
 
 func (self *TimedShell) Compilations() []*ShellCommand {
@@ -158,7 +188,15 @@ func concurrentWith(current, comparison *ShellCommand) bool {
 	return comparison.Started.After(current.Started) && comparison.Started.Before(current.Ended)
 }
 
+func (self *TimedShell) setTripWire(message string) {
+	self.panicMessage = message
+}
+
 func (self *TimedShell) Execute(name string, args ...string) (output string, err error) {
+	if self.panicMessage != "" && args[1] == "-v" {
+		return "", errors.New(self.panicMessage)
+	}
+
 	command := self.composeCommand(name + " " + strings.Join(args, " "))
 	output = command.Command
 

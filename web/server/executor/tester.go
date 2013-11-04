@@ -28,9 +28,13 @@ func (self *ConcurrentTester) TestAll(folders []string) (output []string) {
 }
 
 func (self *ConcurrentTester) executeSynchronously(folders []string) []string {
+	var err error
 	all := make([]string, len(folders))
 	for i, folder := range folders {
-		all[i], _ = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder) // TODO: err
+		all[i], err = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder)
+		if err != nil {
+			panic(err)
+		}
 	}
 	return all
 }
