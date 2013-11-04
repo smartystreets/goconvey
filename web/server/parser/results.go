@@ -8,6 +8,7 @@ type CompleteOutput struct {
 }
 
 var ( // PackageResult.Outcome values:
+	Ignored         = "ignored"
 	Passed          = "passed"
 	Failed          = "failed"
 	Panicked        = "panicked"
