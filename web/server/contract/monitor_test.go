@@ -13,22 +13,36 @@ func TestMonitor(t *testing.T) {
 		fixture = newMonitorFixture()
 
 		Convey("When the file system has changed", func() {
-			fixture.scanner.dirty = true
+			fixture.scanner.Modify("/root")
 
 			Convey("As a result of scanning", func() {
 				fixture.Scan()
 
-				Convey("The actively watched tests should be executed and the results should be passed to the server", nil)
+				Convey("The watched packages should be executed and the results should be passed to the server", func() {
+					So(fixture.server.latest, ShouldResemble, &CompleteOutput{Packages: []*PackageResult{NewPackageResult("1"), NewPackageResult("2")}})
+				})
 			})
 		})
 
 		Convey("When the file system has remained stagnant", func() {
+			fixture.scanner.Reset("/root")
+
 			Convey("As a result of scanning", func() {
-				Convey("The process should take a nap", nil)
+				fixture.Scan()
+
+				Convey("The process should take a nap", func() {
+					So(fixture.nap, ShouldBeTrue)
+				})
+
+				Convey("The server should not receive any update", func() {
+					So(fixture.server.latest, ShouldBeNil)
+				})
 			})
 		})
 	})
 }
+
+/******** MonitorFixture ********/
 
 type MonitorFixture struct {
 	monitor  *Monitor
@@ -36,10 +50,15 @@ type MonitorFixture struct {
 	watcher  *FakeWatcher
 	scanner  *FakeScanner
 	executor *FakeExecutor
+	nap      bool
 }
 
 func (self *MonitorFixture) Scan() {
+	self.monitor.Scan()
+}
 
+func (self *MonitorFixture) sleep() {
+	self.nap = true
 }
 
 func newMonitorFixture() *MonitorFixture {
@@ -48,17 +67,18 @@ func newMonitorFixture() *MonitorFixture {
 	self.watcher = newFakeWatcher()
 	self.scanner = newFakeScanner()
 	self.executor = newFakeExecutor()
-	self.monitor = NewMonitor(self.scanner, self.watcher, self.executor, self.server)
+	self.monitor = NewMonitor(self.scanner, self.watcher, self.executor, self.server, self.sleep)
 	return self
 }
 
 /******** FakeServer ********/
 
 type FakeServer struct {
+	latest *CompleteOutput
 }
 
-func (self *FakeServer) ReceiveUpdate(*CompleteOutput) {
-	panic("NOT SUPPORTED")
+func (self *FakeServer) ReceiveUpdate(update *CompleteOutput) {
+	self.latest = update
 }
 func (self *FakeServer) Watch(writer http.ResponseWriter, request *http.Request) {
 	panic("NOT SUPPORTED")
@@ -80,14 +100,12 @@ func newFakeServer() *FakeServer {
 
 /******** FakeWatcher ********/
 
-type FakeWatcher struct {
-}
+type FakeWatcher struct{}
 
 func (self *FakeWatcher) WatchedFolders() []*Package {
 	return []*Package{
-		&Package{Active: true, Path: "/path/1", Name: "1"},
-		&Package{Active: false, Path: "/path/2", Name: "2"},
-		&Package{Active: true, Path: "/path/3", Name: "3"},
+		&Package{Path: "/root", Result: NewPackageResult("1")},
+		&Package{Path: "/root/nested", Result: NewPackageResult("2")},
 	}
 }
 
@@ -107,23 +125,40 @@ func newFakeWatcher() *FakeWatcher {
 /******** FakeScanner ********/
 
 type FakeScanner struct {
-	dirty bool
+	fileSystem map[string]bool
 }
 
-func (self *FakeScanner) Scan(root string) (changed bool) { panic("NOT SUPPORTED") }
+func (self *FakeScanner) Modify(path string) {
+	self.fileSystem[path] = true
+}
+
+func (self *FakeScanner) Reset(path string) {
+	self.fileSystem[path] = false
+}
+
+func (self *FakeScanner) Scan(root string) (changed bool) {
+	return self.fileSystem[root]
+}
 
 func newFakeScanner() *FakeScanner {
 	self := &FakeScanner{}
+	self.fileSystem = map[string]bool{}
 	return self
 }
 
 /******** FakeExecutor ********/
 
-type FakeExecutor struct {
-}
+type FakeExecutor struct{}
 
-func (self *FakeExecutor) ExecuteTests([]*Package) *CompleteOutput { panic("NOT SUPPORTED") }
-func (self *FakeExecutor) Status() string                          { panic("NOT SUPPORTED") }
+func (self *FakeExecutor) ExecuteTests(packages []*Package) *CompleteOutput {
+	complete := &CompleteOutput{}
+	complete.Packages = []*PackageResult{}
+	for _, p := range packages {
+		complete.Packages = append(complete.Packages, p.Result)
+	}
+	return complete
+}
+func (self *FakeExecutor) Status() string { panic("NOT SUPPORTED") }
 
 func newFakeExecutor() *FakeExecutor {
 	self := &FakeExecutor{}
