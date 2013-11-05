@@ -5,12 +5,6 @@ import (
 	"path/filepath"
 )
 
-/*
-
-TODO: Parser needs to accept []*Package, not (packageName, output string) (and filter on .Active accordingly)
-
-*/
-
 type (
 	Server interface {
 		ReceiveUpdate(*CompleteOutput)
