@@ -36,8 +36,8 @@ func (self *Executor) execute(folders []*contract.Package) {
 func (self *Executor) parse(folders []*contract.Package) *contract.CompleteOutput {
 	self.status = Parsing
 	result := &contract.CompleteOutput{Revision: now().String()}
+	self.parser.Parse(folders)
 	for _, folder := range folders {
-		self.parser.Parse(folder)
 		result.Packages = append(result.Packages, folder.Result)
 	}
 	return result

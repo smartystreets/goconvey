@@ -141,13 +141,15 @@ type FakeParser struct {
 	nap time.Duration
 }
 
-func (self *FakeParser) Parse(package_ *contract.Package) {
+func (self *FakeParser) Parse(packages []*contract.Package) {
 	time.Sleep(self.nap)
-	if package_.Name == packageA && strings.HasSuffix(package_.Output, packageA) {
-		package_.Result = resultA
-	}
-	if package_.Name == packageB && strings.HasSuffix(package_.Output, packageB) {
-		package_.Result = resultB
+	for _, package_ := range packages {
+		if package_.Name == packageA && strings.HasSuffix(package_.Output, packageA) {
+			package_.Result = resultA
+		}
+		if package_.Name == packageB && strings.HasSuffix(package_.Output, packageB) {
+			package_.Result = resultB
+		}
 	}
 }
 

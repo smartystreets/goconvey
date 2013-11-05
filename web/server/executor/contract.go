@@ -5,7 +5,7 @@ import (
 )
 
 type Parser interface {
-	Parse(*contract.Package)
+	Parse([]*contract.Package)
 }
 
 type Tester interface {
