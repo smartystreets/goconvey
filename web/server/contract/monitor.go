@@ -6,19 +6,28 @@ type Monitor struct {
 	executor Executor
 	server   Server
 	sleep    func()
-	// ScanForever() // infinite for loop, calls Scan() between time.Sleep() (when no tests were run)
+}
+
+func (self *Monitor) ScanForever() {
+	for {
+		self.Scan()
+	}
 }
 
 func (self *Monitor) Scan() {
 	root := self.watcher.Root()
 
 	if self.scanner.Scan(root) {
-		watched := self.watcher.WatchedFolders()
-		output := self.executor.ExecuteTests(watched)
-		self.server.ReceiveUpdate(output)
+		self.executeTests()
 	} else {
 		self.sleep()
 	}
+}
+
+func (self *Monitor) executeTests() {
+	watched := self.watcher.WatchedFolders()
+	output := self.executor.ExecuteTests(watched)
+	self.server.ReceiveUpdate(output)
 }
 
 func NewMonitor(scanner Scanner, watcher Watcher, executor Executor, server Server, sleep func()) *Monitor {
