@@ -10,7 +10,7 @@ type Monitor struct {
 }
 
 func (self *Monitor) Scan() {
-	root := self.watcher.WatchedFolders()[0].Path
+	root := self.watcher.Root()
 
 	if self.scanner.Scan(root) {
 		watched := self.watcher.WatchedFolders()

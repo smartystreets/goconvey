@@ -14,6 +14,13 @@ type Watcher struct {
 	watched map[string]*contract.Package
 }
 
+func (self *Watcher) Root() string {
+	if len(self.watched) == 0 {
+		return ""
+	}
+	return self.WatchedFolders()[0].Path
+}
+
 func (self *Watcher) Adjust(root string) error {
 	if !self.fs.Exists(root) {
 		return errors.New(fmt.Sprintf("Directory does not exist: '%s'", root))

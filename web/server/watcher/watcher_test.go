@@ -25,6 +25,7 @@ func TestWatcher(t *testing.T) {
 
 		Convey("When initialized there should be ZERO watched folders", func() {
 			So(len(fixture.watched()), ShouldEqual, 0)
+			So(fixture.watcher.Root(), ShouldBeBlank)
 		})
 
 		Convey("When pointing to a root folder", func() {
@@ -33,6 +34,10 @@ func TestWatcher(t *testing.T) {
 			Convey("That folder should be included as the first watched folder", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
 			})
+
+			Convey("That folder should be the new root", func() {
+				So(fixture.watcher.Root(), ShouldEqual, goProject)
+			})
 		})
 
 		Convey("When pointing to a root folder that does not exist", func() {
@@ -40,6 +45,10 @@ func TestWatcher(t *testing.T) {
 
 			Convey("An appropriate error should be returned", func() {
 				So(actualError, ShouldResemble, expectedError)
+			})
+
+			Convey("The root should not be updated", func() {
+				So(fixture.watcher.Root(), ShouldBeBlank)
 			})
 		})
 

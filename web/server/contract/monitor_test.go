@@ -109,6 +109,10 @@ func (self *FakeWatcher) WatchedFolders() []*Package {
 	}
 }
 
+func (self *FakeWatcher) Root() string {
+	return self.WatchedFolders()[0].Path
+}
+
 func (self *FakeWatcher) Adjust(root string) error     { panic("NOT SUPPORTED") }
 func (self *FakeWatcher) Deletion(folder string)       { panic("NOT SUPPORTED") }
 func (self *FakeWatcher) Creation(folder string)       { panic("NOT SUPPORTED") }

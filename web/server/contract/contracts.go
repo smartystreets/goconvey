@@ -30,6 +30,7 @@ type (
 	}
 
 	Watcher interface {
+		Root() string
 		Adjust(root string) error
 
 		Deletion(folder string)
