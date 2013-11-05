@@ -1,6 +1,28 @@
-package parser
+package contract
 
-import "github.com/smartystreets/goconvey/reporting"
+import (
+	"github.com/smartystreets/goconvey/reporting"
+	"path/filepath"
+	"strings"
+)
+
+type Package struct {
+	Active bool
+	Path   string
+	Name   string
+	Error  error
+	Output string
+	Result *PackageResult
+}
+
+func NewPackage(path string) *Package {
+	self := &Package{}
+	self.Active = true
+	self.Path = path
+	self.Name = resolvePackageName(path)
+	self.Result = NewPackageResult(self.Name)
+	return self
+}
 
 type CompleteOutput struct {
 	Packages []*PackageResult
@@ -8,7 +30,7 @@ type CompleteOutput struct {
 }
 
 var ( // PackageResult.Outcome values:
-	Ignored         = "ignored"
+	Ignored         = "ignored" // TODO: test in parser
 	Passed          = "passed"
 	Failed          = "failed"
 	Panicked        = "panicked"
@@ -53,3 +75,18 @@ func NewTestResult(testName string) *TestResult {
 	self.TestName = testName
 	return self
 }
+
+func resolvePackageName(path string) string {
+	index := strings.Index(path, endGoPath)
+	if index < 0 {
+		return path
+	}
+	packageBeginning := index + len(endGoPath)
+	name := path[packageBeginning:]
+	return name
+}
+
+const (
+	separator = string(filepath.Separator)
+	endGoPath = separator + "src" + separator
+)

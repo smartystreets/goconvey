@@ -6,21 +6,18 @@ import (
 )
 
 type concurrentCoordinator struct {
-	folders   []string
-	results   []string
-	errors    []error
 	batchSize int
+	queue     chan *contract.Package
+	folders   []*contract.Package
 	shell     contract.Shell
 	waiter    sync.WaitGroup
-	queue     chan string
 }
 
-func (self *concurrentCoordinator) ExecuteConcurrently() []string {
+func (self *concurrentCoordinator) ExecuteConcurrently() {
 	self.enlistWorkers()
 	self.scheduleTasks()
 	self.awaitCompletion()
 	self.checkForErrors()
-	return self.results
 }
 
 func (self *concurrentCoordinator) enlistWorkers() {
@@ -31,9 +28,9 @@ func (self *concurrentCoordinator) enlistWorkers() {
 }
 func (self *concurrentCoordinator) worker(id int) {
 	for folder := range self.queue {
-		output, err := self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder)
-		self.errors[id] = err
-		self.results[id] = output
+		output, err := self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
+		folder.Output = output
+		folder.Error = err
 	}
 	self.waiter.Done()
 }
@@ -50,18 +47,16 @@ func (self *concurrentCoordinator) awaitCompletion() {
 }
 
 func (self *concurrentCoordinator) checkForErrors() {
-	for _, err := range self.errors {
-		if err != nil {
-			panic(err)
+	for _, folder := range self.folders {
+		if folder.Error != nil {
+			panic(folder.Error)
 		}
 	}
 }
 
-func newCuncurrentCoordinator(folders []string, batchSize int, shell contract.Shell) *concurrentCoordinator {
+func newCuncurrentCoordinator(folders []*contract.Package, batchSize int, shell contract.Shell) *concurrentCoordinator {
 	self := &concurrentCoordinator{}
-	self.results = make([]string, len(folders))
-	self.errors = make([]error, len(folders))
-	self.queue = make(chan string)
+	self.queue = make(chan *contract.Package)
 	self.folders = folders
 	self.batchSize = batchSize
 	self.shell = shell

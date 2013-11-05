@@ -2,7 +2,7 @@ package executor
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/smartystreets/goconvey/web/server/parser"
+	"github.com/smartystreets/goconvey/web/server/contract"
 	"strings"
 	"testing"
 	"time"
@@ -49,9 +49,9 @@ type ExecutorFixture struct {
 	executor *Executor
 	tester   *FakeTester
 	parser   *FakeParser
-	folders  []string
-	result   *parser.CompleteOutput
-	expected *parser.CompleteOutput
+	folders  []*contract.Package
+	result   *contract.CompleteOutput
+	expected *contract.CompleteOutput
 	stamp    time.Time
 }
 
@@ -85,8 +85,8 @@ var (
 	prefix   = "/Users/blah/gopath/src/"
 	packageA = "github.com/smartystreets/goconvey/a"
 	packageB = "github.com/smartystreets/goconvey/b"
-	resultA  = &parser.PackageResult{PackageName: packageA}
-	resultB  = &parser.PackageResult{PackageName: packageB}
+	resultA  = &contract.PackageResult{PackageName: packageA}
+	resultB  = &contract.PackageResult{PackageName: packageB}
 )
 
 func newExecutorFixture() *ExecutorFixture {
@@ -94,15 +94,15 @@ func newExecutorFixture() *ExecutorFixture {
 	self.tester = newFakeTester()
 	self.parser = newFakeParser()
 	self.executor = NewExecutor(self.tester, self.parser)
-	self.folders = []string{
-		prefix + packageA,
-		prefix + packageB,
+	self.folders = []*contract.Package{
+		&contract.Package{Active: true, Path: prefix + packageA, Name: packageA},
+		&contract.Package{Active: true, Path: prefix + packageB, Name: packageB},
 	}
 	self.stamp = time.Now()
 	now = func() time.Time { return self.stamp }
 
-	self.expected = &parser.CompleteOutput{
-		Packages: []*parser.PackageResult{
+	self.expected = &contract.CompleteOutput{
+		Packages: []*contract.PackageResult{
 			resultA,
 			resultB,
 		},
@@ -111,14 +111,18 @@ func newExecutorFixture() *ExecutorFixture {
 	return self
 }
 
+/******** FakeTester ********/
+
 type FakeTester struct {
 	nap time.Duration
 }
 
 func (self *FakeTester) SetBatchSize(batchSize int) { panic("NOT SUPPORTED") }
-func (self *FakeTester) TestAll(folders []string) (output []string) {
+func (self *FakeTester) TestAll(folders []*contract.Package) {
+	for _, p := range folders {
+		p.Output = p.Path
+	}
 	time.Sleep(self.nap)
-	return folders
 }
 func (self *FakeTester) addDelay(nap time.Duration) {
 	self.nap = nap
@@ -131,19 +135,20 @@ func newFakeTester() *FakeTester {
 	return self
 }
 
+/******** FakeParser ********/
+
 type FakeParser struct {
 	nap time.Duration
 }
 
-func (self *FakeParser) Parse(packageName, output string) *parser.PackageResult {
+func (self *FakeParser) Parse(package_ *contract.Package) {
 	time.Sleep(self.nap)
-	if packageName == packageA && strings.HasSuffix(output, packageA) {
-		return resultA
+	if package_.Name == packageA && strings.HasSuffix(package_.Output, packageA) {
+		package_.Result = resultA
 	}
-	if packageName == packageB && strings.HasSuffix(output, packageB) {
-		return resultB
+	if package_.Name == packageB && strings.HasSuffix(package_.Output, packageB) {
+		package_.Result = resultB
 	}
-	return nil
 }
 
 func (self *FakeParser) addDelay(nap time.Duration) {

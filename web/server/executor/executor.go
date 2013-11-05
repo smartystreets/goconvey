@@ -2,7 +2,6 @@ package executor
 
 import (
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"github.com/smartystreets/goconvey/web/server/parser"
 	"time"
 )
 
@@ -22,25 +21,24 @@ func (self *Executor) Status() string {
 	return self.status
 }
 
-func (self *Executor) ExecuteTests(folders []string) *parser.CompleteOutput {
+func (self *Executor) ExecuteTests(folders []*contract.Package) *contract.CompleteOutput {
 	defer func() { self.status = Idle }()
-	output := self.execute(folders)
-	result := self.parse(output, folders)
+	self.execute(folders)
+	result := self.parse(folders)
 	return result
 }
 
-func (self *Executor) execute(folders []string) []string {
+func (self *Executor) execute(folders []*contract.Package) {
 	self.status = Executing
-	return self.tester.TestAll(folders)
+	self.tester.TestAll(folders)
 }
 
-func (self *Executor) parse(outputs, folders []string) *parser.CompleteOutput {
+func (self *Executor) parse(folders []*contract.Package) *contract.CompleteOutput {
 	self.status = Parsing
-	result := &parser.CompleteOutput{Revision: now().String()}
-	for i, output := range outputs {
-		packageName := contract.ResolvePackageName(folders[i])
-		parsed := self.parser.Parse(packageName, output)
-		result.Packages = append(result.Packages, parsed)
+	result := &contract.CompleteOutput{Revision: now().String()}
+	for _, folder := range folders {
+		self.parser.Parse(folder)
+		result.Packages = append(result.Packages, folder.Result)
 	}
 	return result
 }

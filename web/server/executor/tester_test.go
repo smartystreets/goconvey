@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/web/server/contract"
 	"strings"
 	"testing"
 	"time"
@@ -71,7 +72,7 @@ type TesterFixture struct {
 	results      []string
 	compilations []*ShellCommand
 	executions   []*ShellCommand
-	packages     []string
+	packages     []*contract.Package
 	recovered    error
 }
 
@@ -79,7 +80,14 @@ func NewTesterFixture() *TesterFixture {
 	self := &TesterFixture{}
 	self.shell = NewTimedShell()
 	self.tester = NewConcurrentTester(self.shell)
-	self.packages = []string{"a", "b", "c", "d", "e", "f"}
+	self.packages = []*contract.Package{
+		&contract.Package{Name: "a"},
+		&contract.Package{Name: "b"},
+		&contract.Package{Name: "c"},
+		&contract.Package{Name: "d"},
+		&contract.Package{Name: "e"},
+		&contract.Package{Name: "f"},
+	}
 	return self
 }
 
@@ -100,7 +108,10 @@ func (self *TesterFixture) RunTests() {
 		}
 	}()
 
-	self.results = self.tester.TestAll(self.packages)
+	self.tester.TestAll(self.packages)
+	for _, p := range self.packages {
+		self.results = append(self.results, p.Output)
+	}
 	self.compilations = self.shell.Compilations()
 	self.executions = self.shell.Executions()
 }
@@ -108,13 +119,13 @@ func (self *TesterFixture) RunTests() {
 func (self *TesterFixture) ShouldHaveRecordOfCompilationCommands() {
 	for i, pkg := range self.packages {
 		command := self.compilations[i].Command
-		So(command, ShouldEqual, "go test -i "+pkg)
+		So(command, ShouldEqual, "go test -i "+pkg.Name)
 	}
 }
 
 func (self *TesterFixture) ShouldHaveRecordOfExecutionCommands() {
 	for i, pkg := range self.packages {
-		So(self.executions[i].Command, ShouldEqual, "go test -v -timeout=-42s "+pkg)
+		So(self.executions[i].Command, ShouldEqual, "go test -v -timeout=-42s "+pkg.Name)
 	}
 }
 
@@ -123,8 +134,9 @@ func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
 }
 
 func (self *TesterFixture) OutputShouldBeAsExpected() {
-	for i, _ := range self.packages {
-		So(self.results[i], ShouldEqual, self.executions[i].Command)
+	for i, p := range self.packages {
+		So(p.Output, ShouldEqual, self.executions[i].Command)
+		So(p.Error, ShouldBeNil)
 	}
 }
 

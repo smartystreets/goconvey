@@ -6,7 +6,6 @@ import (
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"github.com/smartystreets/goconvey/web/server/parser"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -26,13 +25,13 @@ func TestHTTPServer(t *testing.T) {
 		fixture = newServerFixture()
 
 		Convey("Given an update is received", func() {
-			fixture.ReceiveUpdate(&parser.CompleteOutput{Revision: "asdf"})
+			fixture.ReceiveUpdate(&contract.CompleteOutput{Revision: "asdf"})
 
 			Convey("When the update is requested", func() {
 				update, status := fixture.RequestLatest()
 
 				Convey("The server returns it", func() {
-					So(update, ShouldResemble, &parser.CompleteOutput{Revision: "asdf"})
+					So(update, ShouldResemble, &contract.CompleteOutput{Revision: "asdf"})
 				})
 
 				Convey("The server returns 200", func() {
@@ -217,7 +216,7 @@ func TestHTTPServer(t *testing.T) {
 			update, _ := fixture.RequestLatest()
 
 			Convey("The server invokes the executor using the watcher's listing and save the result", func() {
-				So(update, ShouldResemble, &parser.CompleteOutput{Revision: initialRoot})
+				So(update, ShouldResemble, &contract.CompleteOutput{Revision: initialRoot})
 			})
 
 			Convey("The server returns HTTP 200 - OK", func() {
@@ -235,18 +234,18 @@ type ServerFixture struct {
 	executor *FakeExecutor
 }
 
-func (self *ServerFixture) ReceiveUpdate(update *parser.CompleteOutput) {
+func (self *ServerFixture) ReceiveUpdate(update *contract.CompleteOutput) {
 	self.server.ReceiveUpdate(update)
 }
 
-func (self *ServerFixture) RequestLatest() (*parser.CompleteOutput, int) {
+func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, int) {
 	request, _ := http.NewRequest("GET", "http://localhost:8080/results", nil)
 	response := httptest.NewRecorder()
 
 	self.server.Results(response, request)
 
 	decoder := json.NewDecoder(strings.NewReader(response.Body.String()))
-	update := &parser.CompleteOutput{}
+	update := &contract.CompleteOutput{}
 	decoder.Decode(update)
 	return update, response.Code
 }
@@ -381,8 +380,8 @@ func (self *FakeExecutor) Status() string {
 	return self.status
 }
 
-func (self *FakeExecutor) ExecuteTests(watched []*contract.Package) *parser.CompleteOutput {
-	return &parser.CompleteOutput{Revision: watched[0].Path}
+func (self *FakeExecutor) ExecuteTests(watched []*contract.Package) *contract.CompleteOutput {
+	return &contract.CompleteOutput{Revision: watched[0].Path}
 }
 
 func newFakeExecutor(status string) *FakeExecutor {

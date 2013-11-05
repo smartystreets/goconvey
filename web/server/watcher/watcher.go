@@ -27,11 +27,7 @@ func (self *Watcher) Adjust(root string) error {
 }
 func (self *Watcher) includeFolders(path string, info os.FileInfo, err error) error {
 	if info.IsDir() {
-		self.watched[path] = &contract.Package{
-			Active: true,
-			Path:   path,
-			Name:   contract.ResolvePackageName(path),
-		}
+		self.watched[path] = contract.NewPackage(path)
 	}
 	return nil
 }
@@ -48,11 +44,7 @@ func (self *Watcher) Deletion(folder string) {
 }
 
 func (self *Watcher) Creation(folder string) {
-	self.watched[folder] = &contract.Package{
-		Active: true,
-		Path:   folder,
-		Name:   contract.ResolvePackageName(folder),
-	}
+	self.watched[folder] = contract.NewPackage(folder)
 }
 
 func (self *Watcher) Ignore(packageName string) {
@@ -72,7 +64,11 @@ func (self *Watcher) Reinstate(packageName string) {
 func (self *Watcher) WatchedFolders() []*contract.Package {
 	i, watched := 0, make([]*contract.Package, len(self.watched))
 	for _, item := range self.watched {
-		watched[i] = item
+		watched[i] = &contract.Package{
+			Active: item.Active,
+			Path:   item.Path,
+			Name:   item.Name,
+		}
 		i++
 	}
 	return watched

@@ -14,29 +14,26 @@ func (self *ConcurrentTester) SetBatchSize(batchSize int) {
 	self.batchSize = batchSize
 }
 
-func (self *ConcurrentTester) TestAll(folders []string) (output []string) {
+func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
 	for _, folder := range folders {
-		self.shell.Execute("go", "test", "-i", folder)
+		self.shell.Execute("go", "test", "-i", folder.Name)
 	}
 
 	if self.batchSize == 1 {
-		output = self.executeSynchronously(folders)
+		self.executeSynchronously(folders)
 	} else {
-		output = newCuncurrentCoordinator(folders, self.batchSize, self.shell).ExecuteConcurrently()
+		newCuncurrentCoordinator(folders, self.batchSize, self.shell).ExecuteConcurrently()
 	}
 	return
 }
 
-func (self *ConcurrentTester) executeSynchronously(folders []string) []string {
-	var err error
-	all := make([]string, len(folders))
-	for i, folder := range folders {
-		all[i], err = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder)
-		if err != nil {
-			panic(err)
+func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) {
+	for _, folder := range folders {
+		folder.Output, folder.Error = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
+		if folder.Error != nil {
+			panic(folder.Error)
 		}
 	}
-	return all
 }
 
 func NewConcurrentTester(shell contract.Shell) *ConcurrentTester {

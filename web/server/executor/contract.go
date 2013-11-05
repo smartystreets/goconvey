@@ -1,16 +1,14 @@
 package executor
 
 import (
-	"github.com/smartystreets/goconvey/web/server/parser"
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
-// type Parser func(packageName, output string) *parser.PackageResult
-
 type Parser interface {
-	Parse(packageName, output string) *parser.PackageResult
+	Parse(*contract.Package)
 }
 
 type Tester interface {
 	SetBatchSize(batchSize int)
-	TestAll(folders []string) (output []string)
+	TestAll(folders []*contract.Package)
 }

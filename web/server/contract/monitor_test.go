@@ -2,7 +2,6 @@ package contract
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/smartystreets/goconvey/web/server/parser"
 	"net/http"
 	"testing"
 )
@@ -58,7 +57,7 @@ func newMonitorFixture() *MonitorFixture {
 type FakeServer struct {
 }
 
-func (self *FakeServer) ReceiveUpdate(*parser.CompleteOutput) {
+func (self *FakeServer) ReceiveUpdate(*CompleteOutput) {
 	panic("NOT SUPPORTED")
 }
 func (self *FakeServer) Watch(writer http.ResponseWriter, request *http.Request) {
@@ -86,9 +85,9 @@ type FakeWatcher struct {
 
 func (self *FakeWatcher) WatchedFolders() []*Package {
 	return []*Package{
-		&Package{true, "/path/1", "1"},
-		&Package{false, "/path/2", "2"},
-		&Package{true, "/path/3", "3"},
+		&Package{Active: true, Path: "/path/1", Name: "1"},
+		&Package{Active: false, Path: "/path/2", Name: "2"},
+		&Package{Active: true, Path: "/path/3", Name: "3"},
 	}
 }
 
@@ -123,8 +122,8 @@ func newFakeScanner() *FakeScanner {
 type FakeExecutor struct {
 }
 
-func (self *FakeExecutor) ExecuteTests([]*Package) *parser.CompleteOutput { panic("NOT SUPPORTED") }
-func (self *FakeExecutor) Status() string                                 { panic("NOT SUPPORTED") }
+func (self *FakeExecutor) ExecuteTests([]*Package) *CompleteOutput { panic("NOT SUPPORTED") }
+func (self *FakeExecutor) Status() string                          { panic("NOT SUPPORTED") }
 
 func newFakeExecutor() *FakeExecutor {
 	self := &FakeExecutor{}

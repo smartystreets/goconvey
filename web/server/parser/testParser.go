@@ -4,17 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/web/server/contract"
 	"strconv"
 	"strings"
 )
 
-func parseTestOutput(test *TestResult) *TestResult {
+func parseTestOutput(test *contract.TestResult) *contract.TestResult {
 	parser := newTestParser(test)
 	parser.parseTestFunctionOutput()
 	return test
 }
 
-func newTestParser(test *TestResult) *testParser {
+func newTestParser(test *contract.TestResult) *testParser {
 	self := &testParser{}
 	self.test = test
 	return self
@@ -103,7 +104,7 @@ func (self *testParser) composeCapturedOutput() {
 }
 
 type testParser struct {
-	test       *TestResult
+	test       *contract.TestResult
 	line       string
 	index      int
 	inJson     bool

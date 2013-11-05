@@ -2,27 +2,26 @@ package parser
 
 import (
 	"fmt"
+	"github.com/smartystreets/goconvey/web/server/contract"
 	"strings"
 )
 
-func ParsePackageResults(packageName, raw string) *PackageResult {
-	parser := newOutputParser(packageName, raw)
-	return parser.parse()
+func ParsePackageResults(result *contract.PackageResult, rawOutput string) {
+	newOutputParser(result, rawOutput).parse()
 }
 
-func newOutputParser(packageName, raw string) *outputParser {
+func newOutputParser(result *contract.PackageResult, rawOutput string) *outputParser {
 	self := &outputParser{}
-	self.raw = strings.TrimSpace(raw)
+	self.raw = strings.TrimSpace(rawOutput)
 	self.lines = strings.Split(self.raw, "\n")
-	self.result = NewPackageResult(packageName)
-	self.tests = []*TestResult{}
+	self.result = result
+	self.tests = []*contract.TestResult{}
 	return self
 }
 
-func (self *outputParser) parse() *PackageResult {
+func (self *outputParser) parse() {
 	self.separateTestFunctionsAndMetadata()
 	self.parseEachTestFunction()
-	return self.result
 }
 
 func (self *outputParser) separateTestFunctionsAndMetadata() {
@@ -35,16 +34,16 @@ func (self *outputParser) separateTestFunctionsAndMetadata() {
 }
 func (self *outputParser) processNonTestOutput() bool {
 	if noGoFiles(self.line) {
-		self.recordFinalOutcome(NoGoFiles)
+		self.recordFinalOutcome(contract.NoGoFiles)
 
 	} else if buildFailed(self.line) {
-		self.recordFinalOutcome(BuildFailure)
+		self.recordFinalOutcome(contract.BuildFailure)
 
 	} else if noTestFiles(self.line) {
-		self.recordFinalOutcome(NoTestFiles)
+		self.recordFinalOutcome(contract.NoTestFiles)
 
 	} else if noTestFunctions(self.line) {
-		self.recordFinalOutcome(NoTestFunctions)
+		self.recordFinalOutcome(contract.NoTestFunctions)
 
 	} else {
 		return false
@@ -74,7 +73,7 @@ func (self *outputParser) processTestOutput() {
 }
 
 func (self *outputParser) registerTestFunction() {
-	self.test = NewTestResult(self.line[len("=== RUN "):])
+	self.test = contract.NewTestResult(self.line[len("=== RUN "):])
 	self.tests = append(self.tests, self.test)
 }
 func (self *outputParser) recordTestMetadata() {
@@ -83,10 +82,10 @@ func (self *outputParser) recordTestMetadata() {
 }
 func (self *outputParser) recordPackageMetadata() {
 	if packageFailed(self.line) {
-		self.recordTestingOutcome(Failed)
+		self.recordTestingOutcome(contract.Failed)
 
 	} else if packagePassed(self.line) {
-		self.recordTestingOutcome(Passed)
+		self.recordTestingOutcome(contract.Passed)
 	}
 }
 func (self *outputParser) recordTestingOutcome(outcome string) {
@@ -108,7 +107,7 @@ func (self *outputParser) parseEachTestFunction() {
 	for _, self.test = range self.tests {
 		self.test = parseTestOutput(self.test)
 		if self.test.Error != "" {
-			self.result.Outcome = Panicked
+			self.result.Outcome = contract.Panicked
 		}
 		self.test.RawLines = []string{}
 		self.result.TestResults = append(self.result.TestResults, *self.test)
@@ -118,12 +117,12 @@ func (self *outputParser) parseEachTestFunction() {
 type outputParser struct {
 	raw    string
 	lines  []string
-	result *PackageResult
-	tests  []*TestResult
+	result *contract.PackageResult
+	tests  []*contract.TestResult
 
 	// place holders for loops
 	line string
-	test *TestResult
+	test *contract.TestResult
 }
 
 func noGoFiles(line string) bool {

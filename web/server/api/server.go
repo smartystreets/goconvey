@@ -4,17 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"github.com/smartystreets/goconvey/web/server/parser"
 	"net/http"
 )
 
 type HTTPServer struct {
 	watcher  contract.Watcher
 	executor contract.Executor
-	latest   *parser.CompleteOutput
+	latest   *contract.CompleteOutput
 }
 
-func (self *HTTPServer) ReceiveUpdate(update *parser.CompleteOutput) {
+func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
 	self.latest = update
 }
 
