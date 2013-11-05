@@ -10,6 +10,17 @@ func ParsePackageResults(result *contract.PackageResult, rawOutput string) {
 	newOutputParser(result, rawOutput).parse()
 }
 
+type outputParser struct {
+	raw    string
+	lines  []string
+	result *contract.PackageResult
+	tests  []*contract.TestResult
+
+	// place holders for loops
+	line string
+	test *contract.TestResult
+}
+
 func newOutputParser(result *contract.PackageResult, rawOutput string) *outputParser {
 	self := &outputParser{}
 	self.raw = strings.TrimSpace(rawOutput)
@@ -114,16 +125,7 @@ func (self *outputParser) parseEachTestFunction() {
 	}
 }
 
-type outputParser struct {
-	raw    string
-	lines  []string
-	result *contract.PackageResult
-	tests  []*contract.TestResult
-
-	// place holders for loops
-	line string
-	test *contract.TestResult
-}
+// Standalone functions //
 
 func noGoFiles(line string) bool {
 	return strings.HasPrefix(line, "can't load package: ") &&
