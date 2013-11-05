@@ -19,13 +19,13 @@ func TestConcurrentTester(t *testing.T) {
 		Convey("Whenever tests for each package are executed", func() {
 			fixture.InBatchesOf(1).RunTests()
 
-			Convey("The tester should build all dependencies of input packages",
+			Convey("The tester should build all dependencies of active packages",
 				fixture.ShouldHaveRecordOfCompilationCommands)
 
-			Convey("The tester should execute the tests in each package with the correct arguments",
+			Convey("The tester should execute the tests in each active package with the correct arguments",
 				fixture.ShouldHaveRecordOfExecutionCommands)
 
-			Convey("There should be a test output result for each package",
+			Convey("There should be a test output result for each active package",
 				fixture.ShouldHaveOneOutputPerInput)
 
 			Convey("The output should be as expected",
@@ -35,14 +35,14 @@ func TestConcurrentTester(t *testing.T) {
 		Convey("When the tests for each package are executed synchronously", func() {
 			fixture.InBatchesOf(1).RunTests()
 
-			Convey("Each package should be run synchronously and in the given order",
+			Convey("Each active package should be run synchronously and in the given order",
 				fixture.TestsShouldHaveRunContiguously)
 		})
 
 		Convey("When packages are tested concurrently", func() {
 			fixture.InBatchesOf(concurrentBatchSize).RunTests()
 
-			Convey("Packages should be arranged and tested in batches of the appropriate size",
+			Convey("Active packages should be arranged and tested in batches of the appropriate size",
 				fixture.TestsShouldHaveRunInBatchesOfTwo)
 		})
 
@@ -81,12 +81,12 @@ func NewTesterFixture() *TesterFixture {
 	self.shell = NewTimedShell()
 	self.tester = NewConcurrentTester(self.shell)
 	self.packages = []*contract.Package{
-		&contract.Package{Name: "a"},
-		&contract.Package{Name: "b"},
-		&contract.Package{Name: "c"},
-		&contract.Package{Name: "d"},
-		&contract.Package{Name: "e"},
-		&contract.Package{Name: "f"},
+		&contract.Package{Active: true, Name: "a"},
+		&contract.Package{Active: true, Name: "b"},
+		&contract.Package{Active: true, Name: "c"},
+		&contract.Package{Active: true, Name: "d"},
+		&contract.Package{Active: false, Name: "e"},
+		&contract.Package{Active: true, Name: "f"},
 	}
 	return self
 }
@@ -117,16 +117,21 @@ func (self *TesterFixture) RunTests() {
 }
 
 func (self *TesterFixture) ShouldHaveRecordOfCompilationCommands() {
-	for i, pkg := range self.packages {
-		command := self.compilations[i].Command
-		So(command, ShouldEqual, "go test -i "+pkg.Name)
+	expected := []string{"a", "b", "c", "d", "f"}
+	actual := []string{}
+	for _, pkg := range self.compilations {
+		actual = append(actual, strings.Replace(pkg.Command, "go test -i ", "", -1))
 	}
+	So(actual, ShouldResemble, expected)
 }
 
 func (self *TesterFixture) ShouldHaveRecordOfExecutionCommands() {
-	for i, pkg := range self.packages {
-		So(self.executions[i].Command, ShouldEqual, "go test -v -timeout=-42s "+pkg.Name)
+	expected := []string{"a", "b", "c", "d", "f"}
+	actual := []string{}
+	for _, pkg := range self.executions {
+		actual = append(actual, strings.Replace(pkg.Command, "go test -v -timeout=-42s ", "", -1))
 	}
+	So(actual, ShouldResemble, expected)
 }
 
 func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
@@ -134,13 +139,19 @@ func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
 }
 
 func (self *TesterFixture) OutputShouldBeAsExpected() {
-	for i, p := range self.packages {
-		So(p.Output, ShouldEqual, self.executions[i].Command)
+	for _, p := range self.packages {
+		if p.Active {
+			So(p.Output, ShouldEndWith, p.Name)
+		} else {
+			So(p.Output, ShouldBeBlank)
+		}
 		So(p.Error, ShouldBeNil)
 	}
 }
 
 func (self *TesterFixture) TestsShouldHaveRunContiguously() {
+	self.OutputShouldBeAsExpected()
+
 	So(self.shell.MaxConcurrentCommands(), ShouldEqual, 1)
 
 	for i := 0; i < len(self.executions)-1; i++ {
@@ -152,6 +163,8 @@ func (self *TesterFixture) TestsShouldHaveRunContiguously() {
 }
 
 func (self *TesterFixture) TestsShouldHaveRunInBatchesOfTwo() {
+	self.OutputShouldBeAsExpected()
+
 	So(self.shell.MaxConcurrentCommands(), ShouldEqual, concurrentBatchSize)
 }
 

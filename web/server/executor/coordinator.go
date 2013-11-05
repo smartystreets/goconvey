@@ -28,6 +28,9 @@ func (self *concurrentCoordinator) enlistWorkers() {
 }
 func (self *concurrentCoordinator) worker(id int) {
 	for folder := range self.queue {
+		if !folder.Active {
+			continue
+		}
 		output, err := self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
 		folder.Output = output
 		folder.Error = err
