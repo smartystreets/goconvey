@@ -23,3 +23,7 @@ func (self *Shell) Setenv(key, value string) error {
 	}
 	return nil
 }
+
+func NewShell() *Shell {
+	return &Shell{}
+}

@@ -18,3 +18,7 @@ func (self *FileSystem) Exists(directory string) bool {
 	info, err := os.Stat(directory)
 	return err == nil && info.IsDir()
 }
+
+func NewFileSystem() *FileSystem {
+	return &FileSystem{}
+}
