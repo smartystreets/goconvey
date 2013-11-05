@@ -184,7 +184,7 @@ func (self *watcherFixture) pointToExistingRoot(folder string) (actual, expected
 	self.watcher.Adjust(folder)
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
 	return
 }
 
@@ -204,10 +204,10 @@ func (self *watcherFixture) pointToExistingRootWithNestedFolders() (actual, expe
 
 	actual = self.watched()
 	expected = []*contract.Package{
-		&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix},
-		&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub"},
-		&contract.Package{Active: true, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2"},
-		&contract.Package{Active: true, Path: goProject + "/sub/subsub", Name: goPackagePrefix + "/sub/subsub"},
+		&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)},
+		&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub", Result: contract.NewPackageResult(goPackagePrefix + "/sub")},
+		&contract.Package{Active: true, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")},
+		&contract.Package{Active: true, Path: goProject + "/sub/subsub", Name: goPackagePrefix + "/sub/subsub", Result: contract.NewPackageResult(goPackagePrefix + "/sub/subsub")},
 	}
 	return
 }
@@ -229,7 +229,7 @@ func (self *watcherFixture) receiveNotificationOfNewFolder() (actual, expected i
 	self.watcher.Creation(goProject + "/sub")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub"}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub", Result: contract.NewPackageResult(goPackagePrefix + "/sub")}}
 	return
 }
 
@@ -240,7 +240,7 @@ func (self *watcherFixture) receiveNotificationOfDeletedFolder() (actual, expect
 	self.watcher.Deletion(goProject + "/sub")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2"}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")}}
 	return
 }
 
@@ -250,7 +250,7 @@ func (self *watcherFixture) ignoreWatchedFolder() (actual, expected interface{})
 	self.watcher.Ignore(goPackagePrefix + "/sub2")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: false, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2"}}
+	expected = []*contract.Package{&contract.Package{Active: false, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")}}
 	return
 }
 
@@ -262,7 +262,7 @@ func (self *watcherFixture) ignoreIrrelevantFolder() (actual, expected interface
 	self.watcher.Ignore("/something")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
 	return
 }
 
@@ -273,7 +273,7 @@ func (self *watcherFixture) ignoreImaginaryFolder() (actual, expected interface{
 	self.watcher.Ignore("/not/there")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
 	return
 }
 
@@ -287,8 +287,8 @@ func (self *watcherFixture) reinstateIgnoredFolder() (actual, expected interface
 
 	actual = self.watched()
 	expected = []*contract.Package{
-		&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix},
-		&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub"},
+		&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)},
+		&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub", Result: contract.NewPackageResult(goPackagePrefix + "/sub")},
 	}
 	return
 }
@@ -303,7 +303,7 @@ func (self *watcherFixture) reinstateDeletedFolder() (actual, expected interface
 	self.watcher.Reinstate(goPackagePrefix + "/sub")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
 	return
 }
 
@@ -315,7 +315,7 @@ func (self *watcherFixture) reinstateIrrelevantFolder() (actual, expected interf
 	self.watcher.Reinstate("/irrelevant")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
 	return
 }
 

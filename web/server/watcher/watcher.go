@@ -34,6 +34,7 @@ func (self *Watcher) Adjust(root string) error {
 }
 func (self *Watcher) includeFolders(path string, info os.FileInfo, err error) error {
 	if info.IsDir() {
+		fmt.Println("Including:", path)
 		self.watched[path] = contract.NewPackage(path)
 	}
 	return nil
@@ -75,6 +76,7 @@ func (self *Watcher) WatchedFolders() []*contract.Package {
 			Active: item.Active,
 			Path:   item.Path,
 			Name:   item.Name,
+			Result: contract.NewPackageResult(item.Name),
 		}
 		i++
 	}
