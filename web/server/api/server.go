@@ -18,6 +18,7 @@ func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
 	self.latest = update
 }
 
+// TODO: make this match the current scheme (probably means introducing new URLs for ignore and reinstate)
 func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Request) {
 	watch := newWatchRequestHandler(request, response, self.watcher)
 
@@ -40,11 +41,10 @@ func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Reque
 }
 
 func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
-	// TODO: include these headers (under test)
-	// response.Header().Set("Content-Type", "application/json")
-	// response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	// response.Header().Set("Pragma", "no-cache")
-	// response.Header().Set("Expires", "0")
+	response.Header().Set("Content-Type", "application/json")
+	response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	response.Header().Set("Pragma", "no-cache")
+	response.Header().Set("Expires", "0")
 	stuff, _ := json.Marshal(self.latest)
 	response.Write(stuff)
 }

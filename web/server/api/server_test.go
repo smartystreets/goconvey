@@ -28,14 +28,22 @@ func TestHTTPServer(t *testing.T) {
 			fixture.ReceiveUpdate(&contract.CompleteOutput{Revision: "asdf"})
 
 			Convey("When the update is requested", func() {
-				update, status := fixture.RequestLatest()
+				update, response := fixture.RequestLatest()
 
 				Convey("The server returns it", func() {
 					So(update, ShouldResemble, &contract.CompleteOutput{Revision: "asdf"})
 				})
 
 				Convey("The server returns 200", func() {
-					So(status, ShouldEqual, http.StatusOK)
+					So(response.Code, ShouldEqual, http.StatusOK)
+				})
+
+				Convey("The server should include important cache-related headers", func() {
+					So(len(response.HeaderMap), ShouldEqual, 4)
+					So(response.HeaderMap["Content-Type"][0], ShouldEqual, "application/json")
+					So(response.HeaderMap["Cache-Control"][0], ShouldEqual, "no-cache, no-store, must-revalidate")
+					So(response.HeaderMap["Pragma"][0], ShouldEqual, "no-cache")
+					So(response.HeaderMap["Expires"][0], ShouldEqual, "0")
 				})
 			})
 		})
@@ -238,7 +246,7 @@ func (self *ServerFixture) ReceiveUpdate(update *contract.CompleteOutput) {
 	self.server.ReceiveUpdate(update)
 }
 
-func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, int) {
+func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, *httptest.ResponseRecorder) {
 	request, _ := http.NewRequest("GET", "http://localhost:8080/results", nil)
 	response := httptest.NewRecorder()
 
@@ -247,7 +255,7 @@ func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, int) {
 	decoder := json.NewDecoder(strings.NewReader(response.Body.String()))
 	update := &contract.CompleteOutput{}
 	decoder.Decode(update)
-	return update, response.Code
+	return update, response
 }
 
 func (self *ServerFixture) QueryRootWatch() (string, int) {
