@@ -1,7 +1,6 @@
 package executor
 
 import (
-	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"log"
 )
@@ -38,7 +37,7 @@ func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) 
 		}
 		log.Printf("Executing tests: %s\n", folder.Name)
 		folder.Output, folder.Error = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
-		if folder.Error != nil {
+		if folder.Error != nil && folder.Output == "" { // TODO: test here and in concurrent runner
 			panic(folder.Error)
 		}
 	}
@@ -51,6 +50,4 @@ func NewConcurrentTester(shell contract.Shell) *ConcurrentTester {
 	return self
 }
 
-const defaultBatchSize = 4
-
-var _ = fmt.Sprintf("Hi")
+const defaultBatchSize = 8

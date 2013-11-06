@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -14,8 +15,8 @@ type WatchRequestHandler struct {
 }
 
 func (self *WatchRequestHandler) ProvideCurrentRoot() {
-	watched := self.watcher.WatchedFolders() // TODO: what if len(watched) == 0? (can that even happen?)
-	self.response.Write([]byte(watched[0].Path))
+	root := self.watcher.Root()
+	self.response.Write([]byte(root))
 }
 
 func (self *WatchRequestHandler) AdjustRoot() {
@@ -23,6 +24,7 @@ func (self *WatchRequestHandler) AdjustRoot() {
 	if root == "" {
 		return
 	}
+	log.Println("Adjusting root:", root)
 
 	err := self.watcher.Adjust(root)
 	if err != nil {
@@ -32,12 +34,14 @@ func (self *WatchRequestHandler) AdjustRoot() {
 
 func (self *WatchRequestHandler) IgnorePackage() {
 	if folder := self.extractPayload(); folder != "" {
+		log.Println("Ignoring:", folder)
 		self.watcher.Ignore(folder)
 	}
 }
 
 func (self *WatchRequestHandler) ReinstatePackage() {
 	if folder := self.extractPayload(); folder != "" {
+		log.Println("Reinstating:", folder)
 		self.watcher.Reinstate(folder)
 	}
 }
@@ -56,10 +60,13 @@ func (self *WatchRequestHandler) extractPayload() (payload string) {
 }
 func (self *WatchRequestHandler) returnReadError(err error) {
 	message := fmt.Sprintf("The request body could not be read: (error: '%s')", err.Error())
+	log.Printf("HTTP %d (request: %v): %s (HTTP %d)\n", http.StatusBadRequest, self.request, message)
 	http.Error(self.response, message, http.StatusBadRequest)
 }
 func (self *WatchRequestHandler) returnBlankError() {
-	http.Error(self.response, "You must provide a non-blank path.", http.StatusBadRequest)
+	message := "You must provide a non-blank path."
+	log.Printf("HTTP %d (%v): %s\n", http.StatusBadRequest, self.request, message)
+	http.Error(self.response, message, http.StatusBadRequest)
 }
 
 func newWatchRequestHandler(request *http.Request, response http.ResponseWriter, watcher contract.Watcher) *WatchRequestHandler {

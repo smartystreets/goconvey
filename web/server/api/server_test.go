@@ -357,7 +357,11 @@ func (self *FakeWatcher) Adjust(root string) error {
 	self.root = root
 	return nil
 }
-func (self *FakeWatcher) Root() string            { panic("NOT SUPPORTED") }
+
+func (self *FakeWatcher) Root() string {
+	return self.root
+}
+
 func (self *FakeWatcher) Ignore(folder string)    { self.ignored = folder }
 func (self *FakeWatcher) Reinstate(folder string) { self.reinstated = folder }
 

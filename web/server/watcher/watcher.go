@@ -13,20 +13,20 @@ type Watcher struct {
 	fs      contract.FileSystem
 	shell   contract.Shell
 	watched map[string]*contract.Package
+	root    string
 }
 
 func (self *Watcher) Root() string {
-	if len(self.watched) == 0 {
-		return ""
-	}
-	return self.WatchedFolders()[0].Path
+	return self.root
 }
 
 func (self *Watcher) Adjust(root string) error {
 	if !self.fs.Exists(root) {
 		return errors.New(fmt.Sprintf("Directory does not exist: '%s'", root))
 	}
+	log.Println("Adjusting to watch new root:", self.root)
 
+	self.root = root
 	self.watched = make(map[string]*contract.Package)
 	self.fs.Walk(root, self.includeFolders)
 	self.setGoPath(root)
@@ -72,6 +72,7 @@ func (self *Watcher) Reinstate(packageName string) {
 }
 func (self *Watcher) WatchedFolders() []*contract.Package {
 	i, watched := 0, make([]*contract.Package, len(self.watched))
+	log.Println("Number of watched folders:", len(self.watched))
 	for _, item := range self.watched {
 		watched[i] = &contract.Package{
 			Active: item.Active,

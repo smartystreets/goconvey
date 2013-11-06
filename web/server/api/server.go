@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
+	"log"
 	"net/http"
 )
 
@@ -34,10 +35,16 @@ func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Reques
 
 func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Request) {
 	status := self.executor.Status()
+	log.Println("Status requested:", status)
 	response.Write([]byte(status))
 }
 
 func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
+	// TODO: include these headers (under test)
+	// response.Header().Set("Content-Type", "application/json")
+	// response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	// response.Header().Set("Pragma", "no-cache")
+	// response.Header().Set("Expires", "0")
 	stuff, _ := json.Marshal(self.latest)
 	response.Write(stuff)
 }
