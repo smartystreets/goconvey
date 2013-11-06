@@ -1,5 +1,9 @@
 package contract
 
+import (
+	"log"
+)
+
 type Monitor struct {
 	scanner  Scanner
 	watcher  Watcher
@@ -9,6 +13,7 @@ type Monitor struct {
 }
 
 func (self *Monitor) ScanForever() {
+	log.Println("Engaging monitoring loop...")
 	for {
 		self.Scan()
 	}
@@ -26,8 +31,11 @@ func (self *Monitor) Scan() {
 
 func (self *Monitor) executeTests() {
 	watched := self.watcher.WatchedFolders()
+	log.Printf("Preparing for test run (watching %d folders)...\n", len(watched))
 	output := self.executor.ExecuteTests(watched)
+	log.Println("Test run complete, updating server with latest output...")
 	self.server.ReceiveUpdate(output)
+	log.Printf("Server updated with %d tested packages (revision: '%v').\n", len(output.Packages), output.Revision)
 }
 
 func NewMonitor(scanner Scanner, watcher Watcher, executor Executor, server Server, sleep func()) *Monitor {

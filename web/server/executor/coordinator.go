@@ -1,7 +1,9 @@
 package executor
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
+	"log"
 	"sync"
 )
 
@@ -29,8 +31,10 @@ func (self *concurrentCoordinator) enlistWorkers() {
 func (self *concurrentCoordinator) worker(id int) {
 	for folder := range self.queue {
 		if !folder.Active {
+			log.Printf("Skipping concurrent execution: %s\n", folder.Name)
 			continue
 		}
+		log.Printf("Executing concurrent tests: %s\n", folder.Name)
 		output, err := self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
 		folder.Output = output
 		folder.Error = err
@@ -51,7 +55,8 @@ func (self *concurrentCoordinator) awaitCompletion() {
 
 func (self *concurrentCoordinator) checkForErrors() {
 	for _, folder := range self.folders {
-		if folder.Error != nil {
+		if folder.Error != nil && folder.Output == "" {
+			fmt.Println(folder.Path, folder.Error)
 			panic(folder.Error)
 		}
 	}

@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
+	"log"
 )
 
 type ConcurrentTester struct {
@@ -32,8 +33,10 @@ func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
 func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) {
 	for _, folder := range folders {
 		if !folder.Active {
+			log.Printf("Skipping execution: %s\n", folder.Name)
 			continue
 		}
+		log.Printf("Executing tests: %s\n", folder.Name)
 		folder.Output, folder.Error = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
 		if folder.Error != nil {
 			panic(folder.Error)

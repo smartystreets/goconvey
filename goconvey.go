@@ -1,19 +1,26 @@
+// This executable provides an HTTP server that watches for file system changes
+// to .go files within the working directory (and all nested go packages).
+// Navigating to the configured host and port will show a web UI showing the
+// results of running `go test` in each go package.
+
 package main
 
 import (
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"runtime"
+	"time"
+
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	exec "github.com/smartystreets/goconvey/web/server/executor"
 	parse "github.com/smartystreets/goconvey/web/server/parser"
 	"github.com/smartystreets/goconvey/web/server/system"
 	watch "github.com/smartystreets/goconvey/web/server/watcher"
-	"net/http"
-	"os"
-	"path/filepath"
-	"runtime"
-	"time"
 
 	// dependencies:
 	_ "github.com/jacobsa/oglematchers"
@@ -25,10 +32,14 @@ func init() {
 	flag.IntVar(&port, "port", 8081, "The port at which to serve http.")
 	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	flag.DurationVar(&nap, "poll", oneSecond, "The interval to wait between polling the file system for changes (default: 1s)")
+
+	log.SetOutput(os.Stdout)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {
 	flag.Parse()
+	log.Printf("Initial configuration: [host: %s] [port: %d] [poll %v]\n", host, port, nap)
 
 	monitor, server := wireup()
 
@@ -58,6 +69,7 @@ func serveAjaxMethods(server contract.Server) {
 }
 
 func activateServer() {
+	log.Printf("Serving HTTP at: http://%s:%d\n", host, port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		fmt.Println(err)
@@ -65,6 +77,7 @@ func activateServer() {
 }
 
 func wireup() (*contract.Monitor, contract.Server) {
+	log.Println("Constructing components...")
 	working, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -81,9 +94,13 @@ func wireup() (*contract.Monitor, contract.Server) {
 	executor := exec.NewExecutor(tester, parser)
 	server := api.NewHTTPServer(watcher, executor)
 	scanner := watch.NewScanner(fs, watcher)
-	monitor := contract.NewMonitor(scanner, watcher, executor, server, func() { time.Sleep(nap) })
+	monitor := contract.NewMonitor(scanner, watcher, executor, server, sleeper)
 
 	return monitor, server
+}
+
+func sleeper() {
+	time.Sleep(nap)
 }
 
 var (

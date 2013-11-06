@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
+	"log"
 	"os"
 	"strings"
 )
@@ -34,7 +35,7 @@ func (self *Watcher) Adjust(root string) error {
 }
 func (self *Watcher) includeFolders(path string, info os.FileInfo, err error) error {
 	if info.IsDir() {
-		fmt.Println("Including:", path)
+		log.Println("Including:", path)
 		self.watched[path] = contract.NewPackage(path)
 	}
 	return nil
