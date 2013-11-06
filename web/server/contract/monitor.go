@@ -31,10 +31,13 @@ func (self *Monitor) Scan() {
 
 func (self *Monitor) executeTests() {
 	watched := self.watcher.WatchedFolders()
+
 	log.Printf("Preparing for test run (watching %d folders)...\n", len(watched))
 	output := self.executor.ExecuteTests(watched)
+
 	log.Println("Test run complete, updating server with latest output...")
 	self.server.ReceiveUpdate(output)
+
 	log.Printf("Server updated with %d tested packages (revision: '%v').\n", len(output.Packages), output.Revision)
 }
 

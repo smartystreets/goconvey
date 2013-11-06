@@ -36,7 +36,6 @@ func (self *walkStep) isWatchedFolder() bool {
 }
 
 func (self *walkStep) isWatchedFile() bool {
-	// TODO: should it be "go" instead of ".go" for the extension?
 	return self.watcher.IsWatched(self.folder) && filepath.Ext(self.path) == ".go"
 }
 

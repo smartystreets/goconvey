@@ -12,6 +12,7 @@ type ConcurrentTester struct {
 
 func (self *ConcurrentTester) SetBatchSize(batchSize int) {
 	self.batchSize = batchSize
+	log.Printf("Now configured to test %d packages concurrently.\n", self.batchSize)
 }
 
 func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
@@ -50,4 +51,4 @@ func NewConcurrentTester(shell contract.Shell) *ConcurrentTester {
 	return self
 }
 
-const defaultBatchSize = 8
+const defaultBatchSize = 10
