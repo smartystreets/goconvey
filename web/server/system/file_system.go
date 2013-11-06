@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,20 +11,21 @@ type FileSystem struct{}
 
 func (self *FileSystem) Walk(root string, step filepath.WalkFunc) {
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if self.shouldIgnore(path) {
-			return nil
+		if self.isMetaDirectory(info) {
+			return filepath.SkipDir
 		}
 
 		return step(path, info, err)
 	})
 
 	if err != nil {
-		panic(err) // TODO?
+		log.Println("Error while walking file system:", err)
+		panic(err)
 	}
 }
 
-func (self *FileSystem) shouldIgnore(path string) bool {
-	return strings.Contains(path, string(filepath.Separator)+".git")
+func (self *FileSystem) isMetaDirectory(info os.FileInfo) bool {
+	return info.IsDir() && strings.HasPrefix(info.Name(), ".")
 }
 
 func (self *FileSystem) Exists(directory string) bool {
