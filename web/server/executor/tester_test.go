@@ -39,11 +39,27 @@ func TestConcurrentTester(t *testing.T) {
 				fixture.TestsShouldHaveRunContiguously)
 		})
 
+		Convey("When the tests for each package are executed synchronously with failures", func() {
+			fixture.InBatchesOf(1).SetupFailedTestSuites().RunTests()
+
+			Convey("The failed test packages should not result in any panics", func() {
+				So(fixture.recovered, ShouldBeNil)
+			})
+		})
+
 		Convey("When packages are tested concurrently", func() {
 			fixture.InBatchesOf(concurrentBatchSize).RunTests()
 
 			Convey("Active packages should be arranged and tested in batches of the appropriate size",
 				fixture.TestsShouldHaveRunInBatchesOfTwo)
+		})
+
+		Convey("When packages are tested concurrently with failures", func() {
+			fixture.InBatchesOf(concurrentBatchSize).SetupFailedTestSuites().RunTests()
+
+			Convey("The failed test packages should not result in any panics", func() {
+				So(fixture.recovered, ShouldBeNil)
+			})
 		})
 
 		Convey("When running a test package produces no output and exits with an error", func() {
@@ -55,7 +71,7 @@ func TestConcurrentTester(t *testing.T) {
 		})
 
 		Convey("When running test packages concurrently and a test package produces no output and exits with an error", func() {
-			fixture.InBatchesOf(2).SetupAbnormalError("This really shouldn't happen...").RunTests()
+			fixture.InBatchesOf(concurrentBatchSize).SetupAbnormalError("This really shouldn't happen...").RunTests()
 
 			Convey("Panic should ensue", func() {
 				So(fixture.recovered.Error(), ShouldEqual, "This really shouldn't happen...")
@@ -98,6 +114,11 @@ func (self *TesterFixture) InBatchesOf(batchSize int) *TesterFixture {
 
 func (self *TesterFixture) SetupAbnormalError(message string) *TesterFixture {
 	self.shell.setTripWire(message)
+	return self
+}
+
+func (self *TesterFixture) SetupFailedTestSuites() *TesterFixture {
+	self.shell.setExitWithError()
 	return self
 }
 
@@ -180,6 +201,7 @@ type TimedShell struct {
 	executions   []*ShellCommand
 	compilations []*ShellCommand
 	panicMessage string
+	err          error
 }
 
 func (self *TimedShell) Compilations() []*ShellCommand {
@@ -217,6 +239,10 @@ func (self *TimedShell) setTripWire(message string) {
 	self.panicMessage = message
 }
 
+func (self *TimedShell) setExitWithError() {
+	self.err = errors.New("Simulate test failure")
+}
+
 func (self *TimedShell) Execute(name string, args ...string) (output string, err error) {
 	if self.panicMessage != "" && args[1] == "-v" {
 		return "", errors.New(self.panicMessage)
@@ -224,6 +250,7 @@ func (self *TimedShell) Execute(name string, args ...string) (output string, err
 
 	command := self.composeCommand(name + " " + strings.Join(args, " "))
 	output = command.Command
+	err = self.err
 
 	if strings.Contains(command.Command, " -i ") {
 		self.compilations = append(self.compilations, command)
