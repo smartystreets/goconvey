@@ -2,6 +2,7 @@ package watcher
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/system"
 	"testing"
 	"time"
@@ -191,23 +192,17 @@ func TestScanner(t *testing.T) {
 				})
 			})
 
-			// Once upon a time the scanner didn't keep track of the root internally, it was
-			// given as a parameter to the Scan() method. This meant that when the scanner
-			// was instructed to scan a new root location it appeared to the scanner that
-			// many of the internally stored folders had been deleted becuase they were not
-			// part of the new root directory structure and they were reported as deletions
-			// to the watcher, which was incorrect behavior.
-			// TODO: use a mock for the watcher
-			SkipConvey("When the watcher has adjusted the root", func() {
+			// Once upon a time the scanner didn't keep track of the root internally.
+			// This meant that when the scanner was instructed to scan a new root location
+			// it appeared to the scanner that many of the internally stored folders had
+			// been deleted becuase they were not part of the new root directory structure
+			// and they were reported as deletions to the watcher, which was incorrect behavior.
+			Convey("When the watcher has adjusted the root", func() {
 				fixture.fs.Create("/somewhere", 3, time.Now())
 				fixture.fs.Create("/somewhere/else", 3, time.Now())
 				fixture.watcher.Adjust("/somewhere")
 
-				// This puts a previously watched folder back in the watcher,
-				// so we can see if a deletion is signaled inadvertantly as a result of Scan():
-				fixture.watcher.Creation("/root/sub")
-
-				Convey("And the scanner reports a change", func() {
+				Convey("And the scanner scans", func() {
 					changed := fixture.scan()
 
 					Convey("The scanner should report the change", func() {
@@ -215,13 +210,11 @@ func TestScanner(t *testing.T) {
 					})
 
 					Convey("The scanner should NOT notify the watcher of incorrect folder deletions", func() {
-						watched := fixture.watcher.WatchedFolders()
-						last := watched[len(watched)-1]
-						So(last.Path, ShouldEqual, "/root/sub")
+						So(len(fixture.watcher.deleted), ShouldEqual, 0)
 					})
 
 					Convey("The scanner should NOT notify the watcher of incorrect folder creations", func() {
-
+						So(len(fixture.watcher.created), ShouldEqual, 0)
 					})
 				})
 			})
@@ -233,7 +226,7 @@ func TestScanner(t *testing.T) {
 type scannerFixture struct {
 	scanner *Scanner
 	fs      *system.FakeFileSystem
-	watcher *Watcher
+	watcher *WatcherWrapper
 }
 
 func (self *scannerFixture) scan() bool {
@@ -259,8 +252,62 @@ func newScannerFixture() *scannerFixture {
 	self.fs.Create("/root/sub", 0, time.Now())
 	self.fs.Create("/root/sub/file.go", 2, time.Now())
 	self.fs.Create("/root/sub/empty", 0, time.Now())
-	self.watcher = NewWatcher(self.fs, system.NewFakeShell())
+	self.watcher = newWatcherWrapper(NewWatcher(self.fs, system.NewFakeShell()))
 	self.watcher.Adjust("/root")
 	self.scanner = NewScanner(self.fs, self.watcher)
+	return self
+}
+
+/******** WatcherWrapper ********/
+
+type WatcherWrapper struct {
+	inner   *Watcher
+	created []string
+	deleted []string
+}
+
+func (self *WatcherWrapper) WatchedFolders() []*contract.Package {
+	return self.inner.WatchedFolders()
+}
+
+func (self *WatcherWrapper) Root() string {
+	return self.inner.Root()
+}
+
+func (self *WatcherWrapper) Adjust(root string) error {
+	return self.inner.Adjust(root)
+}
+
+func (self *WatcherWrapper) Deletion(folder string) {
+	self.deleted = append(self.deleted, folder)
+	self.inner.Deletion(folder)
+}
+
+func (self *WatcherWrapper) Creation(folder string) {
+	self.created = append(self.created, folder)
+	self.inner.Creation(folder)
+}
+
+func (self *WatcherWrapper) Ignore(folder string) {
+	self.inner.Ignore(folder)
+}
+
+func (self *WatcherWrapper) Reinstate(folder string) {
+	self.inner.Reinstate(folder)
+}
+
+func (self *WatcherWrapper) IsWatched(folder string) bool {
+	return self.inner.IsWatched(folder)
+}
+
+func (self *WatcherWrapper) IsIgnored(folder string) bool {
+	return self.inner.IsIgnored(folder)
+}
+
+func newWatcherWrapper(inner *Watcher) *WatcherWrapper {
+	self := &WatcherWrapper{}
+	self.inner = inner
+	self.created = []string{}
+	self.deleted = []string{}
 	return self
 }
