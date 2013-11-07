@@ -29,7 +29,7 @@ import (
 
 func init() {
 	quarterSecond, _ := time.ParseDuration("250ms")
-	flag.IntVar(&port, "port", 8081, "The port at which to serve http.")
+	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
 	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	flag.DurationVar(&nap, "poll", quarterSecond, "The interval to wait between polling the file system for changes (default: 250ms).")
 	flag.IntVar(&packages, "packages", 10, "The number of packages to test in parallel. Higher == faster but more costly in terms of computing. (default: 10)")
