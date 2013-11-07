@@ -1,5 +1,5 @@
 GoConvey is awesome Go testing
-=================================
+==============================
 
 Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure.
 
@@ -27,7 +27,6 @@ Installation
 ------------
 
 	$ go get github.com/smartystreets/goconvey
-	$ go install github.com/smartystreets/goconvey/web/goconvey-server
 
 
 [Quick start](https://github.com/smartystreets/goconvey/wiki#get-going-in-25-seconds)
@@ -57,7 +56,7 @@ func TestSpec(t *testing.T) {
 
 Start up the GoConvey web server at your project's path:
 
-    $ $GOPATH/bin/goconvey-server
+	$ $GOPATH/bin/goconvey
 
 Then open your browser to:
 
