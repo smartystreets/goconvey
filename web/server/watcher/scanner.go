@@ -2,28 +2,44 @@ package watcher
 
 import (
 	"github.com/smartystreets/goconvey/web/server/contract"
+	"log"
 	"os"
 )
 
 type Scanner struct {
 	fs                 contract.FileSystem
 	watcher            contract.Watcher
+	root               string
 	previous           int64
 	latestFolders      map[string]bool
 	preExistingFolders map[string]bool
 }
 
-func (self *Scanner) Scan(root string) bool {
-	checksum, folders := self.analyzeCurrentFileSystemState(root)
-	self.notifyWatcherOfChangesInFolderStructure(folders)
+func (self *Scanner) Scan() bool {
+	rootIsNew := self.recordCurrentRoot()
+	checksum, folders := self.analyzeCurrentFileSystemState()
+	if !rootIsNew {
+		self.notifyWatcherOfChangesInFolderStructure(folders)
+	}
+	self.preExistingFolders = folders
 	return self.latestTestResultsAreStale(checksum)
 }
 
-func (self *Scanner) analyzeCurrentFileSystemState(root string) (checksum int64, folders map[string]bool) {
+func (self *Scanner) recordCurrentRoot() (changed bool) {
+	root := self.watcher.Root()
+	if root != self.root {
+		log.Println("Updating root in scanner:", root)
+		self.root = root
+		return true
+	}
+	return false
+}
+
+func (self *Scanner) analyzeCurrentFileSystemState() (checksum int64, folders map[string]bool) {
 	folders = make(map[string]bool)
 
-	self.fs.Walk(root, func(path string, info os.FileInfo, err error) error {
-		step := newWalkStep(root, path, info, self.watcher)
+	self.fs.Walk(self.root, func(path string, info os.FileInfo, err error) error {
+		step := newWalkStep(self.root, path, info, self.watcher)
 		step.IncludeIn(folders)
 		checksum += step.Sum()
 		return nil
@@ -34,7 +50,6 @@ func (self *Scanner) analyzeCurrentFileSystemState(root string) (checksum int64,
 func (self *Scanner) notifyWatcherOfChangesInFolderStructure(latest map[string]bool) {
 	self.accountForDeletedFolders(latest)
 	self.accountForNewFolders(latest)
-	self.preExistingFolders = latest
 }
 func (self *Scanner) accountForDeletedFolders(latest map[string]bool) {
 	for folder, _ := range self.preExistingFolders {
@@ -53,6 +68,9 @@ func (self *Scanner) accountForNewFolders(latest map[string]bool) {
 
 func (self *Scanner) latestTestResultsAreStale(checksum int64) bool {
 	defer func() { self.previous = checksum }()
+	if self.previous != checksum {
+		log.Println("Old:", self.previous, "New:", checksum)
+	}
 	return self.previous != checksum
 }
 

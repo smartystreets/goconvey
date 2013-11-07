@@ -80,18 +80,12 @@ type FakeServer struct {
 func (self *FakeServer) ReceiveUpdate(update *CompleteOutput) {
 	self.latest = update
 }
-func (self *FakeServer) Watch(writer http.ResponseWriter, request *http.Request) {
-	panic("NOT SUPPORTED")
-}
-func (self *FakeServer) Status(writer http.ResponseWriter, request *http.Request) {
-	panic("NOT SUPPORTED")
-}
-func (self *FakeServer) Results(writer http.ResponseWriter, request *http.Request) {
-	panic("NOT SUPPORTED")
-}
-func (self *FakeServer) Execute(writer http.ResponseWriter, request *http.Request) {
-	panic("NOT SUPPORTED")
-}
+func (self *FakeServer) Watch(http.ResponseWriter, *http.Request)     { panic("NOT SUPPORTED") }
+func (self *FakeServer) Ignore(http.ResponseWriter, *http.Request)    { panic("NOT SUPPORTED") }
+func (self *FakeServer) Reinstate(http.ResponseWriter, *http.Request) { panic("NOT SUPPORTED") }
+func (self *FakeServer) Status(http.ResponseWriter, *http.Request)    { panic("NOT SUPPORTED") }
+func (self *FakeServer) Results(http.ResponseWriter, *http.Request)   { panic("NOT SUPPORTED") }
+func (self *FakeServer) Execute(http.ResponseWriter, *http.Request)   { panic("NOT SUPPORTED") }
 
 func newFakeServer() *FakeServer {
 	self := &FakeServer{}
@@ -129,24 +123,23 @@ func newFakeWatcher() *FakeWatcher {
 /******** FakeScanner ********/
 
 type FakeScanner struct {
-	fileSystem map[string]bool
+	dirty bool
 }
 
 func (self *FakeScanner) Modify(path string) {
-	self.fileSystem[path] = true
+	self.dirty = true
 }
 
 func (self *FakeScanner) Reset(path string) {
-	self.fileSystem[path] = false
+	self.dirty = false
 }
 
-func (self *FakeScanner) Scan(root string) (changed bool) {
-	return self.fileSystem[root]
+func (self *FakeScanner) Scan() (changed bool) {
+	return self.dirty
 }
 
 func newFakeScanner() *FakeScanner {
 	self := &FakeScanner{}
-	self.fileSystem = map[string]bool{}
 	return self
 }
 

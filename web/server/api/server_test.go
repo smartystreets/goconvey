@@ -6,9 +6,9 @@ import (
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -62,7 +62,24 @@ func TestHTTPServer(t *testing.T) {
 
 		Convey("When the root watch is adjusted", func() {
 
-			Convey("But the request is empty", func() {
+			Convey("But the request has no root parameter", func() {
+				status, body := fixture.AdjustRootWatchMalformed()
+
+				Convey("The server returns HTTP 400 - Bad Input", func() {
+					So(status, ShouldEqual, http.StatusBadRequest)
+				})
+
+				Convey("The body should contain a helpful error message", func() {
+					So(body, ShouldEqual, "No 'root' query string parameter included!")
+				})
+
+				Convey("The server should not change the existing root", func() {
+					root, _ := fixture.QueryRootWatch()
+					So(root, ShouldEqual, initialRoot)
+				})
+			})
+
+			Convey("But the root parameter is empty", func() {
 				status, body := fixture.AdjustRootWatch("")
 
 				Convey("The server returns HTTP 400 - Bad Input", func() {
@@ -74,23 +91,6 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should not change the existing root", func() {
-					root, _ := fixture.QueryRootWatch()
-					So(root, ShouldEqual, initialRoot)
-				})
-			})
-
-			Convey("But the request cannot be read", func() {
-				status, body := fixture.AdjustRootWatch(unreadableContent)
-
-				Convey("The server returns HTTP 400 - Bad Input", func() {
-					So(status, ShouldEqual, http.StatusBadRequest)
-				})
-
-				Convey("The server should provide a helpful error message that includes the underlying read error", func() {
-					So(body, ShouldEqual, fmt.Sprintf("The request body could not be read: (error: '%s')", readError))
-				})
-
-				Convey("The server should NOT change the existing root", func() {
 					root, _ := fixture.QueryRootWatch()
 					So(root, ShouldEqual, initialRoot)
 				})
@@ -133,6 +133,22 @@ func TestHTTPServer(t *testing.T) {
 
 		Convey("When a packge is ignored", func() {
 
+			Convey("But the request has no path parameter", func() {
+				status, body := fixture.IgnoreMalformed()
+
+				Convey("The server returns HTTP 400 - Bad Input", func() {
+					So(status, ShouldEqual, http.StatusBadRequest)
+				})
+
+				Convey("The body should contain a helpful error message", func() {
+					So(body, ShouldEqual, "No 'path' query string parameter included!")
+				})
+
+				Convey("The server should not ignore anything", func() {
+					So(fixture.watcher.ignored, ShouldEqual, "")
+				})
+			})
+
 			Convey("But the request is blank", func() {
 				status, body := fixture.Ignore("")
 
@@ -142,18 +158,6 @@ func TestHTTPServer(t *testing.T) {
 
 				Convey("The body should contain a helpful error message", func() {
 					So(body, ShouldEqual, "You must provide a non-blank path.")
-				})
-			})
-
-			Convey("But the reqeust cannot be read", func() {
-				status, body := fixture.Ignore(unreadableContent)
-
-				Convey("The server returns HTTP 400 - Bad Input", func() {
-					So(status, ShouldEqual, http.StatusBadRequest)
-				})
-
-				Convey("The body should contain a helpful error message", func() {
-					So(body, ShouldEqual, fmt.Sprintf("The request body could not be read: (error: '%s')", readError))
 				})
 			})
 
@@ -170,6 +174,22 @@ func TestHTTPServer(t *testing.T) {
 		})
 
 		Convey("When a package is reinstated", func() {
+			Convey("But the request has no path parameter", func() {
+				status, body := fixture.ReinstateMalformed()
+
+				Convey("The server returns HTTP 400 - Bad Input", func() {
+					So(status, ShouldEqual, http.StatusBadRequest)
+				})
+
+				Convey("The body should contain a helpful error message", func() {
+					So(body, ShouldEqual, "No 'path' query string parameter included!")
+				})
+
+				Convey("The server should not ignore anything", func() {
+					So(fixture.watcher.reinstated, ShouldEqual, "")
+				})
+			})
+
 			Convey("But the request is blank", func() {
 				status, body := fixture.Reinstate("")
 
@@ -179,18 +199,6 @@ func TestHTTPServer(t *testing.T) {
 
 				Convey("The body should contain a helpful error message", func() {
 					So(body, ShouldEqual, "You must provide a non-blank path.")
-				})
-			})
-
-			Convey("But the reqeust cannot be read", func() {
-				status, body := fixture.Reinstate(unreadableContent)
-
-				Convey("The server returns HTTP 400 - Bad Input", func() {
-					So(status, ShouldEqual, http.StatusBadRequest)
-				})
-
-				Convey("The body should contain a helpful error message", func() {
-					So(body, ShouldEqual, fmt.Sprintf("The request body could not be read: (error: '%s')", readError))
 				})
 			})
 
@@ -267,12 +275,19 @@ func (self *ServerFixture) QueryRootWatch() (string, int) {
 	return strings.TrimSpace(response.Body.String()), response.Code
 }
 
+func (self *ServerFixture) AdjustRootWatchMalformed() (status int, body string) {
+	request, _ := http.NewRequest("POST", "http://localhost:8080/watch", nil)
+	response := httptest.NewRecorder()
+
+	self.server.Watch(response, request)
+
+	status, body = response.Code, strings.TrimSpace(response.Body.String())
+	return
+}
+
 func (self *ServerFixture) AdjustRootWatch(newRoot string) (status int, body string) {
-	var reader io.Reader = strings.NewReader(newRoot)
-	if newRoot == unreadableContent {
-		reader = &ErrorReadCloser{}
-	}
-	request, _ := http.NewRequest("PUT", "http://localhost:8080/watch", reader)
+	escapedRoot := url.QueryEscape(newRoot)
+	request, _ := http.NewRequest("POST", "http://localhost:8080/watch?root="+escapedRoot, nil)
 	response := httptest.NewRecorder()
 
 	self.server.Watch(response, request)
@@ -281,29 +296,43 @@ func (self *ServerFixture) AdjustRootWatch(newRoot string) (status int, body str
 	return
 }
 
-func (self *ServerFixture) Ignore(package_ string) (status int, body string) {
-	var reader io.Reader = strings.NewReader(package_)
-	if package_ == unreadableContent {
-		reader = &ErrorReadCloser{}
-	}
-	request, _ := http.NewRequest("DELETE", "http://localhost:8080/watch", reader)
+func (self *ServerFixture) IgnoreMalformed() (status int, body string) {
+	request, _ := http.NewRequest("POST", "http://localhost:8080/ignore", nil)
 	response := httptest.NewRecorder()
 
-	self.server.Watch(response, request)
+	self.server.Ignore(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) Reinstate(package_ string) (status int, body string) {
-	var reader io.Reader = strings.NewReader(package_)
-	if package_ == unreadableContent {
-		reader = &ErrorReadCloser{}
-	}
-	request, _ := http.NewRequest("POST", "http://localhost:8080/watch", reader)
+func (self *ServerFixture) Ignore(folder string) (status int, body string) {
+	escapedFolder := url.QueryEscape(folder)
+	request, _ := http.NewRequest("POST", "http://localhost:8080/ignore?path="+escapedFolder, nil)
 	response := httptest.NewRecorder()
 
-	self.server.Watch(response, request)
+	self.server.Ignore(response, request)
+
+	status, body = response.Code, strings.TrimSpace(response.Body.String())
+	return
+}
+
+func (self *ServerFixture) ReinstateMalformed() (status int, body string) {
+	request, _ := http.NewRequest("POST", "http://localhost:8080/reinstate", nil)
+	response := httptest.NewRecorder()
+
+	self.server.Reinstate(response, request)
+
+	status, body = response.Code, strings.TrimSpace(response.Body.String())
+	return
+}
+
+func (self *ServerFixture) Reinstate(folder string) (status int, body string) {
+	escapedFolder := url.QueryEscape(folder)
+	request, _ := http.NewRequest("POST", "http://localhost:8080/reinstate?path="+escapedFolder, nil)
+	response := httptest.NewRecorder()
+
+	self.server.Reinstate(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return

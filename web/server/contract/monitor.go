@@ -20,9 +20,7 @@ func (self *Monitor) ScanForever() {
 }
 
 func (self *Monitor) Scan() {
-	root := self.watcher.Root()
-
-	if self.scanner.Scan(root) {
+	if self.scanner.Scan() {
 		self.executeTests()
 	} else {
 		self.sleep()

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"log"
 	"net/http"
 )
 
@@ -18,25 +17,56 @@ func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
 	self.latest = update
 }
 
-// TODO: make this match the current scheme (probably means introducing new URLs for ignore and reinstate)
 func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Request) {
-	watch := newWatchRequestHandler(request, response, self.watcher)
-
-	switch request.Method {
-	case "PUT":
-		watch.AdjustRoot()
-	case "DELETE":
-		watch.IgnorePackage()
-	case "POST":
-		watch.ReinstatePackage()
-	case "GET":
-		watch.ProvideCurrentRoot()
+	if request.Method == "POST" {
+		self.adjustRoot(response, request)
+	} else if request.Method == "GET" {
+		response.Write([]byte(self.watcher.Root()))
 	}
+}
+
+func (self *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.Request) {
+	newRoot := self.parseQueryString("root", response, request)
+	if newRoot == "" {
+		return
+	}
+	err := self.watcher.Adjust(newRoot)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusNotFound)
+	}
+}
+
+func (self *HTTPServer) Ignore(response http.ResponseWriter, request *http.Request) {
+	path := self.parseQueryString("path", response, request)
+	if path != "" {
+		self.watcher.Ignore(path)
+	}
+}
+
+func (self *HTTPServer) Reinstate(response http.ResponseWriter, request *http.Request) {
+	path := self.parseQueryString("path", response, request)
+	if path != "" {
+		self.watcher.Reinstate(path)
+	}
+}
+
+func (self *HTTPServer) parseQueryString(key string, response http.ResponseWriter, request *http.Request) string {
+	value := request.URL.Query()[key]
+
+	if len(value) == 0 {
+		http.Error(response, fmt.Sprintf("No '%s' query string parameter included!", key), http.StatusBadRequest)
+		return ""
+	}
+
+	path := value[0]
+	if path == "" {
+		http.Error(response, "You must provide a non-blank path.", http.StatusBadRequest)
+	}
+	return path
 }
 
 func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Request) {
 	status := self.executor.Status()
-	log.Println("Status requested:", status)
 	response.Write([]byte(status))
 }
 
@@ -50,9 +80,11 @@ func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Requ
 }
 
 func (self *HTTPServer) Execute(response http.ResponseWriter, request *http.Request) {
-	go func() {
-		self.latest = self.executor.ExecuteTests(self.watcher.WatchedFolders())
-	}()
+	go self.execute()
+}
+
+func (self *HTTPServer) execute() {
+	self.latest = self.executor.ExecuteTests(self.watcher.WatchedFolders())
 }
 
 func NewHTTPServer(watcher contract.Watcher, executor contract.Executor) *HTTPServer {

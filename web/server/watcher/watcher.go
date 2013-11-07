@@ -49,10 +49,12 @@ func (self *Watcher) setGoPath(root string) {
 }
 
 func (self *Watcher) Deletion(folder string) {
+	log.Println("Detected deletion of:", folder)
 	delete(self.watched, folder)
 }
 
 func (self *Watcher) Creation(folder string) {
+	log.Println("Detected creation of:", folder)
 	self.watched[folder] = contract.NewPackage(folder)
 }
 

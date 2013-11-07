@@ -23,6 +23,10 @@ func (self *walkStep) Sum() int64 {
 	if self.watcher.IsIgnored(self.folder) || self.isIrrelevant() {
 		return 0
 	}
+
+	if self.info.IsDir() {
+		return 1
+	}
 	return self.info.Size() + self.info.ModTime().Unix()
 }
 

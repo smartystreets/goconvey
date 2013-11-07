@@ -190,6 +190,42 @@ func TestScanner(t *testing.T) {
 					So(fixture.wasDeleted("/root/sub/empty"), ShouldBeTrue)
 				})
 			})
+
+			// Once upon a time the scanner didn't keep track of the root internally, it was
+			// given as a parameter to the Scan() method. This meant that when the scanner
+			// was instructed to scan a new root location it appeared to the scanner that
+			// many of the internally stored folders had been deleted becuase they were not
+			// part of the new root directory structure and they were reported as deletions
+			// to the watcher, which was incorrect behavior.
+			// TODO: use a mock for the watcher
+			SkipConvey("When the watcher has adjusted the root", func() {
+				fixture.fs.Create("/somewhere", 3, time.Now())
+				fixture.fs.Create("/somewhere/else", 3, time.Now())
+				fixture.watcher.Adjust("/somewhere")
+
+				// This puts a previously watched folder back in the watcher,
+				// so we can see if a deletion is signaled inadvertantly as a result of Scan():
+				fixture.watcher.Creation("/root/sub")
+
+				Convey("And the scanner reports a change", func() {
+					changed := fixture.scan()
+
+					Convey("The scanner should report the change", func() {
+						So(changed, ShouldBeTrue)
+					})
+
+					Convey("The scanner should NOT notify the watcher of incorrect folder deletions", func() {
+						watched := fixture.watcher.WatchedFolders()
+						last := watched[len(watched)-1]
+						So(last.Path, ShouldEqual, "/root/sub")
+					})
+
+					Convey("The scanner should NOT notify the watcher of incorrect folder creations", func() {
+
+					})
+				})
+			})
+
 		})
 	})
 }
@@ -201,7 +237,7 @@ type scannerFixture struct {
 }
 
 func (self *scannerFixture) scan() bool {
-	return self.scanner.Scan("/root")
+	return self.scanner.Scan()
 }
 func (self *scannerFixture) wasDeleted(folder string) bool {
 	return !self.wasCreated(folder)
