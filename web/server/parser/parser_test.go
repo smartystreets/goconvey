@@ -23,7 +23,10 @@ func TestParser(t *testing.T) {
 
 			Convey("The parser uses its internal parsing mechanism to parse the output of only the active packages", func() {
 				So(packages[0].Result.Outcome, ShouldEqual, packages[0].Output)
-				So(packages[1].Result.Outcome, ShouldBeBlank)
+			})
+
+			Convey("The parser should mark inactive packages as ignored", func() {
+				So(packages[1].Result.Outcome, ShouldEqual, contract.Ignored)
 			})
 		})
 	})

@@ -14,8 +14,7 @@ func (self *Parser) Parse(packages []*contract.Package) {
 		if p.Active {
 			self.parser(p.Result, p.Output)
 		} else {
-			// TODO: should set Outcome to ignored
-			log.Printf("Skipping parsing: %s\n", p.Name)
+			p.Result.Outcome = contract.Ignored
 		}
 		log.Printf("[%s]: %s\n", p.Result.Outcome, p.Name)
 	}
