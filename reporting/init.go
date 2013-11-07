@@ -1,11 +1,11 @@
 package reporting
 
 import (
-	"syscall"
 	"fmt"
 	"github.com/smartystreets/goconvey/printing"
 	"os"
 	"strings"
+	"syscall"
 )
 
 func init() {
@@ -79,5 +79,5 @@ func isXterm() bool {
 
 // There has got to be a better way...
 func isWindows() bool {
-	return os.PathSeparator == '\' && os.PathListSeparator == ';'
+	return os.PathSeparator == '\\' && os.PathListSeparator == ';'
 }
