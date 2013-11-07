@@ -2,20 +2,20 @@
 <html>
 	<head>
 		<title>GoConvey</title>
-		<script src="js/jquery-2_0_3.min.js"></script>
-		<script src="js/diff-match-patch.min.js"></script>
-		<script src="js/jquery.pretty-text-diff.min.js"></script>
-		<script src="js/markup.min.js"></script>
-		<script src="js/jquery.tipsy.min.js"></script>
-		<script src="js/goconvey.js"></script>
-		<script src="js/goconvey.gen.js"></script>
-		<script src="js/jquery.waypoints.sticky.min.js"></script>
+		<script src="/js/jquery-2_0_3.min.js"></script>
+		<script src="/js/diff-match-patch.min.js"></script>
+		<script src="/js/jquery.pretty-text-diff.min.js"></script>
+		<script src="/js/markup.min.js"></script>
+		<script src="/js/jquery.tipsy.min.js"></script>
+		<script src="/js/goconvey.js"></script>
+		<script src="/js/goconvey.gen.js"></script>
+		<script src="/js/jquery.waypoints.sticky.min.js"></script>
 		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Oswald|Open+Sans:300italic,400italic,400,300,700,600,800">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css">
-		<link rel="stylesheet" href="css/unsemantic.css">
-		<link rel="stylesheet" href="css/spinner.css">
-		<link rel="stylesheet" href="css/tipsy.css">
-		<link rel="stylesheet" href="css/goconvey.css">
+		<link rel="stylesheet" href="/css/unsemantic.css">
+		<link rel="stylesheet" href="/css/spinner.css">
+		<link rel="stylesheet" href="/css/tipsy.css">
+		<link rel="stylesheet" href="/css/goconvey.css">
 		<link rel="icon" class="favicon" href="/favicon.ico" type="image/vnd.microsoft.icon">
 		<link rel="shortcut icon" class="favicon" href="/favicon.ico" type="image/vnd.microsoft.icon">
 	</head>
@@ -26,7 +26,7 @@
 					<h1>GoConvey</h1>
 				</div>
 				<div class="grid-60">
-					<input type="text" id="path" placeholder="/path/to/project/root">
+					<input type="text" id="path" placeholder="/path/to/project/root" title="Path to watch">
 				</div>
 				<div class="grid-20 menu">
 					<a class="fa fa-refresh link-fa fa-lg" id="run-tests" href="javascript:" title="Run tests"></a>
@@ -72,6 +72,10 @@
 					</div>
 				</div>
 			</div>
+		</script>
+
+		<script id="tpl-ok-audio" type="text/template">
+			<audio src="/js/its-working.mp3" class="templated" autoplay>
 		</script>
 
 		<script id="tpl-overall-fail" type="text/template">

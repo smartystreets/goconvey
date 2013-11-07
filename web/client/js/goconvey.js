@@ -39,8 +39,8 @@ function initPage()
 
 	initPollers();
 
-	// Trigger an immediate test run
-	updatePath(update);
+	// Tell the server what to watch and get the latest test results
+	updateWatchPath(update);
 
 	// Smooth scroll within page (props to css-tricks.com)
 	$('body').on('click', 'a[href^=#]:not([href=#])', function()
@@ -109,7 +109,7 @@ function initPlugins()
 
 	// JQUERY TIPSY
 	// Wire-up nice tooltips
-	$('a').tipsy({ live: true });
+	$('a, #path').tipsy({ live: true });
 }
 
 
@@ -183,9 +183,7 @@ function initHandlers()
 	});
 }
 
-
-
-function updatePath(callback)
+function updateWatchPath(callback)
 {
 	$.get('/watch', function(data)
 	{
@@ -194,8 +192,6 @@ function updatePath(callback)
 			callback();
 	});
 }
-
-
 
 
 function update()
@@ -215,7 +211,7 @@ function update()
 
 		$('#spinner').show();
 
-		updatePath();
+		updateWatchPath();
 
 		// Empty out the data from the last update
 		convey.overall = emptyOverall();
@@ -409,7 +405,12 @@ function update()
 								.replace(/\n+\s*|\s-\s/g, ', ')
 								.replace(/\s+|\t|-/ig, ' ');
 			$('title').text("GoConvey: " + cleanedStatus);
+
+			// An homage to Star Wars
+			if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
+				$('body').append(render('tpl-ok-audio'));
 			
+
 			$(this).fadeIn(function()
 			{
 				// Loading is finished
@@ -439,28 +440,6 @@ function update()
 			error: error
 		}));
 	});
-}
-
-function makeContext(obj)
-{
-	obj._passed = 0;
-	obj._failed = 0;
-	obj._panicked = 0;
-	obj._skipped = 0;
-	obj._status = '';
-	return obj;
-}
-
-function assignStatus(obj)
-{
-	if (obj._skipped)
-		obj._status = 'skip';
-	else if (obj._panicked)
-		obj._status = convey.statuses.panic;
-	else if (obj._failed || obj.Outcome == "failed")
-		obj._status = convey.statuses.fail;
-	else
-		obj._status = convey.statuses.pass;
 }
 
 function render(templateID, context)
@@ -536,29 +515,6 @@ function sortPackages(a, b)
 	*/
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function emptyOverall()
 {
 	return {
@@ -583,13 +539,33 @@ function emptyAssertions()
 	};
 }
 
+function makeContext(obj)
+{
+	obj._passed = 0;
+	obj._failed = 0;
+	obj._panicked = 0;
+	obj._skipped = 0;
+	obj._status = '';
+	return obj;
+}
+
+function assignStatus(obj)
+{
+	if (obj._skipped)
+		obj._status = 'skip';
+	else if (obj._panicked)
+		obj._status = convey.statuses.panic;
+	else if (obj._failed || obj.Outcome == "failed")
+		obj._status = convey.statuses.fail;
+	else
+		obj._status = convey.statuses.pass;
+}
 
 function splitPathName(str)
 {
 	var delim = str.indexOf('\\') > -1 ? '\\' : '/';
 	return { delim: delim, parts: str.split(delim) };
 }
-
 
 function suppress(event)
 {
