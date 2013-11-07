@@ -112,20 +112,9 @@ ul li {
 	margin-top: 1.5%;
 }
 
-a.link-fa {
-	color: #444;
-	font-size: 16px;
-	margin-top: 5px;
-	cursor: pointer;
-}
 
 a.zen-close {
 	font-size: 24px;
-}
-
-a.link-fa:hover {
-	color: #000;
-	text-decoration: none;
 }
 
 .menu {
@@ -133,6 +122,16 @@ a.link-fa:hover {
 	text-align: center;
 }
 
+a.link-fa {
+	color: #444;
+	margin: 0px 10px 0;
+	cursor: pointer;
+}
+
+a.link-fa:hover {
+	color: #000;
+	text-decoration: none;
+}
 
 #server-down {
 	padding: 10px 0;

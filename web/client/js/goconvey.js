@@ -62,6 +62,20 @@ $(function()
 		return str.length > n ? "..." + str.substr(str.length - n) : str;
 	}
 
+	// Wire-up tooltips
+	$('a').tipsy({ live: true });
+
+	$('#run-tests').click(function() {
+		$.get("/execute");
+	});
+
+	var statusUpdater = setInterval(function() {
+		$.get("/status", function(status) {
+			if (status != "idle")
+				$('#spinner').show();
+		});
+	}, 500);
+
 
 	// Show code generator if link is clicked
 	$('#show-gen').click(function()
