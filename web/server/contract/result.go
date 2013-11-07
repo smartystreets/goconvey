@@ -30,7 +30,7 @@ type CompleteOutput struct {
 }
 
 var ( // PackageResult.Outcome values:
-	Ignored         = "ignored" // TODO: test in parser
+	Ignored         = "ignored"
 	Passed          = "passed"
 	Failed          = "failed"
 	Panicked        = "panicked"
