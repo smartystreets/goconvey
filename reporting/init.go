@@ -1,6 +1,7 @@
 package reporting
 
 import (
+	"syscall"
 	"fmt"
 	"github.com/smartystreets/goconvey/printing"
 	"os"
@@ -8,8 +9,12 @@ import (
 )
 
 func init() {
-	if !xterm() {
+	if !isXterm() {
 		monochrome()
+	}
+
+	if isWindows() {
+		success, failure, error_ = dotSuccess, dotFailure, dotError
 	}
 }
 
@@ -68,6 +73,11 @@ func monochrome() {
 	greenColor, yellowColor, redColor, resetColor = "", "", "", ""
 }
 
-func xterm() bool {
-	return strings.Contains(fmt.Sprintf("%v", os.Environ()), " TERM=xterm")
+func isXterm() bool {
+	return strings.Contains(fmt.Sprintf("%v", os.Environ()), " TERM=isXterm")
+}
+
+// There has got to be a better way...
+func isWindows() bool {
+	return os.PathSeparator == '\' && os.PathListSeparator == ';'
 }
