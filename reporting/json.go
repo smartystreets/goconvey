@@ -1,9 +1,12 @@
 package reporting
 
+// TODO: get this under unit test.
+
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/smartystreets/goconvey/printing"
+	"strconv"
 	"strings"
 )
 
@@ -42,7 +45,11 @@ func (self *jsonReporter) report() {
 	self.out.Print(OpenJson + "\n")
 	scopes := []string{}
 	for _, scope := range self.scopes {
-		serialized, _ := json.Marshal(scope)
+		serialized, err := json.Marshal(scope)
+		if err != nil {
+			self.out.Println(jsonMarshalFailure)
+			panic(err)
+		}
 		var buffer bytes.Buffer
 		json.Indent(&buffer, serialized, "", "  ")
 		scopes = append(scopes, buffer.String())
@@ -103,7 +110,11 @@ func newAssertionResult(report *AssertionReport) AssertionResult {
 	self := AssertionResult{}
 	self.File = report.File
 	self.Line = report.Line
-	self.Failure = report.Failure
+	quotedFailure := strconv.Quote(report.Failure)
+	if quotedFailure != report.Failure {
+		// TODO: test
+		self.Failure = quotedFailure + " (NOTE: GoConvey used strconv.Quote on the assertion failure string so it could be safely parsed.)"
+	}
 	self.Error = report.Error
 	self.StackTrace = report.stackTrace
 	self.Skipped = report.Skipped
@@ -112,3 +123,11 @@ func newAssertionResult(report *AssertionReport) AssertionResult {
 
 const OpenJson = ">>>>>"  // "⌦"
 const CloseJson = "<<<<<" // "⌫"
+const jsonMarshalFailure = `
+
+There was an error when attempting to convert test results to JSON.
+Please file a bug report and reference the code that caused this failure if possible.
+
+Here's the panic:
+
+`
