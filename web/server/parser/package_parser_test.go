@@ -35,6 +35,10 @@ func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
 	actual = &contract.PackageResult{PackageName: expected_BuildFailed_OtherErrors.PackageName}
 	ParsePackageResults(actual, input_BuildFailed_OtherErrors)
 	assertEqual(t, expected_BuildFailed_OtherErrors, *actual)
+
+	actual = &contract.PackageResult{PackageName: expected_BuildFailed_CantFindPackage.PackageName}
+	ParsePackageResults(actual, input_BuildFailed_CantFindPackage)
+	assertEqual(t, expected_BuildFailed_CantFindPackage, *actual)
 }
 
 func TestParsePackage_OldSchoolWithFailureOutput_ReturnsCompletePackageResult(t *testing.T) {
@@ -131,6 +135,18 @@ var expected_BuildFailed_InvalidPackageDeclaration = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/examples",
 	Outcome:     contract.BuildFailure,
 	BuildOutput: strings.TrimSpace(input_BuildFailed_InvalidPackageDeclaration),
+}
+
+const input_BuildFailed_CantFindPackage = `
+bowling_game.go:3:8: cannot find package "format" in any of:
+	/usr/local/go/src/pkg/format (from $GOROOT)
+	/Users/mike/work/dev/goconvey/src/format (from $GOPATH)
+`
+
+var expected_BuildFailed_CantFindPackage = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/examples",
+	Outcome:     contract.BuildFailure,
+	BuildOutput: strings.TrimSpace(input_BuildFailed_CantFindPackage),
 }
 
 const input_BuildFailed_OtherErrors = `

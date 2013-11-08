@@ -133,8 +133,8 @@ func noGoFiles(line string) bool {
 }
 func buildFailed(line string) bool {
 	return strings.HasPrefix(line, "# ") ||
-		(strings.HasPrefix(line, "can't load package: ") &&
-			!strings.Contains(line, ": no Go source files in "))
+		strings.Contains(line, "cannot find package") ||
+		(strings.HasPrefix(line, "can't load package: ") && !strings.Contains(line, ": no Go source files in "))
 }
 func noTestFunctions(line string) bool {
 	return line == "testing: warning: no tests to run"
