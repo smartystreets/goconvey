@@ -519,13 +519,13 @@ del, .failures th.expected {
 	white-space: pre-wrap;
 }
 
-.depth-0 .title { padding-left: 1.5em; }
-.depth-1 .title { padding-left: 3em; }
-.depth-2 .title { padding-left: 4.5em; }
-.depth-3 .title { padding-left: 6em; }
-.depth-4 .title { padding-left: 7.5em; }
-.depth-5 .title { padding-left: 9em; }
-.depth-6 .title { padding-left: 10.5em; }
+.depth-0 .title { padding-left: 1.5em !important; }
+.depth-1 .title { padding-left: 3em !important; }
+.depth-2 .title { padding-left: 4.5em !important; }
+.depth-3 .title { padding-left: 6em !important; }
+.depth-4 .title { padding-left: 7.5em !important; }
+.depth-5 .title { padding-left: 9em !important; }
+.depth-6 .title { padding-left: 10.5em !important; }
 
 
 

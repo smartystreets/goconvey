@@ -201,12 +201,19 @@
 						{{.}}
 						<div class="panic">
 							<table>
+								{{_path}}
+								<tr class="depth-{{Depth}}">
+									<td colspan="3" class="title">
+										{{Title}}
+									</td>
+								</tr>
+								{{/_path}}	
 								<tr>
 									<td class="file">
-										{{File|relativePath}}
+										<a href="#test-{{_id}}" class="block">{{File|relativePath}} <i class="fa fa-level-down"></i></a>
 									</td>
 									<td class="line">
-										Line {{Line}}
+										<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>
 									</td>
 								</tr>
 								{{if StackTrace|notempty}}
@@ -235,25 +242,19 @@
 						{{.}}
 						<div class="failure">
 							<table>
-								<!--
-								TODO: See if scope can be put inline here...
-								<tr>
-									<td colspan="3">
-										Testing
+								{{_path}}
+								<tr class="depth-{{Depth}}">
+									<td colspan="3" class="title">
+										{{Title}}
 									</td>
 								</tr>
-								<tr>
-									<td colspan="3">
-										&nbsp; &nbsp; &nbsp; Testing again
-									</td>
-								</tr>
-								-->
+								{{/_path}}							
 								<tr>
 									<td colspan="2" class="file">
 										<a href="#test-{{_id}}" class="block">{{File|relativePath}} <i class="fa fa-level-down"></i></a>
 									</td>
 									<td class="line">
-										Line {{Line}}
+										<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>
 									</td>
 								</tr>
 								{{if Stories|empty}}

@@ -306,9 +306,18 @@ function update()
 					else
 						test._status = convey.statuses.pass;
 
+					var storyPath = [{ Depth: -1, Title: test.TestName }];	// Will maintain the current assertion's path
+
 					for (var k in test.Stories)
 					{
 						var story = makeContext(test.Stories[k]);
+
+						// Establish the current story path so we can report the context
+						// of failures and panicks more conveniently at the top of the page
+						if (storyPath.length > 0)
+							for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
+								storyPath.pop();
+						storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
 
 						story._id = uniqueID;
 						convey.overall.assertions += story.Assertions.length;
@@ -317,6 +326,7 @@ function update()
 						{
 							var assertion = story.Assertions[l];
 							assertion._id = uniqueID;
+							assertion._path = storyPath;
 
 							if (assertion.Failure)
 							{
@@ -324,6 +334,7 @@ function update()
 								assertion._parsedActual = parseActual(assertion.Failure);
 								assertion._parsed = assertion._parsedExpected != "" && assertion._parsedActual != "";
 								convey.assertions.failed.push(assertion);
+								console.log(assertion);
 								pkg._failed ++;
 								test._failed ++;
 								story._failed ++;
