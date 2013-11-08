@@ -5,7 +5,6 @@ import (
 	"github.com/smartystreets/goconvey/printing"
 	"os"
 	"strings"
-	"syscall"
 )
 
 func init() {
