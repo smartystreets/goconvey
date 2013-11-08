@@ -9,6 +9,15 @@ import (
 	"strings"
 )
 
+type testParser struct {
+	test       *contract.TestResult
+	line       string
+	index      int
+	inJson     bool
+	jsonLines  []string
+	otherLines []string
+}
+
 func parseTestOutput(test *contract.TestResult) *contract.TestResult {
 	parser := newTestParser(test)
 	parser.parseTestFunctionOutput()
@@ -38,8 +47,9 @@ func (self *testParser) processLines() {
 }
 
 func (self *testParser) processLine() bool {
-	if self.line == reporting.OpenJson {
+	if strings.HasSuffix(self.line, reporting.OpenJson) {
 		self.inJson = true
+		self.accountForOutputWithoutNewline()
 
 	} else if self.line == reporting.CloseJson {
 		self.inJson = false
@@ -58,6 +68,18 @@ func (self *testParser) processLine() bool {
 		self.otherLines = append(self.otherLines, self.line)
 	}
 	return true
+}
+
+// If fmt.Print(f) produces output with no \n and that output
+// is that last output before the framework spits out json
+// (which starts with ''>>>>>'') then without this code
+// all of the json is counted as output, not as json to be
+// parsed and displayed by the web UI.
+func (self *testParser) accountForOutputWithoutNewline() {
+	prefix := strings.Split(self.line, reporting.OpenJson)[0]
+	if prefix != "" {
+		self.otherLines = append(self.otherLines, prefix)
+	}
 }
 
 func (self *testParser) deserializeJson() {
@@ -101,15 +123,6 @@ func (self *testParser) parseLogLocation() {
 
 func (self *testParser) composeCapturedOutput() {
 	self.test.Message = strings.Join(self.otherLines, "\n")
-}
-
-type testParser struct {
-	test       *contract.TestResult
-	line       string
-	index      int
-	inJson     bool
-	jsonLines  []string
-	otherLines []string
 }
 
 func isJson(line string) bool {

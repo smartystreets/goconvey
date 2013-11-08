@@ -408,8 +408,7 @@ const inputGoConvey_WithRandomOutput = `
 === RUN TestPassingStory
 *** Hello, World! (1) ***
 *** Hello, World! (2) ***
-*** Hello, World! (3) ***
->>>>>
+*** Hello, World! (3) ***>>>>>
 {
   "Title": "A passing story",
   "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
