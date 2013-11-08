@@ -25,8 +25,9 @@
 				<div class="grid-20">
 					<h1>GoConvey</h1>
 				</div>
-				<div class="grid-60">
-					<input type="text" id="path" placeholder="/path/to/project/root" title="Path to watch">
+				<div class="grid-60" style="position: relative">
+					<i class="fa fa-eye fa-lg watching-eye"></i>
+					<input type="text" id="path" placeholder="/path/to/project/root" title="Watched path">
 				</div>
 				<div class="grid-20 menu">
 					<a class="fa fa-refresh link-fa fa-lg" id="run-tests" href="javascript:" title="Run tests"></a>
@@ -154,7 +155,7 @@
 								<span class="toggle-spacer"><i class="fa fa-square-o"></i></span>
 							{{/if}}
 
-							<a href="#package-{{_id}}" class="goto-package">{{PackageName|chopEnd>23|boldPkgName}}</a>
+							<a href="#package-{{_id}}" class="goto-package{{if Outcome|equals>ignored}} clr-maroon{{/if}}">{{PackageName|chopEnd>23|boldPkgName}}</a>
 
 							{{if TestResults|notempty}}<div class="testfunc-list">
 								{{TestResults}}
@@ -305,6 +306,7 @@
 							<th colspan="3">
 								<a href="javascript:" class="toggle toggle-package-stories"><i class="fa fa-collapse-o fa-lg"></i></a>
 								{{PackageName}}
+								<a class="fa link-fa fa-lg ignore {{if Outcome|notequals>ignored}}fa-eye unwatch{{else}}fa-eye-slash watch clr-red{{/if}}" href="javascript:" title="Watch/ignore package" data-pkg="{{PackageName}}"></a>
 							</th>
 						</tr>
 						{{if TestResults|empty}}
@@ -312,6 +314,12 @@
 							<tr>
 								<th class="pkg-summary" colspan="3">
 									(No test cases)
+								</th>
+							</tr>
+							{{else}}{{if Outcome|equals>ignored}}
+							<tr>
+								<th class="pkg-summary" colspan="3">
+									(Ignored)
 								</th>
 							</tr>
 							{{else}}
@@ -325,7 +333,7 @@
 									<code class="raw-output" style="white-space: pre-wrap;">{{BuildOutput|showhtml}}</code>
 								</td>
 							</tr>
-							{{/if}}
+							{{/if}}{{/if}}
 						{{else}}
 						{{TestResults}}
 						<tr id="test-{{_id}}">
@@ -369,7 +377,7 @@
 
 				<script id="tpl-builds-shortcuts" type="text/template">
 					<div class="builds-shortcuts templated">
-						<b>Failed builds:</b><hr>
+						<b>Failed builds</b><hr>
 						{{.}}
 							<a href="#package-{{_id}}">{{PackageName}}</a>
 							<a href="#package-{{_id}}" class="goto"><i class="fa fa-level-down"></i></a><br>
@@ -378,7 +386,7 @@
 				</script>
 				<script id="tpl-panic-shortcuts" type="text/template">
 					<div class="panic-shortcuts templated">
-						<b>Panics:</b><hr>
+						<b>Panics</b><hr>
 						{{.}}
 							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
 							<a href="#test-{{_id}}" class="goto" title="See in context"><i class="fa fa-level-down"></i></a><br>
@@ -387,7 +395,7 @@
 				</script>
 				<script id="tpl-failure-shortcuts" type="text/template">
 					<div class="failure-shortcuts templated">
-						<b>Failures:</b><hr>
+						<b>Failures</b><hr>
 						{{.}}
 							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
 							<a href="#test-{{_id}}" class="goto"><i class="fa fa-level-down"></i></a><br>
@@ -423,7 +431,7 @@
 
 
 		<div id="generator" class="zen">
-			<a class="zen-close fa fa-times link-fa" href="javascript:"></a>
+			<a class="zen-close fa fa-times link-fa" href="javascript:" title="Close"></a>
 			
 			<div class="grid-container">
 				<div class="prefix-20 grid-60 suffix-20">
@@ -441,7 +449,6 @@
 
 				<div class="prefix-10 grid-80 suffix-10">
 					<textarea rows="1" id="gen-input" placeholder="Type your behavioral tests here"></textarea>
-
 					<textarea id="gen-output" placeholder="Code will appear here" readonly></textarea>
 				</div>
 			</div>

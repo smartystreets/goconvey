@@ -110,6 +110,14 @@ ul li {
 	display: block;
 	font-weight: 600;
 	margin-top: 1.5%;
+	padding-left: 2.5em;
+}
+
+.watching-eye {
+	position: absolute;
+	left: 1em;
+	top: .95em;
+	color: #BBB;
 }
 
 
@@ -131,6 +139,15 @@ a.link-fa {
 a.link-fa:hover {
 	color: #000;
 	text-decoration: none;
+}
+
+a.link-fa.clr-red:hover {
+	color: #FF0000 !important;
+}
+
+a.link-fa.disabled {
+	color: #AAA;
+	cursor: default;
 }
 
 #server-down {
@@ -434,6 +451,10 @@ del, .failures th.expected {
 	border: 1px solid #E0E0E0;
 }
 
+.package-story .ignore {
+	float: right;
+}
+
 .package-story .pkg-summary {
 	padding: 5px 10px;
 	font-size: 12px;
@@ -556,9 +577,13 @@ del, .failures th.expected {
 	text-align: center;
 }
 
+.clr-red {
+	color: #CC0000 !important;
+}
 
-
-
+.clr-maroon {
+	color: #7F1502 !important;
+}
 
 
 

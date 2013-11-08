@@ -6,7 +6,8 @@ var convey = {
 		fail: 'fail',
 		panic: 'panic',
 		failedBuild: 'buildfail',
-		skip: 'skip'
+		skip: 'skip',
+		ignored: 'ignored'
 	},
 	regex: {
 		expected: /Expected:?\s+'?/,
@@ -120,7 +121,7 @@ function initPollers()
 	{
 		$.get("/status", function(status) {
 			if (status != "idle")
-				$('#spinner').show();
+				executing();
 		});
 	}, 500);
 
@@ -134,7 +135,11 @@ function initHandlers()
 	// Runs tests manually
 	$('#run-tests').click(function()
 	{
-		$.get("/execute");
+		if (!$(this).hasClass('disabled'))
+		{
+			$(this).addClass('disabled');
+			$.get("/execute");
+		}
 	});
 
 	// Shows code generator
@@ -167,6 +172,22 @@ function initHandlers()
 	$('body').on('click', '.toggle-package-stories', function()
 	{
 		$(this).closest('tr').siblings().toggle();
+	});
+	// Unwatch (ignore) a package
+	$('body').on('click', '.ignore', function()
+	{
+		if ($(this).hasClass('disabled'))
+			return;
+		else if ($(this).hasClass('unwatch'))
+			$.get("/ignore", { path: $(this).data("pkg") });
+		else
+			$.get("/reinstate", { path: $(this).data("pkg") });
+
+		$(this).toggleClass('watch')
+			.toggleClass('unwatch')
+			.toggleClass('fa-eye')
+			.toggleClass('fa-eye-slash')
+			.toggleClass('clr-red');
 	});
 	// END TOGGLERS
 
@@ -209,7 +230,7 @@ function update()
 		convey.revisionHash = data.Revision;
 		convey.payload = data;
 
-		$('#spinner').show();
+		executing();
 
 		updateWatchPath();
 
@@ -414,7 +435,7 @@ function update()
 			$(this).fadeIn(function()
 			{
 				// Loading is finished
-				$('#spinner').hide();
+				doneExecuting();
 
 				// Scroll to same position as before (doesn't account for different-sized content)
 				$(document).scrollTop(convey.lastScrollPos);
@@ -488,6 +509,20 @@ function bannerClickToTop(enable)
 	}
 }
 
+function executing()
+{
+	$('#spinner').show();
+	$('#run-tests, .ignore').addClass('disabled');
+	$('#run-tests').attr('title', "Tests are running");
+}
+
+function doneExecuting()
+{
+	$('#spinner').hide();
+	$('#run-tests, .ignore').removeClass('disabled');
+	$('#run-tests').attr('title', "Run tests");
+}
+
 function sortPackages(a, b)
 {
 	// sorts packages ascending by only the last part of their name
@@ -553,6 +588,8 @@ function assignStatus(obj)
 {
 	if (obj._skipped)
 		obj._status = 'skip';
+	else if (obj.Outcome == "ignored")
+		obj._status = convey.statuses.ignored;
 	else if (obj._panicked)
 		obj._status = convey.statuses.panic;
 	else if (obj._failed || obj.Outcome == "failed")
