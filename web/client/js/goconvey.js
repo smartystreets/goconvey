@@ -348,7 +348,7 @@ function update()
 						{
 							var assertion = story.Assertions[l];
 							assertion._id = uniqueID;
-							assertion._path = storyPath;
+							$.extend(assertion._path = [], storyPath);
 
 							if (assertion.Failure)
 							{
