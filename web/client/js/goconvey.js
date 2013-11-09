@@ -24,10 +24,7 @@ var convey = {
 };
 
 
-$(function()
-{
-	initPage();
-});
+$(initPage);
 
 
 function initPage()
@@ -37,6 +34,10 @@ function initPage()
 	// Focus on first textbox
 	if ($('input').first().val() == "")
 		$('input').first().focus();
+
+	// Show/hide notifications
+	if (notif())
+		$('#toggle-notif').removeClass('fa-bell-o').addClass('fa-bell');
 
 	initPollers();
 
@@ -139,6 +140,27 @@ function initHandlers()
 		{
 			$(this).addClass('disabled');
 			$.get("/execute");
+		}
+	});
+
+	// Turns notifications on/off
+	$('#toggle-notif').click(function()
+	{
+		$(this).toggleClass('fa-bell').toggleClass('fa-bell-o');
+
+		// Save updated preference for future loads
+		localStorage.setItem('notifications', !notif());
+
+		if (notif() && 'Notification' in window)
+		{
+			if (Notification.permission !== 'denied')
+			{
+				Notification.requestPermission(function(per)
+				{
+					if (!('permission' in Notification))	// help Chrome out a bit
+						Notification.permission = per;
+				});
+			}
 		}
 	});
 
@@ -433,15 +455,27 @@ function update()
 
 			$('#loading').hide();
 			
-			var cleanedStatus = $.trim($('.overall .summary').text())
+			var cleanSummary = $.trim($('.overall .summary').text())
 								.replace(/\n+\s*|\s-\s/g, ', ')
 								.replace(/\s+|\t|-/ig, ' ');
-			$('title').text("GoConvey: " + cleanedStatus);
+			$('title').text("GoConvey: " + cleanSummary);
 
 			// An homage to Star Wars
 			if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
 				$('body').append(render('tpl-ok-audio'));
 			
+			if (notif())
+			{
+				if (convey.notif)
+					convey.notif.close();
+
+				var cleanStatus = $.trim($('.overall:visible .status').text()).toUpperCase();
+
+				convey.notif = new Notification(cleanStatus, {
+					body: cleanSummary,
+					icon: $('.favicon').attr('href')
+				});
+			}
 
 			$(this).fadeIn(function()
 			{
@@ -613,6 +647,11 @@ function splitPathName(str)
 {
 	var delim = str.indexOf('\\') > -1 ? '\\' : '/';
 	return { delim: delim, parts: str.split(delim) };
+}
+
+function notif()
+{
+	return localStorage.getItem('notifications') === "true";	// stored as strings
 }
 
 function suppress(event)
