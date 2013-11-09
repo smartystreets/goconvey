@@ -111,7 +111,7 @@ func newAssertionResult(report *AssertionReport) AssertionResult {
 	self.File = report.File
 	self.Line = report.Line
 	quotedFailure := strconv.Quote(report.Failure)
-	if quotedFailure != report.Failure {
+	if quotedFailure[1:len(quotedFailure)-1] != report.Failure {
 		// TODO: test
 		self.Failure = quotedFailure + " (NOTE: GoConvey used strconv.Quote on the assertion failure string so it could be safely parsed.)"
 	}
