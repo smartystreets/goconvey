@@ -475,6 +475,8 @@ function update()
 					body: cleanSummary,
 					icon: $('.favicon').attr('href')
 				});
+
+				setTimeout(function() { convey.notif.close(); }, 3500);
 			}
 
 			$(this).fadeIn(function()
