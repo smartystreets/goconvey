@@ -202,19 +202,23 @@
 						{{.}}
 						<div class="panic">
 							<table>
+							{{if _path|notempty}}
 								{{_path}}
-								<tr class="depth-{{Depth}}">
+								<tr class="{{if Depth|more>-1}}depth-{{Depth}}{{/if}}">
 									<td colspan="3" class="title">
 										{{Title}}
 									</td>
 								</tr>
-								{{/_path}}	
+								{{/_path}}
+							{{/if}}
 								<tr>
 									<td class="file">
-										<a href="#test-{{_id}}" class="block">{{File|relativePath}} <i class="fa fa-level-down"></i></a>
+										<a href="#test-{{_id}}" class="block">{{if File|notempty}}{{File|relativePath}}{{else}}{{TestName}}{{/if}} <i class="fa fa-level-down"></i></a>
 									</td>
 									<td class="line">
+									{{if Line|more>0}}
 										<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>
+										{{/if}}
 									</td>
 								</tr>
 								{{if StackTrace|notempty}}
@@ -243,19 +247,21 @@
 						{{.}}
 						<div class="failure">
 							<table>
+							{{if _path|notempty}}
 								{{_path}}
-								<tr class="depth-{{Depth}}">
+								<tr class="{{if Depth|more>-1}}depth-{{Depth}}{{/if}}">
 									<td colspan="3" class="title">
 										{{Title}}
 									</td>
 								</tr>
-								{{/_path}}							
+								{{/_path}}
+							{{/if}}
 								<tr>
 									<td colspan="2" class="file">
-										<a href="#test-{{_id}}" class="block">{{File|relativePath}} <i class="fa fa-level-down"></i></a>
+										<a href="#test-{{_id}}" class="block">{{if File|notempty}}{{File|relativePath}}{{else}}{{TestName}}{{/if}} <i class="fa fa-level-down"></i></a>
 									</td>
 									<td class="line">
-										<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>
+										{{if Line|more>0}}<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>{{/if}}
 									</td>
 								</tr>
 								{{if Stories|empty}}

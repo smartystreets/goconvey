@@ -339,6 +339,7 @@ function update()
 						if (storyPath.length > 0)
 							for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
 								storyPath.pop();
+						
 						storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
 
 						story._id = uniqueID;
@@ -356,7 +357,6 @@ function update()
 								assertion._parsedActual = parseActual(assertion.Failure);
 								assertion._parsed = assertion._parsedExpected != "" && assertion._parsedActual != "";
 								convey.assertions.failed.push(assertion);
-								console.log(assertion);
 								pkg._failed ++;
 								test._failed ++;
 								story._failed ++;
