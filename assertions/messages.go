@@ -13,6 +13,7 @@ const ( // equality
 	shouldNotHaveBeenNil        = "Expected '%v' to NOT be nil (but it was)!"
 	shouldHaveBeenTrue          = "Expected: true\nActual:   %v"
 	shouldHaveBeenFalse         = "Expected: false\nActual:   %v"
+	shouldHaveBeenZeroValue     = "'%v' should have been the zero value" //"Expected: (zero value)\nActual:   %v"
 )
 
 const ( // quantity comparisons

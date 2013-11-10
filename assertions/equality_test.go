@@ -156,3 +156,18 @@ func TestShouldBeFalse(t *testing.T) {
 	fail(t, so(1, ShouldBeFalse), "Expected: false Actual: 1")
 	pass(t, so(false, ShouldBeFalse))
 }
+
+func TestShouldBeZeroValue(t *testing.T) {
+	fail(t, so(0, ShouldBeZeroValue, 1, 2, 3), "This assertion requires exactly 0 comparison values (you provided 3).")
+	fail(t, so(false, ShouldBeZeroValue, true), "This assertion requires exactly 0 comparison values (you provided 1).")
+
+	fail(t, so(1, ShouldBeZeroValue), "'1' should have been the zero value")                             //"Expected: (zero value) Actual: 1")
+	fail(t, so(true, ShouldBeZeroValue), "'true' should have been the zero value")                       //"Expected: (zero value) Actual: true")
+	fail(t, so("123", ShouldBeZeroValue), "'123' should have been the zero value")                       //"Expected: (zero value) Actual: 123")
+	fail(t, so(" ", ShouldBeZeroValue), "' ' should have been the zero value")                           //"Expected: (zero value) Actual:  ")
+	fail(t, so([]string{"Nonempty"}, ShouldBeZeroValue), "'[Nonempty]' should have been the zero value") //"Expected: (zero value) Actual: [Nonempty]")
+	pass(t, so(0, ShouldBeZeroValue))
+	pass(t, so(false, ShouldBeZeroValue))
+	pass(t, so("", ShouldBeZeroValue))
+	pass(t, so(struct{}{}, ShouldBeZeroValue))
+}

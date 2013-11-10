@@ -151,3 +151,16 @@ func ShouldBeFalse(actual interface{}, expected ...interface{}) string {
 	}
 	return success
 }
+
+// ShouldBeZeroValue receives a single parameter and ensures that it is
+// the Go equivalent of the default value, or "zero" value.
+func ShouldBeZeroValue(actual interface{}, expected ...interface{}) string {
+	if fail := need(0, expected); fail != success {
+		return fail
+	}
+	zeroVal := reflect.Zero(reflect.TypeOf(actual)).Interface()
+	if !reflect.DeepEqual(zeroVal, actual) {
+		return fmt.Sprintf(shouldHaveBeenZeroValue, actual)
+	}
+	return success
+}
