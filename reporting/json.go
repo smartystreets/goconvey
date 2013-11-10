@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/smartystreets/goconvey/printing"
-	"strconv"
 	"strings"
 )
 
@@ -110,11 +109,7 @@ func newAssertionResult(report *AssertionReport) AssertionResult {
 	self := AssertionResult{}
 	self.File = report.File
 	self.Line = report.Line
-	quotedFailure := strconv.Quote(report.Failure)
-	if quotedFailure[1:len(quotedFailure)-1] != report.Failure {
-		// TODO: test
-		self.Failure = quotedFailure + " (NOTE: GoConvey used strconv.Quote on the assertion failure string so it could be safely parsed.)"
-	}
+	self.Failure = report.Failure
 	self.Error = report.Error
 	self.StackTrace = report.stackTrace
 	self.Skipped = report.Skipped
@@ -125,7 +120,7 @@ const OpenJson = ">>>>>"  // "⌦"
 const CloseJson = "<<<<<" // "⌫"
 const jsonMarshalFailure = `
 
-There was an error when attempting to convert test results to JSON.
+GOCONVEY_JSON_MARSHALL_FAILURE: There was an error when attempting to convert test results to JSON.
 Please file a bug report and reference the code that caused this failure if possible.
 
 Here's the panic:
