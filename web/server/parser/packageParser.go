@@ -108,7 +108,7 @@ func (self *outputParser) recordTestingOutcome(outcome string) {
 func (self *outputParser) saveLineForParsingLater() {
 	self.line = strings.TrimSpace(self.line)
 	if self.test == nil {
-		fmt.Println("Potential parsing output of", self.result.PackageName, "; couldn't handle this stray line:", self.line)
+		fmt.Println("Potential error parsing output of", self.result.PackageName, "; couldn't handle this stray line:", self.line)
 		return
 	}
 	self.test.RawLines = append(self.test.RawLines, self.line)
@@ -123,41 +123,4 @@ func (self *outputParser) parseEachTestFunction() {
 		self.test.RawLines = []string{}
 		self.result.TestResults = append(self.result.TestResults, *self.test)
 	}
-}
-
-// Standalone functions //
-
-func noGoFiles(line string) bool {
-	return strings.HasPrefix(line, "can't load package: ") &&
-		strings.Contains(line, ": no Go source files in ")
-}
-func buildFailed(line string) bool {
-	return strings.HasPrefix(line, "# ") ||
-		strings.Contains(line, "cannot find package") ||
-		(strings.HasPrefix(line, "can't load package: ") && !strings.Contains(line, ": no Go source files in "))
-}
-func noTestFunctions(line string) bool {
-	return line == "testing: warning: no tests to run"
-}
-func noTestFiles(line string) bool {
-	return strings.HasPrefix(line, "?") && strings.Contains(line, "[no test files]")
-}
-func isNewTest(line string) bool {
-	return strings.HasPrefix(line, "=== ")
-}
-func isTestResult(line string) bool {
-	return strings.HasPrefix(line, "--- ")
-}
-func isPackageReport(line string) bool {
-	return (strings.HasPrefix(line, "FAIL") ||
-		strings.HasPrefix(line, "exit status") ||
-		strings.HasPrefix(line, "PASS") ||
-		strings.HasPrefix(line, "ok  \t"))
-}
-
-func packageFailed(line string) bool {
-	return strings.HasPrefix(line, "FAIL\t")
-}
-func packagePassed(line string) bool {
-	return strings.HasPrefix(line, "ok  \t")
 }
