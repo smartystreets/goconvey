@@ -15,6 +15,7 @@ var (
 	ShouldNotBeNil    = assertions.ShouldNotBeNil
 	ShouldBeTrue      = assertions.ShouldBeTrue
 	ShouldBeFalse     = assertions.ShouldBeFalse
+	ShouldBeZeroValue = assertions.ShouldBeZeroValue
 
 	ShouldBeGreaterThan          = assertions.ShouldBeGreaterThan
 	ShouldBeGreaterThanOrEqualTo = assertions.ShouldBeGreaterThanOrEqualTo

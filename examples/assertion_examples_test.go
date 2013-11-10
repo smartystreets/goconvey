@@ -24,6 +24,7 @@ func TestAssertions(t *testing.T) {
 			So(1, ShouldNotBeNil)
 			So(true, ShouldBeTrue)
 			So(false, ShouldBeFalse)
+			So(0, ShouldBeZeroValue)
 		})
 
 		Convey("Numeric comparison assertions should be accessible", func() {
