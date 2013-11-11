@@ -73,9 +73,9 @@ func monochrome() {
 }
 
 func isXterm() bool {
-	term := fmt.Sprintf("%v", os.Environ())
-	return strings.Contains(term, " TERM=isXterm") ||
-		strings.Contains(term, "TERM=xterm")
+	env := fmt.Sprintf("%v", os.Environ())
+	return strings.Contains(env, " TERM=isXterm") ||
+		strings.Contains(env, " TERM=xterm")
 }
 
 // There has got to be a better way...
