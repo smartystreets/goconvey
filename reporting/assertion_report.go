@@ -7,8 +7,10 @@ import (
 )
 
 type AssertionResult struct {
-	File       string
-	Line       int
+	File string
+	Line int
+	// Expected   string // TODO: unmarshall
+	// Actual     string // TODO: unmarshall
 	Failure    string
 	Error      interface{}
 	StackTrace string
@@ -16,28 +18,32 @@ type AssertionResult struct {
 }
 
 func NewFailureReport(failure string) *AssertionResult {
-	file, line := caller()
-	stack := stackTrace()
-	report := AssertionResult{file, line, failure, nil, stack, false}
-	return &report
+	report := &AssertionResult{}
+	report.File, report.Line = caller()
+	report.StackTrace = stackTrace()
+	report.Failure = failure
+	// TODO: unmarshall string if possible, assign to Expected, Actual, and Failure
+	return report
 }
 func NewErrorReport(err interface{}) *AssertionResult {
-	file, line := caller()
-	stack := fullStackTrace()
-	report := AssertionResult{file, line, "", err, stack, false}
-	return &report
+	report := &AssertionResult{}
+	report.File, report.Line = caller()
+	report.StackTrace = fullStackTrace()
+	report.Error = err
+	return report
 }
 func NewSuccessReport() *AssertionResult {
-	file, line := caller()
-	stack := stackTrace()
-	report := AssertionResult{file, line, "", nil, stack, false}
-	return &report
+	report := &AssertionResult{}
+	report.File, report.Line = caller()
+	report.StackTrace = fullStackTrace()
+	return report
 }
 func NewSkipReport() *AssertionResult {
-	file, line := caller()
-	stack := stackTrace()
-	report := AssertionResult{file, line, "", nil, stack, true}
-	return &report
+	report := &AssertionResult{}
+	report.File, report.Line = caller()
+	report.StackTrace = fullStackTrace()
+	report.Skipped = true
+	return report
 }
 
 func caller() (file string, line int) {
