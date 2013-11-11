@@ -10,7 +10,7 @@ func (self *statistics) BeginStory(story *StoryReport) {}
 
 func (self *statistics) Enter(scope *ScopeReport) {}
 
-func (self *statistics) Report(report *AssertionReport) {
+func (self *statistics) Report(report *AssertionResult) {
 	if !self.failing && report.Failure != "" {
 		self.failing = true
 	}

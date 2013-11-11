@@ -9,7 +9,7 @@ func NewNilReporter() *nilReporter {
 
 func (self *nilReporter) BeginStory(story *reporting.StoryReport)  {}
 func (self *nilReporter) Enter(scope *reporting.ScopeReport)       {}
-func (self *nilReporter) Report(report *reporting.AssertionReport) {}
+func (self *nilReporter) Report(report *reporting.AssertionResult) {}
 func (self *nilReporter) Exit()                                    {}
 func (self *nilReporter) EndStory()                                {}
 

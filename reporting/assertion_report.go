@@ -6,37 +6,37 @@ import (
 	"strings"
 )
 
-type AssertionReport struct {
+type AssertionResult struct {
 	File       string
 	Line       int
 	Failure    string
 	Error      interface{}
-	stackTrace string
+	StackTrace string
 	Skipped    bool
 }
 
-func NewFailureReport(failure string) *AssertionReport {
+func NewFailureReport(failure string) *AssertionResult {
 	file, line := caller()
 	stack := stackTrace()
-	report := AssertionReport{file, line, failure, nil, stack, false}
+	report := AssertionResult{file, line, failure, nil, stack, false}
 	return &report
 }
-func NewErrorReport(err interface{}) *AssertionReport {
+func NewErrorReport(err interface{}) *AssertionResult {
 	file, line := caller()
 	stack := fullStackTrace()
-	report := AssertionReport{file, line, "", err, stack, false}
+	report := AssertionResult{file, line, "", err, stack, false}
 	return &report
 }
-func NewSuccessReport() *AssertionReport {
+func NewSuccessReport() *AssertionResult {
 	file, line := caller()
 	stack := stackTrace()
-	report := AssertionReport{file, line, "", nil, stack, false}
+	report := AssertionResult{file, line, "", nil, stack, false}
 	return &report
 }
-func NewSkipReport() *AssertionReport {
+func NewSkipReport() *AssertionResult {
 	file, line := caller()
 	stack := stackTrace()
-	report := AssertionReport{file, line, "", nil, stack, true}
+	report := AssertionResult{file, line, "", nil, stack, true}
 	return &report
 }
 

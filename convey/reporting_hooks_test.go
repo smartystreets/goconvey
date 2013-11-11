@@ -177,7 +177,7 @@ func (self *fakeReporter) Enter(scope *reporting.ScopeReport) {
 	self.calls = append(self.calls, scope.Title)
 }
 
-func (self *fakeReporter) Report(report *reporting.AssertionReport) {
+func (self *fakeReporter) Report(report *reporting.AssertionResult) {
 	if report.Error != nil {
 		self.calls = append(self.calls, "Error")
 	} else if report.Failure != "" {

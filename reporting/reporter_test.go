@@ -56,7 +56,7 @@ func (self *fakeReporter) BeginStory(story *StoryReport) {
 func (self *fakeReporter) Enter(scope *ScopeReport) {
 	self.entered = true
 }
-func (self *fakeReporter) Report(report *AssertionReport) {
+func (self *fakeReporter) Report(report *AssertionResult) {
 	self.reported = true
 }
 func (self *fakeReporter) Exit() {

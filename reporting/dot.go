@@ -10,7 +10,7 @@ func (self *dot) BeginStory(story *StoryReport) {}
 
 func (self *dot) Enter(scope *ScopeReport) {}
 
-func (self *dot) Report(report *AssertionReport) {
+func (self *dot) Report(report *AssertionResult) {
 	if report.Error != nil {
 		fmt.Print(redColor)
 		self.out.Insert(dotError)

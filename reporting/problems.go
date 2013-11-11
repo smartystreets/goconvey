@@ -10,7 +10,7 @@ func (self *problem) BeginStory(story *StoryReport) {}
 
 func (self *problem) Enter(scope *ScopeReport) {}
 
-func (self *problem) Report(report *AssertionReport) {
+func (self *problem) Report(report *AssertionResult) {
 	if report.Error != nil {
 		self.errors = append(self.errors, report)
 	} else if report.Failure != "" {
@@ -38,7 +38,7 @@ func (self *problem) showErrors() {
 			self.out.Println("\nErrors:\n")
 			self.out.Indent()
 		}
-		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.stackTrace)
+		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.StackTrace)
 	}
 }
 func (self *problem) showFailures() {
@@ -58,12 +58,12 @@ func NewProblemReporter(out *printing.Printer) *problem {
 	return &self
 }
 func (self *problem) prepareForNextStory() {
-	self.errors = []*AssertionReport{}
-	self.failures = []*AssertionReport{}
+	self.errors = []*AssertionResult{}
+	self.failures = []*AssertionResult{}
 }
 
 type problem struct {
 	out      *printing.Printer
-	errors   []*AssertionReport
-	failures []*AssertionReport
+	errors   []*AssertionResult
+	failures []*AssertionResult
 }

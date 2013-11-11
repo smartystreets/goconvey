@@ -19,7 +19,7 @@ func (self *story) Enter(scope *ScopeReport) {
 	}
 }
 
-func (self *story) Report(report *AssertionReport) {
+func (self *story) Report(report *AssertionResult) {
 	if report.Error != nil {
 		fmt.Print(redColor)
 		self.out.Insert(error_)

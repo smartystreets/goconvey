@@ -3,7 +3,7 @@ package reporting
 type Reporter interface {
 	BeginStory(story *StoryReport)
 	Enter(scope *ScopeReport)
-	Report(r *AssertionReport)
+	Report(r *AssertionResult)
 	Exit()
 	EndStory()
 }
@@ -18,7 +18,7 @@ func (self *reporters) Enter(scope *ScopeReport) {
 		r.Enter(scope)
 	}
 }
-func (self *reporters) Report(report *AssertionReport) {
+func (self *reporters) Report(report *AssertionResult) {
 	for _, x := range self.collection {
 		x.Report(report)
 	}

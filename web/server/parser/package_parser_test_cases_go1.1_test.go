@@ -311,8 +311,8 @@ var expectedGoConvey = contract.PackageResult{
 					File:  "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
 					Line:  11,
 					Depth: 0,
-					Assertions: []reporting.AssertionResult{
-						reporting.AssertionResult{
+					Assertions: []*reporting.AssertionResult{
+						&reporting.AssertionResult{
 							File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
 							Line:       10,
 							Failure:    "",
@@ -393,8 +393,8 @@ var expectedGoConvey_WithRandomOutput = contract.PackageResult{
 					File:  "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
 					Line:  16,
 					Depth: 0,
-					Assertions: []reporting.AssertionResult{
-						reporting.AssertionResult{
+					Assertions: []*reporting.AssertionResult{
+						&reporting.AssertionResult{
 							File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
 							Line:       14,
 							Failure:    "",
@@ -409,8 +409,8 @@ var expectedGoConvey_WithRandomOutput = contract.PackageResult{
 					File:  "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
 					Line:  22,
 					Depth: 0,
-					Assertions: []reporting.AssertionResult{
-						reporting.AssertionResult{
+					Assertions: []*reporting.AssertionResult{
+						&reporting.AssertionResult{
 							File:       "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
 							Line:       20,
 							Failure:    "",

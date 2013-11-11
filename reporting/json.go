@@ -24,9 +24,9 @@ func (self *jsonReporter) registerScope(scope *ScopeReport) {
 	self.stack = append(self.stack, next)
 }
 
-func (self *jsonReporter) Report(report *AssertionReport) {
+func (self *jsonReporter) Report(report *AssertionResult) {
 	current := self.stack[len(self.stack)-1]
-	current.Assertions = append(current.Assertions, newAssertionResult(report))
+	current.Assertions = append(current.Assertions, report)
 }
 
 func (self *jsonReporter) Exit() {
@@ -83,7 +83,7 @@ type ScopeResult struct {
 	File       string
 	Line       int
 	Depth      int
-	Assertions []AssertionResult
+	Assertions []*AssertionResult
 }
 
 func newScopeResult(title string, depth int, file string, line int) *ScopeResult {
@@ -92,27 +92,7 @@ func newScopeResult(title string, depth int, file string, line int) *ScopeResult
 	self.Depth = depth
 	self.File = file
 	self.Line = line
-	self.Assertions = []AssertionResult{}
-	return self
-}
-
-type AssertionResult struct {
-	File       string
-	Line       int
-	Failure    string
-	Error      interface{}
-	Skipped    bool
-	StackTrace string
-}
-
-func newAssertionResult(report *AssertionReport) AssertionResult {
-	self := AssertionResult{}
-	self.File = report.File
-	self.Line = report.Line
-	self.Failure = report.Failure
-	self.Error = report.Error
-	self.StackTrace = report.stackTrace
-	self.Skipped = report.Skipped
+	self.Assertions = []*AssertionResult{}
 	return self
 }
 

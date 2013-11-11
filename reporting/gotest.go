@@ -8,7 +8,7 @@ func (self *gotestReporter) BeginStory(story *StoryReport) {
 
 func (self *gotestReporter) Enter(scope *ScopeReport) {}
 
-func (self *gotestReporter) Report(r *AssertionReport) {
+func (self *gotestReporter) Report(r *AssertionResult) {
 	if !passed(r) {
 		self.test.Fail()
 	}
@@ -29,6 +29,6 @@ type gotestReporter struct {
 	test gotest.T
 }
 
-func passed(r *AssertionReport) bool {
+func passed(r *AssertionResult) bool {
 	return r.Error == nil && r.Failure == ""
 }

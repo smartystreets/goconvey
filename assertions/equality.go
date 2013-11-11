@@ -10,6 +10,12 @@ import (
 	"github.com/jacobsa/oglematchers"
 )
 
+// var packager Packager
+
+// type Packager interface {
+// 	Package(expected, actual interface{}, message string) string
+// }
+
 // ShouldEqual receives exactly two parameters and does an equality check.
 func ShouldEqual(actual interface{}, expected ...interface{}) string {
 	if message := need(1, expected); message != success {
@@ -21,11 +27,14 @@ func shouldEqual(actual, expected interface{}) (message string) {
 	defer func() {
 		if r := recover(); r != nil {
 			message = fmt.Sprintf(shouldHaveBeenEqual, expected, actual)
+			return
+			// return packager.Package(expected, actual, fmt.Sprintf(shouldHaveBeenEqual, expected, actual))
 		}
 	}()
 
 	if matchError := oglematchers.Equals(expected).Matches(actual); matchError != nil {
 		return fmt.Sprintf(shouldHaveBeenEqual, expected, actual)
+		// return packager.Package(expected, actual, fmt.Sprintf(shouldHaveBeenEqual, expected, actual))
 	}
 
 	return success
