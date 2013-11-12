@@ -1,6 +1,7 @@
 package assertions
 
 import (
+	"fmt"
 	"path"
 	"runtime"
 	"strings"
@@ -54,3 +55,15 @@ type Thinger interface {
 type Thing struct{}
 
 func (self *Thing) Hi() {}
+
+/******** FakeSerialzier ********/
+
+type fakeSerializer struct{}
+
+func (self *fakeSerializer) serialize(expected, actual interface{}, message string) string {
+	return fmt.Sprintf("%v|%v|%s", expected, actual, message)
+}
+
+func newFakeSerializer() *fakeSerializer {
+	return &fakeSerializer{}
+}

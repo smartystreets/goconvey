@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+type FailureView struct {
+	Message  string
+	Expected string
+	Actual   string
+}
+
 type AssertionResult struct {
 	File string
 	Line int

@@ -7,26 +7,28 @@ import (
 )
 
 func TestShouldEqual(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	fail(t, so(1, ShouldEqual), "This assertion requires exactly 1 comparison values (you provided 0).")
 	fail(t, so(1, ShouldEqual, 1, 2), "This assertion requires exactly 1 comparison values (you provided 2).")
 	fail(t, so(1, ShouldEqual, 1, 2, 3), "This assertion requires exactly 1 comparison values (you provided 3).")
 
 	pass(t, so(1, ShouldEqual, 1))
-	fail(t, so(1, ShouldEqual, 2), "Expected: '2' Actual: '1' (Should be equal)")
+	fail(t, so(1, ShouldEqual, 2), "2|1|Expected: '2' Actual: '1' (Should be equal)")
 
 	pass(t, so(true, ShouldEqual, true))
-	fail(t, so(true, ShouldEqual, false), "Expected: 'false' Actual: 'true' (Should be equal)")
+	fail(t, so(true, ShouldEqual, false), "false|true|Expected: 'false' Actual: 'true' (Should be equal)")
 
 	pass(t, so("hi", ShouldEqual, "hi"))
-	fail(t, so("hi", ShouldEqual, "bye"), "Expected: 'bye' Actual: 'hi' (Should be equal)")
+	fail(t, so("hi", ShouldEqual, "bye"), "bye|hi|Expected: 'bye' Actual: 'hi' (Should be equal)")
 
 	pass(t, so(42, ShouldEqual, uint(42)))
 
-	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{}), "Expected: '{}' Actual: '{hi}' (Should be equal)")
-	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}), "Expected: '{hi}' Actual: '{hi}' (Should be equal)")
-	fail(t, so(&Thing1{"hi"}, ShouldEqual, &Thing1{"hi"}), "Expected: '&{hi}' Actual: '&{hi}' (Should be equal)")
+	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{}), "{}|{hi}|Expected: '{}' Actual: '{hi}' (Should be equal)")
+	fail(t, so(Thing1{"hi"}, ShouldEqual, Thing1{"hi"}), "{hi}|{hi}|Expected: '{hi}' Actual: '{hi}' (Should be equal)")
+	fail(t, so(&Thing1{"hi"}, ShouldEqual, &Thing1{"hi"}), "&{hi}|&{hi}|Expected: '&{hi}' Actual: '&{hi}' (Should be equal)")
 
-	fail(t, so(Thing1{}, ShouldEqual, Thing2{}), "Expected: '{}' Actual: '{}' (Should be equal)")
+	fail(t, so(Thing1{}, ShouldEqual, Thing2{}), "{}|{}|Expected: '{}' Actual: '{}' (Should be equal)")
 }
 
 func TestShouldNotEqual(t *testing.T) {
