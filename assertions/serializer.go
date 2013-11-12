@@ -19,7 +19,6 @@ func (self *failureSerializer) serialize(expected, actual interface{}, message s
 		Actual:   fmt.Sprintf("%v", actual),
 	}
 	serialized, err := json.Marshal(view)
-	fmt.Println(err)
 	if err != nil {
 		return message
 	}
