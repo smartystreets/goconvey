@@ -50,7 +50,7 @@ func ShouldResemble(actual interface{}, expected ...interface{}) string {
 	}
 
 	if matchError := oglematchers.DeepEquals(expected[0]).Matches(actual); matchError != nil {
-		return fmt.Sprintf(shouldHaveResembled, expected[0], actual)
+		return serializer.serialize(expected[0], actual, fmt.Sprintf(shouldHaveResembled, expected[0], actual))
 	}
 
 	return success
@@ -87,9 +87,11 @@ func shouldPointTo(actual, expected interface{}) string {
 	} else if expectedValue.Kind() != reflect.Ptr {
 		return fmt.Sprintf(shouldHaveBeenNonNilPointer, "second", "not")
 	} else if ShouldEqual(actualValue.Pointer(), expectedValue.Pointer()) != success {
-		return fmt.Sprintf(shouldHavePointedTo,
-			actual, reflect.ValueOf(actual).Pointer(),
-			expected, reflect.ValueOf(expected).Pointer())
+		actualAddress := reflect.ValueOf(actual).Pointer()
+		expectedAddress := reflect.ValueOf(expected).Pointer()
+		return serializer.serialize(expectedAddress, actualAddress, fmt.Sprintf(shouldHavePointedTo,
+			actual, actualAddress,
+			expected, expectedAddress))
 	}
 	return success
 }
@@ -162,7 +164,7 @@ func ShouldBeZeroValue(actual interface{}, expected ...interface{}) string {
 	}
 	zeroVal := reflect.Zero(reflect.TypeOf(actual)).Interface()
 	if !reflect.DeepEqual(zeroVal, actual) {
-		return fmt.Sprintf(shouldHaveBeenZeroValue, actual)
+		return serializer.serialize(zeroVal, actual, fmt.Sprintf(shouldHaveBeenZeroValue, actual))
 	}
 	return success
 }

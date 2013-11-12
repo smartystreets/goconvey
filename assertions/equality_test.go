@@ -56,7 +56,7 @@ func TestShouldResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}))
-	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "Expected: '{bye}' Actual: '{hi}' (Should resemble)!")
+	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "{bye}|{hi}|Expected: '{bye}' Actual: '{hi}' (Should resemble)!")
 }
 
 func TestShouldNotResemble(t *testing.T) {
@@ -79,7 +79,9 @@ func TestShouldPointTo(t *testing.T) {
 	fail(t, so(t1, ShouldPointTo, t2, t3), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(t1, ShouldPointTo, t2))
-	fail(t, so(t1, ShouldPointTo, t3), fmt.Sprintf("Expected '&{}' (address: '%v') and '&{}' (address: '%v') to be the same address (but their weren't)!", pointer1, pointer3))
+	fail(t, so(t1, ShouldPointTo, t3), fmt.Sprintf(
+		"%v|%v|Expected '&{}' (address: '%v') and '&{}' (address: '%v') to be the same address (but their weren't)!",
+		pointer3, pointer1, pointer1, pointer3))
 
 	t4 := Thing1{}
 	t5 := t4
@@ -163,11 +165,11 @@ func TestShouldBeZeroValue(t *testing.T) {
 	fail(t, so(0, ShouldBeZeroValue, 1, 2, 3), "This assertion requires exactly 0 comparison values (you provided 3).")
 	fail(t, so(false, ShouldBeZeroValue, true), "This assertion requires exactly 0 comparison values (you provided 1).")
 
-	fail(t, so(1, ShouldBeZeroValue), "'1' should have been the zero value")                             //"Expected: (zero value) Actual: 1")
-	fail(t, so(true, ShouldBeZeroValue), "'true' should have been the zero value")                       //"Expected: (zero value) Actual: true")
-	fail(t, so("123", ShouldBeZeroValue), "'123' should have been the zero value")                       //"Expected: (zero value) Actual: 123")
-	fail(t, so(" ", ShouldBeZeroValue), "' ' should have been the zero value")                           //"Expected: (zero value) Actual:  ")
-	fail(t, so([]string{"Nonempty"}, ShouldBeZeroValue), "'[Nonempty]' should have been the zero value") //"Expected: (zero value) Actual: [Nonempty]")
+	fail(t, so(1, ShouldBeZeroValue), "0|1|'1' should have been the zero value")                                       //"Expected: (zero value) Actual: 1")
+	fail(t, so(true, ShouldBeZeroValue), "false|true|'true' should have been the zero value")                          //"Expected: (zero value) Actual: true")
+	fail(t, so("123", ShouldBeZeroValue), "|123|'123' should have been the zero value")                                //"Expected: (zero value) Actual: 123")
+	fail(t, so(" ", ShouldBeZeroValue), "| |' ' should have been the zero value")                                      //"Expected: (zero value) Actual:  ")
+	fail(t, so([]string{"Nonempty"}, ShouldBeZeroValue), "[]|[Nonempty]|'[Nonempty]' should have been the zero value") //"Expected: (zero value) Actual: [Nonempty]")
 	pass(t, so(0, ShouldBeZeroValue))
 	pass(t, so(false, ShouldBeZeroValue))
 	pass(t, so("", ShouldBeZeroValue))
