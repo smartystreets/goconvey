@@ -706,6 +706,10 @@ del, .failures th.expected {
 		text-align: center;
 	}
 
+	.watching-eye {
+		top: .5em;
+	}
+
 	.menu {
 		display: none;
 	}
