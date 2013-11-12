@@ -33,7 +33,7 @@ func TestShouldPanicWith(t *testing.T) {
 	fail(t, so(1, ShouldPanicWith, 1), shouldUseVoidNiladicFunction)
 	fail(t, so(func(i int) {}, ShouldPanicWith, "hi"), shouldUseVoidNiladicFunction)
 	fail(t, so(func() {}, ShouldPanicWith, "bye"), shouldHavePanicked)
-	fail(t, so(func() { panic("hi") }, ShouldPanicWith, "bye"), "Expected func() to panic with 'bye' (but it panicked with 'hi')!")
+	fail(t, so(func() { panic("hi") }, ShouldPanicWith, "bye"), "bye|hi|Expected func() to panic with 'bye' (but it panicked with 'hi')!")
 
 	pass(t, so(func() { panic("hi") }, ShouldPanicWith, "hi"))
 }

@@ -75,7 +75,7 @@ func ShouldPanicWith(actual interface{}, expected ...interface{}) (message strin
 			message = shouldHavePanicked
 		} else {
 			if equal := ShouldEqual(recovered, expected[0]); equal != success {
-				message = fmt.Sprintf(shouldHavePanickedWith, expected[0], recovered)
+				message = serializer.serialize(expected[0], recovered, fmt.Sprintf(shouldHavePanickedWith, expected[0], recovered))
 			} else {
 				message = success
 			}
