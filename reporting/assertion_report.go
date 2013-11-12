@@ -28,6 +28,10 @@ func NewFailureReport(failure string) *AssertionResult {
 	report := &AssertionResult{}
 	report.File, report.Line = caller()
 	report.StackTrace = stackTrace()
+	parseFailure(failure, report)
+	return report
+}
+func parseFailure(failure string, report *AssertionResult) {
 	view := &FailureView{}
 	err := json.Unmarshal([]byte(failure), view)
 	if err == nil {
@@ -37,7 +41,6 @@ func NewFailureReport(failure string) *AssertionResult {
 	} else {
 		report.Failure = failure
 	}
-	return report
 }
 func NewErrorReport(err interface{}) *AssertionResult {
 	report := &AssertionResult{}
