@@ -105,7 +105,7 @@ function initPlugins()
 	}
 	Mark.pipes.needsDiff = function(test)
 	{
-		return test.Failure != "" && (test.Expected != "" || test.Actual != "");
+		return !!test.Failure && (test.Expected != "" || test.Actual != "");
 	}
 
 	// JQUERY TIPSY
