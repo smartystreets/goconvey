@@ -5,13 +5,15 @@ import (
 )
 
 func TestShouldStartWith(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	fail(t, so("", ShouldStartWith), "This assertion requires exactly 1 comparison values (you provided 0).")
 	fail(t, so("", ShouldStartWith, "asdf", "asdf"), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so("", ShouldStartWith, ""))
 	pass(t, so("superman", ShouldStartWith, "super"))
-	fail(t, so("superman", ShouldStartWith, "bat"), "Expected 'superman' to start with 'bat' (but it didn't)!")
-	fail(t, so("superman", ShouldStartWith, "man"), "Expected 'superman' to start with 'man' (but it didn't)!")
+	fail(t, so("superman", ShouldStartWith, "bat"), "bat|sup...|Expected 'superman' to start with 'bat' (but it didn't)!")
+	fail(t, so("superman", ShouldStartWith, "man"), "man|sup...|Expected 'superman' to start with 'man' (but it didn't)!")
 
 	fail(t, so(1, ShouldStartWith, 2), "Both arguments to this assertion must be strings (you provided int and int).")
 }
@@ -29,13 +31,15 @@ func TestShouldNotStartWith(t *testing.T) {
 }
 
 func TestShouldEndWith(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	fail(t, so("", ShouldEndWith), "This assertion requires exactly 1 comparison values (you provided 0).")
 	fail(t, so("", ShouldEndWith, "", ""), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so("", ShouldEndWith, ""))
 	pass(t, so("superman", ShouldEndWith, "man"))
-	fail(t, so("superman", ShouldEndWith, "super"), "Expected 'superman' to end with 'super' (but it didn't)!")
-	fail(t, so("superman", ShouldEndWith, "blah"), "Expected 'superman' to end with 'blah' (but it didn't)!")
+	fail(t, so("superman", ShouldEndWith, "super"), "super|...erman|Expected 'superman' to end with 'super' (but it didn't)!")
+	fail(t, so("superman", ShouldEndWith, "blah"), "blah|...rman|Expected 'superman' to end with 'blah' (but it didn't)!")
 
 	fail(t, so(1, ShouldEndWith, 2), "Both arguments to this assertion must be strings (you provided int and int).")
 }
@@ -52,13 +56,15 @@ func TestShouldNotEndWith(t *testing.T) {
 }
 
 func TestShouldContainSubstring(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	fail(t, so("asdf", ShouldContainSubstring), "This assertion requires exactly 1 comparison values (you provided 0).")
 	fail(t, so("asdf", ShouldContainSubstring, 1, 2, 3), "This assertion requires exactly 1 comparison values (you provided 3).")
 
 	fail(t, so(123, ShouldContainSubstring, 23), "Both arguments to this assertion must be strings (you provided int and int).")
 
 	pass(t, so("asdf", ShouldContainSubstring, "sd"))
-	fail(t, so("qwer", ShouldContainSubstring, "sd"), "Expected 'qwer' to contain substring 'sd' (but it didn't)!")
+	fail(t, so("qwer", ShouldContainSubstring, "sd"), "sd|qwer|Expected 'qwer' to contain substring 'sd' (but it didn't)!")
 }
 
 func TestShouldNotContainSubstring(t *testing.T) {
@@ -72,10 +78,12 @@ func TestShouldNotContainSubstring(t *testing.T) {
 }
 
 func TestShouldBeBlank(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	fail(t, so("", ShouldBeBlank, "adsf"), "This assertion requires exactly 0 comparison values (you provided 1).")
 	fail(t, so(1, ShouldBeBlank), "The argument to this assertion must be a string (you provided int).")
 
-	fail(t, so("asdf", ShouldBeBlank), "Expected 'asdf' to be blank (but it wasn't)!")
+	fail(t, so("asdf", ShouldBeBlank), "|asdf|Expected 'asdf' to be blank (but it wasn't)!")
 	pass(t, so("", ShouldBeBlank))
 }
 
