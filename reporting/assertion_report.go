@@ -1,6 +1,7 @@
 package reporting
 
 import (
+	"encoding/json"
 	"github.com/smartystreets/goconvey/gotest"
 	"runtime"
 	"strings"
@@ -13,10 +14,10 @@ type FailureView struct {
 }
 
 type AssertionResult struct {
-	File string
-	Line int
-	// Expected   string // TODO: unmarshall
-	// Actual     string // TODO: unmarshall
+	File       string
+	Line       int
+	Expected   string
+	Actual     string
 	Failure    string
 	Error      interface{}
 	StackTrace string
@@ -27,8 +28,15 @@ func NewFailureReport(failure string) *AssertionResult {
 	report := &AssertionResult{}
 	report.File, report.Line = caller()
 	report.StackTrace = stackTrace()
-	report.Failure = failure
-	// TODO: unmarshall string if possible, assign to Expected, Actual, and Failure
+	view := &FailureView{}
+	err := json.Unmarshal([]byte(failure), view)
+	if err == nil {
+		report.Failure = view.Message
+		report.Expected = view.Expected
+		report.Actual = view.Actual
+	} else {
+		report.Failure = failure
+	}
 	return report
 }
 func NewErrorReport(err interface{}) *AssertionResult {

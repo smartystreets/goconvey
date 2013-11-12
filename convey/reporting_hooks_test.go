@@ -1,6 +1,7 @@
 package convey
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/reporting"
 	"path"
@@ -39,6 +40,16 @@ func TestFailureReported(t *testing.T) {
 	})
 
 	expectEqual(t, "Begin|A|Failure|Exit|End", myReporter.wholeStory())
+}
+
+func TestComparisonFailureDeserializedAndReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	Convey("A", test, func() {
+		So("hi", ShouldEqual, "bye")
+	})
+
+	expectEqual(t, "Begin|A|Failure(bye/hi)|Exit|End", myReporter.wholeStory())
 }
 
 func TestNestedFailureReported(t *testing.T) {
@@ -181,7 +192,11 @@ func (self *fakeReporter) Report(report *reporting.AssertionResult) {
 	if report.Error != nil {
 		self.calls = append(self.calls, "Error")
 	} else if report.Failure != "" {
-		self.calls = append(self.calls, "Failure")
+		message := "Failure"
+		if report.Expected != "" || report.Actual != "" {
+			message += fmt.Sprintf("(%s/%s)", report.Expected, report.Actual)
+		}
+		self.calls = append(self.calls, message)
 	} else if report.Skipped {
 		self.calls = append(self.calls, "Skipped")
 	} else {
