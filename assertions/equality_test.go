@@ -52,6 +52,8 @@ func TestShouldNotEqual(t *testing.T) {
 }
 
 func TestShouldResemble(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	fail(t, so(Thing1{"hi"}, ShouldResemble), "This assertion requires exactly 1 comparison values (you provided 0).")
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion requires exactly 1 comparison values (you provided 2).")
 
@@ -68,6 +70,8 @@ func TestShouldNotResemble(t *testing.T) {
 }
 
 func TestShouldPointTo(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	t1 := &Thing1{}
 	t2 := t1
 	t3 := &Thing1{}
@@ -162,6 +166,8 @@ func TestShouldBeFalse(t *testing.T) {
 }
 
 func TestShouldBeZeroValue(t *testing.T) {
+	serializer = newFakeSerializer()
+
 	fail(t, so(0, ShouldBeZeroValue, 1, 2, 3), "This assertion requires exactly 0 comparison values (you provided 3).")
 	fail(t, so(false, ShouldBeZeroValue, true), "This assertion requires exactly 0 comparison values (you provided 1).")
 
