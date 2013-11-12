@@ -9,11 +9,6 @@ var convey = {
 		skip: 'skip',
 		ignored: 'ignored'
 	},
-	regex: {
-		expected: /Expected:?\s+'?/,
-		actual: /'?\s+(Actual:)\s+'?/,
-		actualEnd: /$|('?\s+(\((Should|but))|$)/
-	},
 	lastScrollPos: 0,
 	payload: {},
 	assertions: emptyAssertions(),
@@ -107,6 +102,10 @@ function initPlugins()
 	Mark.pipes.chopEnd = function(str, n)
 	{
 		return str.length > n ? "..." + str.substr(str.length - n) : str;
+	}
+	Mark.pipes.needsDiff = function(test)
+	{
+		return test.Failure != "" && (test.Expected != "" || test.Actual != "");
 	}
 
 	// JQUERY TIPSY
@@ -312,9 +311,6 @@ function update()
 							test._status = convey.statuses.fail;
 							pkg._failed ++;
 							test._failed ++;
-							test._parsedExpected = parseExpected(test.Message);
-							test._parsedActual = parseActual(test.Message);
-							test._parsed = test._parsedExpected != "" && test._parsedActual != "";
 							convey.assertions.failed.push(test);
 						}
 						else
@@ -353,9 +349,6 @@ function update()
 
 							if (assertion.Failure)
 							{
-								assertion._parsedExpected = parseExpected(assertion.Failure);
-								assertion._parsedActual = parseActual(assertion.Failure);
-								assertion._parsed = assertion._parsedExpected != "" && assertion._parsedActual != "";
 								convey.assertions.failed.push(assertion);
 								pkg._failed ++;
 								test._failed ++;
@@ -514,35 +507,6 @@ function render(templateID, context)
 {
 	var tpl = $.trim($('#' + templateID).text());
 	return $($.trim(Mark.up(tpl, context)));
-}
-
-function parseExpected(str)
-{
-	return stringBetween(str, convey.regex.expected, convey.regex.actual);
-}
-
-function parseActual(str)
-{
-	return stringBetween(str, convey.regex.actual, convey.regex.actualEnd);
-}
-
-function stringBetween(str, startExpr, endExpr)
-{
-	var startMatch = str.match(startExpr);
-	
-	if (!startMatch)
-		return "";
-
-	var start = startMatch.index + startMatch[0].length;
-
-	var endMatch = str.substr(start).match(endExpr);
-
-	if (!endMatch)
-		return "";
-	
-	var end = start + endMatch.index;
-
-	return str.substring(start, end);
 }
 
 function bannerClickToTop(enable)

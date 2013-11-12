@@ -272,18 +272,18 @@
 									</td>
 								</tr>
 								{{/if}}
-								{{if _parsed}}
+								{{if .|needsDiff}}
 								<tr>
 									<th class="expected">
 										Expected
 									</th>
-									<td colspan="2"><code class="original">{{_parsedExpected|showhtml}}</code></td>
+									<td colspan="2"><code class="original">{{Expected|showhtml}}</code></td>
 								</tr>
 								<tr>
 									<th class="actual">
 										Actual
 									</th>
-									<td colspan="2"><code class="changed">{{_parsedActual|showhtml}}</code></td>
+									<td colspan="2"><code class="changed">{{Actual|showhtml}}</code></td>
 								</tr>
 								<tr>
 									<th class="difference">
