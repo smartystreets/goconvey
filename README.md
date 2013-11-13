@@ -1,7 +1,7 @@
 GoConvey is awesome Go testing
 ==============================
 
-Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure.
+Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure. **[View full feature tour!](http://smartystreets.github.io/goconvey)**
 
 **Features:**
 
@@ -10,6 +10,7 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 - Readable, colorized console output (understandable by any manager, IT or not)
 - Fully-automatic web UI (works with native Go tests, too)
 - Test code generator
+- Desktop notifications (optional)
 - Auto-test script automatically runs tests in the terminal
 - Immediately open problem lines in [Sublime Text](http://www.sublimetext.com) ([some assembly required](https://github.com/asuth/subl-handler))
 
@@ -17,16 +18,20 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 
 - [Installation](#installation)
 - [Quick start](#quick-start)
-- [Wiki (Documentation)](https://github.com/smartystreets/goconvey/wiki)
-- [Web UI](#web-ui)
-- [Terminal output](#terminal-output-with-go-test--v)
+- [Documentation](#documentation)
+- [Screenshots](#screenshots)
 - [Contributors](#contributors-thanks)
+
+
 
 
 Installation
 ------------
 
 	$ go get github.com/smartystreets/goconvey
+
+
+
 
 
 [Quick start](https://github.com/smartystreets/goconvey/wiki#get-going-in-25-seconds)
@@ -52,7 +57,8 @@ func TestSpec(t *testing.T) {
 }
 ```
 
-### [In the browser](https://github.com/smartystreets/goconvey/wiki/Web-UI)
+
+#### [In the browser](https://github.com/smartystreets/goconvey/wiki/Web-UI)
 
 Start up the GoConvey web server at your project's path:
 
@@ -67,7 +73,8 @@ There you have it. As long as GoConvey is running, test results will automatical
 The [web UI](https://github.com/smartystreets/goconvey/wiki/Web-UI) supports traditional Go tests, so use it even if you're not using GoConvey tests.
 
 
-### [In the terminal](https://github.com/smartystreets/goconvey/wiki/Execution)
+
+#### [In the terminal](https://github.com/smartystreets/goconvey/wiki/Execution)
 
 Just do what you do best:
 
@@ -80,32 +87,28 @@ Or if you want the output to include the story:
 
 
 
-[Web UI](https://github.com/smartystreets/goconvey/wiki/Web-UI)
+
+[Documentation](https://github.com/smartystreets/goconvey/wiki)
 -----------
-![GoConvey browser interface](http://i.imgur.com/O7uVvoq.png)
 
-
-
-Terminal output (with `go test -v`):
----------------
-
-**Tests pass:**
-
-![Pass](http://i.imgur.com/c2qAQcR.png)
-
-**Test fail:**
-
-![Fail](http://i.imgur.com/sRcyZBr.png)
-
-**Test panic:**
-
-![Panic](http://i.imgur.com/iG2EZ5C.png)
+Check out the [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki)!
 
 
 
 
-Contributors (Thanks!):
------------------------
+
+[Screenshots](http://smartystreets.github.io/goconvey)
+-----------
+
+For web UI and terminal screenshots, check out [the full feature tour](http://smartystreets.github.io/goconvey).
+
+
+
+
+
+
+Contributors (Thanks!)
+----------------------
 
  - [Michael Whatcott](https://github.com/mdwhatcott)
  - [Matt Holt](https://github.com/mholt)
