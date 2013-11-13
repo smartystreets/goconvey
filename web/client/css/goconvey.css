@@ -79,6 +79,11 @@ h1 {
 	color: #000;
 }
 
+h1 a {
+	color: inherit;
+	text-decoration: none !important;
+}
+
 input, textarea {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
