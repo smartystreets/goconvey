@@ -1,6 +1,7 @@
 package reporting
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/gotest"
 )
 
@@ -11,11 +12,11 @@ type ScopeReport struct {
 	Line  int
 }
 
-func NewScopeReport(title, id string) *ScopeReport {
+func NewScopeReport(title, name string) *ScopeReport {
 	file, line, _ := gotest.ResolveExternalCaller()
 	self := &ScopeReport{}
 	self.Title = title
-	self.ID = id
+	self.ID = fmt.Sprintf("%s|%s", title, name)
 	self.File = file
 	self.Line = line
 	return self
