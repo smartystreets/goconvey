@@ -6,6 +6,7 @@ import (
 	"github.com/smartystreets/goconvey/reporting"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -159,6 +160,21 @@ func TestErrorByManualPanicReported(t *testing.T) {
 
 	expectEqual(t, "Begin|A|Error|Exit|End", myReporter.wholeStory())
 }
+
+func TestIterativeConveysReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	Convey("A", test, func() {
+		for x := 0; x < 3; x++ {
+			Convey(strconv.Itoa(x), func() {
+				So(x, ShouldEqual, x)
+			})
+		}
+	})
+
+	expectEqual(t, "Begin|A|0|Success|Exit|Exit|A|1|Success|Exit|Exit|A|2|Success|Exit|Exit|End", myReporter.wholeStory())
+}
+
 func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 	if expected != actual {
 		_, file, line, _ := runtime.Caller(1)

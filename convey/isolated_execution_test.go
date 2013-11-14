@@ -3,6 +3,7 @@ package convey
 import (
 	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/reporting"
+	"strconv"
 	"testing"
 )
 
@@ -232,6 +233,22 @@ func TestSkipNestedLevelSkipsAllChildLevels(t *testing.T) {
 	})
 
 	expectEqual(t, "yes", output)
+}
+
+func TestIterativeConveys(t *testing.T) {
+	output := prepare()
+
+	Convey("Test", t, func() {
+		for x := 0; x < 10; x++ {
+			y := strconv.Itoa(x)
+
+			Convey(y, func() {
+				output += y
+			})
+		}
+	})
+
+	expectEqual(t, "0123456789", output)
 }
 
 func prepare() string {

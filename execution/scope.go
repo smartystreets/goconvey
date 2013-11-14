@@ -10,12 +10,12 @@ func (parent *scope) adopt(child *scope) {
 	if parent.hasChild(child) {
 		return
 	}
-	parent.birthOrder = append(parent.birthOrder, child.name)
+	parent.birthOrder = append(parent.birthOrder, child)
 	parent.children[child.name] = child
 }
 func (parent *scope) hasChild(child *scope) bool {
-	for _, name := range parent.birthOrder {
-		if name == child.name {
+	for _, ordered := range parent.birthOrder {
+		if ordered.name == child.name && ordered.title == child.title {
 			return true
 		}
 	}
@@ -40,14 +40,14 @@ func (parent *scope) enter() {
 	parent.reporter.Enter(parent.report)
 }
 func (parent *scope) visitChildren() {
-	if len(parent.children) == 0 {
+	if len(parent.birthOrder) == 0 {
 		parent.cleanup()
 	} else {
 		parent.visitChild()
 	}
 }
 func (parent *scope) visitChild() {
-	child := parent.children[parent.birthOrder[parent.child]]
+	child := parent.birthOrder[parent.child]
 	child.visit()
 	if child.visited() {
 		parent.cleanup()
@@ -78,7 +78,7 @@ func newScope(entry *Registration, reporter reporting.Reporter) *scope {
 	self.title = entry.Situation
 	self.action = entry.Action
 	self.children = make(map[string]*scope)
-	self.birthOrder = []string{}
+	self.birthOrder = []*scope{}
 	self.resets = make(map[string]*Action)
 	self.report = reporting.NewScopeReport(self.title, self.name)
 	return self
@@ -89,7 +89,7 @@ type scope struct {
 	title      string
 	action     *Action
 	children   map[string]*scope
-	birthOrder []string
+	birthOrder []*scope
 	child      int
 	resets     map[string]*Action
 	panicked   bool
