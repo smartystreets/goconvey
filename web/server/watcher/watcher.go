@@ -6,14 +6,16 @@ import (
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 type Watcher struct {
-	fs      contract.FileSystem
-	shell   contract.Shell
-	watched map[string]*contract.Package
-	root    string
+	fs             contract.FileSystem
+	shell          contract.Shell
+	watched        map[string]*contract.Package
+	root           string
+	ambientGoPaths []string
 }
 
 func (self *Watcher) Root() string {
@@ -24,7 +26,7 @@ func (self *Watcher) Adjust(root string) error {
 	if !self.fs.Exists(root) {
 		return errors.New(fmt.Sprintf("Directory does not exist: '%s'", root))
 	}
-	log.Println("Adjusting to watch new root:", self.root)
+	log.Println("Adjusting to watch new root:", root)
 
 	self.root = root
 	self.watched = make(map[string]*contract.Package)
@@ -41,6 +43,13 @@ func (self *Watcher) includeFolders(path string, info os.FileInfo, err error) er
 	return nil
 }
 func (self *Watcher) setGoPath(root string) {
+	for _, entry := range self.ambientGoPaths {
+		if strings.HasPrefix(root, entry) {
+			self.shell.Setenv("GOPATH", strings.Join(self.ambientGoPaths, entrySeparator))
+			return
+		}
+	}
+
 	if rootGoPathEnd := strings.Index(root, "/src"); rootGoPathEnd >= 0 {
 		self.shell.Setenv("GOPATH", root[:rootGoPathEnd])
 	} else {
@@ -106,5 +115,9 @@ func NewWatcher(fs contract.FileSystem, shell contract.Shell) *Watcher {
 	self.fs = fs
 	self.shell = shell
 	self.watched = map[string]*contract.Package{}
+	goPath := self.shell.Getenv("GOPATH")
+	self.ambientGoPaths = strings.Split(goPath, entrySeparator)
 	return self
 }
+
+var entrySeparator = string(filepath.ListSeparator)

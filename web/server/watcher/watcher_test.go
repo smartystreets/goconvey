@@ -3,6 +3,9 @@ package watcher
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
+	_ "os"
 	"testing"
 	"time"
 
@@ -21,6 +24,9 @@ func TestWatcher(t *testing.T) {
 	)
 
 	Convey("Subject: Watcher", t, func() {
+		log.SetOutput(ioutil.Discard)
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+		// log.SetOutput(os.Stdout)
 		fixture = newWatcherFixture()
 
 		Convey("When initialized there should be ZERO watched folders", func() {
@@ -60,19 +66,35 @@ func TestWatcher(t *testing.T) {
 			})
 		})
 
-		Convey("When pointing to a root folder that could be a GOPATH itself", func() {
-			fixture.pointToRootOfGoPath()
+		Convey("Given an ambient $GOPATH environment variable", func() {
+			fixture.setAmbientGoPath("/root/gopath")
 
-			Convey("The $GOPATH should be set accordingly", func() {
-				So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath")
+			Convey("When pointing to a root folder that could be a GOPATH itself", func() {
+				fixture.pointToRootOfGoPath()
+
+				Convey("The $GOPATH should be set accordingly", func() {
+					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath")
+				})
+			})
+
+			Convey("When pointing to a root folder that is probably nested within a GOPATH", func() {
+				fixture.pointToNestedPartOfGoPath()
+
+				Convey("The $GOPATH should be set accordingly", func() {
+					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath")
+				})
 			})
 		})
 
-		Convey("When pointing to a root folder that is probably nested within a GOPATH", func() {
-			fixture.pointToNestedPartOfGoPath()
+		Convey("Given there are multiple workspaces listed in the GOPATH environment variable", func() {
+			fixture.setAmbientGoPath("/root/gopath:/root/other/gopath")
 
-			Convey("The $GOPATH should be set accordingly", func() {
-				So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath")
+			Convey("When the root is adjusted to a path that is found within one of the entries", func() {
+				fixture.pointToNestedPartOfGoPath()
+
+				Convey("The $GOPATH should be set using all initial entries", func() {
+					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath:/root/other/gopath")
+				})
 			})
 		})
 
@@ -223,6 +245,11 @@ func (self *watcherFixture) pointToNestedPartOfGoPath() {
 	self.files.Create("/root/gopath/src/github.com/smartystreets/project", 6, time.Now())
 
 	self.watcher.Adjust("/root/gopath/src/github.com/smartystreets/project")
+}
+
+func (self *watcherFixture) setAmbientGoPath(path string) {
+	self.shell.Setenv("GOPATH", path)
+	self.watcher = NewWatcher(self.files, self.shell)
 }
 
 func (self *watcherFixture) receiveNotificationOfNewFolder() (actual, expected interface{}) {
