@@ -111,7 +111,9 @@ For web UI and terminal screenshots, check out [the full feature tour](http://sm
 Contributors (Thanks!)
 ----------------------
 
+We appreciate everyone's contributions to the project! Please see the [contributor graphs](https://github.com/smartystreets/goconvey/graphs/contributors) provided by GitHub for all the credits.
+
+GoConvey is brought to you by [SmartyStreets](https://github.com/smartystreets); in particular:
+
  - [Michael Whatcott](https://github.com/mdwhatcott)
  - [Matt Holt](https://github.com/mholt)
- - [Davide Setti](https://github.com/vad)
- - [Antoine Grondin](https://github.com/aybabtme)
