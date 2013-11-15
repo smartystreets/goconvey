@@ -43,6 +43,7 @@ Make a test, for example:
 func TestSpec(t *testing.T) {
 	var x int
 	
+	// Only pass t into the top-level Convey
 	Convey("Given some integer with a starting value", t, func() {
 		x = 1
 
