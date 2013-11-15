@@ -50,7 +50,7 @@ func (self *Watcher) setGoPath(root string) {
 		}
 	}
 
-	if rootGoPathEnd := strings.LastIndex(root, "/src"); rootGoPathEnd >= 0 {
+	if rootGoPathEnd := strings.LastIndex(root, string(os.PathSeparator)+"src"); rootGoPathEnd >= 0 {
 		self.shell.Setenv("GOPATH", root[:rootGoPathEnd])
 	} else {
 		self.shell.Setenv("GOPATH", root)
