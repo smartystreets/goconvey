@@ -40,7 +40,7 @@ func (self *walkStep) isWatchedFolder() bool {
 }
 
 func (self *walkStep) isWatchedFile() bool {
-	return self.watcher.IsWatched(self.folder) && filepath.Ext(self.path) == ".go"
+	return self.watcher.IsWatched(self.folder) && filepath.Ext(self.path) == ".go" && filepath.Base(self.path)[0] != '.'
 }
 
 func newWalkStep(root, path string, info os.FileInfo, watcher contract.Watcher) *walkStep {
