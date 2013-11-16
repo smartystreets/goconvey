@@ -41,8 +41,11 @@ class WorkspaceScanner(object):
         for root, dirs, files in os.walk(self.top):
             for f in files:
                 if f.endswith('.go'):
-                    stats = os.stat(os.path.join(root, f))
-                    yield stats.st_mtime + stats.st_size
+                    try:
+                        stats = os.stat(os.path.join(root, f))
+                        yield stats.st_mtime + stats.st_size
+                    except OSError:
+                        pass
 
 
 class TestRunner(object):
