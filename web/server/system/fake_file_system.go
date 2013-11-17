@@ -47,6 +47,15 @@ func (self *FakeFileSystem) Walk(root string, step filepath.WalkFunc) {
 		}
 	}
 }
+func (self *FakeFileSystem) Listing(directory string) ([]os.FileInfo, error) {
+	var entries []os.FileInfo
+	for _, info := range self.steps {
+		if strings.HasPrefix(info.path, directory) && info.path != directory {
+			entries = append(entries, info)
+		}
+	}
+	return entries, nil
+}
 func (self *FakeFileSystem) Exists(directory string) bool {
 	for _, info := range self.steps {
 		if info.IsDir() && info.path == directory {

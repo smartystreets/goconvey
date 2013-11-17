@@ -152,5 +152,26 @@ func TestFakeFileSystem(t *testing.T) {
 				So(fs.Exists("/path/to/file.txt"), ShouldBeFalse)
 			})
 		})
+
+		Convey("Given a directory with contents", func() {
+			fs.Create("/directory", 1, time.Now())
+			fs.Create("/directory/1", 2, time.Now())
+			fs.Create("/directory/2.txt", 3, time.Now())
+
+			Convey("When a listing of the directory is requested", func() {
+				contents, err := fs.Listing("/directory")
+
+				Convey("The listing should contain all contents", func() {
+					So(contents[0].Name(), ShouldEqual, "1")
+					So(contents[0].IsDir(), ShouldBeTrue)
+					So(contents[1].Name(), ShouldEqual, "2.txt")
+					So(contents[1].IsDir(), ShouldBeFalse)
+				})
+
+				Convey("The operation should complete without error", func() {
+					So(err, ShouldBeNil)
+				})
+			})
+		})
 	})
 }

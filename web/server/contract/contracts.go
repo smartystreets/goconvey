@@ -2,6 +2,7 @@ package contract
 
 import (
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
@@ -42,6 +43,7 @@ type (
 
 	FileSystem interface {
 		Walk(root string, step filepath.WalkFunc)
+		Listing(directory string) ([]os.FileInfo, error)
 		Exists(directory string) bool
 	}
 

@@ -1,6 +1,7 @@
 package system
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -26,6 +27,10 @@ func (self *FileSystem) Walk(root string, step filepath.WalkFunc) {
 
 func (self *FileSystem) isMetaDirectory(info os.FileInfo) bool {
 	return info.IsDir() && strings.HasPrefix(info.Name(), ".")
+}
+
+func (self *FileSystem) Listing(directory string) ([]os.FileInfo, error) {
+	return ioutil.ReadDir(directory)
 }
 
 func (self *FileSystem) Exists(directory string) bool {
