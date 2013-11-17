@@ -11,7 +11,7 @@ import (
 )
 
 type Watcher struct {
-	fs             contract.FileSystem
+	files          contract.FileSystem
 	shell          contract.Shell
 	watched        map[string]*contract.Package
 	root           string
@@ -23,14 +23,14 @@ func (self *Watcher) Root() string {
 }
 
 func (self *Watcher) Adjust(root string) error {
-	if !self.fs.Exists(root) {
+	if !self.files.Exists(root) {
 		return errors.New(fmt.Sprintf("Directory does not exist: '%s'", root))
 	}
 	log.Println("Adjusting to watch new root:", root)
 
 	self.root = root
 	self.watched = make(map[string]*contract.Package)
-	self.fs.Walk(root, self.includeFolders)
+	self.files.Walk(root, self.includeFolders)
 	self.setGoPath(root)
 
 	return nil
@@ -110,9 +110,9 @@ func (self *Watcher) IsIgnored(folder string) bool {
 	return false
 }
 
-func NewWatcher(fs contract.FileSystem, shell contract.Shell) *Watcher {
+func NewWatcher(files contract.FileSystem, shell contract.Shell) *Watcher {
 	self := &Watcher{}
-	self.fs = fs
+	self.files = files
 	self.shell = shell
 	self.watched = map[string]*contract.Package{}
 	goPath := self.shell.Getenv("GOPATH")
