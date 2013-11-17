@@ -66,50 +66,6 @@ func TestWatcher(t *testing.T) {
 			})
 		})
 
-		Convey("Given an ambient $GOPATH environment variable", func() {
-			fixture.setAmbientGoPath("/root/gopath")
-
-			Convey("When pointing to a root folder that could be a GOPATH itself", func() {
-				fixture.pointToRootOfGoPath()
-
-				Convey("The $GOPATH should be set accordingly", func() {
-					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath")
-				})
-			})
-
-			Convey("When pointing to a root folder that is probably nested within a GOPATH", func() {
-				fixture.pointToNestedPartOfGoPath()
-
-				Convey("The $GOPATH should be set accordingly", func() {
-					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath")
-				})
-			})
-		})
-
-		Convey("Given an ambient $GOPATH environment variable that is nested below a higher-level /src folder", func() {
-			fixture.setAmbientGoPath("/root/gopath")
-
-			Convey("When pointing to folder within that $GOPATH", func() {
-				fixture.pointTo("/code/src/gopath/src/project/package")
-
-				Convey("The $GOPATH should correct", func() {
-					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/code/src/gopath")
-				})
-			})
-		})
-
-		Convey("Given there are multiple workspaces listed in the GOPATH environment variable", func() {
-			fixture.setAmbientGoPath("/root/gopath:/root/other/gopath")
-
-			Convey("When the root is adjusted to a path that is found within one of the entries", func() {
-				fixture.pointToNestedPartOfGoPath()
-
-				Convey("The $GOPATH should be set using all initial entries", func() {
-					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/root/gopath:/root/other/gopath")
-				})
-			})
-		})
-
 		Convey("When the watcher is notified of a newly created folder", func() {
 			actualWatches, expectedWatches = fixture.receiveNotificationOfNewFolder()
 

@@ -31,7 +31,6 @@ func (self *Watcher) Adjust(root string) error {
 	self.root = root
 	self.watched = make(map[string]*contract.Package)
 	self.files.Walk(root, self.includeFolders)
-	self.setGoPath(root)
 
 	return nil
 }
@@ -41,20 +40,6 @@ func (self *Watcher) includeFolders(path string, info os.FileInfo, err error) er
 		self.watched[path] = contract.NewPackage(path)
 	}
 	return nil
-}
-func (self *Watcher) setGoPath(root string) {
-	for _, entry := range self.ambientGoPaths {
-		if strings.HasPrefix(root, entry) {
-			self.shell.Setenv("GOPATH", strings.Join(self.ambientGoPaths, entrySeparator))
-			return
-		}
-	}
-
-	if rootGoPathEnd := strings.LastIndex(root, string(os.PathSeparator)+"src"); rootGoPathEnd >= 0 {
-		self.shell.Setenv("GOPATH", root[:rootGoPathEnd])
-	} else {
-		self.shell.Setenv("GOPATH", root)
-	}
 }
 
 func (self *Watcher) Deletion(folder string) {
