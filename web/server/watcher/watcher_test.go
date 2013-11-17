@@ -396,9 +396,9 @@ func newWatcherFixture() *watcherFixture {
 	return self
 }
 
-const goPath = "/root/gopath"
+const gopath = "/root/gopath"
 const goPackagePrefix = "github.com/smartystreets/project"
-const goProject = goPath + "/src/" + goPackagePrefix
+const goProject = gopath + "/src/" + goPackagePrefix
 
 func init() {
 	fmt.Sprintf("Keeps fmt in the import list...")
