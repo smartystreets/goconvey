@@ -37,6 +37,7 @@ func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) 
 			continue
 		}
 		log.Printf("Executing tests: %s\n", folder.Name)
+		// TODO: cd to folder.Path
 		folder.Output, folder.Error = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
 		if folder.Error != nil && folder.Output == "" {
 			panic(folder.Error)
