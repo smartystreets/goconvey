@@ -4,7 +4,6 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/system"
 	"testing"
-	"time"
 )
 
 func TestGoPath(t *testing.T) {
@@ -13,36 +12,7 @@ func TestGoPath(t *testing.T) {
 	Convey("Subject: goPath abstracts the $GOPATH environment variable", t, func() {
 		fixture = newGoPathFixture()
 
-		Convey("When setting the gopath", func() {
-
-			Convey("And the new gopath is equal to the current gopath", func() {
-				fixture.gopath.Set(double)
-
-				Convey("It should not change the gopath", func() {
-					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, double)
-				})
-			})
-
-			Convey("And the new gopath is NOT equal to the current gopath", func() {
-				fixture.gopath.Set("/hi")
-
-				Convey("It should update the gopath", func() {
-					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, "/hi")
-				})
-			})
-
-			Convey("And the new gopath matches a workspace that was in the original ambient gopath", func() {
-				fixture.gopath.Set(basic)
-
-				Convey("It should use the original ambient gopath (with all it's entries)", func() {
-					So(fixture.shell.Getenv("GOPATH"), ShouldEqual, double)
-				})
-			})
-		})
-
 		Convey("Package names should be resolved from paths in consultation with the $GOPATH", func() {
-			fixture.shell.Setenv("GOPATH", all)
-
 			for packagePath, expected := range resolutions {
 				So(fixture.gopath.ResolvePackageName(packagePath), ShouldEqual, expected)
 			}
@@ -63,7 +33,6 @@ func TestGoPath(t *testing.T) {
 }
 
 type goPathFixture struct {
-	files  *system.FakeFileSystem
 	shell  *system.FakeShell
 	gopath *goPath
 }
@@ -71,16 +40,9 @@ type goPathFixture struct {
 func newGoPathFixture() *goPathFixture {
 	self := &goPathFixture{}
 
-	self.files = system.NewFakeFileSystem()
-	self.files.Create(basic, 0, time.Now())
-	self.files.Create(basic+"/src", 1, time.Now())
-	self.files.Create(newBasic, 0, time.Now())
-	self.files.Create(newBasic+"/src", 1, time.Now())
-
 	self.shell = system.NewFakeShell()
-	self.shell.Setenv("GOPATH", double)
-
-	self.gopath = newGoPath(self.files, self.shell)
+	self.shell.Setenv("GOPATH", all)
+	self.gopath = newGoPath(self.shell)
 	return self
 }
 
@@ -90,8 +52,7 @@ const ( // workspaces
 	nested   = "/root/src/gopath"
 	crazy    = "/src/github.com"
 
-	double = basic + delimiter + newBasic
-	all    = basic + delimiter + newBasic + delimiter + nested + delimiter + crazy
+	all = basic + delimiter + newBasic + delimiter + nested + delimiter + crazy
 )
 
 var resolutions = map[string]string{
