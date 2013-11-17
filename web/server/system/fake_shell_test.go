@@ -14,6 +14,34 @@ func TestFakeShell(t *testing.T) {
 	Convey("Subject: FakeShell", t, func() {
 		shell = NewFakeShell()
 
+		Convey("When changing directory", func() {
+			Convey("And the directory exists", func() {
+				err = shell.ChangeDirectory("/existing")
+
+				Convey("No error should be returned", func() {
+					So(err, ShouldBeNil)
+				})
+				Convey("The current directory should have been noted", func() {
+					So(shell.Getenv("cwd"), ShouldEqual, "/existing")
+				})
+			})
+
+			Convey("And the directory does NOT exist", func() {
+				shell.ChangeDirectory("/existing")
+				shell.RemoveDirectory("/not-there")
+
+				err = shell.ChangeDirectory("/not-there")
+
+				Convey("An error should be returned", func() {
+					So(err, ShouldNotBeNil)
+				})
+
+				Convey("The current directory should remain as before", func() {
+					So(shell.Getenv("cwd"), ShouldEqual, "/existing")
+				})
+			})
+		})
+
 		Convey("When executing an unrecognized command and arguments", func() {
 			execute := func() { shell.Execute("Hello,", "World!") }
 

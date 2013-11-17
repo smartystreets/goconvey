@@ -243,6 +243,10 @@ func (self *TimedShell) setExitWithError() {
 	self.err = errors.New("Simulate test failure")
 }
 
+func (self *TimedShell) ChangeDirectory(directory string) error {
+	return nil // TODO
+}
+
 func (self *TimedShell) Execute(name string, args ...string) (output string, err error) {
 	if self.panicMessage != "" && args[1] == "-v" {
 		return "", errors.New(self.panicMessage)

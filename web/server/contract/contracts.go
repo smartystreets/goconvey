@@ -48,6 +48,7 @@ type (
 	}
 
 	Shell interface {
+		ChangeDirectory(directory string) error
 		Execute(name string, args ...string) (output string, err error)
 		Getenv(key string) string
 		Setenv(key, value string) error

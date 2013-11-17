@@ -16,6 +16,17 @@ func (self *FakeShell) Register(fullCommand string, output string, err error) {
 	self.errorsByOutput[output] = err
 }
 
+func (self *FakeShell) ChangeDirectory(directory string) error {
+	if self.Getenv("__deleted__") == directory {
+		return fmt.Errorf("Directory does not exist: %s", directory)
+	}
+	return self.Setenv("cwd", directory)
+}
+
+func (self *FakeShell) RemoveDirectory(directory string) {
+	self.Setenv("__deleted__", directory)
+}
+
 func (self *FakeShell) Execute(name string, args ...string) (output string, err error) {
 	fullCommand := name + " " + strings.Join(args, " ")
 	var exists bool = false
