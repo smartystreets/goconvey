@@ -92,9 +92,11 @@ Or if you want the output to include the story:
 [Documentation](https://github.com/smartystreets/goconvey/wiki)
 -----------
 
-Check out the [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki),
-[godoc.org](http://godoc.org/github.com/smartystreets/goconvey),
-and the *_test.go files scattered throughout this project.
+Check out the 
+
+- [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki),
+- [godoc.org](http://godoc.org/github.com/smartystreets/goconvey),
+- and the *_test.go files scattered throughout this project.
 
 
 
