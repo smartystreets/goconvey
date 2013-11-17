@@ -112,14 +112,7 @@ For web UI and terminal screenshots, check out [the full feature tour](http://sm
 Contributions
 -------------
 
-Do you have any ideas for this project? Want to tackle any of the
-[open issues](https://github.com/smartystreets/goconvey/issues?direction=desc&sort=created&state=open)?
-Great! As a starting point please take the time to peruse the tests in the part of the project you want 
-to work on. That will help you get to know the existing code and will give you an idea of the kinds of
-test cases you should include with your pull request. We expect to maintain a high level of confidence
-in the code for GoConvey. Your [disciplined efforts](http://butunclebob.com/ArticleS.UncleBob.TheThreeRulesOfTdd)
-will make the project much more maintainable in the long-term.
-
+You can get started on the [guidelines page](https://github.com/smartystreets/goconvey/wiki/For-Contributors) found in our wiki.
 
 
 
