@@ -7,6 +7,7 @@ import (
 var (
 	ShouldEqual       = assertions.ShouldEqual
 	ShouldNotEqual    = assertions.ShouldNotEqual
+	ShouldAlmostEqual = assertions.ShouldAlmostEqual
 	ShouldResemble    = assertions.ShouldResemble
 	ShouldNotResemble = assertions.ShouldNotResemble
 	ShouldPointTo     = assertions.ShouldPointTo
