@@ -43,6 +43,10 @@ func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 	return success
 }
 
+func ShouldAlmostEqual(actual interface{}, expected ...interface{}) string {
+	return "fail"
+}
+
 // ShouldResemble receives exactly two parameters and does a deep equal check (see reflect.DeepEqual)
 func ShouldResemble(actual interface{}, expected ...interface{}) string {
 	if message := need(1, expected); message != success {

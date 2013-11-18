@@ -51,6 +51,29 @@ func TestShouldNotEqual(t *testing.T) {
 	pass(t, so(Thing1{}, ShouldNotEqual, Thing2{}))
 }
 
+func TestShouldAlmostEqual(t *testing.T) {
+	fail(t, so(1, ShouldAlmostEqual), "This assertion requires exactly one comparison value and an optional delta (you provided neither)")
+	fail(t, so(1, ShouldAlmostEqual, 1, 2, 3), "This assertion requires exactly one comparison value and an optional delta (you provided 3 values)")
+
+	// with the default delta
+	pass(t, so(1, ShouldAlmostEqual, .99999999999999))
+	pass(t, so(1.3612499999999996, ShouldAlmostEqual, 1.36125))
+	pass(t, so(0.7285312499999999, ShouldAlmostEqual, 0.72853125))
+	fail(t, so(1, ShouldAlmostEqual, .99), "Expected '1' to NOT almost equal '.99' (but it did)!")
+
+	// with a different delta
+	pass(t, so(100.0, ShouldAlmostEqual, 110.0, 10.0))
+	fail(t, so(100.0, ShouldAlmostEqual, 111.0, 10.5), "Expected '100.0' to NOT almost equal '111.0' (but it did)!")
+
+	// ints should work
+	pass(t, so(100, ShouldAlmostEqual, 100.0))
+	fail(t, so(100, ShouldAlmostEqual, 99.0), "Expected '100' to NOT almost equal '99.0' (but it did)!")
+
+	// float32 should work
+	pass(t, so(float64(100.0), ShouldAlmostEqual, float32(100.0)))
+	fail(t, so(float32(100.0), ShouldAlmostEqual, 99.0, float32(0.1)), "Expected '100' to NOT almost equal '99.0' (but it did)!")
+}
+
 func TestShouldResemble(t *testing.T) {
 	serializer = newFakeSerializer()
 
