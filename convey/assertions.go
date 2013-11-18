@@ -5,17 +5,19 @@ import (
 )
 
 var (
-	ShouldEqual       = assertions.ShouldEqual
-	ShouldNotEqual    = assertions.ShouldNotEqual
-	ShouldResemble    = assertions.ShouldResemble
-	ShouldNotResemble = assertions.ShouldNotResemble
-	ShouldPointTo     = assertions.ShouldPointTo
-	ShouldNotPointTo  = assertions.ShouldNotPointTo
-	ShouldBeNil       = assertions.ShouldBeNil
-	ShouldNotBeNil    = assertions.ShouldNotBeNil
-	ShouldBeTrue      = assertions.ShouldBeTrue
-	ShouldBeFalse     = assertions.ShouldBeFalse
-	ShouldBeZeroValue = assertions.ShouldBeZeroValue
+	ShouldEqual          = assertions.ShouldEqual
+	ShouldNotEqual       = assertions.ShouldNotEqual
+	ShouldAlmostEqual    = assertions.ShouldAlmostEqual
+	ShouldNotAlmostEqual = assertions.ShouldNotAlmostEqual
+	ShouldResemble       = assertions.ShouldResemble
+	ShouldNotResemble    = assertions.ShouldNotResemble
+	ShouldPointTo        = assertions.ShouldPointTo
+	ShouldNotPointTo     = assertions.ShouldNotPointTo
+	ShouldBeNil          = assertions.ShouldBeNil
+	ShouldNotBeNil       = assertions.ShouldNotBeNil
+	ShouldBeTrue         = assertions.ShouldBeTrue
+	ShouldBeFalse        = assertions.ShouldBeFalse
+	ShouldBeZeroValue    = assertions.ShouldBeZeroValue
 
 	ShouldBeGreaterThan          = assertions.ShouldBeGreaterThan
 	ShouldBeGreaterThanOrEqualTo = assertions.ShouldBeGreaterThanOrEqualTo
