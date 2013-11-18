@@ -1,7 +1,9 @@
 package assertions
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 )
@@ -43,8 +45,74 @@ func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 	return success
 }
 
+// ShouldAlmostEqual makes sure that two parameters are close enough to being equal.
+// The acceptable delta may be specified with a third argument,
+// or a very small default delta will be used.
 func ShouldAlmostEqual(actual interface{}, expected ...interface{}) string {
-	return "fail"
+	deltaFloat := 0.0000000001
+
+	if len(expected) == 0 {
+		return "This assertion requires exactly one comparison value and an optional delta (you provided neither)"
+	} else if len(expected) == 2 {
+		delta, err := getFloat(expected[1])
+
+		if err != nil {
+			return "delta must be a numerical type"
+		}
+
+		deltaFloat = delta
+	} else if len(expected) > 2 {
+		return "This assertion requires exactly one comparison value and an optional delta (you provided more values)"
+	}
+
+	actualFloat, err := getFloat(actual)
+
+	if err != nil {
+		return err.Error()
+	}
+
+	expectedFloat, err := getFloat(expected[0])
+
+	if err != nil {
+		return err.Error()
+	}
+
+	return shouldAlmostEqual(actualFloat, expectedFloat, deltaFloat)
+}
+
+func shouldAlmostEqual(actual, expected, delta float64) string {
+	if math.Abs(actual-expected) <= delta {
+		return success
+	} else {
+		return fmt.Sprintf("Expected '%g' to NOT almost equal '%g' (but it did)!", actual, expected)
+	}
+}
+
+// returns the float value of any real number, or error if it is not a numerical type
+func getFloat(num interface{}) (float64, error) {
+	numValue := reflect.ValueOf(num)
+	numKind := numValue.Kind()
+
+	fmt.Println(numKind)
+
+	if numKind == reflect.Int ||
+		numKind == reflect.Int8 ||
+		numKind == reflect.Int16 ||
+		numKind == reflect.Int32 ||
+		numKind == reflect.Int64 {
+		return float64(numValue.Int()), nil
+	} else if numKind == reflect.Uint ||
+		numKind == reflect.Uint8 ||
+		numKind == reflect.Uint16 ||
+		numKind == reflect.Uint32 ||
+		numKind == reflect.Uint64 {
+		return float64(numValue.Uint()), nil
+	} else if numKind == reflect.Float32 ||
+		numKind == reflect.Float64 {
+		return numValue.Float(), nil
+	} else {
+		return 0.0, errors.New("must be a numerical type, but was " + numKind.String())
+	}
 }
 
 // ShouldResemble receives exactly two parameters and does a deep equal check (see reflect.DeepEqual)
