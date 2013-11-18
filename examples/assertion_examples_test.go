@@ -16,6 +16,7 @@ func TestAssertions(t *testing.T) {
 			So(1, ShouldEqual, 1)
 			So(1, ShouldNotEqual, 2)
 			So(1, ShouldAlmostEqual, 1.000000000000001)
+			So(1, ShouldNotAlmostEqual, 2, 0.5)
 			So(thing1a, ShouldResemble, thing1b)
 			So(thing1a, ShouldNotResemble, thing2)
 			So(&thing1a, ShouldPointTo, &thing1a)
