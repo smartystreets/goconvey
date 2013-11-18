@@ -12,6 +12,9 @@ import (
 	"github.com/jacobsa/oglematchers"
 )
 
+// default acceptable delta for ShouldAlmostEqual
+var defaultDelta = 0.0000000001
+
 // ShouldEqual receives exactly two parameters and does an equality check.
 func ShouldEqual(actual interface{}, expected ...interface{}) string {
 	if message := need(1, expected); message != success {
@@ -49,51 +52,70 @@ func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 // The acceptable delta may be specified with a third argument,
 // or a very small default delta will be used.
 func ShouldAlmostEqual(actual interface{}, expected ...interface{}) string {
+	actualFloat, expectedFloat, deltaFloat, err := cleanAlmostEqualInput(actual, expected...)
+
+	if err != "" {
+		return err
+	}
+
+	if math.Abs(actualFloat-expectedFloat) <= deltaFloat {
+		return success
+	} else {
+		return fmt.Sprintf("Expected '%g' to NOT almost equal '%g' (but it did)!", actualFloat, expectedFloat)
+	}
+}
+
+// ShouldNotAlmostEqual is the inverse of ShouldAlmostEqual
+func ShouldNotAlmostEqual(actual interface{}, expected ...interface{}) string {
+	actualFloat, expectedFloat, deltaFloat, err := cleanAlmostEqualInput(actual, expected...)
+
+	if err != "" {
+		return err
+	}
+
+	if math.Abs(actualFloat-expectedFloat) > deltaFloat {
+		return success
+	} else {
+		return fmt.Sprintf("Expected '%g' to almost equal '%g' (but it didn't)!", actualFloat, expectedFloat)
+	}
+}
+
+func cleanAlmostEqualInput(actual interface{}, expected ...interface{}) (float64, float64, float64, string) {
 	deltaFloat := 0.0000000001
 
 	if len(expected) == 0 {
-		return "This assertion requires exactly one comparison value and an optional delta (you provided neither)"
+		return 0.0, 0.0, 0.0, "This assertion requires exactly one comparison value and an optional delta (you provided neither)"
 	} else if len(expected) == 2 {
 		delta, err := getFloat(expected[1])
 
 		if err != nil {
-			return "delta must be a numerical type"
+			return 0.0, 0.0, 0.0, "delta must be a numerical type"
 		}
 
 		deltaFloat = delta
 	} else if len(expected) > 2 {
-		return "This assertion requires exactly one comparison value and an optional delta (you provided more values)"
+		return 0.0, 0.0, 0.0, "This assertion requires exactly one comparison value and an optional delta (you provided more values)"
 	}
 
 	actualFloat, err := getFloat(actual)
 
 	if err != nil {
-		return err.Error()
+		return 0.0, 0.0, 0.0, err.Error()
 	}
 
 	expectedFloat, err := getFloat(expected[0])
 
 	if err != nil {
-		return err.Error()
+		return 0.0, 0.0, 0.0, err.Error()
 	}
 
-	return shouldAlmostEqual(actualFloat, expectedFloat, deltaFloat)
-}
-
-func shouldAlmostEqual(actual, expected, delta float64) string {
-	if math.Abs(actual-expected) <= delta {
-		return success
-	} else {
-		return fmt.Sprintf("Expected '%g' to NOT almost equal '%g' (but it did)!", actual, expected)
-	}
+	return actualFloat, expectedFloat, deltaFloat, ""
 }
 
 // returns the float value of any real number, or error if it is not a numerical type
 func getFloat(num interface{}) (float64, error) {
 	numValue := reflect.ValueOf(num)
 	numKind := numValue.Kind()
-
-	fmt.Println(numKind)
 
 	if numKind == reflect.Int ||
 		numKind == reflect.Int8 ||
