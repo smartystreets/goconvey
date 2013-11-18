@@ -61,7 +61,7 @@ func ShouldAlmostEqual(actual interface{}, expected ...interface{}) string {
 	if math.Abs(actualFloat-expectedFloat) <= deltaFloat {
 		return success
 	} else {
-		return fmt.Sprintf("Expected '%g' to NOT almost equal '%g' (but it did)!", actualFloat, expectedFloat)
+		return fmt.Sprintf(shouldHaveBeenAlmostEqual, actualFloat, expectedFloat)
 	}
 }
 
@@ -76,7 +76,7 @@ func ShouldNotAlmostEqual(actual interface{}, expected ...interface{}) string {
 	if math.Abs(actualFloat-expectedFloat) > deltaFloat {
 		return success
 	} else {
-		return fmt.Sprintf("Expected '%g' to almost equal '%g' (but it didn't)!", actualFloat, expectedFloat)
+		return fmt.Sprintf(shouldHaveNotBeenAlmostEqual, actualFloat, expectedFloat)
 	}
 }
 
