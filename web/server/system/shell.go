@@ -7,11 +7,21 @@ import (
 
 type Shell struct{}
 
-func (self *Shell) ChangeDirectory(directory string) error {
-	return os.Chdir(directory)
+func (self *Shell) GoTest(directory string) (output string, err error) {
+	err = os.Chdir(directory)
+	if err != nil {
+		panic(err)
+		return "", err
+	}
+	output, err = self.execute("go", "test", "-i")
+	if err != nil {
+		return output, err
+	}
+	output, err = self.execute("go", "test", "-v", "-timeout=-42s")
+	return
 }
 
-func (self *Shell) Execute(name string, args ...string) (output string, err error) {
+func (self *Shell) execute(name string, args ...string) (output string, err error) {
 	rawOutput, err := exec.Command(name, args...).CombinedOutput()
 	output = string(rawOutput)
 	return

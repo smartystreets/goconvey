@@ -16,12 +16,6 @@ func (self *ConcurrentTester) SetBatchSize(batchSize int) {
 }
 
 func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
-	for _, folder := range folders {
-		if folder.Active {
-			self.shell.Execute("go", "test", "-i", folder.Name)
-		}
-	}
-
 	if self.batchSize == 1 {
 		self.executeSynchronously(folders)
 	} else {
@@ -37,8 +31,7 @@ func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) 
 			continue
 		}
 		log.Printf("Executing tests: %s\n", folder.Name)
-		// TODO: cd to folder.Path
-		folder.Output, folder.Error = self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
+		folder.Output, folder.Error = self.shell.GoTest(folder.Path)
 		if folder.Error != nil && folder.Output == "" {
 			panic(folder.Error)
 		}
