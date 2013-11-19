@@ -92,7 +92,11 @@ Or if you want the output to include the story:
 [Documentation](https://github.com/smartystreets/goconvey/wiki)
 -----------
 
-Check out the [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki)!
+Check out the 
+
+- [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki),
+- [godoc.org](http://godoc.org/github.com/smartystreets/goconvey),
+- and the *_test.go files scattered throughout this project.
 
 
 
@@ -104,6 +108,11 @@ Check out the [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki)!
 For web UI and terminal screenshots, check out [the full feature tour](http://smartystreets.github.io/goconvey).
 
 
+
+Contributions
+-------------
+
+You can get started on the [guidelines page](https://github.com/smartystreets/goconvey/wiki/For-Contributors) found in our wiki.
 
 
 

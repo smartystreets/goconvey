@@ -1,7 +1,9 @@
 package assertions
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 )
@@ -9,6 +11,9 @@ import (
 import (
 	"github.com/jacobsa/oglematchers"
 )
+
+// default acceptable delta for ShouldAlmostEqual
+var defaultDelta = 0.0000000001
 
 // ShouldEqual receives exactly two parameters and does an equality check.
 func ShouldEqual(actual interface{}, expected ...interface{}) string {
@@ -41,6 +46,95 @@ func ShouldNotEqual(actual interface{}, expected ...interface{}) string {
 		return fmt.Sprintf(shouldNotHaveBeenEqual, actual, expected[0])
 	}
 	return success
+}
+
+// ShouldAlmostEqual makes sure that two parameters are close enough to being equal.
+// The acceptable delta may be specified with a third argument,
+// or a very small default delta will be used.
+func ShouldAlmostEqual(actual interface{}, expected ...interface{}) string {
+	actualFloat, expectedFloat, deltaFloat, err := cleanAlmostEqualInput(actual, expected...)
+
+	if err != "" {
+		return err
+	}
+
+	if math.Abs(actualFloat-expectedFloat) <= deltaFloat {
+		return success
+	} else {
+		return fmt.Sprintf(shouldHaveBeenAlmostEqual, actualFloat, expectedFloat)
+	}
+}
+
+// ShouldNotAlmostEqual is the inverse of ShouldAlmostEqual
+func ShouldNotAlmostEqual(actual interface{}, expected ...interface{}) string {
+	actualFloat, expectedFloat, deltaFloat, err := cleanAlmostEqualInput(actual, expected...)
+
+	if err != "" {
+		return err
+	}
+
+	if math.Abs(actualFloat-expectedFloat) > deltaFloat {
+		return success
+	} else {
+		return fmt.Sprintf(shouldHaveNotBeenAlmostEqual, actualFloat, expectedFloat)
+	}
+}
+
+func cleanAlmostEqualInput(actual interface{}, expected ...interface{}) (float64, float64, float64, string) {
+	deltaFloat := 0.0000000001
+
+	if len(expected) == 0 {
+		return 0.0, 0.0, 0.0, "This assertion requires exactly one comparison value and an optional delta (you provided neither)"
+	} else if len(expected) == 2 {
+		delta, err := getFloat(expected[1])
+
+		if err != nil {
+			return 0.0, 0.0, 0.0, "delta must be a numerical type"
+		}
+
+		deltaFloat = delta
+	} else if len(expected) > 2 {
+		return 0.0, 0.0, 0.0, "This assertion requires exactly one comparison value and an optional delta (you provided more values)"
+	}
+
+	actualFloat, err := getFloat(actual)
+
+	if err != nil {
+		return 0.0, 0.0, 0.0, err.Error()
+	}
+
+	expectedFloat, err := getFloat(expected[0])
+
+	if err != nil {
+		return 0.0, 0.0, 0.0, err.Error()
+	}
+
+	return actualFloat, expectedFloat, deltaFloat, ""
+}
+
+// returns the float value of any real number, or error if it is not a numerical type
+func getFloat(num interface{}) (float64, error) {
+	numValue := reflect.ValueOf(num)
+	numKind := numValue.Kind()
+
+	if numKind == reflect.Int ||
+		numKind == reflect.Int8 ||
+		numKind == reflect.Int16 ||
+		numKind == reflect.Int32 ||
+		numKind == reflect.Int64 {
+		return float64(numValue.Int()), nil
+	} else if numKind == reflect.Uint ||
+		numKind == reflect.Uint8 ||
+		numKind == reflect.Uint16 ||
+		numKind == reflect.Uint32 ||
+		numKind == reflect.Uint64 {
+		return float64(numValue.Uint()), nil
+	} else if numKind == reflect.Float32 ||
+		numKind == reflect.Float64 {
+		return numValue.Float(), nil
+	} else {
+		return 0.0, errors.New("must be a numerical type, but was " + numKind.String())
+	}
 }
 
 // ShouldResemble receives exactly two parameters and does a deep equal check (see reflect.DeepEqual)

@@ -41,6 +41,14 @@ func TestScanner(t *testing.T) {
 				})
 			})
 
+			Convey("When a file that starts with . is created within a watched folder", func() {
+				fixture.fs.Create("/root/.new_stuff.go", 42, time.Now())
+
+				Convey("The scanner should not report a change in state", func() {
+					So(fixture.scan(), ShouldBeFalse)
+				})
+			})
+
 			Convey("When an existing go file within a watched folder has been modified", func() {
 				fixture.fs.Modify("/root/sub/file.go")
 

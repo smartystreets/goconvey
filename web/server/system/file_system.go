@@ -26,7 +26,8 @@ func (self *FileSystem) Walk(root string, step filepath.WalkFunc) {
 }
 
 func (self *FileSystem) isMetaDirectory(info os.FileInfo) bool {
-	return info.IsDir() && strings.HasPrefix(info.Name(), ".")
+	name := info.Name()
+	return info.IsDir() && (strings.HasPrefix(name, ".") || strings.HasPrefix(name, "_") || name == "testdata")
 }
 
 func (self *FileSystem) Listing(directory string) ([]os.FileInfo, error) {
