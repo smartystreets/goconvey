@@ -27,11 +27,6 @@ func (self *Watcher) Adjust(root string) error {
 		return errors.New(fmt.Sprintf("Directory does not exist: '%s'", root))
 	}
 
-	goPath := self.shell.Getenv("GOPATH")
-	if !strings.HasPrefix(root, goPath) {
-		return errors.New(fmt.Sprintf("You may only watch folders within your $GOPATH: %s", goPath))
-	}
-
 	log.Println("Adjusting to watch new root:", root)
 
 	self.root = root
