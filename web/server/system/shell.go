@@ -8,21 +8,17 @@ import (
 type Shell struct{}
 
 func (self *Shell) GoTest(directory string) (output string, err error) {
-	err = os.Chdir(directory)
-	if err != nil {
-		panic(err)
-		return "", err
+	output, err = self.execute(directory, "go", "test", "-i")
+	if err == nil {
+		output, err = self.execute(directory, "go", "test", "-v", "-timeout=-42s")
 	}
-	output, err = self.execute("go", "test", "-i")
-	if err != nil {
-		return output, err
-	}
-	output, err = self.execute("go", "test", "-v", "-timeout=-42s")
 	return
 }
 
-func (self *Shell) execute(name string, args ...string) (output string, err error) {
-	rawOutput, err := exec.Command(name, args...).CombinedOutput()
+func (self *Shell) execute(directory, name string, args ...string) (output string, err error) {
+	command := exec.Command(name, args...)
+	command.Dir = directory
+	rawOutput, err := command.CombinedOutput()
 	output = string(rawOutput)
 	return
 }
