@@ -30,7 +30,6 @@ func (self *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.R
 	if newRoot == "" {
 		return
 	}
-	// TODO: make sure the newRoot is within the ambient $GOPATH. We probably need a shell now.
 	err := self.watcher.Adjust(newRoot)
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusNotFound)

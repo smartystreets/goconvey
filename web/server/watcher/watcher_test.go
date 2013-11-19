@@ -34,6 +34,18 @@ func TestWatcher(t *testing.T) {
 			So(fixture.watcher.Root(), ShouldBeBlank)
 		})
 
+		Convey("When pointing to a folder that outside of the $GOPATH", func() {
+			err, watched := fixture.pointToFolderOutsideGOPATH()
+
+			Convey("An error should be returned", func() {
+				So(err.Error(), ShouldContainSubstring, "$GOPATH")
+			})
+
+			Convey("The watched folders should not change", func() {
+				So(len(watched), ShouldEqual, 0)
+			})
+		})
+
 		Convey("When pointing to a root folder", func() {
 			actualWatches, expectedWatches = fixture.pointToExistingRoot(goProject)
 
@@ -164,8 +176,10 @@ func (self *watcherFixture) watched() []*contract.Package {
 	return self.watcher.WatchedFolders()
 }
 
-func (self *watcherFixture) verifyQueryMethodsInSync() bool {
-	return false
+func (self *watcherFixture) pointToFolderOutsideGOPATH() (error, []*contract.Package) {
+	self.files.Create("/outside", 1, time.Now())
+	err := self.watcher.Adjust("/outside")
+	return err, self.watcher.WatchedFolders()
 }
 
 func (self *watcherFixture) pointToExistingRoot(folder string) (actual, expected interface{}) {
@@ -348,6 +362,7 @@ func newWatcherFixture() *watcherFixture {
 	self := &watcherFixture{}
 	self.files = system.NewFakeFileSystem()
 	self.shell = system.NewFakeShell()
+	self.shell.Setenv("GOPATH", gopath)
 	self.watcher = NewWatcher(self.files, self.shell)
 	return self
 }

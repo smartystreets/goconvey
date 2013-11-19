@@ -35,10 +35,7 @@ func (self *concurrentCoordinator) worker(id int) {
 			continue
 		}
 		log.Printf("Executing concurrent tests: %s\n", folder.Name)
-		// TODO: cd to folder.Path
-		output, err := self.shell.Execute("go", "test", "-v", "-timeout=-42s", folder.Name)
-		folder.Output = output
-		folder.Error = err
+		folder.Output, folder.Error = self.shell.GoTest(folder.Path)
 	}
 	self.waiter.Done()
 }

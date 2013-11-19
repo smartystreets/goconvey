@@ -5,7 +5,6 @@ import (
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"strings"
 	"testing"
 	"time"
 )
@@ -18,9 +17,6 @@ func TestConcurrentTester(t *testing.T) {
 
 		Convey("Whenever tests for each package are executed", func() {
 			fixture.InBatchesOf(1).RunTests()
-
-			Convey("The tester should build all dependencies of active packages",
-				fixture.ShouldHaveRecordOfCompilationCommands)
 
 			Convey("The tester should execute the tests in each active package with the correct arguments",
 				fixture.ShouldHaveRecordOfExecutionCommands)
@@ -97,12 +93,12 @@ func NewTesterFixture() *TesterFixture {
 	self.shell = NewTimedShell()
 	self.tester = NewConcurrentTester(self.shell)
 	self.packages = []*contract.Package{
-		&contract.Package{Active: true, Name: "a"},
-		&contract.Package{Active: true, Name: "b"},
-		&contract.Package{Active: true, Name: "c"},
-		&contract.Package{Active: true, Name: "d"},
-		&contract.Package{Active: false, Name: "e"},
-		&contract.Package{Active: true, Name: "f"},
+		&contract.Package{Active: true, Path: "a"},
+		&contract.Package{Active: true, Path: "b"},
+		&contract.Package{Active: true, Path: "c"},
+		&contract.Package{Active: true, Path: "d"},
+		&contract.Package{Active: false, Path: "e"},
+		&contract.Package{Active: true, Path: "f"},
 	}
 	return self
 }
@@ -133,24 +129,14 @@ func (self *TesterFixture) RunTests() {
 	for _, p := range self.packages {
 		self.results = append(self.results, p.Output)
 	}
-	self.compilations = self.shell.Compilations()
 	self.executions = self.shell.Executions()
-}
-
-func (self *TesterFixture) ShouldHaveRecordOfCompilationCommands() {
-	expected := []string{"a", "b", "c", "d", "f"}
-	actual := []string{}
-	for _, pkg := range self.compilations {
-		actual = append(actual, strings.Replace(pkg.Command, "go test -i ", "", -1))
-	}
-	So(actual, ShouldResemble, expected)
 }
 
 func (self *TesterFixture) ShouldHaveRecordOfExecutionCommands() {
 	expected := []string{"a", "b", "c", "d", "f"}
 	actual := []string{}
 	for _, pkg := range self.executions {
-		actual = append(actual, strings.Replace(pkg.Command, "go test -v -timeout=-42s ", "", -1))
+		actual = append(actual, pkg.Command)
 	}
 	So(actual, ShouldResemble, expected)
 }
@@ -162,7 +148,7 @@ func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
 func (self *TesterFixture) OutputShouldBeAsExpected() {
 	for _, p := range self.packages {
 		if p.Active {
-			So(p.Output, ShouldEndWith, p.Name)
+			So(p.Output, ShouldEndWith, p.Path)
 		} else {
 			So(p.Output, ShouldBeBlank)
 		}
@@ -199,13 +185,8 @@ type ShellCommand struct {
 
 type TimedShell struct {
 	executions   []*ShellCommand
-	compilations []*ShellCommand
 	panicMessage string
 	err          error
-}
-
-func (self *TimedShell) Compilations() []*ShellCommand {
-	return self.compilations
 }
 
 func (self *TimedShell) Executions() []*ShellCommand {
@@ -243,43 +224,30 @@ func (self *TimedShell) setExitWithError() {
 	self.err = errors.New("Simulate test failure")
 }
 
-func (self *TimedShell) ChangeDirectory(directory string) error {
-	return nil // TODO
-}
-
-func (self *TimedShell) Execute(name string, args ...string) (output string, err error) {
-	if self.panicMessage != "" && args[1] == "-v" {
+func (self *TimedShell) GoTest(directory string) (output string, err error) {
+	if self.panicMessage != "" {
 		return "", errors.New(self.panicMessage)
 	}
 
-	command := self.composeCommand(name + " " + strings.Join(args, " "))
-	output = command.Command
+	output = directory
 	err = self.err
-
-	if strings.Contains(command.Command, " -i ") {
-		self.compilations = append(self.compilations, command)
-	} else {
-		self.executions = append(self.executions, command)
-	}
+	self.executions = append(self.executions, self.composeCommand(directory))
 	return
 }
+
 func (self *TimedShell) composeCommand(commandText string) *ShellCommand {
 	start := time.Now()
 	time.Sleep(nap)
 	end := time.Now()
 	return &ShellCommand{commandText, start, end}
 }
-func (self *TimedShell) Getenv(key string) string {
-	panic("NOT SUPPORTED")
-}
-func (self *TimedShell) Setenv(key, value string) error {
-	panic("NOT SUPPORTED")
-}
+
+func (self *TimedShell) Getenv(key string) string       { panic("NOT SUPPORTED") }
+func (self *TimedShell) Setenv(key, value string) error { panic("NOT SUPPORTED") }
 
 func NewTimedShell() *TimedShell {
 	self := &TimedShell{}
 	self.executions = []*ShellCommand{}
-	self.compilations = []*ShellCommand{}
 	return self
 }
 
