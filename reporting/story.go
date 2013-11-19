@@ -1,3 +1,10 @@
+// TODO: in order for this reporter to be completely honest
+// we need to retrofit to be more like the json reporter such that:
+// 1. it maintains ScopeResult collections, which count assertions
+// 2. it reports only after EndStory(), so that all tick marks
+//    are placed near the appropriate title.
+// 3. Under unit test
+
 package reporting
 
 import "fmt"
