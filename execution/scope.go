@@ -70,7 +70,6 @@ func (parent *scope) exit() {
 	parent.reporter.Exit()
 }
 
-// func newScope(title string, action *Action, reporter reporting.Reporter) *scope {
 func newScope(entry *Registration, reporter reporting.Reporter) *scope {
 	self := &scope{}
 	self.reporter = reporter
