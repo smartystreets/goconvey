@@ -98,7 +98,7 @@ func TestHTTPServer(t *testing.T) {
 		})
 
 		Convey("When the root watch is queried", func() {
-			root, status := fixture.QueryRootWatch()
+			root, status := fixture.QueryRootWatch(false)
 
 			Convey("The server returns it", func() {
 				So(root, ShouldEqual, initialRoot)
@@ -106,6 +106,19 @@ func TestHTTPServer(t *testing.T) {
 
 			Convey("The server returns HTTP 200 - OK", func() {
 				So(status, ShouldEqual, http.StatusOK)
+			})
+		})
+
+		Convey("When the root watch is queried as a new client", func() {
+			fixture.QueryRootWatch(true)
+
+			Convey("The status channel buffer should have a true value", func() {
+				select {
+				case val := <-fixture.server.statusNotif:
+					So(val, ShouldBeTrue)
+				default:
+					So(false, ShouldBeTrue)
+				}
 			})
 		})
 
@@ -123,7 +136,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should not change the existing root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot)
 				})
 			})
@@ -140,7 +153,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should not change the existing root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot)
 				})
 			})
@@ -157,7 +170,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server informs the watcher of the new root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot+"/package")
 				})
 			})
@@ -174,7 +187,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should not change the existing root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot)
 				})
 			})
@@ -315,8 +328,12 @@ func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, *httptest.
 	return update, response
 }
 
-func (self *ServerFixture) QueryRootWatch() (string, int) {
-	request, _ := http.NewRequest("GET", "http://localhost:8080/watch", nil)
+func (self *ServerFixture) QueryRootWatch(newclient bool) (string, int) {
+	url := "http://localhost:8080/watch"
+	if newclient {
+		url += "?newclient=1"
+	}
+	request, _ := http.NewRequest("GET", url, nil)
 	response := httptest.NewRecorder()
 
 	self.server.Watch(response, request)
