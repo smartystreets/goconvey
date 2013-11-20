@@ -13,7 +13,6 @@
 		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Oswald|Open+Sans:300italic,400italic,400,300,700,600,800">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css">
 		<link rel="stylesheet" href="/css/unsemantic.css">
-		<link rel="stylesheet" href="/css/spinner.css">
 		<link rel="stylesheet" href="/css/tipsy.css">
 		<link rel="stylesheet" href="/css/goconvey.css">
 		<link rel="icon" class="favicon" href="/favicon.ico" type="image/vnd.microsoft.icon">
@@ -422,19 +421,6 @@
 			</div>
 		</div>
 
-		<div id="spinner">
-			<div id="floatingBarsG">
-				<div class="blockG" id="rotateG_01"></div>
-				<div class="blockG" id="rotateG_02"></div>
-				<div class="blockG" id="rotateG_03"></div>
-				<div class="blockG" id="rotateG_04"></div>
-				<div class="blockG" id="rotateG_05"></div>
-				<div class="blockG" id="rotateG_06"></div>
-				<div class="blockG" id="rotateG_07"></div>
-				<div class="blockG" id="rotateG_08"></div>
-			</div>
-		</div>
-
 
 
 
@@ -467,6 +453,8 @@
 {{stories|recursivelyRender}}{{depth|indent}}}{{/if}}){{else}}func {{title|safeFunc}}(t *testing.T) {
 {{stories|recursivelyRender}}}{{/if}}
 {{/.}}</script>
+
+		<img src="/loader.gif" id="loader" alt="Processing" title="Processing">
 
 	</body>
 </html>
