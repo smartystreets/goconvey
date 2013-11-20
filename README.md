@@ -95,7 +95,7 @@ Or if you want the output to include the story:
 Check out the 
 
 - [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki),
-- [godoc.org](http://godoc.org/github.com/smartystreets/goconvey),
+- [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.png)](http://godoc.org/github.com/smartystreets/goconvey)
 - and the *_test.go files scattered throughout this project.
 
 
