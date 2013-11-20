@@ -48,8 +48,47 @@ func TestHTTPServer(t *testing.T) {
 			})
 		})
 
+		lpRequests := 6 // Number of long-poll requests and status updates to try
+
+		Convey("Given a long-polling request for a status update, when initially idle", func() {
+			fixture.executor.status = "idle"
+			lpDone := make(chan string)
+
+			go func() {
+				for i := 0; i < lpRequests; i++ {
+					request, _ := http.NewRequest("GET", "http://localhost:8080/status/poll", nil)
+					response := httptest.NewRecorder()
+					fixture.server.LongPollStatus(response, request)
+					_, newStatus := response.Code, strings.TrimSpace(response.Body.String())
+					lpDone <- newStatus
+				}
+			}()
+
+			Convey("When the status is changed by the executor, the response should immediately reflect that", func() {
+				for i := 0; i < lpRequests; i++ {
+					expectedStatus := statusRotation(i, lpRequests)
+					fixture.SetExecutorStatus(expectedStatus)
+
+					select {
+					case actualStatus := <-lpDone:
+						So(actualStatus, ShouldEqual, expectedStatus)
+					case <-time.After(500 * time.Millisecond):
+						So("TIMEOUT", ShouldEqual, expectedStatus)
+					}
+
+					/*Convey("The response should be sent immediately with the correct status", func() {
+						// TODO: When issue #81 is fixed and Conveys can be nested
+						// inside loops again, let's put the select {...} stuff
+						// from the lines just above and put it inside its own convey
+						// to actually make the assertions. Also see executor_test.go
+						// for a similar problem.
+					})*/
+				}
+			})
+		})
+
 		Convey("When the root watch is queried", func() {
-			root, status := fixture.QueryRootWatch()
+			root, status := fixture.QueryRootWatch(false)
 
 			Convey("The server returns it", func() {
 				So(root, ShouldEqual, initialRoot)
@@ -57,6 +96,19 @@ func TestHTTPServer(t *testing.T) {
 
 			Convey("The server returns HTTP 200 - OK", func() {
 				So(status, ShouldEqual, http.StatusOK)
+			})
+		})
+
+		Convey("When the root watch is queried as a new client", func() {
+			fixture.QueryRootWatch(true)
+
+			Convey("The status channel buffer should have a true value", func() {
+				select {
+				case val := <-fixture.server.statusNotif:
+					So(val, ShouldBeTrue)
+				default:
+					So(false, ShouldBeTrue)
+				}
 			})
 		})
 
@@ -74,7 +126,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should not change the existing root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot)
 				})
 			})
@@ -91,7 +143,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should not change the existing root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot)
 				})
 			})
@@ -108,7 +160,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server informs the watcher of the new root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot+"/package")
 				})
 			})
@@ -125,7 +177,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The server should not change the existing root", func() {
-					root, _ := fixture.QueryRootWatch()
+					root, _ := fixture.QueryRootWatch(false)
 					So(root, ShouldEqual, initialRoot)
 				})
 			})
@@ -215,7 +267,7 @@ func TestHTTPServer(t *testing.T) {
 		})
 
 		Convey("When the status of the executor is requested", func() {
-			fixture.SetExecutorStatus("blah blah blah")
+			fixture.executor.status = "blah blah blah"
 			statusCode, statusBody := fixture.RequestExecutorStatus()
 
 			Convey("The server asks the executor its status and returns it", func() {
@@ -242,6 +294,17 @@ func TestHTTPServer(t *testing.T) {
 	})
 }
 
+func statusRotation(i, total int) string {
+	switch i % total {
+	case 0:
+		return "executing"
+	case 1:
+		return "parsing"
+	default:
+		return "idle"
+	}
+}
+
 /********* Server Fixture *********/
 
 type ServerFixture struct {
@@ -266,8 +329,12 @@ func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, *httptest.
 	return update, response
 }
 
-func (self *ServerFixture) QueryRootWatch() (string, int) {
-	request, _ := http.NewRequest("GET", "http://localhost:8080/watch", nil)
+func (self *ServerFixture) QueryRootWatch(newclient bool) (string, int) {
+	url := "http://localhost:8080/watch"
+	if newclient {
+		url += "?newclient=1"
+	}
+	request, _ := http.NewRequest("GET", url, nil)
 	response := httptest.NewRecorder()
 
 	self.server.Watch(response, request)
@@ -340,6 +407,10 @@ func (self *ServerFixture) Reinstate(folder string) (status int, body string) {
 
 func (self *ServerFixture) SetExecutorStatus(status string) {
 	self.executor.status = status
+	select {
+	case self.executor.statusNotif <- true:
+	default:
+	}
 }
 
 func (self *ServerFixture) RequestExecutorStatus() (code int, status string) {
@@ -366,8 +437,9 @@ func newServerFixture() *ServerFixture {
 	self := &ServerFixture{}
 	self.watcher = newFakeWatcher()
 	self.watcher.SetRootWatch(initialRoot)
-	self.executor = newFakeExecutor("")
-	self.server = NewHTTPServer(self.watcher, self.executor)
+	statusNotif := make(chan bool, 1)
+	self.executor = newFakeExecutor("", statusNotif)
+	self.server = NewHTTPServer(self.watcher, self.executor, statusNotif)
 	return self
 }
 
@@ -414,8 +486,9 @@ func newFakeWatcher() *FakeWatcher {
 /********* Fake Executor *********/
 
 type FakeExecutor struct {
-	status   string
-	executed bool
+	status      string
+	executed    bool
+	statusNotif chan bool
 }
 
 func (self *FakeExecutor) Status() string {
@@ -426,10 +499,12 @@ func (self *FakeExecutor) ExecuteTests(watched []*contract.Package) *contract.Co
 	return &contract.CompleteOutput{Revision: watched[0].Path}
 }
 
-func newFakeExecutor(status string) *FakeExecutor {
-	self := &FakeExecutor{}
-	self.status = status
-	return self
+func newFakeExecutor(status string, ch chan bool) *FakeExecutor {
+	return &FakeExecutor{
+		status,
+		false,
+		ch,
+	}
 }
 
 /********* Error Read Closer *********/

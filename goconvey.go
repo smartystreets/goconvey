@@ -69,6 +69,7 @@ func serveAjaxMethods(server contract.Server) {
 	http.HandleFunc("/latest", server.Results)
 	http.HandleFunc("/execute", server.Execute)
 	http.HandleFunc("/status", server.Status)
+	http.HandleFunc("/status/poll", server.LongPollStatus)
 }
 
 func activateServer() {
@@ -96,8 +97,9 @@ func wireup() (*contract.Monitor, contract.Server) {
 	tester := exec.NewConcurrentTester(shell)
 	tester.SetBatchSize(packages)
 
-	executor := exec.NewExecutor(tester, parser)
-	server := api.NewHTTPServer(watcher, executor)
+	statusNotif := make(chan bool, 1)
+	executor := exec.NewExecutor(tester, parser, statusNotif)
+	server := api.NewHTTPServer(watcher, executor, statusNotif)
 	scanner := watch.NewScanner(fs, watcher)
 	monitor := contract.NewMonitor(scanner, watcher, executor, server, sleeper)
 
