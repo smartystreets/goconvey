@@ -27,6 +27,38 @@ func TestExecutor(t *testing.T) {
 			})
 		})
 
+		Convey("When the status is updated, the notification channel should have a true value", func() {
+			fixture.executor.status = Idle
+			updateCount := 6
+
+			for i := 0; i < updateCount; i++ {
+				fixture.executor.setStatus(statusRotation(i, updateCount))
+
+				select {
+				case val := <-fixture.executor.statusNotif:
+					So(val, ShouldBeTrue)
+				default:
+					So(false, ShouldBeTrue)
+				}
+				/*Convey("The status notification channel should have a true value", func() {
+
+						// TODO: When issue #81 is fixed and Conveys can be nested
+						// inside loops agian, I'd rather put the select {...} stuff
+						// in this convey instead. Also see server_test.go for
+						// a similar issue.
+
+						select {
+						case val := <-fixture.executor.statusNotif:
+							So(val, ShouldBeTrue)
+						default:
+							fixture.executor.statusNotif <- true
+							So(false, ShouldBeTrue)
+						}
+
+				})*/
+			}
+		})
+
 		Convey("During test execution", func() {
 			status := fixture.CaptureStatusDuringExecutionPhase()
 
@@ -43,6 +75,17 @@ func TestExecutor(t *testing.T) {
 			})
 		})
 	})
+}
+
+func statusRotation(i, total int) string {
+	switch i % total {
+	case 0:
+		return Executing
+	case 1:
+		return Parsing
+	default:
+		return Idle
+	}
 }
 
 type ExecutorFixture struct {
@@ -93,7 +136,7 @@ func newExecutorFixture() *ExecutorFixture {
 	self := &ExecutorFixture{}
 	self.tester = newFakeTester()
 	self.parser = newFakeParser()
-	self.executor = NewExecutor(self.tester, self.parser)
+	self.executor = NewExecutor(self.tester, self.parser, make(chan bool, 1))
 	self.folders = []*contract.Package{
 		&contract.Package{Active: true, Path: prefix + packageA, Name: packageA},
 		&contract.Package{Active: true, Path: prefix + packageB, Name: packageB},

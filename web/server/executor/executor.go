@@ -13,9 +13,10 @@ const (
 )
 
 type Executor struct {
-	tester Tester
-	parser Parser
-	status string
+	tester      Tester
+	parser      Parser
+	status      string
+	statusNotif chan bool
 }
 
 func (self *Executor) Status() string {
@@ -46,15 +47,22 @@ func (self *Executor) parse(folders []*contract.Package) *contract.CompleteOutpu
 
 func (self *Executor) setStatus(status string) {
 	self.status = status
+
+	select {
+	case self.statusNotif <- true:
+	default:
+	}
+
 	log.Printf("Executor status: '%s'\n", self.status)
 }
 
-func NewExecutor(tester Tester, parser Parser) *Executor {
-	self := &Executor{}
-	self.tester = tester
-	self.parser = parser
-	self.status = "idle"
-	return self
+func NewExecutor(tester Tester, parser Parser, ch chan bool) *Executor {
+	return &Executor{
+		tester,
+		parser,
+		Idle,
+		ch,
+	}
 }
 
 var now = func() time.Time {

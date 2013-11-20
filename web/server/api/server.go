@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"net/http"
+	"time"
 )
 
 type HTTPServer struct {
-	watcher  contract.Watcher
-	executor contract.Executor
-	latest   *contract.CompleteOutput
+	watcher     contract.Watcher
+	executor    contract.Executor
+	latest      *contract.CompleteOutput
+	statusNotif chan bool
 }
 
 func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
@@ -70,6 +72,14 @@ func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Reque
 	response.Write([]byte(status))
 }
 
+func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *http.Request) {
+	select {
+	case <-self.statusNotif:
+		self.Status(response, request)
+	case <-time.After(5 * time.Minute):
+	}
+}
+
 func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type", "application/json")
 	response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -87,11 +97,13 @@ func (self *HTTPServer) execute() {
 	self.latest = self.executor.ExecuteTests(self.watcher.WatchedFolders())
 }
 
-func NewHTTPServer(watcher contract.Watcher, executor contract.Executor) *HTTPServer {
-	self := &HTTPServer{}
-	self.watcher = watcher
-	self.executor = executor
-	return self
+func NewHTTPServer(watcher contract.Watcher, executor contract.Executor, ch chan bool) *HTTPServer {
+	return &HTTPServer{
+		watcher,
+		executor,
+		nil,
+		ch,
+	}
 }
 
 var _ = fmt.Sprintf("Hi")

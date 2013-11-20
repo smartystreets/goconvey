@@ -80,12 +80,13 @@ type FakeServer struct {
 func (self *FakeServer) ReceiveUpdate(update *CompleteOutput) {
 	self.latest = update
 }
-func (self *FakeServer) Watch(http.ResponseWriter, *http.Request)     { panic("NOT SUPPORTED") }
-func (self *FakeServer) Ignore(http.ResponseWriter, *http.Request)    { panic("NOT SUPPORTED") }
-func (self *FakeServer) Reinstate(http.ResponseWriter, *http.Request) { panic("NOT SUPPORTED") }
-func (self *FakeServer) Status(http.ResponseWriter, *http.Request)    { panic("NOT SUPPORTED") }
-func (self *FakeServer) Results(http.ResponseWriter, *http.Request)   { panic("NOT SUPPORTED") }
-func (self *FakeServer) Execute(http.ResponseWriter, *http.Request)   { panic("NOT SUPPORTED") }
+func (self *FakeServer) Watch(http.ResponseWriter, *http.Request)          { panic("NOT SUPPORTED") }
+func (self *FakeServer) Ignore(http.ResponseWriter, *http.Request)         { panic("NOT SUPPORTED") }
+func (self *FakeServer) Reinstate(http.ResponseWriter, *http.Request)      { panic("NOT SUPPORTED") }
+func (self *FakeServer) Status(http.ResponseWriter, *http.Request)         { panic("NOT SUPPORTED") }
+func (self *FakeServer) LongPollStatus(http.ResponseWriter, *http.Request) { panic("NOT SUPPORTED") }
+func (self *FakeServer) Results(http.ResponseWriter, *http.Request)        { panic("NOT SUPPORTED") }
+func (self *FakeServer) Execute(http.ResponseWriter, *http.Request)        { panic("NOT SUPPORTED") }
 
 func newFakeServer() *FakeServer {
 	self := &FakeServer{}
