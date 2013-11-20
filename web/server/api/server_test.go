@@ -66,17 +66,7 @@ func TestHTTPServer(t *testing.T) {
 
 			Convey("When the status is changed by the executor, the response should immediately reflect that", func() {
 				for i := 0; i < lpRequests; i++ {
-					var expectedStatus string
-
-					switch i % lpRequests {
-					case 0:
-						expectedStatus = "executing"
-					case 1:
-						expectedStatus = "parsing"
-					default:
-						expectedStatus = "idle"
-					}
-
+					expectedStatus := statusRotation(i, lpRequests)
 					fixture.SetExecutorStatus(expectedStatus)
 
 					select {
@@ -302,6 +292,17 @@ func TestHTTPServer(t *testing.T) {
 			})
 		})
 	})
+}
+
+func statusRotation(i, total int) string {
+	switch i % total {
+	case 0:
+		return "executing"
+	case 1:
+		return "parsing"
+	default:
+		return "idle"
+	}
 }
 
 /********* Server Fixture *********/
