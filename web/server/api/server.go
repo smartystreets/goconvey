@@ -89,7 +89,7 @@ func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *ht
 	select {
 	case <-self.statusNotif:
 		self.Status(response, request)
-	case <-time.After(5 * time.Minute):
+	case <-time.After(1 * time.Minute): // MAJOR 'GOTCHA': This should be SHORTER than the client's timeout!
 	}
 }
 

@@ -9,6 +9,9 @@ var convey = {
 		skip: 'skip',
 		ignored: 'ignored'
 	},
+	timeout: 60000 * 2,	// Major 'GOTCHA': should be LONGER than server's timeout!
+	serverStatus: "",
+	serverUp: true,
 	lastScrollPos: 0,
 	payload: {},
 	assertions: emptyAssertions(),
@@ -34,10 +37,15 @@ function initPage()
 	if (notif())
 		$('#toggle-notif').removeClass('fa-bell-o').addClass('fa-bell');
 
-	initPollers();
+	// Find out what the server is watching, and by passing in true, tell the
+	// server we're a new client. When that is done, the poller will be started
+	// for us. This avoids a race condition. Otherwise, the poller may start
+	// polling before the server knows we're a new client and we could miss a beat.
+	updateWatchPath(true);
 
-	// Tell the server what to watch and get the latest test results
-	updateWatchPath(update);
+	// Poll for latest status and ask for current test results, if any
+	initPoller();
+	update();
 
 	// Smooth scroll within page (props to css-tricks.com)
 	$('body').on('click', 'a[href^=#]:not([href=#])', function()
@@ -113,20 +121,12 @@ function initPlugins()
 	$('a, #path').tipsy({ live: true });
 }
 
-
-function initPollers()
+function initPoller()
 {
-	// Check status to see if we should show the loading spinner
-	var statusUpdater = setInterval(function()
-	{
-		$.get("/status", function(status) {
-			if (status != "idle")
-				executing();
-		});
-	}, 500);
-
-	// Check for latest test results
-	var poller = setInterval(update, 1500);
+	$.ajax({
+		url: "/status/poll",
+		timeout: convey.timeout
+	}).done(updateStatus).fail(statusFailed);
 }
 
 
@@ -137,7 +137,6 @@ function initHandlers()
 	{
 		if (!$(this).hasClass('disabled'))
 		{
-			$(this).addClass('disabled');
 			$.get("/execute");
 		}
 	});
@@ -225,13 +224,15 @@ function initHandlers()
 	});
 }
 
-function updateWatchPath(callback)
+function updateWatchPath(newClient)
 {
-	$.get('/watch', function(data)
+	var endpoint = "/watch";
+	if (newClient)
+		endpoint += "?newclient=1";
+
+	$.get(endpoint, function(data)
 	{
 		$('#path').val($.trim(data));
-		if (typeof callback === 'function')
-			callback();
 	});
 }
 
@@ -243,15 +244,16 @@ function update()
 
 	$.getJSON("/latest", function(data, status, jqxhr)
 	{
-		$('#server-down').slideUp(convey.speed);
+		if (!data || !data.Revision)
+			return showServerDown(jqxhr, "starting");
+		else
+			$('#server-down').slideUp(convey.speed);
 
 		if (data.Revision == convey.revisionHash)
 			return;
 
 		convey.revisionHash = data.Revision;
 		convey.payload = data;
-
-		executing();
 
 		updateWatchPath();
 
@@ -487,20 +489,74 @@ function update()
 				$('html,body').css('height', '');
 			});
 		});
-	}).fail(function(jqxhr, message, error)
-	{
-		// If the server is still just starting up... faux that.
-		if (jqxhr.responseText == "" && message == "parsererror")
-			message = "starting";
-
-		$('#server-down').remove();
-
-		$('#banners').prepend(render('tpl-server-down', {
-			jqxhr: jqxhr,
-			message: message,
-			error: error
-		}));
 	});
+}
+
+function updateStatus(data, message, jqxhr)
+{
+	// By getting in here, we know the server is up
+
+	if (!convey.serverUp)
+	{
+		// If the server was previously down, it is now starting
+		message = "starting";
+		showServerDown(jqxhr, message);
+	}
+
+	convey.serverUp = true;
+
+	if (convey.serverStatus != "idle" && data == "idle")	// Just finished running
+		update();
+	else if (data != "" && data != "idle")	// Just started running
+		executing();
+
+	convey.serverStatus = data;
+	initPoller();
+}
+
+function statusFailed(jqxhr, message, exception)
+{
+	// When long-polling for the current status, the request failed
+
+	if (message == "timeout")
+		initPoller();	// Poll again; timeout just means no server activity for a while
+	else
+	{
+		showServerDown(jqxhr, message, exception);
+
+		// At every interval, check to see if the server is up
+		var checkStatus = setInterval(function()
+		{
+			if (convey.serverUp)
+			{
+				// By now, we know the previous interval called
+				// updateStatus because the server is obviously up.
+				// We're done here: continue polling as normal.
+				clearInterval(checkStatus);
+				initPoller();
+				return;
+			}
+			else
+			{
+				// The current known state of the server is that
+				// it's down. Check to see if it's up, and if successful,
+				// run updateStatus to let the whole page know it's up.
+				$.get("/status").done(updateStatus);
+			}
+		}, 1000);
+	}
+}
+
+function showServerDown(jqxhr, message, exception)
+{
+	convey.serverUp = false;
+	disableServerButtons("Server is down");
+	$('#server-down').remove();
+	$('#banners').prepend(render('tpl-server-down', {
+		jqxhr: jqxhr,
+		message: message,
+		error: exception
+	}));
 }
 
 function render(templateID, context)
@@ -512,24 +568,42 @@ function render(templateID, context)
 function bannerClickToTop(enable)
 {
 	if (enable)
+	{
 		$('.overall').wrap('<a href="#" class="to-top"></a>');
+		$('#loader').css({
+			'top': '13px'
+		});
+	}
 	else
 	{
 		$('.overall').unwrap();
 		$('a.to-top').remove();
+		$('#loader').css({
+			'top': '20px'
+		});
 	}
 }
 
 function executing()
 {
-	$('#spinner').show();
-	$('#run-tests, .ignore').addClass('disabled');
-	$('#run-tests').attr('title', "Tests are running");
+	$('#loader').show();
+	disableServerButtons("Tests are running");
 }
 
 function doneExecuting()
 {
-	$('#spinner').hide();
+	$('#loader').hide();
+	enableServerButtons();
+}
+
+function disableServerButtons(message)
+{
+	$('#run-tests, .ignore').addClass('disabled');
+	$('#run-tests').attr('title', message);
+}
+
+function enableServerButtons()
+{
 	$('#run-tests, .ignore').removeClass('disabled');
 	$('#run-tests').attr('title', "Run tests");
 }
