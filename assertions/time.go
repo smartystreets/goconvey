@@ -177,3 +177,26 @@ func ShouldNotHappenWithin(actual interface{}, expected ...interface{}) string {
 	max := threshold.Add(tolerance)
 	return ShouldNotHappenOnOrBetween(actualTime, min, max)
 }
+
+// ShouldBeChronological receives a []time.Time slice and asserts that the are
+// in chronological order starting with the first time.Time as the earliest.
+func ShouldBeChronological(actual interface{}, expected ...interface{}) string {
+	if fail := need(0, expected); fail != success {
+		return fail
+	}
+
+	times, ok := actual.([]time.Time)
+	if !ok {
+		return shouldUseTimeSlice
+	}
+
+	var previous time.Time
+	for i, current := range times {
+		if i > 0 && current.Before(previous) {
+			return fmt.Sprintf(shouldHaveBeenChronological,
+				i, i-1, previous.String(), i, current.String())
+		}
+		previous = current
+	}
+	return ""
+}

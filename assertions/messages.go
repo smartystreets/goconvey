@@ -67,9 +67,13 @@ const ( // type checking
 
 const ( // time comparisons
 	shouldUseTimes                   = "You must provide time instances as arguments to this assertion."
+	shouldUseTimeSlice               = "You must provide a slice of time instances as the first argument to this assertion."
 	shouldUseDurationAndTime         = "You must provide a duration and a time as arguments to this assertion."
 	shouldHaveHappenedBefore         = "Expected '%v' to happen before '%v' (it happened '%v' after)!"
 	shouldHaveHappenedAfter          = "Expected '%v' to happen after '%v' (it happened '%v' before)!"
 	shouldHaveHappenedBetween        = "Expected '%v' to happen between '%v' and '%v' (it happened '%v' outside threshold)!"
 	shouldNotHaveHappenedOnOrBetween = "Expected '%v' to NOT happen on or between '%v' and '%v' (but it did)!"
+
+	// format params: incorrect-index, previous-index, previous-time, incorrect-index, incorrect-time
+	shouldHaveBeenChronological = "The 'Time' at index [%d] should have happened after the previous one (but it didn't!):\n  [%d]: %s\n  [%d]: %s (see, it happened before!)"
 )

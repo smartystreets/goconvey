@@ -134,6 +134,15 @@ func TestShouldNotHappenWithin(t *testing.T) {
 	pass(t, so(january5, ShouldNotHappenWithin, oneDay, january3))
 }
 
+func TestShouldBeChronological(t *testing.T) {
+	fail(t, so(0, ShouldBeChronological, 1, 2, 3), "This assertion requires exactly 0 comparison values (you provided 3).")
+	fail(t, so(0, ShouldBeChronological), shouldUseTimeSlice)
+	fail(t, so([]time.Time{january5, january1}, ShouldBeChronological),
+		"The 'Time' at index [1] should have happened after the previous one (but it didn't!):\n  [0]: 2013-01-05 00:00:00 +0000 UTC\n  [1]: 2013-01-01 00:00:00 +0000 UTC (see, it happened before!)")
+
+	pass(t, so([]time.Time{january1, january2, january3, january4, january5}, ShouldBeChronological))
+}
+
 const layout = "2006-01-02 15:04"
 
 var january1, _ = time.Parse(layout, "2013-01-01 00:00")

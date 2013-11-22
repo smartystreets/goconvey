@@ -18,6 +18,7 @@ func pass(t *testing.T, result string) {
 
 func fail(t *testing.T, actual string, expected string) {
 	actual = format(actual)
+	expected = format(expected)
 
 	if actual != expected {
 		if actual == "" {

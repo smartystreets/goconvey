@@ -84,6 +84,7 @@ func TestAssertions(t *testing.T) {
 			So(january1, ShouldNotHappenOnOrBetween, january2, january5)
 			So(january2, ShouldHappenWithin, oneDay, january3)
 			So(january5, ShouldNotHappenWithin, oneDay, january1)
+			So([]time.Time{january1, january2}, ShouldBeChronological)
 		})
 	})
 }

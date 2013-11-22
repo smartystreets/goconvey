@@ -57,4 +57,5 @@ var (
 	ShouldNotHappenOnOrBetween = assertions.ShouldNotHappenOnOrBetween
 	ShouldHappenWithin         = assertions.ShouldHappenWithin
 	ShouldNotHappenWithin      = assertions.ShouldNotHappenWithin
+	ShouldBeChronological      = assertions.ShouldBeChronological
 )
