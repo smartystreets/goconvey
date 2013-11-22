@@ -3,14 +3,17 @@ package system
 import (
 	"os"
 	"os/exec"
+	"runtime"
 )
 
-type Shell struct{}
+type Shell struct {
+	coverage string
+}
 
 func (self *Shell) GoTest(directory string) (output string, err error) {
 	output, err = self.execute(directory, "go", "test", "-i")
 	if err == nil {
-		output, err = self.execute(directory, "go", "test", "-v", "-timeout=-42s")
+		output, err = self.execute(directory, "go", "test", "-v", "-timeout=-42s", self.coverage)
 	}
 	return
 }
@@ -35,5 +38,18 @@ func (self *Shell) Setenv(key, value string) error {
 }
 
 func NewShell() *Shell {
-	return &Shell{}
+	self := new(Shell)
+	if goVersion_1_2_orGreater() {
+		self.coverage = coverageFlag
+	}
+	return self
 }
+
+func goVersion_1_2_orGreater() bool {
+	version := runtime.Version() // 'go1.2....'
+	major := int(version[2])
+	minor := int(version[4])
+	return major >= 1 && minor >= 2
+}
+
+const coverageFlag = "-cover"

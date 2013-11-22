@@ -31,7 +31,8 @@ func isPackageReport(line string) bool {
 	return (strings.HasPrefix(line, "FAIL") ||
 		strings.HasPrefix(line, "exit status") ||
 		strings.HasPrefix(line, "PASS") ||
-		strings.HasPrefix(line, "ok  \t"))
+		isCoverageSummary(line) ||
+		packagePassed(line))
 }
 
 func packageFailed(line string) bool {
@@ -39,4 +40,7 @@ func packageFailed(line string) bool {
 }
 func packagePassed(line string) bool {
 	return strings.HasPrefix(line, "ok  \t")
+}
+func isCoverageSummary(line string) bool {
+	return strings.HasPrefix(line, "coverage: ") && strings.HasSuffix(line, "% of statements")
 }

@@ -52,6 +52,12 @@ func TestParsePackage_OldSchoolWithSuccessOutput_ReturnsCompletePackageResult(t 
 	assertEqual(t, expectedOldSchool_Passes, *actual)
 }
 
+func TestParsePackage_OldSchoolWithSuccessAndBogusCoverage_ReturnsCompletePackageResult(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedOldSchool_PassesButCoverageIsBogus.PackageName}
+	ParsePackageResults(actual, inputOldSchool_PassesButCoverageIsBogus)
+	assertEqual(t, expectedOldSchool_PassesButCoverageIsBogus, *actual)
+}
+
 func TestParsePackage_OldSchoolWithPanicOutput_ReturnsCompletePackageResult(t *testing.T) {
 	actual := &contract.PackageResult{PackageName: expectedOldSchool_Panics.PackageName}
 	ParsePackageResults(actual, inputOldSchool_Panics)

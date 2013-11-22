@@ -43,6 +43,7 @@ var ( // PackageResult.Outcome values:
 type PackageResult struct {
 	PackageName string
 	Elapsed     float64
+	Coverage    float64
 	Outcome     string
 	BuildOutput string
 	TestResults []TestResult
@@ -52,6 +53,7 @@ func NewPackageResult(packageName string) *PackageResult {
 	self := &PackageResult{}
 	self.PackageName = packageName
 	self.TestResults = []TestResult{}
+	self.Coverage = -1
 	return self
 }
 

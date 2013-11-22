@@ -89,12 +89,53 @@ const inputOldSchool_Passes = `
 	old_school_test.go:10: I am a passing test.
 		With a newline.
 PASS
+coverage: 100.0%% of statements
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.018s
 `
 
 var expectedOldSchool_Passes = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.018,
+	Coverage:    100,
+	Outcome:     contract.Passed,
+	TestResults: []contract.TestResult{
+		contract.TestResult{
+			TestName: "TestOldSchool_Passes",
+			Elapsed:  0.02,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestOldSchool_PassesWithMessage",
+			Elapsed:  0.05,
+			Passed:   true,
+			File:     "old_school_test.go",
+			Line:     10,
+			Message:  "old_school_test.go:10: I am a passing test.\nWith a newline.",
+			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
+
+const inputOldSchool_PassesButCoverageIsBogus = `
+=== RUN TestOldSchool_Passes
+--- PASS: TestOldSchool_Passes (0.02 seconds)
+=== RUN TestOldSchool_PassesWithMessage
+--- PASS: TestOldSchool_PassesWithMessage (0.05 seconds)
+	old_school_test.go:10: I am a passing test.
+		With a newline.
+PASS
+coverage: bogus%% of statements
+ok  	github.com/smartystreets/goconvey/webserver/examples	0.018s
+`
+
+var expectedOldSchool_PassesButCoverageIsBogus = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.018,
+	Coverage:    -1,
 	Outcome:     contract.Passed,
 	TestResults: []contract.TestResult{
 		contract.TestResult{
@@ -293,6 +334,7 @@ const inputGoConvey = `
 <<<<<
 --- PASS: TestPassingStory (0.01 seconds)
 PASS
+coverage: 75.5%% of statements
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
 `
 
@@ -300,6 +342,7 @@ var expectedGoConvey = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.019,
 	Outcome:     contract.Passed,
+	Coverage:    75.5,
 	TestResults: []contract.TestResult{
 		contract.TestResult{
 			TestName: "TestPassingStory",
@@ -375,6 +418,7 @@ const inputGoConvey_WithRandomOutput = `
 *** Hello, World! (6) ***
 --- PASS: TestPassingStory (0.03 seconds)
 PASS
+coverage: 45.0%% of statements
 ok  	github.com/smartystreets/goconvey/web/server/testing	0.024s
 `
 
@@ -382,6 +426,7 @@ var expectedGoConvey_WithRandomOutput = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/web/server/testing",
 	Elapsed:     0.024,
 	Outcome:     contract.Passed,
+	Coverage:    45.0,
 	TestResults: []contract.TestResult{
 		contract.TestResult{
 			TestName: "TestPassingStory",

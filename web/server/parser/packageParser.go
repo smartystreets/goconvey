@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"github.com/smartystreets/goconvey/web/server/contract"
+	"strconv"
 	"strings"
 )
 
@@ -97,6 +98,9 @@ func (self *outputParser) recordPackageMetadata() {
 
 	} else if packagePassed(self.line) {
 		self.recordTestingOutcome(contract.Passed)
+
+	} else if isCoverageSummary(self.line) {
+		self.recordCoverageSummary(self.line)
 	}
 }
 func (self *outputParser) recordTestingOutcome(outcome string) {
@@ -104,6 +108,17 @@ func (self *outputParser) recordTestingOutcome(outcome string) {
 	fields := strings.Split(self.line, "\t")
 	self.result.PackageName = strings.TrimSpace(fields[1])
 	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
+}
+func (self *outputParser) recordCoverageSummary(summary string) {
+	start := len("coverage: ")
+	end := strings.Index(summary, "%")
+	value := summary[start:end]
+	parsed, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		self.result.Coverage = -1
+	} else {
+		self.result.Coverage = parsed
+	}
 }
 func (self *outputParser) saveLineForParsingLater() {
 	self.line = strings.TrimSpace(self.line)
