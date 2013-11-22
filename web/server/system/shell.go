@@ -47,9 +47,8 @@ func NewShell() *Shell {
 
 func goVersion_1_2_orGreater() bool {
 	version := runtime.Version() // 'go1.2....'
-	major := int(version[2])
-	minor := int(version[4])
-	return major >= 1 && minor >= 2
+	major, minor := version[2], version[4]
+	return major >= byte('1') && minor >= byte('2')
 }
 
 const coverageFlag = "-cover"
