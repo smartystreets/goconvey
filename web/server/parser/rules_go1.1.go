@@ -40,3 +40,6 @@ func packageFailed(line string) bool {
 func packagePassed(line string) bool {
 	return strings.HasPrefix(line, "ok  \t")
 }
+func isCoverageSummary(line string) bool {
+	return false
+}
