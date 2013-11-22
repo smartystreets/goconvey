@@ -125,14 +125,13 @@ function initPlugins()
 			return "25px";	// Still shows low coverage (borders are rounded)
 		else if (num > 100)
 			str = "100";
-
 		return str + "%";
 	};
 	Mark.pipes.coverageColor = function(str)
 	{
 		var num = parseInt(str);	// we only need int precision
 		if (num < 0)
-			return "transparent";
+			return "none";
 		else if (num > 100)
 			num = 100;
 		return coverageToColor(num);
