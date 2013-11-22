@@ -92,33 +92,60 @@ function initPlugins()
 	{
 		basePath = new RegExp($('#path').val(), 'g');
 		return str.replace(basePath, '');
-	}
+	};
 	Mark.pipes.showhtml = function(str)
 	{
 		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-	}
+	};
 	Mark.pipes.nothing = function(str)
 	{
 		return str == "no test files" || str == "no test functions" || str == "no go code"
-	}
+	};
 	Mark.pipes.boldPkgName = function(str)
 	{
 		var pkg = splitPathName(str);
 		pkg.parts[pkg.parts.length - 1] = "<b>" + pkg.parts[pkg.parts.length - 1] + "</b>";
 		return pkg.parts.join(pkg.delim);
-	}
+	};
 	Mark.pipes.chopEnd = function(str, n)
 	{
 		return str.length > n ? "..." + str.substr(str.length - n) : str;
-	}
+	};
 	Mark.pipes.needsDiff = function(test)
 	{
 		return !!test.Failure && (test.Expected != "" || test.Actual != "");
+	};
+	Mark.pipes.coverageWidth = function(str)
+	{
+		// We expect 75% to be represented as: "75.0"
+		var num = parseInt(str);	// we only need int precision
+		if (num < 0)
+			return "0";
+		else if (num <= 5)
+			return "25px";	// Still shows low coverage (borders are rounded)
+		else if (num > 100)
+			str = "100";
+
+		return str + "%";
+	};
+	Mark.pipes.coverageColor = function(str)
+	{
+		var num = parseInt(str);	// we only need int precision
+		if (num < 0)
+			return "transparent";
+		else if (num > 100)
+			num = 100;
+		return coverageToColor(num);
+	};
+	Mark.pipes.coverageDisplay = function(str)
+	{
+		var num = parseFloat(str);
+		return num < 0 ? "" : num + "% coverage";
 	}
 
 	// JQUERY TIPSY
 	// Wire-up nice tooltips
-	$('a, #path').tipsy({ live: true });
+	$('a, #path, .package-top').tipsy({ live: true });
 }
 
 function initPoller()
@@ -692,6 +719,18 @@ function splitPathName(str)
 function notif()
 {
 	return localStorage.getItem('notifications') === "true";	// stored as strings
+}
+
+function coverageToColor(percent)
+{
+	// This converts a number between 0 and 360
+	// to an HSLA (not RGBA) value appropriate for
+	// displaying a basic coverage bar behind text.
+	// It works for any value between 0 to 360,
+	// but the hue at 100 happens to be about green,
+	// and 0 is red, between is yellow; just what we want.
+	var hue = percent * 1.2;
+	return "hsla(" + hue + ", 100%, 55%, .5)";
 }
 
 function suppress(event)

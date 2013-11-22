@@ -310,10 +310,12 @@
 					{{if PackageName|notempty}}
 					<table class="package-story templated">
 						<tr class="depth-0" id="package-{{_id}}">
-							<th colspan="3">
-								<a href="javascript:" class="toggle toggle-package-stories"><i class="fa fa-collapse-o fa-lg"></i></a>
-								{{PackageName}}
-								<a class="fa link-fa fa-lg ignore {{if Outcome|notequals>ignored}}fa-eye unwatch{{else}}fa-eye-slash watch clr-red{{/if}}" href="javascript:" title="Watch/ignore package" data-pkg="{{PackageName}}"></a>
+							<th colspan="3" class="package-top" title="{{Coverage|coverageDisplay}}">
+								<div class="coverage" style="width: {{Coverage|coverageWidth}}; background: {{Coverage|coverageColor}};"></div>
+								<div class="package-header">
+									<a href="javascript:" class="toggle toggle-package-stories"><i class="fa fa-collapse-o fa-lg"></i></a>&nbsp;{{PackageName}}
+									<a class="fa link-fa fa-lg ignore {{if Outcome|notequals>ignored}}fa-eye unwatch{{else}}fa-eye-slash watch clr-red{{/if}}" href="javascript:" title="Toggle ignore" data-pkg="{{PackageName}}"></a>
+								</div>
 							</th>
 						</tr>
 						{{if TestResults|empty}}
