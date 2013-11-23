@@ -356,7 +356,7 @@
 							{{/if}}
 							</td>
 							<td class="title">
-								<b>{{TestName}}</b>{{if Message}}<div class="message">{{Message}}</div>{{/if}}
+								<b>{{TestName|showhtml}}</b>{{if Message}}<div class="message">{{Message|showhtml}}</div>{{/if}}
 							</td>
 						</tr>
 							{{Stories}}
@@ -369,7 +369,7 @@
 								{{if _skipped}}<span class="skip">S&nbsp;&#9888;</span><br>{{/if}}
 								</td>
 								<td class="title">
-									{{Title}}
+									{{Title|showhtml}}
 								</td>
 							</tr>
 							{{/Stories}}
