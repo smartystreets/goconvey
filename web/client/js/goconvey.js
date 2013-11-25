@@ -38,9 +38,7 @@ function initPage()
 		$('#toggle-notif').removeClass('fa-bell-o').addClass('fa-bell');
 
 	// Find out what the server is watching, and by passing in true, tell the
-	// server we're a new client. When that is done, the poller will be started
-	// for us. This avoids a race condition. Otherwise, the poller may start
-	// polling before the server knows we're a new client and we could miss a beat.
+	// server we're a new client (I'm pretty sure only 1 client is supported right now).
 	updateWatchPath(true);
 
 	// Poll for latest status and ask for current test results, if any
@@ -295,8 +293,10 @@ function update()
 		$('.overall').slideUp(convey.speed);
 		$('#results').fadeOut(convey.speed, function()
 		{
-			// Remove them from the DOM as we'll put new ones back in
-			$('.templated').remove();
+			// Remove all templated items from the DOM as we'll
+			// replace them with new ones; also remove tipsy tooltips
+			// that may have lingered around
+			$('.templated, .tipsy').remove();
 
 			var uniqueID = 0;
 
