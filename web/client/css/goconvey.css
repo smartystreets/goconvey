@@ -738,10 +738,6 @@ del, .failures th.expected {
 		top: .5em;
 	}
 
-	.menu {
-		display: none;
-	}
-
 	.package-story th {
 		font-size: 12px;
 	}
