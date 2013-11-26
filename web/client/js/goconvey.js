@@ -723,13 +723,13 @@ function notif()
 function coverageToColor(percent)
 {
 	// This converts a number between 0 and 360
-	// to an HSLA (not RGBA) value appropriate for
+	// to an HSL (not RGB) value appropriate for
 	// displaying a basic coverage bar behind text.
 	// It works for any value between 0 to 360,
-	// but the hue at 100 happens to be about green,
+	// but the hue at 120 happens to be about green,
 	// and 0 is red, between is yellow; just what we want.
 	var hue = percent * 1.2;
-	return "hsla(" + hue + ", 100%, 55%, .5)";
+	return "hsl(" + hue + ", 100%, 75%)";
 }
 
 function suppress(event)
