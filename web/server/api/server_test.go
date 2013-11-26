@@ -507,19 +507,4 @@ func newFakeExecutor(status string, ch chan bool) *FakeExecutor {
 	}
 }
 
-/********* Error Read Closer *********/
-
-const readError = "Not sure why the request body would ever throw an error when read, " +
-	"but this ensures that we know how to handle it..."
-
-type ErrorReadCloser struct{}
-
-func (self *ErrorReadCloser) Read(buffer []byte) (int, error) {
-	return 0, errors.New(readError)
-}
-
-func (self *ErrorReadCloser) Close() error {
-	return nil
-}
-
 var _ = fmt.Sprintf("hi")
