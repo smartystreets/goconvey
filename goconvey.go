@@ -33,7 +33,7 @@ func init() {
 	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	flag.DurationVar(&nap, "poll", quarterSecond, "The interval to wait between polling the file system for changes (default: 250ms).")
 	flag.IntVar(&packages, "packages", 10, "The number of packages to test in parallel. Higher == faster but more costly in terms of computing. (default: 10)")
-
+	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH)")
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
@@ -88,7 +88,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	}
 
 	fs := system.NewFileSystem()
-	shell := system.NewShell()
+	shell := system.NewShell(gobin)
 
 	watcher := watch.NewWatcher(fs, shell)
 	watcher.Adjust(working)
@@ -113,6 +113,7 @@ func sleeper() {
 var (
 	port     int
 	host     string
+	gobin    string
 	nap      time.Duration
 	packages int
 )
