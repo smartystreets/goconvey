@@ -8,12 +8,13 @@ import (
 
 type Shell struct {
 	coverage string
+	gobin    string
 }
 
 func (self *Shell) GoTest(directory string) (output string, err error) {
-	output, err = self.execute(directory, "go", "test", "-i")
+	output, err = self.execute(directory, self.gobin, "test", "-i")
 	if err == nil {
-		output, err = self.execute(directory, "go", "test", "-v", "-timeout=-42s", self.coverage)
+		output, err = self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s", self.coverage)
 	}
 	return
 }
@@ -37,8 +38,9 @@ func (self *Shell) Setenv(key, value string) error {
 	return nil
 }
 
-func NewShell() *Shell {
+func NewShell(gobin string) *Shell {
 	self := new(Shell)
+	self.gobin = gobin
 	if goVersion_1_2_orGreater() {
 		self.coverage = coverageFlag
 	}
