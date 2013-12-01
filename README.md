@@ -1,14 +1,15 @@
 GoConvey is awesome Go testing
 ==============================
 
-Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure. **[View full feature tour!](http://smartystreets.github.io/goconvey)**
+Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure. **[View full feature tour.](http://smartystreets.github.io/goconvey)**
 
 **Features:**
 
 - Directly integrates with `go test`
-- Huge suite of regression tests
-- Readable, colorized console output (understandable by any manager, IT or not)
 - Fully-automatic web UI (works with native Go tests, too)
+- Huge suite of regression tests
+- Shows test coverage (Go 1.2+)
+- Readable, colorized console output (understandable by any manager, IT or not)
 - Test code generator
 - Desktop notifications (optional)
 - Auto-test script automatically runs tests in the terminal
