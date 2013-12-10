@@ -10,6 +10,7 @@ func TestShouldPanic(t *testing.T) {
 
 	fail(t, so(1, ShouldPanic), shouldUseVoidNiladicFunction)
 	fail(t, so(func(i int) {}, ShouldPanic), shouldUseVoidNiladicFunction)
+	fail(t, so(func() int { panic("hi") }, ShouldPanic), shouldUseVoidNiladicFunction)
 
 	fail(t, so(func() {}, ShouldPanic), shouldHavePanicked)
 	pass(t, so(func() { panic("hi") }, ShouldPanic))
