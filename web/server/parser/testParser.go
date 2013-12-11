@@ -106,7 +106,9 @@ func (self *testParser) parsePanicLocation(index int, line string) {
 	fields := strings.Split(metaLine, " ")
 	fileAndLine := strings.Split(fields[0], ":")
 	self.test.File = fileAndLine[0]
-	self.test.Line, _ = strconv.Atoi(fileAndLine[1])
+	if len(fileAndLine) >= 2 {
+		self.test.Line, _ = strconv.Atoi(fileAndLine[1])
+	}
 }
 func (self *testParser) preserveStackTraceIndentation(index int, line string) {
 	if panicLineShouldBeIndented(index, line) {
