@@ -61,6 +61,7 @@ type TestResult struct {
 	TestName string
 	Elapsed  float64
 	Passed   bool
+	Skipped  bool
 	File     string
 	Line     int
 	Message  string

@@ -89,7 +89,8 @@ func (self *outputParser) registerTestFunction() {
 	self.tests = append(self.tests, self.test)
 }
 func (self *outputParser) recordTestMetadata() {
-	self.test.Passed = strings.HasPrefix(self.line, "--- PASS: ")
+	self.test.Passed = !strings.HasPrefix(self.line, "--- FAIL: ")
+	self.test.Skipped = strings.HasPrefix(self.line, "--- SKIP: ")
 	self.test.Elapsed = parseTestFunctionDuration(self.line)
 }
 func (self *outputParser) recordPackageMetadata() {

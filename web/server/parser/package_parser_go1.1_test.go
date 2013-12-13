@@ -178,6 +178,9 @@ var expected_BuildFailed_OtherErrors = contract.PackageResult{
 const inputOldSchool_Passes = `
 === RUN TestOldSchool_Passes
 --- PASS: TestOldSchool_Passes (0.02 seconds)
+=== RUN TestSkippingTests
+--- SKIP: TestSkipping (0.00 seconds)
+	old_school_test.go:8: blah
 === RUN TestOldSchool_PassesWithMessage
 --- PASS: TestOldSchool_PassesWithMessage (0.05 seconds)
 	old_school_test.go:10: I am a passing test.
@@ -198,6 +201,16 @@ var expectedOldSchool_Passes = contract.PackageResult{
 			File:     "",
 			Line:     0,
 			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestSkippingTests",
+			Elapsed:  0,
+			Passed:   true,
+			Skipped:  true,
+			File:     "old_school_test.go",
+			Line:     8,
+			Message:  "old_school_test.go:8: blah",
 			Stories:  []reporting.ScopeResult{},
 		},
 		contract.TestResult{
