@@ -2,9 +2,11 @@ package reporting
 
 import (
 	"encoding/json"
-	"github.com/smartystreets/goconvey/gotest"
+	"fmt"
 	"runtime"
 	"strings"
+
+	"github.com/smartystreets/goconvey/gotest"
 )
 
 type FailureView struct {
@@ -46,7 +48,7 @@ func NewErrorReport(err interface{}) *AssertionResult {
 	report := &AssertionResult{}
 	report.File, report.Line = caller()
 	report.StackTrace = fullStackTrace()
-	report.Error = err
+	report.Error = fmt.Sprintf("%v", err)
 	return report
 }
 func NewSuccessReport() *AssertionResult {
