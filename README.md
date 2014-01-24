@@ -29,9 +29,9 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 Installation
 ------------
 
-	$ go get github.com/smartystreets/goconvey
+	$ go get -t github.com/smartystreets/goconvey
 
-
+The `-t` flag above ensures that all test dependencies for goconvey are downloaded.
 
 
 

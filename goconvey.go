@@ -21,10 +21,6 @@ import (
 	parse "github.com/smartystreets/goconvey/web/server/parser"
 	"github.com/smartystreets/goconvey/web/server/system"
 	watch "github.com/smartystreets/goconvey/web/server/watcher"
-
-	// dependencies:
-	_ "github.com/jacobsa/oglematchers"
-	_ "github.com/jacobsa/ogletest"
 )
 
 func init() {
