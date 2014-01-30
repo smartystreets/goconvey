@@ -210,14 +210,23 @@ func ShouldBeNil(actual interface{}, expected ...interface{}) string {
 		return fail
 	} else if actual == nil {
 		return success
-	} else if interfaceIsNilPointer(actual) {
+	} else if interfaceHasNilValue(actual) {
 		return success
 	}
 	return fmt.Sprintf(shouldHaveBeenNil, actual)
 }
-func interfaceIsNilPointer(actual interface{}) bool {
+func interfaceHasNilValue(actual interface{}) bool {
 	value := reflect.ValueOf(actual)
-	return value.Kind() == reflect.Ptr && value.Pointer() == 0
+	kind := value.Kind()
+	nilable := kind == reflect.Slice ||
+		kind == reflect.Chan ||
+		kind == reflect.Func ||
+		kind == reflect.Ptr ||
+		kind == reflect.Map
+
+	// Careful: reflect.Value.IsNil() will panic unless it's an interface, chan, map, func, slice, or ptr
+	// Reference: http://golang.org/pkg/reflect/#Value.IsNil
+	return nilable && value.IsNil()
 }
 
 // ShouldNotBeNil receives a single parameter and ensures that it is not nil.

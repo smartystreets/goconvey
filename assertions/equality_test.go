@@ -177,6 +177,21 @@ func TestShouldBeNil(t *testing.T) {
 
 	var thingOne *Thing1
 	pass(t, so(thingOne, ShouldBeNil))
+
+	var nilSlice []int = nil
+	pass(t, so(nilSlice, ShouldBeNil))
+
+	var nilMap map[string]string = nil
+	pass(t, so(nilMap, ShouldBeNil))
+
+	var nilChannel chan int = nil
+	pass(t, so(nilChannel, ShouldBeNil))
+
+	var nilFunc func() = nil
+	pass(t, so(nilFunc, ShouldBeNil))
+
+	var nilInterface interface{} = nil
+	pass(t, so(nilInterface, ShouldBeNil))
 }
 
 func TestShouldNotBeNil(t *testing.T) {
