@@ -1,8 +1,6 @@
 package assertions
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestShouldBeGreaterThan(t *testing.T) {
 	fail(t, so(1, ShouldBeGreaterThan), "This assertion requires exactly 1 comparison values (you provided 0).")

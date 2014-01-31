@@ -3,8 +3,9 @@ package assertions
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/smartystreets/goconvey/reporting"
 	"testing"
+
+	"github.com/smartystreets/goconvey/reporting"
 )
 
 func TestSerializerCreatesSerializedVersionOfAssertionResult(t *testing.T) {

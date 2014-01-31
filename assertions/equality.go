@@ -6,9 +6,7 @@ import (
 	"math"
 	"reflect"
 	"strings"
-)
 
-import (
 	"github.com/jacobsa/oglematchers"
 )
 

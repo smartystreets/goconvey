@@ -2,9 +2,7 @@ package assertions
 
 import (
 	"fmt"
-)
 
-import (
 	"github.com/jacobsa/oglematchers"
 )
 

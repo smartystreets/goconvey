@@ -1,8 +1,6 @@
 package assertions
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestShouldPanic(t *testing.T) {
 	fail(t, so(func() {}, ShouldPanic, 1), "This assertion requires exactly 0 comparison values (you provided 1).")

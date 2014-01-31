@@ -1,8 +1,6 @@
 package assertions
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestShouldHaveSameTypeAs(t *testing.T) {
 	serializer = newFakeSerializer()

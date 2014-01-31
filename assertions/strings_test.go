@@ -1,8 +1,6 @@
 package assertions
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestShouldStartWith(t *testing.T) {
 	serializer = newFakeSerializer()

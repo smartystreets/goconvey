@@ -3,6 +3,7 @@ package assertions
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/smartystreets/goconvey/reporting"
 )
 

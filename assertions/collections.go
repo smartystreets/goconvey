@@ -3,9 +3,7 @@ package assertions
 import (
 	"fmt"
 	"reflect"
-)
 
-import (
 	"github.com/jacobsa/oglematchers"
 )
 

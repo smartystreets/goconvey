@@ -1,8 +1,6 @@
 package assertions
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestShouldContain(t *testing.T) {
 	fail(t, so([]int{}, ShouldContain), "This assertion requires exactly 1 comparison values (you provided 0).")

@@ -1,8 +1,6 @@
 package assertions
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // ShouldPanic receives a void, niladic function and expects to recover a panic.
 func ShouldPanic(actual interface{}, expected ...interface{}) (message string) {
