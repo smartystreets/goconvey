@@ -9,7 +9,7 @@ import (
 
 func init() {
 	parseFlags()
-	configureRunner()
+	initializeState()
 }
 
 // parseFlags parses the command line args manually because the go test tool,
@@ -30,13 +30,15 @@ func flagFound(flagValue string) bool {
 	return false
 }
 
-func configureRunner() {
-	reporter = buildReporter()
-	runner = execution.NewRunner()
-	runner.UpgradeReporter(reporter)
+func initializeState() {
+	runners = make(map[string]execution.Runner)
+	reporters = make(map[string]reporting.Reporter)
 }
+
 func buildReporter() reporting.Reporter {
-	if json {
+	if testReporter != nil {
+		return testReporter
+	} else if json {
 		return reporting.BuildJsonReporter()
 	} else if verbose {
 		return reporting.BuildStoryReporter()
@@ -46,8 +48,12 @@ func buildReporter() reporting.Reporter {
 }
 
 var (
-	runner   execution.Runner
-	reporter reporting.Reporter
+	// both keyed by concat(fileName, testName)
+	runners   map[string]execution.Runner
+	reporters map[string]reporting.Reporter
+
+	// only set by internal tests
+	testReporter reporting.Reporter
 )
 
 var (

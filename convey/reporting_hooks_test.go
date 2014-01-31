@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/reporting"
 )
 
@@ -185,12 +184,10 @@ func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 }
 
 func setupFakeReporter() (*fakeReporter, *fakeGoTest) {
-	myReporter := fakeReporter{}
+	myReporter := new(fakeReporter)
 	myReporter.calls = []string{}
-	reporter = &myReporter
-	runner = execution.NewRunner()
-	runner.UpgradeReporter(reporter)
-	return &myReporter, &fakeGoTest{}
+	testReporter = myReporter
+	return myReporter, new(fakeGoTest)
 }
 
 type fakeReporter struct {

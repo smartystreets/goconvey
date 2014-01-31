@@ -5,6 +5,7 @@ package convey
 
 import (
 	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 )
 
@@ -40,21 +41,33 @@ func SkipConvey(items ...interface{}) {
 }
 
 func register(entry *execution.Registration) {
-	if entry.Test != nil {
+	if entry.IsTopLevel() {
+		reporter := buildReporter()
+		runner := execution.NewRunner()
+		runner.UpgradeReporter(reporter)
+
+		runners[entry.File+entry.TestName] = runner
+		reporters[entry.File+entry.TestName] = reporter
+
 		runner.Begin(entry)
 		runner.Run()
 	} else {
+		runner := runners[entry.File+entry.TestName]
 		runner.Register(entry)
 	}
 }
 
 func skipReport() {
+	file, _, testName := gotest.ResolveExternalCallerWithTestName()
+	reporter := reporters[file+testName]
 	reporter.Report(reporting.NewSkipReport())
 }
 
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
+	file, _, testName := gotest.ResolveExternalCallerWithTestName()
+	runner := runners[file+testName]
 	runner.RegisterReset(execution.NewAction(action))
 }
 
@@ -66,6 +79,9 @@ func Reset(action func()) {
 // See the examples package for use cases and the assertions package for
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
+	file, _, testName := gotest.ResolveExternalCallerWithTestName()
+	reporter := reporters[file+testName]
+
 	if result := assert(actual, expected...); result == assertionSuccess {
 		reporter.Report(reporting.NewSuccessReport())
 	} else {
