@@ -1,9 +1,10 @@
 package examples
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 	"time"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAssertions(t *testing.T) {
