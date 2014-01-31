@@ -8,6 +8,8 @@ import (
 )
 
 func TestAssertions(t *testing.T) {
+	t.Parallel()
+
 	Convey("All assertions should be accessible", t, func() {
 		Convey("Equality assertions should be accessible", func() {
 			thing1a := thing{a: "asdf"}
