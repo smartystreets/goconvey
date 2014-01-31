@@ -7,8 +7,6 @@ import (
 )
 
 func TestSpec(t *testing.T) {
-	t.Parallel()
-
 	Convey("Subject: Integer incrementation and decrementation", t, func() {
 		var x int
 

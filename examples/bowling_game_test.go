@@ -16,8 +16,6 @@ import (
 )
 
 func TestScoring(t *testing.T) {
-	t.Parallel()
-
 	Convey("Subject: Bowling Game Scoring", t, func() {
 		var game *Game // Whatever you do, don't do this: game := NewGame()
 		// Otherwise nested closures won't reference the correct instance
