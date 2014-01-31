@@ -41,9 +41,7 @@ func SkipConvey(items ...interface{}) {
 
 func register(entry *execution.Registration) {
 	if entry.IsTopLevel() {
-		runner := suites.Assign()
-		runner.Begin(entry)
-		runner.Run()
+		suites.Run(entry)
 	} else {
 		suites.CurrentRunner().Register(entry)
 	}

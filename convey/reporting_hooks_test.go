@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 )
 
@@ -229,3 +230,12 @@ func (self *fakeReporter) EndStory() {
 func (self *fakeReporter) wholeStory() string {
 	return strings.Join(self.calls, "|")
 }
+
+////////////////////////////////
+
+type fakeGoTest struct{}
+
+func (self *fakeGoTest) Fail()                                     {}
+func (self *fakeGoTest) Fatalf(format string, args ...interface{}) {}
+
+var test gotest.T = &fakeGoTest{}
