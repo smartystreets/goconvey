@@ -1,8 +1,6 @@
 package convey
 
-import (
-	"github.com/smartystreets/goconvey/assertions"
-)
+import "github.com/smartystreets/goconvey/assertions"
 
 var (
 	ShouldEqual          = assertions.ShouldEqual

@@ -2,9 +2,10 @@ package convey
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/execution"
 	"strings"
 	"testing"
+
+	"github.com/smartystreets/goconvey/execution"
 )
 
 func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {

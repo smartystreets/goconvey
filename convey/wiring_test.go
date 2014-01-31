@@ -1,10 +1,11 @@
 package convey
 
 import (
+	"testing"
+
 	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
-	"testing"
 )
 
 func TestParseTopLevelRegistration(t *testing.T) {

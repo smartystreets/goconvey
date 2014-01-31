@@ -1,10 +1,11 @@
 package convey
 
 import (
-	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/reporting"
 	"strconv"
 	"testing"
+
+	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/reporting"
 )
 
 func TestSingleScope(t *testing.T) {
