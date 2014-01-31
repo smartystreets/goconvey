@@ -21,7 +21,6 @@ func (self *problem) Report(report *AssertionResult) {
 func (self *problem) Exit() {}
 
 func (self *problem) EndStory() {
-	self.out.Println("")
 	self.show(self.showErrors, redColor)
 	self.show(self.showFailures, yellowColor)
 	self.prepareForNextStory()

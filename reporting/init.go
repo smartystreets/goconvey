@@ -29,16 +29,14 @@ func BuildDotReporter() Reporter {
 	return NewReporters(
 		NewGoTestReporter(),
 		NewDotReporter(out),
-		NewProblemReporter(out),
-		NewStatisticsReporter(out))
+		NewProblemReporter(out))
 }
 func BuildStoryReporter() Reporter {
 	out := printing.NewPrinter(printing.NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewStoryReporter(out),
-		NewProblemReporter(out),
-		NewStatisticsReporter(out))
+		NewProblemReporter(out))
 }
 
 var (

@@ -49,6 +49,7 @@ func (self *story) Exit() {
 
 func (self *story) EndStory() {
 	self.titlesById = make(map[string]string)
+	self.out.Println("\n")
 }
 
 func NewStoryReporter(out *printing.Printer) *story {
