@@ -58,10 +58,10 @@ func Reset(action func()) {
 }
 
 // So is the means by which assertions are made against the system under test.
-// The majority of exported names in this package begin with the word 'Should'
-// and describe how the first argument (actual) should compare with any of the
-// final (expected) arguments. How many final arguments are accepted depends on
-// the particular assertion that is passed in as the assert argument.
+// The majority of exported names in the assertions package begin with the word
+// 'Should' and describe how the first argument (actual) should compare with any
+// of the final (expected) arguments. How many final arguments are accepted
+// depends on the particular assertion that is passed in as the assert argument.
 // See the examples package for use cases and the assertions package for
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
