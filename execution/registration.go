@@ -1,8 +1,6 @@
 package execution
 
-import (
-	"github.com/smartystreets/goconvey/gotest"
-)
+import "github.com/smartystreets/goconvey/gotest"
 
 type Registration struct {
 	Situation string

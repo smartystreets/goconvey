@@ -1,8 +1,6 @@
 package execution
 
-import (
-	"github.com/smartystreets/goconvey/gotest"
-)
+import "github.com/smartystreets/goconvey/gotest"
 
 func (self *Action) Invoke() {
 	self.action()

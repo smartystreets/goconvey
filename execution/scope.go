@@ -2,8 +2,9 @@ package execution
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/reporting"
 	"strings"
+
+	"github.com/smartystreets/goconvey/reporting"
 )
 
 func (parent *scope) adopt(child *scope) {
