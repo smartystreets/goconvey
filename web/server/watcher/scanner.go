@@ -1,9 +1,10 @@
 package watcher
 
 import (
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"log"
 	"os"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type Scanner struct {

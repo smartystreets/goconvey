@@ -1,9 +1,10 @@
 package parser
 
 import (
+	"testing"
+
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"testing"
 )
 
 func TestParser(t *testing.T) {

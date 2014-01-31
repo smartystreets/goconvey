@@ -1,9 +1,10 @@
 package executor
 
 import (
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"log"
 	"time"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 const (

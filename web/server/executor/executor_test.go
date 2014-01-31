@@ -1,11 +1,12 @@
 package executor
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"strings"
 	"testing"
 	"time"
+
+	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 func TestExecutor(t *testing.T) {

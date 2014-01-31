@@ -1,8 +1,9 @@
 package executor
 
 import (
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"log"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type ConcurrentTester struct {

@@ -1,10 +1,11 @@
 package watcher
 
 import (
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type walkStep struct {

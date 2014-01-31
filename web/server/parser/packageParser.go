@@ -2,9 +2,10 @@ package parser
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"strconv"
 	"strings"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 func ParsePackageResults(result *contract.PackageResult, rawOutput string) {

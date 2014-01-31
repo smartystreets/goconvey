@@ -2,9 +2,10 @@ package executor
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"log"
 	"sync"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type concurrentCoordinator struct {

@@ -1,11 +1,12 @@
 package watcher
 
 import (
+	"testing"
+	"time"
+
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/system"
-	"testing"
-	"time"
 )
 
 func TestScanner(t *testing.T) {

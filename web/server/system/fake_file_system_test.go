@@ -1,10 +1,11 @@
 package system
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
 	"time"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestFakeFileSystem(t *testing.T) {

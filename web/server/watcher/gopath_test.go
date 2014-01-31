@@ -1,9 +1,10 @@
 package watcher
 
 import (
+	"testing"
+
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/system"
-	"testing"
 )
 
 func TestGoPath(t *testing.T) {

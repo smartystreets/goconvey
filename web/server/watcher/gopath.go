@@ -2,13 +2,14 @@ package watcher
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"path/filepath"
 	"strings"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type goPath struct {
-	shell   contract.Shell
+	shell contract.Shell
 }
 
 func (self *goPath) ResolvePackageName(folder string) string {

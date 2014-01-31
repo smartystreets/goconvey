@@ -3,10 +3,11 @@ package executor
 import (
 	"errors"
 	"fmt"
-	. "github.com/smartystreets/goconvey/convey"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"testing"
 	"time"
+
+	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 func TestConcurrentTester(t *testing.T) {

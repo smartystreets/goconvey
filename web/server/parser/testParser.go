@@ -3,10 +3,11 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/smartystreets/goconvey/reporting"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"strconv"
 	"strings"
+
+	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type testParser struct {

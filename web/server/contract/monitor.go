@@ -1,8 +1,6 @@
 package contract
 
-import (
-	"log"
-)
+import "log"
 
 type Monitor struct {
 	scanner  Scanner

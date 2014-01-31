@@ -3,11 +3,12 @@ package watcher
 import (
 	"errors"
 	"fmt"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type Watcher struct {

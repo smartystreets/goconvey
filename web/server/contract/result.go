@@ -1,9 +1,10 @@
 package contract
 
 import (
-	"github.com/smartystreets/goconvey/reporting"
 	"path/filepath"
 	"strings"
+
+	"github.com/smartystreets/goconvey/reporting"
 )
 
 type Package struct {

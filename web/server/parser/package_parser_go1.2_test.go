@@ -5,10 +5,11 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/smartystreets/goconvey/reporting"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"strings"
 	"testing"
+
+	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 func TestParsePackage_NoGoFiles_ReturnsPackageResult(t *testing.T) {

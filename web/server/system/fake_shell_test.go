@@ -1,8 +1,9 @@
 package system
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestFakeShell(t *testing.T) {

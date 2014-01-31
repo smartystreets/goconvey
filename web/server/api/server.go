@@ -3,9 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/smartystreets/goconvey/web/server/contract"
 	"net/http"
 	"time"
+
+	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type HTTPServer struct {

@@ -1,9 +1,10 @@
 package contract
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestMonitor(t *testing.T) {

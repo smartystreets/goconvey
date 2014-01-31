@@ -2,9 +2,7 @@
 
 package parser
 
-import (
-	"strings"
-)
+import "strings"
 
 func noGoFiles(line string) bool {
 	return strings.HasPrefix(line, "can't load package: ") &&
