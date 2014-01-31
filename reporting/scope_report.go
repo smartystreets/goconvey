@@ -2,6 +2,7 @@ package reporting
 
 import (
 	"fmt"
+
 	"github.com/smartystreets/goconvey/gotest"
 )
 

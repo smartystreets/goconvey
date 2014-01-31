@@ -1,9 +1,9 @@
 package reporting
 
 import (
-	_ "fmt"
-	"github.com/smartystreets/goconvey/gotest"
 	"strings"
+
+	"github.com/smartystreets/goconvey/gotest"
 )
 
 type StoryReport struct {

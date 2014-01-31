@@ -5,8 +5,9 @@ package reporting
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/smartystreets/goconvey/printing"
 	"strings"
+
+	"github.com/smartystreets/goconvey/printing"
 )
 
 func (self *JsonReporter) BeginStory(story *StoryReport) {}

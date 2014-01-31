@@ -2,9 +2,10 @@ package reporting
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/printing"
 	"os"
 	"strings"
+
+	"github.com/smartystreets/goconvey/printing"
 )
 
 func init() {

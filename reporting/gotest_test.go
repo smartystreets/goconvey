@@ -1,8 +1,6 @@
 package reporting
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestReporterReceivesSuccessfulReport(t *testing.T) {
 	reporter := NewGoTestReporter()

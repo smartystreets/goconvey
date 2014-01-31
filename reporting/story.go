@@ -7,9 +7,9 @@
 
 package reporting
 
-import "fmt"
-
 import (
+	"fmt"
+
 	"github.com/smartystreets/goconvey/printing"
 )
 
