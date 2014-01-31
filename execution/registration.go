@@ -10,6 +10,10 @@ type Registration struct {
 	Line      int
 }
 
+func (self *Registration) IsTopLevel() bool {
+	return self.Test != nil
+}
+
 func NewRegistration(situation string, action *Action, test gotest.T) *Registration {
 	file, line, _ := gotest.ResolveExternalCaller()
 	self := &Registration{}

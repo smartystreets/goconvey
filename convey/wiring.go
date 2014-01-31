@@ -3,13 +3,12 @@ package convey
 import (
 	"os"
 
-	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/reporting"
 )
 
 func init() {
 	parseFlags()
-	configureRunner()
+	suites = NewSuiteContext()
 }
 
 // parseFlags parses the command line args manually because the go test tool,
@@ -30,13 +29,10 @@ func flagFound(flagValue string) bool {
 	return false
 }
 
-func configureRunner() {
-	reporter = buildReporter()
-	runner = execution.NewRunner()
-	runner.UpgradeReporter(reporter)
-}
 func buildReporter() reporting.Reporter {
-	if json {
+	if testReporter != nil {
+		return testReporter
+	} else if json {
 		return reporting.BuildJsonReporter()
 	} else if verbose {
 		return reporting.BuildStoryReporter()
@@ -46,8 +42,10 @@ func buildReporter() reporting.Reporter {
 }
 
 var (
-	runner   execution.Runner
-	reporter reporting.Reporter
+	suites *SuiteContext
+
+	// only set by internal tests
+	testReporter reporting.Reporter
 )
 
 var (

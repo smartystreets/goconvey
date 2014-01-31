@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/smartystreets/goconvey/execution"
+	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 )
 
@@ -185,12 +185,10 @@ func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 }
 
 func setupFakeReporter() (*fakeReporter, *fakeGoTest) {
-	myReporter := fakeReporter{}
+	myReporter := new(fakeReporter)
 	myReporter.calls = []string{}
-	reporter = &myReporter
-	runner = execution.NewRunner()
-	runner.UpgradeReporter(reporter)
-	return &myReporter, &fakeGoTest{}
+	testReporter = myReporter
+	return myReporter, new(fakeGoTest)
 }
 
 type fakeReporter struct {
@@ -232,3 +230,12 @@ func (self *fakeReporter) EndStory() {
 func (self *fakeReporter) wholeStory() string {
 	return strings.Join(self.calls, "|")
 }
+
+////////////////////////////////
+
+type fakeGoTest struct{}
+
+func (self *fakeGoTest) Fail()                                     {}
+func (self *fakeGoTest) Fatalf(format string, args ...interface{}) {}
+
+var test gotest.T = &fakeGoTest{}
