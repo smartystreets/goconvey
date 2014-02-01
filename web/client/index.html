@@ -19,102 +19,134 @@
 		<script src="/resources/js/goconvey.js"></script>
 	</head>
 	<body>
-		
-		<div class="overall ok">
-			<div class="status">
-				PASS
-			</div>
-		</div>
-
-		<div class="toggler" data-toggle="controls">
-			<i class="fa fa-angle-down fa-lg"></i>
-			Controls
-		</div>
-
-		<div id="controls" class="controls hide-narrow cf">
-			<ul>
-				<li class="logo">GoConvey</li>
-			</ul>
-
-			<ul class="float-right">
-				<li class="fa fa-pause" id="play-pause" title="Play/pause tests"></li>
-				<li class="fa fa-refresh" id="run-tests" title="Execute tests"></li>
-				<li class="fa fa-clock-o" id="show-history" title="Test history"></li>
-				<li class="fa fa-bell-o" id="toggle-notif" title="Toggle notifications"></li>
-				<li class="fa fa-cog link-fa" id="show-settings" title="Settings"></li>
-				<li class="fa fa-pencil-square-o link-fa" id="show-gen" title="Code generator"></li>
-			</ul>
-
-			<hr class="clear">
-
-
-			<div class="expandable settings">
-				<div class="container">
-					<div class="setting">
-						<ol class="enum" id="theme"><!-- Populated by Javascript --></ol>
-						<script id="tpl-theme-enum" type="text/template">
-							{{.}}<li data-theme="{{id}}">{{name}}</li>{{/.}}
-						</script>
-					</div>
-					<div class="setting">
-						<label><input type="checkbox">Full coverage report</label>
-					</div>
+		<header>
+			<div class="overall ok">
+				<div class="status">
+					PASS
 				</div>
 			</div>
 
-			<div class="expandable history">
-				<div class="container">
-					<div class="item ok">
-						<div class="status">1 min ago</div>
-						<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
-					</div>
-					<div class="item fail">
-						<div class="status">2 min ago</div>
-						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-					</div>
-					<div class="item panic">
-						<div class="status">1 hr ago</div>
-						<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
-					</div>
-					<div class="item buildfail">
-						<div class="status">1 day ago</div>
-						<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
-					</div>
-					<div class="item fail">
-						<div class="status">2 min ago</div>
-						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-					</div>
-					<div class="item ok">
-						<div class="status">1 min ago</div>
-						<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
-					</div>
-					<div class="item ok">
-						<div class="status">1 min ago</div>
-						<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
-					</div>
-					<div class="item buildfail">
-						<div class="status">1 day ago</div>
-						<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
-					</div>
-					<div class="item panic">
-						<div class="status">1 hr ago</div>
-						<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
-					</div>
-					<div class="item fail">
-						<div class="status">2 min ago</div>
-						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-					</div>
-					<div class="item fail">
-						<div class="status">2 min ago</div>
-						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-					</div>
-				</div>
+			<div class="toggler hide" data-toggle="controls">
+				<i class="fa fa-angle-down fa-lg"></i>
+				Controls
 			</div>
 
+			<div id="controls" class="controls hide-narrow cf">
+				<ul>
+					<li class="logo">GoConvey</li>
+				</ul>
+
+				<ul class="float-right">
+					<li class="fa fa-pause" id="play-pause" title="Play/pause tests"></li>
+					<li class="fa fa-refresh" id="run-tests" title="Execute tests"></li>
+					<li class="fa fa-clock-o" id="show-history" title="Test history"></li>
+					<li class="fa fa-bell-o" id="toggle-notif" title="Toggle notifications"></li>
+					<li class="fa fa-cog link-fa" id="show-settings" title="Settings"></li>
+					<li class="fa fa-pencil-square-o link-fa" id="show-gen" title="Code generator"></li>
+				</ul>
+
+				<hr class="clear">
+
+
+				<div class="expandable settings">
+					<div class="container">
+						<div class="setting">
+							<ol class="enum" id="theme"><!-- Populated by Javascript --></ol>
+							<script id="tpl-theme-enum" type="text/template">
+								{{.}}<li data-theme="{{id}}">{{name}}</li>{{/.}}
+							</script>
+						</div>
+						<div class="setting">
+							<label><input type="checkbox">Full coverage report</label>
+						</div>
+					</div>
+				</div>
+
+				<div class="expandable history">
+					<div class="container">
+						<div class="item ok">
+							<div class="status">1 min ago</div>
+							<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
+						</div>
+						<div class="item fail">
+							<div class="status">2 min ago</div>
+							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+						</div>
+						<div class="item panic">
+							<div class="status">1 hr ago</div>
+							<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
+						</div>
+						<div class="item buildfail">
+							<div class="status">1 day ago</div>
+							<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
+						</div>
+						<div class="item fail">
+							<div class="status">2 min ago</div>
+							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+						</div>
+						<div class="item ok">
+							<div class="status">1 min ago</div>
+							<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
+						</div>
+						<div class="item ok">
+							<div class="status">1 min ago</div>
+							<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
+						</div>
+						<div class="item buildfail">
+							<div class="status">1 day ago</div>
+							<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
+						</div>
+						<div class="item panic">
+							<div class="status">1 hr ago</div>
+							<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
+						</div>
+						<div class="item fail">
+							<div class="status">2 min ago</div>
+							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+						</div>
+						<div class="item fail">
+							<div class="status">2 min ago</div>
+							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+		</header>
+
+
+		<table id="frame">
+			<!--<tr>
+				<td colspan="5">
+					<div class="toggler" data-toggle="row1">
+						<i class="fa fa-angle-down fa-lg"></i>
+						Results
+					</div>
+				</td>
+			</tr>-->
+			<tr>
+				<td>
+					
+				</td>
+				<td>
+					
+				</td>
+				<td>
+					
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3"></td>
+			</tr>
+		</table>
 
 
 
-		</div>
+
+
+
+
 <!--
 		<div style="border: 2px solid #6D0A0A;     width: 35%; margin: 1em">
 			<div style="background-color: #6D0A0A; padding: 10px;">

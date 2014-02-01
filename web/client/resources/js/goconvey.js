@@ -30,7 +30,11 @@ var convey = {
 	intervals: {},			// intervals that execute periodically
 	overall: {},			// current overall results
 	theme: "",				// current theme being used
-	selClass: "sel"			// CSS class when an element is "selected"
+	layout: {
+		selClass: "sel",	// CSS class when an element is "selected"
+		header: undefined,	// Container element of the header area (overall, controls)
+		table: undefined	// Container element of the main body table
+	}
 };
 
 
@@ -102,9 +106,12 @@ function wireup()
 
 	$('.enum#theme').on('click', 'li', function()
 	{
-		if (!$(this).hasClass(convey.selClass))
+		if (!$(this).hasClass(convey.layout.selClass))
 			loadTheme($(this).data('theme'));
 	});
+
+	convey.layout.header = $('header');
+	convey.layout.table = $('#frame');
 
 	$('#run-tests').click(function()
 	{
@@ -122,12 +129,12 @@ function wireup()
 
 	$('#play-pause').click(function()
 	{
-		$(this).toggleClass("throb " + convey.selClass);
+		$(this).toggleClass("throb " + convey.layout.selClass);
 	});
 
 	$('#toggle-notif').click(function()
 	{
-		$(this).toggleClass("fa-bell-o fa-bell " + convey.selClass);
+		$(this).toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
 	});
 
 	$('#show-history').click(function()
@@ -144,14 +151,16 @@ function wireup()
 
 	$('.toggler').click(function()
 	{
-		var toggle = $('#' + $(this).data('toggle'));
+		var target = $('#' + $(this).data('toggle'));
 		$('.fa-angle-down, .fa-angle-up', this).toggleClass('fa-angle-down fa-angle-up');
-		toggle.toggleClass('hide-narrow show-narrow');
-		//$('.' + togId).toggle();
+		target.toggleClass('hide-narrow show-narrow');
 	});
 
 	// Enumerations are lists where one item can be selected at a time
 	$('.enum').on('click', 'li', enumSel);
+
+	$(window).resize(reframe);
+	reframe();
 
 /*
 	convey.intervals.time = setInterval(function()
@@ -183,13 +192,13 @@ function enumSel(id, val)
 		{
 			if ($(this).data(id) == val)
 			{
-				$(this).addClass(convey.selClass).siblings().removeClass(convey.selClass);
+				$(this).addClass(convey.layout.selClass).siblings().removeClass(convey.layout.selClass);
 				return false;
 			}
 		});
 	}
 	else
-		$(this).addClass(convey.selClass).siblings().removeClass(convey.selClass);
+		$(this).addClass(convey.layout.selClass).siblings().removeClass(convey.layout.selClass);
 }
 
 function toggle(jqelem, switchelem)
@@ -204,7 +213,7 @@ function toggle(jqelem, switchelem)
 		jqelem.slideDown(speed, transition, function()
 		{
 			if (switchelem)
-				switchelem.toggleClass(convey.selClass);
+				switchelem.toggleClass(convey.layout.selClass);
 			$(containerSel, jqelem).stop().animate({
 				opacity: 1
 			}, speed);
@@ -217,7 +226,7 @@ function toggle(jqelem, switchelem)
 		}, speed, function()
 		{
 			if (switchelem)
-				switchelem.toggleClass(convey.selClass);
+				switchelem.toggleClass(convey.layout.selClass);
 			jqelem.slideUp(speed, transition);
 		});
 	}
@@ -259,6 +268,12 @@ function render(templateID, context)
 {
 	var tpl = $('#' + templateID).text();
 	return $($.trim(Mark.up(tpl, context)));
+}
+
+function reframe()
+{
+	var h = $(window).height() - convey.layout.header.outerHeight();
+	convey.layout.table.height(h);
 }
 
 function zerofill(val, count)

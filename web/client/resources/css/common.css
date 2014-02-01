@@ -103,7 +103,6 @@ input[type=text] {
 }
 
 .toggler {
-	display: none;
 	font-size: 10px;
 	padding: 0 1em;
 	text-decoration: none;
@@ -210,6 +209,38 @@ input[type=text] {
 
 
 
+.hide {
+	display: none;
+}
+
+
+
+#frame {
+	position: relative;
+	z-index: 0;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+#frame td {
+	border: 1px solid #33B5E5;
+}
+
+#frame td:first-child {
+	border-left: 0;
+}
+
+#frame td:last-child {
+	border-right: 0;
+}
+
+#frame tr:first-child td {
+	border-top: 0;
+}
+
+#frame tr:last-child td {
+	border-bottom: 0;
+}
 
 
 
