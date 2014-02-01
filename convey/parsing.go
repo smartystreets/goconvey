@@ -1,9 +1,6 @@
 package convey
 
-import (
-	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/gotest"
-)
+import "github.com/smartystreets/goconvey/execution"
 
 func discover(items []interface{}) *execution.Registration {
 	ensureEnough(items)
@@ -25,13 +22,13 @@ func parseName(items []interface{}) string {
 	}
 	panic(parseError)
 }
-func parseGoTest(items []interface{}) gotest.T {
-	if test, parsed := items[1].(gotest.T); parsed {
+func parseGoTest(items []interface{}) T {
+	if test, parsed := items[1].(T); parsed {
 		return test
 	}
 	return nil
 }
-func parseAction(items []interface{}, test gotest.T) *execution.Action {
+func parseAction(items []interface{}, test T) *execution.Action {
 	var index = 1
 	if test != nil {
 		index = 2
@@ -44,6 +41,13 @@ func parseAction(items []interface{}, test gotest.T) *execution.Action {
 		return execution.NewSkippedAction(skipReport)
 	}
 	panic(parseError)
+}
+
+// This interface allows us to pass the *testing.T struct
+// throughout the internals of this tool without ever
+// having to import the "testing" package.
+type T interface {
+	Fail()
 }
 
 const parseError = "You must provide a name (string), then a *testing.T (if in outermost scope), and then an action (func())."

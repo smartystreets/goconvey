@@ -75,3 +75,10 @@ func isXterm() bool {
 	return strings.Contains(env, " TERM=isXterm") ||
 		strings.Contains(env, " TERM=xterm")
 }
+
+// This interface allows us to pass the *testing.T struct
+// throughout the internals of this tool without ever
+// having to import the "testing" package.
+type T interface {
+	Fail()
+}
