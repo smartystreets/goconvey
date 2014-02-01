@@ -34,11 +34,9 @@ func (self *dot) Exit() {}
 func (self *dot) EndStory() {}
 
 func NewDotReporter(out *printing.Printer) *dot {
-	self := dot{}
+	self := new(dot)
 	self.out = out
-	return &self
+	return self
 }
 
-type dot struct {
-	out *printing.Printer
-}
+type dot struct{ out *printing.Printer }
