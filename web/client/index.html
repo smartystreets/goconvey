@@ -1,462 +1,250 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>GoConvey</title>
-		<script src="/js/jquery-2_0_3.min.js"></script>
-		<script src="/js/diff-match-patch.min.js"></script>
-		<script src="/js/jquery.pretty-text-diff.min.js"></script>
-		<script src="/js/markup.min.js"></script>
-		<script src="/js/jquery.tipsy.min.js"></script>
-		<script src="/js/goconvey.js"></script>
-		<script src="/js/goconvey.gen.js"></script>
-		<script src="/js/jquery.waypoints.sticky.min.js"></script>
-		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Oswald|Open+Sans:300italic,400italic,400,300,700,600,800">
+		<title>[NEW] GoConvey</title>
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css">
-		<link rel="stylesheet" href="/css/unsemantic.css">
-		<link rel="stylesheet" href="/css/tipsy.css">
-		<link rel="stylesheet" href="/css/goconvey.css">
+		<link rel="stylesheet" href="/resources/css/tipsy.css">
+		<link rel="stylesheet" href="/resources/css/common.css">
 		<link rel="icon" class="favicon" href="/favicon.ico" type="image/vnd.microsoft.icon">
 		<link rel="shortcut icon" class="favicon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+
+		<script src="/resources/js/lib/markup.min.js"></script>
+		<script src="/resources/js/lib/diff-match-patch.min.js"></script>
+		<script src="/resources/js/lib/jquery-2_1_0.min.js"></script>
+		<script src="/resources/js/lib/jquery-ui-1_10_3-custom.min.js"></script>
+		<script src="/resources/js/lib/jquery.pretty-text-diff.min.js"></script>
+		<script src="/resources/js/lib/jquery.tipsy.min.js"></script>
+		<script src="/resources/js/lib/jquery.waypoints.sticky.min.js"></script>
+
+		<script src="/resources/js/goconvey.js"></script>
 	</head>
 	<body>
-		<header>
-			<div class="grid-container">
-				<div class="grid-20">
-					<h1><a href="http://goconvey.co">GoConvey</a></h1>
-				</div>
-				<div class="push-60 grid-20 menu">
-					<a class="fa fa-refresh link-fa fa-lg" id="run-tests" href="javascript:" title="Run tests"></a>
-					<a class="fa fa-bell-o link-fa fa-lg" id="toggle-notif" href="javascript:" title="Toggle notifications"></a>
-					<a class="fa fa-pencil-square-o link-fa fa-lg" id="show-gen" href="javascript:" title="Code generator"></a>
-				</div>
-				<div class="grid-60 pull-20" style="position: relative">
-					<i class="fa fa-eye fa-lg watching-eye"></i>
-					<input type="text" id="path" placeholder="/path/to/project/root" title="Watched path">
-				</div>
-			</div>
-		</header>
-
-		<div id="banners">
-			<!-- Holds .overall and #server-down -->
-		</div>
-
-		<script id="tpl-server-down" type="text/template">
-			<div id="server-down">
-				<div class="grid-container">
-					<div class="prefix-20 grid-60 suffix-20">
-					{{if message|like>starting}}
-						Server is starting...
-					{{else}}
-						Server is down... waiting for it to come back up...
-					{{/if}}
-					</div>
-				</div>
-			</div>
-		</script>
-
 		
-		<script id="tpl-overall-ok" type="text/template">
-			<div class="overall ok clearfix templated">
-				<div class="grid-container">
-					<div class="prefix-20 grid-60 suffix-20">
-						<div class="status">
-							OK
-						</div>
-						<div class="summary">
-							PASS<br>
-							{{passed}}/{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}}
-							{{if skipped}} - {{skipped}} skipped{{/if}}
-							<br>
-							{{duration}}s
-						</div>
-						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
-					</div>
-				</div>
-			</div>
-		</script>
-
-		<script id="tpl-ok-audio" type="text/template">
-			<audio src="/js/its-working.mp3" class="templated" autoplay>
-		</script>
-
-		<script id="tpl-overall-fail" type="text/template">
-			<div class="overall fail clearfix templated">
-				<div class="grid-container">
-					<div class="prefix-20 grid-60 suffix-20">
-						<div class="status">
-							FAIL
-						</div>
-						<div class="summary">
-							{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}}<br>
-							{{failures}} failed<br>
-							{{duration}}s
-						</div>
-						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
-					</div>
-				</div>		
-			</div>
-		</script>
-
-		<script id="tpl-overall-panic" type="text/template">
-			<div class="overall panic clearfix templated">
-				<div class="grid-container">
-					<div class="prefix-20 grid-60 suffix-20">
-						<div class="status">
-							PANIC
-						</div>
-						<div class="summary">
-							{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}}<br>
-							{{failures}} failed - {{panics}} panic{{if panics|notequals>1}}s{{/if}}<br>
-							{{duration}}s
-						</div>
-						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
-					</div>
-				</div>
-			</div>
-		</script>
-
-
-		<script id="tpl-overall-buildfail" type="text/template">
-			<div class="overall buildfail clearfix templated">
-				<div class="grid-container">
-					<div class="prefix-20 grid-60 suffix-20">
-						<div class="status">
-							BUILD FAILED
-						</div>
-						<div class="summary">
-							{{failedBuilds}} package{{if failedBuilds|notequals>1}}s{{/if}} not built
-							<br>
-							{{assertions}} assertion{{if assertions|notequals>1}}s{{/if}} -
-							{{failures}} failed -
-							{{panics}} panic{{if panics|notequals>1}}s{{/if}}
-							<br>
-							{{duration}}s
-						</div>
-						<i class="fa fa-arrow-circle-o-up fa-lg go-up"></i>
-					</div>
-				</div>
-			</div>
-		</script>
-
-
-		<div class="grid-container" id="results">
-
-			<div class="grid-20 sidebar" id="left-sidebar">
-
-				<script id="tpl-packages" type="text/template">
-					<div class="templated">
-						<b>Folders</b>
-						<hr>
-						{{.}}
-						<div class="package-shortcut">
-							{{if TestResults|notempty}}
-								<a href="javascript:" class="toggle toggle-package-shortcuts"><i class="fa fa-expand-o fa-lg"></i></a>
-							{{else}}
-								<span class="toggle-spacer"><i class="fa fa-square-o"></i></span>
-							{{/if}}
-
-							<a href="#package-{{_id}}" class="goto-package{{if Outcome|equals>ignored}} clr-maroon{{/if}}">{{PackageName|chopEnd>23|boldPkgName}}</a>
-
-							{{if TestResults|notempty}}<div class="testfunc-list">
-								{{TestResults}}
-								<a href="#test-{{_id}}" class="goto">{{TestName}} <i class="fa fa-level-down"></i></a>
-								{{/TestResults}}
-							</div>
-							{{/if}}
-						</div>
-						{{/.}}
-					</div>
-				</script>
-
-			</div>
-			<div class="grid-60" id="contents">
-
-				<script id="tpl-builds" type="text/template">
-					<div class="builds templated">
-
-						{{.}}
-						<div class="build">
-							<table>
-								<tr>
-									<td class="file">
-										{{PackageName}}
-									</td>
-								</tr>
-								<tr>
-									<td class="raw-output">
-										<code>{{BuildOutput|showhtml}}</code>
-									</td>
-								</tr>
-							</table>
-						</div>
-						{{/.}}
-
-					</div>
-				</script>
-
-
-				<script id="tpl-panics" type="text/template">
-					<div class="panics templated">
-
-						{{.}}
-						<div class="panic">
-							<table>
-							{{if _path|notempty}}
-								{{_path}}
-								<tr class="{{if Depth|more>-1}}depth-{{Depth}}{{/if}}">
-									<td colspan="3" class="title">
-										{{Title}}
-									</td>
-								</tr>
-								{{/_path}}
-							{{/if}}
-								<tr>
-									<td class="file">
-										<a href="#test-{{_id}}" class="block">{{if File|notempty}}{{File|relativePath}}{{else}}{{TestName}}{{/if}} <i class="fa fa-level-down"></i></a>
-									</td>
-									<td class="line">
-									{{if Line|more>0}}
-										<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>
-										{{/if}}
-									</td>
-								</tr>
-								{{if StackTrace|notempty}}
-								<tr>
-									<td colspan="2" class="panic-error">
-										<b>Panic:</b> {{Error}}
-									</td>
-								</tr>
-								{{/if}}
-								<tr>
-									<td colspan="2" class="raw-output">
-										<code>{{if StackTrace|empty}}{{Error|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}</code>
-									</td>
-								</tr>
-							</table>
-						</div>
-						{{/.}}
-
-					</div>
-				</script>
-
-				
-				<script id="tpl-failures" type="text/template">
-					<div class="failures templated">
-
-						{{.}}
-						<div class="failure">
-							<table>
-							{{if _path|notempty}}
-								{{_path}}
-								<tr class="{{if Depth|more>-1}}depth-{{Depth}}{{/if}}">
-									<td colspan="3" class="title">
-										{{Title}}
-									</td>
-								</tr>
-								{{/_path}}
-							{{/if}}
-								<tr>
-									<td colspan="2" class="file">
-										<a href="#test-{{_id}}" class="block">{{if File|notempty}}{{File|relativePath}}{{else}}{{TestName}}{{/if}} <i class="fa fa-level-down"></i></a>
-									</td>
-									<td class="line">
-										{{if Line|more>0}}<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>{{/if}}
-									</td>
-								</tr>
-								{{if Stories|empty}}
-								<tr>
-									<td colspan="3" class="raw-output">
-										<code>{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}
-										{{StackTrace|showhtml}}{{/if}}{{/if}}</code>
-									</td>
-								</tr>
-								{{/if}}
-								{{if .|needsDiff}}
-								<tr>
-									<th class="expected">
-										Expected
-									</th>
-									<td colspan="2"><code class="original">{{Expected|showhtml}}</code></td>
-								</tr>
-								<tr>
-									<th class="actual">
-										Actual
-									</th>
-									<td colspan="2"><code class="changed">{{Actual|showhtml}}</code></td>
-								</tr>
-								<tr>
-									<th class="difference">
-										Diff
-									</th>
-									<td colspan="2"><code class="diff"></code></td>
-								</tr>
-								{{else}}{{if Stories|notempty}}
-								<tr>
-									<td colspan="3" class="raw-output">
-										<code>{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}
-										{{StackTrace|showhtml}}{{/if}}{{/if}}</code>
-									</td>
-								</tr>
-								{{/if}}{{/if}}
-							</table>
-						</div>
-						{{/.}}
-
-					</div>
-				</script>
-
-				<script id="tpl-stories" type="text/template">
-					{{Packages}}
-					{{if PackageName|notempty}}
-					<table class="package-story templated">
-						<tr class="depth-0" id="package-{{_id}}">
-							<th colspan="3" class="package-top" title="{{Coverage|coverageDisplay}}">
-								<div class="coverage" style="width: {{Coverage|coverageWidth}}; background: {{Coverage|coverageColor}};"></div>
-								<div class="package-header">
-									<a href="javascript:" class="toggle toggle-package-stories"><i class="fa fa-collapse-o fa-lg"></i></a>&nbsp;{{PackageName}}
-									<a class="fa link-fa fa-lg ignore {{if Outcome|notequals>ignored}}fa-eye unwatch{{else}}fa-eye-slash watch clr-red{{/if}}" href="javascript:" title="Toggle ignore" data-pkg="{{PackageName}}"></a>
-								</div>
-							</th>
-						</tr>
-						{{if TestResults|empty}}
-							{{if Outcome|nothing}}
-							<tr>
-								<th class="pkg-summary" colspan="3">
-									(No test cases)
-								</th>
-							</tr>
-							{{else}}{{if Outcome|equals>ignored}}
-							<tr>
-								<th class="pkg-summary" colspan="3">
-									(Ignored)
-								</th>
-							</tr>
-							{{else}}
-							<tr>
-								<th class="pkg-summary inverse" colspan="3">
-									<i class="fa fa-exclamation-triangle"></i> BUILD FAILED
-								</th>
-							</tr>
-							<tr>
-								<td style="padding: 5px; line-height: 1.25em;">
-									<code class="raw-output" style="white-space: pre-wrap;">{{BuildOutput|showhtml}}</code>
-								</td>
-							</tr>
-							{{/if}}{{/if}}
-						{{else}}
-						{{TestResults}}
-						<tr id="test-{{_id}}">
-							<td class="status {{_status}}"></td>
-							<td class="checks">
-							{{if Stories|empty}}
-								{{if _skipped}}<span class="skip">&#9888;&nbsp;S</span><br>
-								{{else}}{{if _panicked}}<span class="panic"><i class="fa fa-bolt"></i></span><br>
-								{{else}}{{if _failed}}<span class="fail">&#10007;</span><br>
-								{{else}}{{if _passed}}<span class="ok">&#10003;</span><br>{{/if}}{{/if}}{{/if}}{{/if}}
-							{{/if}}
-							</td>
-							<td class="title">
-								<b>{{TestName|showhtml}}</b>{{if Message}}<div class="message">{{Message|showhtml}}</div>{{/if}}
-							</td>
-						</tr>
-							{{Stories}}
-							<tr class="depth-{{Depth}}" id="test-{{_id}}">
-								<td class="status {{_status}}"></td>
-								<td class="checks">
-								{{if _passed}}<span class="ok">{{_passed}}&nbsp;&#10003;</span><br>{{/if}}
-								{{if _failed}}<span class="fail">{{_failed}}&nbsp;&#10007;</span><br>{{/if}}
-								{{if _panicked}}<span class="panic">{{_panicked}}&nbsp;<i class="fa fa-bolt"></i></span><br>{{/if}}
-								{{if _skipped}}<span class="skip">S&nbsp;&#9888;</span><br>{{/if}}
-								</td>
-								<td class="title">
-									{{Title|showhtml}}
-								</td>
-							</tr>
-							{{/Stories}}
-						{{/TestResults}}
-						{{/if}}
-					</table>
-					{{/if}}
-					{{/Packages}}
-				</script>
-
-			</div>
-
-			<div class="grid-20 sidebar" id="right-sidebar">
-
-				<script id="tpl-builds-shortcuts" type="text/template">
-					<div class="builds-shortcuts templated">
-						<b>Failed builds</b><hr>
-						{{.}}
-							<a href="#package-{{_id}}">{{PackageName}}</a>
-							<a href="#package-{{_id}}" class="goto"><i class="fa fa-level-down"></i></a><br>
-						{{/.}}
-					</div>
-				</script>
-				<script id="tpl-panic-shortcuts" type="text/template">
-					<div class="panic-shortcuts templated">
-						<b>Panics</b><hr>
-						{{.}}
-							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
-							<a href="#test-{{_id}}" class="goto" title="See in context"><i class="fa fa-level-down"></i></a><br>
-						{{/.}}
-					</div>
-				</script>
-				<script id="tpl-failure-shortcuts" type="text/template">
-					<div class="failure-shortcuts templated">
-						<b>Failures</b><hr>
-						{{.}}
-							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
-							<a href="#test-{{_id}}" class="goto"><i class="fa fa-level-down"></i></a><br>
-						{{/.}}
-					</div>
-				</script>
-
-			</div>
-
-		</div>
-
-
-		<div class="grid-container">
-			<div class="prefix-10 grid-80 suffix-10" id="footer">
-				Powered by <a href="http://goconvey.co" target="_blank"><b>GoConvey</b></a>, brought to you by <a href="http://smartystreets.com" target="_blank">SmartyStreets</a>.
+		<div class="overall ok">
+			<div class="status">
+				PASS
 			</div>
 		</div>
 
+		<div class="toggler" data-toggle="controls">
+			<i class="fa fa-angle-down fa-lg"></i>
+			Controls
+		</div>
+
+		<div id="controls" class="controls hide-narrow cf">
+			<ul>
+				<li class="logo">GoConvey</li>
+			</ul>
+
+			<ul class="float-right">
+				<li class="fa fa-pause" id="play-pause" title="Play/pause tests"></li>
+				<li class="fa fa-refresh" id="run-tests" title="Execute tests"></li>
+				<li class="fa fa-clock-o" id="show-history" title="Test history"></li>
+				<li class="fa fa-bell-o" id="toggle-notif" title="Toggle notifications"></li>
+				<li class="fa fa-cog link-fa" id="show-settings" title="Settings"></li>
+				<li class="fa fa-pencil-square-o link-fa" id="show-gen" title="Code generator"></li>
+			</ul>
+
+			<hr class="clear">
+
+
+			<div class="expandable settings">
+				<div class="container">
+					<div class="setting">
+						<ol class="enum" id="theme"><!-- Populated by Javascript --></ol>
+						<script id="tpl-theme-enum" type="text/template">
+							{{.}}<li data-theme="{{id}}">{{name}}</li>{{/.}}
+						</script>
+					</div>
+					<div class="setting">
+						<label><input type="checkbox">Full coverage report</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="expandable history">
+				<div class="container">
+					<div class="item ok">
+						<div class="status">1 min ago</div>
+						<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
+					</div>
+					<div class="item fail">
+						<div class="status">2 min ago</div>
+						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+					</div>
+					<div class="item panic">
+						<div class="status">1 hr ago</div>
+						<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
+					</div>
+					<div class="item buildfail">
+						<div class="status">1 day ago</div>
+						<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
+					</div>
+					<div class="item fail">
+						<div class="status">2 min ago</div>
+						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+					</div>
+					<div class="item ok">
+						<div class="status">1 min ago</div>
+						<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
+					</div>
+					<div class="item ok">
+						<div class="status">1 min ago</div>
+						<div class="summary">OK<br>3/3 pass<br>0 fail, 1 skip</div>
+					</div>
+					<div class="item buildfail">
+						<div class="status">1 day ago</div>
+						<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
+					</div>
+					<div class="item panic">
+						<div class="status">1 hr ago</div>
+						<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
+					</div>
+					<div class="item fail">
+						<div class="status">2 min ago</div>
+						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+					</div>
+					<div class="item fail">
+						<div class="status">2 min ago</div>
+						<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
+					</div>
+				</div>
+			</div>
 
 
 
-		<div id="generator" class="zen">
-			<a class="zen-close fa fa-times link-fa" href="javascript:" title="Close"></a>
-			
+
+		</div>
+<!--
+		<div style="border: 2px solid #6D0A0A;     width: 35%; margin: 1em">
+			<div style="background-color: #6D0A0A; padding: 10px;">
+				<div class="float-right">line 47</div>
+				/examples/bowling_game_test.go
+			</div>
+			<div style="padding: 10px;">
+				<div style="padding-left: 0;">TestScoring</div>
+				<div style="padding-left: 1.5em;">Subject: Bowling game scoring</div>
+				<div style="padding-left: 3em;">Given a fresh score card</div>
+				<div style="padding-left: 4.5em;">When all gutter balls are thrown</div>
+				<div style="padding-left: 6em;">The score should be zero</div>
+			</div>
+		</div>
+-->
+
+
+
+
+
+
+
+
+
+	<!--
+		<div class="main">
 			<div class="grid-container">
-				<div class="prefix-20 grid-60 suffix-20">
-					<h1>GoConvey Generator</h1>
-
-					<p>
-						Tell your program's story. Write one-line behavioral
-						comments to create a BDD test structure. Use tab
-						indentation to define scopes. Your test file will be
-						automatically stubbed out for you.
-						&nbsp;
-						[<a href="javascript:" id="gen-sample">See an example</a>]
-					</p>
+				<div class="grid-20" style="padding-left: 0; border-right: 1px solid #33B5E5">
+					<!-- <div class="group" style="margin-top: 1em; text-transform: uppercase; border-top: 1px solid #1B5F77; padding: 3px 5px; font-family: 'Open Sans', sans-serif; font-size: 12px; margin-bottom: .5em;">FOLDERS</div> - - >
+					<div style="font-family: 'Open Sans', sans-serif; font-size: 14px;">PACKAGES...?</div>
+					<a href="#">package1</a><br>
+					<a href="#">package2</a><br>
+					More structure needed...
 				</div>
-
-				<div class="prefix-10 grid-80 suffix-10">
-					<textarea rows="1" id="gen-input" placeholder="Type your behavioral tests here"></textarea>
-					<textarea id="gen-output" placeholder="Code will appear here" readonly></textarea>
+				<div class="grid-55" style="padding: 0;">
+					Test output or something?
+				</div>
+				<div class="grid-25 nowrap" style="padding-top: .5em; font-size: 10px; line-height: 1.25em; overflow-x: auto; border-left: 1px solid #33B5E5;">
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Server is starting
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> 52 tests completed
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Parsing test results
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Transmitting
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Server idle
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Polling
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Processing results
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Overall: FAIL
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Computing diff
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Rendering
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Complete
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Poller timeout; re-polling
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Requesting test execution
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Running tests
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> 52 tests completed
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Parsing test results
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Transmitting
+					</div>
+					
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Server idle
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Processing results
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Computing diff
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Rendering
+					</div>
+					<div class="line" style="padding-top: .5em;">
+						<span style="color: #999">[02:41:32.539]</span> Complete
+					</div>
 				</div>
 			</div>
-
+			<div class="grid-container">
+				<div class="grid-100 text-center">
+					Powered by <a href="#">GoConvey</a>. Brought to you by <a href="#">SmartyStreets</a>.
+				</div>
+			</div>
 		</div>
 
-<script id="tpl-convey" type="text/template">{{.}}{{if .|notTestFunc}}{{depth|indent}}Convey("{{title}}", {{if showT}}t, {{/if}}{{if stories|empty}}nil{{else}}func() {
-{{stories|recursivelyRender}}{{depth|indent}}}{{/if}}){{else}}func {{title|safeFunc}}(t *testing.T) {
-{{stories|recursivelyRender}}}{{/if}}
-{{/.}}</script>
-
-		<img src="/loader.gif" id="loader" alt="Processing" title="Processing">
-
+		<div id="stats">
+			<div class="grid-container">
+				<div class="grid-50">
+					<span id="time"></span> UTC
+					&nbsp;&nbsp;
+					Last test 3m ago
+				</div>
+				<div class="grid-50 text-right">
+					51 assertions
+					&nbsp;
+					0 failed
+					&nbsp;
+					1.687s
+				</div>
+			</div>
+		</div>
+-->
 	</body>
 </html>
