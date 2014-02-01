@@ -3,6 +3,7 @@ package reporting
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/smartystreets/goconvey/printing"
@@ -13,7 +14,7 @@ func init() {
 		monochrome()
 	}
 
-	if isWindows() {
+	if runtime.GOOS == "windows" {
 		success, failure, error_ = dotSuccess, dotFailure, dotError
 	}
 }
@@ -75,9 +76,4 @@ func isXterm() bool {
 	env := fmt.Sprintf("%v", os.Environ())
 	return strings.Contains(env, " TERM=isXterm") ||
 		strings.Contains(env, " TERM=xterm")
-}
-
-// There has got to be a better way...
-func isWindows() bool {
-	return os.PathSeparator == '\\' && os.PathListSeparator == ';'
 }
