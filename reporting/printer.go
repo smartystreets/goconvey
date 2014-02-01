@@ -1,4 +1,4 @@
-package printing
+package reporting
 
 import (
 	"fmt"
@@ -36,7 +36,6 @@ func (self *Printer) Dedent() {
 	}
 }
 
-const newline = "\n"
 const space = " "
 const pad = space + space
 const padLength = len(pad)

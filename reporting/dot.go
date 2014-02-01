@@ -1,10 +1,6 @@
 package reporting
 
-import (
-	"fmt"
-
-	"github.com/smartystreets/goconvey/printing"
-)
+import "fmt"
 
 func (self *dot) BeginStory(story *StoryReport) {}
 
@@ -31,10 +27,10 @@ func (self *dot) Exit() {}
 
 func (self *dot) EndStory() {}
 
-func NewDotReporter(out *printing.Printer) *dot {
+func NewDotReporter(out *Printer) *dot {
 	self := new(dot)
 	self.out = out
 	return self
 }
 
-type dot struct{ out *printing.Printer }
+type dot struct{ out *Printer }

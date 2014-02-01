@@ -5,8 +5,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-
-	"github.com/smartystreets/goconvey/printing"
 )
 
 func init() {
@@ -20,20 +18,20 @@ func init() {
 }
 
 func BuildJsonReporter() Reporter {
-	out := printing.NewPrinter(printing.NewConsole())
+	out := NewPrinter(NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewJsonReporter(out))
 }
 func BuildDotReporter() Reporter {
-	out := printing.NewPrinter(printing.NewConsole())
+	out := NewPrinter(NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewDotReporter(out),
 		NewProblemReporter(out))
 }
 func BuildStoryReporter() Reporter {
-	out := printing.NewPrinter(printing.NewConsole())
+	out := NewPrinter(NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewStoryReporter(out),

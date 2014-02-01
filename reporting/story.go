@@ -7,11 +7,7 @@
 
 package reporting
 
-import (
-	"fmt"
-
-	"github.com/smartystreets/goconvey/printing"
-)
+import "fmt"
 
 func (self *story) BeginStory(story *StoryReport) {}
 
@@ -52,7 +48,7 @@ func (self *story) EndStory() {
 	self.out.Println("\n")
 }
 
-func NewStoryReporter(out *printing.Printer) *story {
+func NewStoryReporter(out *Printer) *story {
 	self := story{}
 	self.out = out
 	self.titlesById = make(map[string]string)
@@ -60,6 +56,6 @@ func NewStoryReporter(out *printing.Printer) *story {
 }
 
 type story struct {
-	out        *printing.Printer
+	out        *Printer
 	titlesById map[string]string
 }

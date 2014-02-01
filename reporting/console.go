@@ -1,4 +1,4 @@
-package printing
+package reporting
 
 import (
 	"fmt"

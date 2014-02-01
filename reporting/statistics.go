@@ -1,10 +1,6 @@
 package reporting
 
-import (
-	"fmt"
-
-	"github.com/smartystreets/goconvey/printing"
-)
+import "fmt"
 
 func (self *statistics) BeginStory(story *StoryReport) {}
 
@@ -57,14 +53,14 @@ func (self *statistics) completeReport() {
 	self.out.Print("\n")
 }
 
-func NewStatisticsReporter(out *printing.Printer) *statistics {
+func NewStatisticsReporter(out *Printer) *statistics {
 	self := statistics{}
 	self.out = out
 	return &self
 }
 
 type statistics struct {
-	out      *printing.Printer
+	out      *Printer
 	total    int
 	failing  bool
 	erroring bool
