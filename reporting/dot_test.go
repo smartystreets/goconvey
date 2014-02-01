@@ -7,29 +7,23 @@ import (
 	"github.com/smartystreets/goconvey/printing"
 )
 
-func TestDotReporter(t *testing.T) {
+func TestDotReporterAssertionPrinting(t *testing.T) {
 	monochrome()
-
 	file := newMemoryFile()
 	printer := printing.NewPrinter(file)
 	reporter := NewDotReporter(printer)
 
-	reporter.Report(successReport)
-	reporter.Report(failureReport)
-	reporter.Report(erroredReport)
-	reporter.Report(skippedReport)
+	reporter.Report(NewSuccessReport())
+	reporter.Report(NewFailureReport("failed"))
+	reporter.Report(NewErrorReport(errors.New("error")))
+	reporter.Report(NewSkipReport())
 
-	if file.buffer != dotSuccess+dotFailure+dotError+dotSkip {
-		t.Errorf("\nExpected: '%s%s%s%s'\nActual:  '%s'", dotSuccess, dotFailure, dotError, dotSkip, file.buffer)
+	expected := dotSuccess + dotFailure + dotError + dotSkip
+
+	if file.buffer != expected {
+		t.Errorf("\nExpected: '%s'\nActual:  '%s'", expected, file.buffer)
 	}
 }
-
-var (
-	successReport *AssertionResult = NewSuccessReport()
-	failureReport *AssertionResult = NewFailureReport("failed")
-	erroredReport *AssertionResult = NewErrorReport(errors.New("error"))
-	skippedReport *AssertionResult = NewSkipReport()
-)
 
 type memoryFile struct {
 	buffer string
