@@ -51,13 +51,20 @@
 				<div class="expandable settings">
 					<div class="container">
 						<div class="setting">
-							<ol class="enum" id="theme"><!-- Populated by Javascript --></ol>
-							<script id="tpl-theme-enum" type="text/template">
-								{{.}}<li data-theme="{{id}}">{{name}}</li>{{/.}}
-							</script>
+							<div class="setting-meta">
+								Theme
+							</div>
+							<div class="setting-val">
+								<ol class="enum" id="theme"><!-- Populated by Javascript --></ol>
+								<script id="tpl-theme-enum" type="text/template">
+									{{.}}<li data-theme="{{id}}">{{name}}</li>{{/.}}
+								</script>
+							</div>
 						</div>
 						<div class="setting">
-							<label><input type="checkbox">Full coverage report</label>
+							<div class="setting-val">
+								<label><input type="checkbox">Full coverage report</label>
+							</div>
 						</div>
 					</div>
 				</div>

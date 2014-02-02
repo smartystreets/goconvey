@@ -5,8 +5,8 @@ var convey = {
 
 		// Install new themes by adding them here; the first one will be default
 		themes: {
-			"dark": {name: "Dark Theme", filename: "dark.css"},
-			"light": {name: "Light Theme", filename: "light.css"}
+			"dark": {name: "Dark", filename: "dark.css"},
+			"light": {name: "Light", filename: "light.css"}
 		},
 
 		// Path to the themes (end with forward-slash)
@@ -27,6 +27,11 @@ var convey = {
 		panic: { class: 'panic', text: "PANIC" },
 		buildfail: { class: 'buildfail', text: "BUILD FAILED" }
 	},
+	poller: {
+		timeout: 60000 * 2	// Major gotcha: should be LONGER than server's timeout!
+	},
+	serverStatus: "",		// what the server is currently doing
+	serverUp: true,			// whether or not we can connect to the server
 	intervals: {},			// intervals that execute periodically
 	overall: {},			// current overall results
 	theme: "",				// current theme being used
@@ -45,6 +50,7 @@ function init()
 {
 	convey.overall = emptyOverall();
 	loadTheme();
+	initPoller();
 	$(wireup);
 }
 
@@ -91,8 +97,15 @@ function loadTheme(thmID)
 	}
 	else
 		linkTag.attr('href', fullPath);
+}
 
-	//enumSel("theme", convey.theme);
+function initPoller()
+{
+	return;		// TODO
+	$.ajax({
+		url: "/status/poll",
+		timeout: convey.timeout
+	}).done(pollSuccess).fail(pollFailed);
 }
 
 function wireup()
@@ -123,7 +136,7 @@ function wireup()
 		// Add the CSS class with the animation
 		self.addClass('spin-slowly');
 		
-		// TODO: This will spin while tests are executing, until it finishes
+		// TODO: This should spin while tests are executing, until they finish
 		setTimeout(function() { self.removeClass('spin-slowly'); }, 3350);
 	});
 
@@ -184,6 +197,77 @@ function wireup()
 	setTimeout(function() { changeStatus(convey.statuses.pass) }, 35000);
 }
 
+function pollSuccess(data, message, jqxhr)
+{
+	return;		// TODO
+
+	// By getting in here, we know the server is up
+
+	if (!convey.serverUp)
+	{
+		// If the server was previously down, it is now starting
+		message = "starting";
+		showServerDown(jqxhr, message);
+	}
+
+	convey.serverUp = true;
+
+	if (convey.serverStatus != "idle" && data == "idle")	// Just finished running
+		update();
+	else if (data != "" && data != "idle")	// Just started running
+		executing();
+
+	convey.serverStatus = data;
+	initPoller();
+}
+
+function pollFailed(jqxhr, message, exception)
+{
+	return;		// TODO
+	// When long-polling for the current status, the request failed
+
+	if (message == "timeout")
+		initPoller();	// Poll again; timeout just means no server activity for a while
+	else
+	{
+		showServerDown(jqxhr, message, exception);
+
+		// At every interval, check to see if the server is up
+		var checkStatus = setInterval(function()
+		{
+			if (convey.serverUp)
+			{
+				// By now, we know the previous interval called
+				// updateStatus because the server is obviously up.
+				// We're done here: continue polling as normal.
+				clearInterval(checkStatus);
+				initPoller();
+				return;
+			}
+			else
+			{
+				// The current known state of the server is that
+				// it's down. Check to see if it's up, and if successful,
+				// run updateStatus to let the whole page know it's up.
+				$.get("/status").done(updateStatus);
+			}
+		}, 1000);
+	}
+}
+
+function showServerDown(jqxhr, message, exception)
+{
+	return;		// TODO
+	convey.serverUp = false;
+	disableServerButtons("Server is down");
+	$('#server-down').remove();
+	$('#banners').prepend(render('tpl-server-down', {
+		jqxhr: jqxhr,
+		message: message,
+		error: exception
+	}));
+}
+
 function enumSel(id, val)
 {
 	if (typeof id === "string" && typeof val === "string")
@@ -210,7 +294,7 @@ function toggle(jqelem, switchelem)
 	if (!jqelem.is(':visible'))
 	{
 		$(containerSel, jqelem).css('opacity', 0);
-		jqelem.slideDown(speed, transition, function()
+		jqelem.stop().slideDown(speed, transition, function()
 		{
 			if (switchelem)
 				switchelem.toggleClass(convey.layout.selClass);
@@ -227,7 +311,7 @@ function toggle(jqelem, switchelem)
 		{
 			if (switchelem)
 				switchelem.toggleClass(convey.layout.selClass);
-			jqelem.slideUp(speed, transition);
+			jqelem.stop().slideUp(speed, transition);
 		});
 	}
 }
@@ -237,15 +321,17 @@ function changeStatus(newStatus)
 	if (!newStatus || !newStatus.class || !newStatus.text)
 		newStatus = convey.statuses.pass;
 
-	// The .flash CSS class and the pulsate effect don't play well together.
+	// The CSS class .flash and the jQuery UI 'pulsate' effect don't play well together.
 	// This series of callbacks does the flickering/pulsating as well as
-	// enabling/disabling flashing in the proper order.
+	// enabling/disabling flashing in the proper order so that they don't overlap.
+	// TODO: I suppose the pulsating could also be done with just CSS...
 
-	$('.overall .status').removeClass('flash').effect("pulsate", {times: 4}, 650, function()
+	$('.overall .status').removeClass('flash').effect("pulsate", {times: 2}, 300, function()
 	{
 		 $(this).text(newStatus.text);
 
 		if (newStatus != convey.statuses.pass)
+		{
 			$(this).effect("pulsate", {times: 2}, 300, function()
 			{
 				$(this).effect("pulsate", {times: 3}, 500, function()
@@ -257,10 +343,10 @@ function changeStatus(newStatus)
 						$(this).removeClass('flash');
 				});
 			});
+		}
 	});
 
 	$('.overall').switchClass(convey.overall.status.class, newStatus.class, 1500);
-
 	convey.overall.status = newStatus;
 }
 
@@ -287,4 +373,16 @@ function log(type, msg)
 {
 	if (convey.config.debug)
 		console.log(type+":", msg);
+}
+
+function suppress(event)
+{
+	if (!event)
+		return false;
+	if (event.preventDefault)
+		event.preventDefault();
+	if (event.stopPropagation)
+		event.stopPropagation();
+	event.cancelBubble = true;
+	return false;
 }

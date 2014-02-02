@@ -154,7 +154,6 @@ input[type=text] {
 
 	border-top-width: 1px;
 	border-top-style: solid;
-	padding: 15px 0;
 	overflow-x: hidden;
 	text-align: center;
 	white-space: nowrap;
@@ -167,16 +166,41 @@ input[type=text] {
 
 .settings {
 	white-space: normal;
+	overflow-x: auto;
+	white-space: nowrap;
 }
 
-.setting {
+.settings .setting-meta,
+.settings .setting-val {
+	display: inline-block;
+}
+
+.settings .container {
+	padding: 15px 0;
+}
+
+.settings .setting {
 	font-size: 13px;
 	display: inline-block;
-	margin: 5px;
+	margin-right: 100px;
+}
+
+.settings .setting .setting-meta {
+	text-align: right;
+	padding-right: 1em;
+	vertical-align: middle;
+	max-width: 150px;
+}
+
+.settings .setting .setting-meta small {
+	font-size: 8px;
+	text-transform: uppercase;
+	display: block;
+	line-height: 1.25em;
 }
 
 .history .container {
-	padding-left: 25%;
+	padding: 15px 0 15px 25%;
 }
 
 .history .item {
@@ -426,26 +450,22 @@ input[type=text] {
 
 @-webkit-keyframes throb {
 	0% { opacity: 1; }
-	50% { opacity: 1; }
-	75% { opacity: .35; }
+	50% { opacity: .35; }
 	100% { opacity: 1; }
 }
 @-moz-keyframes throb {
 	0% { opacity: 1; }
-	50% { opacity: 1; }
-	75% { opacity: .35; }
+	50% { opacity: .35; }
 	100% { opacity: 1; }
 }
 @-o-keyframes throb {
 	0% { opacity: 1; }
-	50% { opacity: 1; }
-	75% { opacity: .35; }
+	50% { opacity: .35; }
 	100% { opacity: 1; }
 }
 @keyframes throb {
 	0% { opacity: 1; }
-	50% { opacity: 1; }
-	75% { opacity: .35; }
+	50% { opacity: .35; }
 	100% { opacity: 1; }
 }
 
