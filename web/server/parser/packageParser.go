@@ -24,7 +24,7 @@ type outputParser struct {
 }
 
 func newOutputParser(result *contract.PackageResult, rawOutput string) *outputParser {
-	self := &outputParser{}
+	self := new(outputParser)
 	self.raw = strings.TrimSpace(rawOutput)
 	self.lines = strings.Split(self.raw, "\n")
 	self.result = result

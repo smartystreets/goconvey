@@ -9,8 +9,6 @@ import (
 )
 
 func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {
-	runner = execution.NewRunner()
-
 	output := map[string]bool{}
 
 	defer expectEqual(t, false, output["good"])
@@ -31,8 +29,6 @@ func requireGoTestReference(t *testing.T) {
 }
 
 func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
-	runner = execution.NewRunner()
-
 	output := map[string]bool{}
 
 	defer func() {
@@ -51,7 +47,6 @@ func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
 }
 
 func TestExtraReferencePanics(t *testing.T) {
-	runner = execution.NewRunner()
 	output := map[string]bool{}
 
 	defer func() {
@@ -71,4 +66,48 @@ func TestExtraReferencePanics(t *testing.T) {
 			output["bad"] = true // shouldn't happen
 		})
 	})
+}
+
+func TestParseRegistrationMissingRequiredElements(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != "You must provide a name (string), then a *testing.T (if in outermost scope), and then an action (func())." {
+				t.Errorf("Incorrect panic message.")
+			}
+		}
+	}()
+
+	Convey()
+
+	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
+}
+
+func TestParseRegistration_MissingNameString(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != parseError {
+				t.Errorf("Incorrect panic message.")
+			}
+		}
+	}()
+
+	action := func() {}
+
+	Convey(action)
+
+	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
+}
+
+func TestParseRegistration_MissingActionFunc(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != parseError {
+				t.Errorf("Incorrect panic message: '%s'", r)
+			}
+		}
+	}()
+
+	Convey("Hi there", 12345)
+
+	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
 }

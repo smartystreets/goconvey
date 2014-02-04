@@ -9,7 +9,7 @@ type ScopeResult struct {
 }
 
 func newScopeResult(title string, depth int, file string, line int) *ScopeResult {
-	self := &ScopeResult{}
+	self := new(ScopeResult)
 	self.Title = title
 	self.Depth = depth
 	self.File = file

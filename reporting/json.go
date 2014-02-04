@@ -6,9 +6,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"strings"
-
-	"github.com/smartystreets/goconvey/printing"
 )
+
+type JsonReporter struct {
+	out     *Printer
+	current *ScopeResult
+	index   map[string]*ScopeResult
+	scopes  []*ScopeResult
+	depth   int
+}
 
 func (self *JsonReporter) BeginStory(story *StoryReport) {}
 
@@ -59,19 +65,11 @@ func (self *JsonReporter) reset() {
 	self.depth = 0
 }
 
-func NewJsonReporter(out *printing.Printer) *JsonReporter {
-	self := &JsonReporter{}
+func NewJsonReporter(out *Printer) *JsonReporter {
+	self := new(JsonReporter)
 	self.out = out
 	self.reset()
 	return self
-}
-
-type JsonReporter struct {
-	out     *printing.Printer
-	current *ScopeResult
-	index   map[string]*ScopeResult
-	scopes  []*ScopeResult
-	depth   int
 }
 
 const OpenJson = ">>>>>"  // "⌦"

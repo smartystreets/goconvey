@@ -38,7 +38,7 @@ func (self *Monitor) executeTests() {
 }
 
 func NewMonitor(scanner Scanner, watcher Watcher, executor Executor, server Server, sleep func()) *Monitor {
-	self := &Monitor{}
+	self := new(Monitor)
 	self.scanner = scanner
 	self.watcher = watcher
 	self.executor = executor

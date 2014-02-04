@@ -3,9 +3,8 @@ package reporting
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
-
-	"github.com/smartystreets/goconvey/printing"
 )
 
 func init() {
@@ -13,32 +12,30 @@ func init() {
 		monochrome()
 	}
 
-	if isWindows() {
+	if runtime.GOOS == "windows" {
 		success, failure, error_ = dotSuccess, dotFailure, dotError
 	}
 }
 
 func BuildJsonReporter() Reporter {
-	out := printing.NewPrinter(printing.NewConsole())
+	out := NewPrinter(NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewJsonReporter(out))
 }
 func BuildDotReporter() Reporter {
-	out := printing.NewPrinter(printing.NewConsole())
+	out := NewPrinter(NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewDotReporter(out),
-		NewProblemReporter(out),
-		NewStatisticsReporter(out))
+		NewProblemReporter(out))
 }
 func BuildStoryReporter() Reporter {
-	out := printing.NewPrinter(printing.NewConsole())
+	out := NewPrinter(NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewStoryReporter(out),
-		NewProblemReporter(out),
-		NewStatisticsReporter(out))
+		NewProblemReporter(out))
 }
 
 var (
@@ -79,7 +76,9 @@ func isXterm() bool {
 		strings.Contains(env, " TERM=xterm")
 }
 
-// There has got to be a better way...
-func isWindows() bool {
-	return os.PathSeparator == '\\' && os.PathListSeparator == ';'
+// This interface allows us to pass the *testing.T struct
+// throughout the internals of this tool without ever
+// having to import the "testing" package.
+type T interface {
+	Fail()
 }

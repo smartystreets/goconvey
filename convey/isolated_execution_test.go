@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/reporting"
 )
 
 func TestSingleScope(t *testing.T) {
@@ -253,7 +252,6 @@ func TestIterativeConveys(t *testing.T) {
 }
 
 func prepare() string {
-	runner = execution.NewRunner()
-	reporting.QuietMode()
+	testReporter = execution.NewNilReporter()
 	return ""
 }

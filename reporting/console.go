@@ -1,4 +1,4 @@
-package printing
+package reporting
 
 import (
 	"fmt"
@@ -12,5 +12,5 @@ func (self *console) Write(p []byte) (n int, err error) {
 }
 
 func NewConsole() io.Writer {
-	return &console{}
+	return new(console)
 }

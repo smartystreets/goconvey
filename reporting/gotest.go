@@ -1,6 +1,6 @@
 package reporting
 
-import "github.com/smartystreets/goconvey/gotest"
+type gotestReporter struct{ test T }
 
 func (self *gotestReporter) BeginStory(story *StoryReport) {
 	self.test = story.Test
@@ -21,12 +21,7 @@ func (self *gotestReporter) EndStory() {
 }
 
 func NewGoTestReporter() *gotestReporter {
-	self := gotestReporter{}
-	return &self
-}
-
-type gotestReporter struct {
-	test gotest.T
+	return new(gotestReporter)
 }
 
 func passed(r *AssertionResult) bool {

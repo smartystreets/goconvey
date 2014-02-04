@@ -1,4 +1,4 @@
-package printing
+package reporting
 
 import "testing"
 
@@ -121,6 +121,5 @@ func (self *memoryFile) Write(p []byte) (n int, err error) {
 }
 
 func newMemoryFile() *memoryFile {
-	self := memoryFile{}
-	return &self
+	return new(memoryFile)
 }

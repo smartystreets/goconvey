@@ -15,7 +15,7 @@ type ScopeReport struct {
 
 func NewScopeReport(title, name string) *ScopeReport {
 	file, line, _ := gotest.ResolveExternalCaller()
-	self := &ScopeReport{}
+	self := new(ScopeReport)
 	self.Title = title
 	self.ID = fmt.Sprintf("%s|%s", title, name)
 	self.File = file

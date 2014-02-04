@@ -47,7 +47,7 @@ func (self *walkStep) isWatchedFile() bool {
 }
 
 func newWalkStep(root, path string, info os.FileInfo, watcher contract.Watcher) *walkStep {
-	self := &walkStep{}
+	self := new(walkStep)
 	self.root = root
 	self.path = path
 	self.info = info

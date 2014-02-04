@@ -17,7 +17,7 @@ type Package struct {
 }
 
 func NewPackage(path string) *Package {
-	self := &Package{}
+	self := new(Package)
 	self.Active = true
 	self.Path = path
 	self.Name = resolvePackageName(path)
@@ -51,7 +51,7 @@ type PackageResult struct {
 }
 
 func NewPackageResult(packageName string) *PackageResult {
-	self := &PackageResult{}
+	self := new(PackageResult)
 	self.PackageName = packageName
 	self.TestResults = []TestResult{}
 	self.Coverage = -1
@@ -73,7 +73,7 @@ type TestResult struct {
 }
 
 func NewTestResult(testName string) *TestResult {
-	self := &TestResult{}
+	self := new(TestResult)
 	self.Stories = []reporting.ScopeResult{}
 	self.RawLines = []string{}
 	self.TestName = testName

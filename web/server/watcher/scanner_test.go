@@ -254,7 +254,7 @@ func (self *scannerFixture) wasCreated(folder string) bool {
 }
 
 func newScannerFixture() *scannerFixture {
-	self := &scannerFixture{}
+	self := new(scannerFixture)
 	self.fs = system.NewFakeFileSystem()
 	self.fs.Create("/root", 0, time.Now())
 	self.fs.Create("/root/file.go", 1, time.Now())
@@ -314,7 +314,7 @@ func (self *WatcherWrapper) IsIgnored(folder string) bool {
 }
 
 func newWatcherWrapper(inner *Watcher) *WatcherWrapper {
-	self := &WatcherWrapper{}
+	self := new(WatcherWrapper)
 	self.inner = inner
 	self.created = []string{}
 	self.deleted = []string{}

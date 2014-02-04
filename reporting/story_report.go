@@ -7,16 +7,16 @@ import (
 )
 
 type StoryReport struct {
-	Test gotest.T
+	Test T
 	Name string
 	File string
 	Line int
 }
 
-func NewStoryReport(test gotest.T) *StoryReport {
+func NewStoryReport(test T) *StoryReport {
 	file, line, name := gotest.ResolveExternalCaller()
 	name = removePackagePath(name)
-	self := &StoryReport{}
+	self := new(StoryReport)
 	self.Test = test
 	self.Name = name
 	self.File = file

@@ -62,7 +62,7 @@ func (self *concurrentCoordinator) checkForErrors() {
 }
 
 func newCuncurrentCoordinator(folders []*contract.Package, batchSize int, shell contract.Shell) *concurrentCoordinator {
-	self := &concurrentCoordinator{}
+	self := new(concurrentCoordinator)
 	self.queue = make(chan *contract.Package)
 	self.folders = folders
 	self.batchSize = batchSize

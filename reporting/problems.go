@@ -1,10 +1,12 @@
 package reporting
 
-import (
-	"fmt"
+import "fmt"
 
-	"github.com/smartystreets/goconvey/printing"
-)
+type problem struct {
+	out      *Printer
+	errors   []*AssertionResult
+	failures []*AssertionResult
+}
 
 func (self *problem) BeginStory(story *StoryReport) {}
 
@@ -21,7 +23,6 @@ func (self *problem) Report(report *AssertionResult) {
 func (self *problem) Exit() {}
 
 func (self *problem) EndStory() {
-	self.out.Println("")
 	self.show(self.showErrors, redColor)
 	self.show(self.showFailures, yellowColor)
 	self.prepareForNextStory()
@@ -51,19 +52,13 @@ func (self *problem) showFailures() {
 	}
 }
 
-func NewProblemReporter(out *printing.Printer) *problem {
-	self := problem{}
+func NewProblemReporter(out *Printer) *problem {
+	self := new(problem)
 	self.out = out
 	self.prepareForNextStory()
-	return &self
+	return self
 }
 func (self *problem) prepareForNextStory() {
 	self.errors = []*AssertionResult{}
 	self.failures = []*AssertionResult{}
-}
-
-type problem struct {
-	out      *printing.Printer
-	errors   []*AssertionResult
-	failures []*AssertionResult
 }

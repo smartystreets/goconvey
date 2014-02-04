@@ -25,7 +25,7 @@ func (self *FakeShell) Setenv(key, value string) error {
 }
 
 func NewFakeShell() *FakeShell {
-	self := &FakeShell{}
+	self := new(FakeShell)
 	self.environment = map[string]string{}
 	self.executions = []string{}
 	return self

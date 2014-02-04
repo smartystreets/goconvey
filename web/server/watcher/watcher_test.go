@@ -2,10 +2,8 @@ package watcher
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
-	_ "os"
 	"testing"
 	"time"
 
@@ -26,7 +24,6 @@ func TestWatcher(t *testing.T) {
 	Convey("Subject: Watcher", t, func() {
 		log.SetOutput(ioutil.Discard)
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
-		// log.SetOutput(os.Stdout)
 		fixture = newWatcherFixture()
 
 		Convey("When initialized there should be ZERO watched folders", func() {
@@ -341,7 +338,7 @@ func (self *watcherFixture) setupSeveralFoldersWithWatcher() map[string]string {
 }
 
 func newWatcherFixture() *watcherFixture {
-	self := &watcherFixture{}
+	self := new(watcherFixture)
 	self.files = system.NewFakeFileSystem()
 	self.shell = system.NewFakeShell()
 	self.shell.Setenv("GOPATH", gopath)
@@ -352,7 +349,3 @@ func newWatcherFixture() *watcherFixture {
 const gopath = "/root/gopath"
 const goPackagePrefix = "github.com/smartystreets/project"
 const goProject = gopath + "/src/" + goPackagePrefix
-
-func init() {
-	fmt.Sprintf("Keeps fmt in the import list...")
-}

@@ -66,7 +66,7 @@ func (self *FakeFileSystem) Exists(directory string) bool {
 }
 
 func NewFakeFileSystem() *FakeFileSystem {
-	self := &FakeFileSystem{}
+	self := new(FakeFileSystem)
 	self.steps = []*FakeFileInfo{}
 	return self
 }

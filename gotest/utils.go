@@ -1,3 +1,6 @@
+// Package gotest contains internal functionality. Although this package
+// contains one or more exported names it is not intended for public
+// consumption. See the examples package for how to use this project.
 package gotest
 
 import (
@@ -25,7 +28,7 @@ func ResolveExternalCaller() (file string, line int, name string) {
 			return
 		}
 	}
-	file, line, name = "<unkown file>", -1, "<unknown name"
+	file, line, name = "<unkown file>", -1, "<unknown name>"
 	return // panic?
 }
 

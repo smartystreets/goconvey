@@ -40,36 +40,35 @@ func SkipConvey(items ...interface{}) {
 }
 
 func register(entry *execution.Registration) {
-	if entry.Test != nil {
-		runner.Begin(entry)
-		runner.Run()
+	if entry.IsTopLevel() {
+		suites.Run(entry)
 	} else {
-		runner.Register(entry)
+		suites.CurrentRunner().Register(entry)
 	}
 }
 
 func skipReport() {
-	reporter.Report(reporting.NewSkipReport())
+	suites.CurrentReporter().Report(reporting.NewSkipReport())
 }
 
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
-	runner.RegisterReset(execution.NewAction(action))
+	suites.CurrentRunner().RegisterReset(execution.NewAction(action))
 }
 
 // So is the means by which assertions are made against the system under test.
-// The majority of exported names in this package begin with the word 'Should'
-// and describe how the first argument (actual) should compare with any of the
-// final (expected) arguments. How many final arguments are accepted depends on
-// the particular assertion that is passed in as the assert argument.
+// The majority of exported names in the assertions package begin with the word
+// 'Should' and describe how the first argument (actual) should compare with any
+// of the final (expected) arguments. How many final arguments are accepted
+// depends on the particular assertion that is passed in as the assert argument.
 // See the examples package for use cases and the assertions package for
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
 	if result := assert(actual, expected...); result == assertionSuccess {
-		reporter.Report(reporting.NewSuccessReport())
+		suites.CurrentReporter().Report(reporting.NewSuccessReport())
 	} else {
-		reporter.Report(reporting.NewFailureReport(result))
+		suites.CurrentReporter().Report(reporting.NewFailureReport(result))
 	}
 }
 

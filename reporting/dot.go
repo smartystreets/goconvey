@@ -1,12 +1,8 @@
 package reporting
 
-// TODO: Under unit test
+import "fmt"
 
-import (
-	"fmt"
-
-	"github.com/smartystreets/goconvey/printing"
-)
+type dot struct{ out *Printer }
 
 func (self *dot) BeginStory(story *StoryReport) {}
 
@@ -33,12 +29,8 @@ func (self *dot) Exit() {}
 
 func (self *dot) EndStory() {}
 
-func NewDotReporter(out *printing.Printer) *dot {
-	self := dot{}
+func NewDotReporter(out *Printer) *dot {
+	self := new(dot)
 	self.out = out
-	return &self
-}
-
-type dot struct {
-	out *printing.Printer
+	return self
 }

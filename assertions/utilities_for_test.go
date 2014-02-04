@@ -66,5 +66,5 @@ func (self *fakeSerializer) serialize(expected, actual interface{}, message stri
 }
 
 func newFakeSerializer() *fakeSerializer {
-	return &fakeSerializer{}
+	return new(fakeSerializer)
 }

@@ -1,10 +1,15 @@
-package printing
+package reporting
 
 import (
 	"fmt"
 	"io"
 	"strings"
 )
+
+type Printer struct {
+	out    io.Writer
+	prefix string
+}
 
 func (self *Printer) Println(message string, values ...interface{}) {
 	formatted := self.format(message, values...) + newline
@@ -36,18 +41,12 @@ func (self *Printer) Dedent() {
 	}
 }
 
-const newline = "\n"
+func NewPrinter(out io.Writer) *Printer {
+	self := new(Printer)
+	self.out = out
+	return self
+}
+
 const space = " "
 const pad = space + space
 const padLength = len(pad)
-
-type Printer struct {
-	out    io.Writer
-	prefix string
-}
-
-func NewPrinter(out io.Writer) *Printer {
-	self := Printer{}
-	self.out = out
-	return &self
-}

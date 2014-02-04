@@ -6,9 +6,9 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	game := Game{}
+	game := new(Game)
 	game.rolls = make([]int, 21)
-	return &game
+	return game
 }
 
 func (self *Game) Roll(pins int) {
