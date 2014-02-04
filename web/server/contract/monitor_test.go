@@ -154,7 +154,8 @@ func (self *FakeExecutor) ExecuteTests(packages []*Package) *CompleteOutput {
 	}
 	return complete
 }
-func (self *FakeExecutor) Status() string { panic("NOT SUPPORTED") }
+func (self *FakeExecutor) Status() string        { panic("NOT SUPPORTED") }
+func (self *FakeExecutor) ClearStatusFlag() bool { panic("NOT SUPPORTED") }
 
 func newFakeExecutor() *FakeExecutor {
 	return new(FakeExecutor)

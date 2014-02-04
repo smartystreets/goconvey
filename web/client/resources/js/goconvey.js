@@ -107,11 +107,20 @@ function initPoller()
 	$(convey.poller).on('pollsuccess', function(event, data)
 	{
 		console.log("POLL SUCCESS", event, data);	// TODO remove / or use log
-		if (status == "executing")
+		console.log("STATUS", data.status, convey.status);
+
+		if ((!convey.status || convey.status == "idle")
+				&& data.status != "idle")
+			$('#run-tests').addClass('spin-slowly disabled');
+		else if ((convey.status && convey.status != "idle")
+				&& data.status == "idle")
+			$('#run-tests').removeClass('spin-slowly disabled');
+
+		if (data.status == "executing")
 			$(convey.poller).trigger('serverexec', data);
-		else if (status == "parsing")
+		else if (data.status == "parsing")
 			$(convey.poller).trigger('serverparsing', data);
-		else if (status == "idle")
+		else if (data.status == "idle")
 			$(convey.poller).trigger('serveridle', data);
 	});
 
@@ -121,7 +130,7 @@ function initPoller()
 		if (!convey.status || convey.status == "idle")
 		{
 			// Just started executing
-			$('#run-tests').addClass('spin-slowly disabled');
+			//$('#run-tests').addClass('spin-slowly disabled');
 		}
 		convey.status = data.status;
 	});
@@ -140,7 +149,7 @@ function initPoller()
 			// Just finished executing
 			latest();
 		}
-		$('#run-tests').removeClass('spin-slowly disabled');
+		//$('#run-tests').removeClass('spin-slowly disabled');
 		convey.status = data.status;
 	});
 
@@ -554,7 +563,7 @@ function Poller(config)
 		up: "/status/poll",		// url to poll when the server is up
 		down: "/status"			// url to poll at regular intervals when the server is down
 	};
-	var timeout =  60000 * 2;	// Major gotcha: this should be LONGER than server's timeout!
+	var timeout =  60000 * 2;	// how many ms between polling attempts
 	var intervalMs = 1000;		// ms between polls when the server is down
 
 	// INTERNAL STATE
@@ -617,7 +626,7 @@ function Poller(config)
 	function doPoll()
 	{
 		req = $.ajax({
-			url: endpoints.up,
+			url: endpoints.up + "?timeout=" + timeout,
 			timeout: timeout
 		}).done(pollSuccess).fail(pollFailed);
 		log("Polling", req);
@@ -626,6 +635,7 @@ function Poller(config)
 	function pollSuccess(data, message, jqxhr)
 	{
 		stopDownPoller();
+		doPoll();
 		
 		var wasUp = up;
 		up = true;
@@ -641,8 +651,6 @@ function Poller(config)
 			$(convey.poller).trigger('serverstarting', arg);
 		else
 			$(self).trigger('pollsuccess', arg);
-
-		doPoll();
 	}
 
 	function pollFailed(jqxhr, message, exception)

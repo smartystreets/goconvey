@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
 type HTTPServer struct {
-	watcher      contract.Watcher
-	executor     contract.Executor
-	latest       *contract.CompleteOutput
-	statusUpdate chan bool
+	watcher    contract.Watcher
+	executor   contract.Executor
+	latest     *contract.CompleteOutput
+	clientChan chan chan string
 }
 
 func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
@@ -27,12 +28,12 @@ func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Reques
 	// and gets the watched directory, that the status channel
 	// buffer be filled so that it can get the latest status updates
 	// without missing a single beat.
-	if request.URL.Query().Get("newclient") != "" {
+	/*if request.URL.Query().Get("newclient") != "" {
 		select {
 		case self.statusUpdate <- true:
 		default:
 		}
-	}
+	}*/
 
 	if request.Method == "POST" {
 		self.adjustRoot(response, request)
@@ -87,11 +88,25 @@ func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Reque
 }
 
 func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *http.Request) {
-	select {
-	case <-self.statusUpdate:
-		self.Status(response, request)
-	case <-time.After(1 * time.Minute): // MAJOR 'GOTCHA': This should be SHORTER than the client's timeout!
+	if self.executor.ClearStatusFlag() {
+		response.Write([]byte(self.executor.Status()))
+		return
 	}
+
+	timeout, err := strconv.Atoi(request.URL.Query().Get("timeout"))
+	if err != nil || timeout > 180000 || timeout < 0 {
+		timeout = 60000 // default timeout is 60 seconds
+	}
+
+	myReqChan := make(chan string)
+
+	select {
+	case self.clientChan <- myReqChan: // this case means the executor's status is changing
+	case <-time.After(time.Duration(timeout) * time.Millisecond): // this case means the executor hasn't changed status
+		return
+	}
+
+	response.Write([]byte(<-myReqChan))
 }
 
 func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
@@ -111,11 +126,11 @@ func (self *HTTPServer) execute() {
 	self.latest = self.executor.ExecuteTests(self.watcher.WatchedFolders())
 }
 
-func NewHTTPServer(watcher contract.Watcher, executor contract.Executor, status chan bool) *HTTPServer {
+func NewHTTPServer(watcher contract.Watcher, executor contract.Executor, status chan chan string) *HTTPServer {
 	self := new(HTTPServer)
 	self.watcher = watcher
 	self.executor = executor
-	self.statusUpdate = status
+	self.clientChan = status
 	return self
 }
 

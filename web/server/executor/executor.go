@@ -14,14 +14,21 @@ const (
 )
 
 type Executor struct {
-	tester       Tester
-	parser       Parser
-	status       string
-	statusUpdate chan bool
+	tester     Tester
+	parser     Parser
+	status     string
+	statusChan chan chan string
+	statusFlag bool
 }
 
 func (self *Executor) Status() string {
 	return self.status
+}
+
+func (self *Executor) ClearStatusFlag() bool {
+	hasNewStatus := self.statusFlag
+	self.statusFlag = false
+	return hasNewStatus
 }
 
 func (self *Executor) ExecuteTests(folders []*contract.Package) *contract.CompleteOutput {
@@ -48,22 +55,30 @@ func (self *Executor) parse(folders []*contract.Package) *contract.CompleteOutpu
 
 func (self *Executor) setStatus(status string) {
 	self.status = status
+	self.statusFlag = true
 
-	select {
-	case self.statusUpdate <- true:
-	default:
+Loop:
+	for {
+		select {
+		case c := <-self.statusChan:
+			self.statusFlag = false
+			c <- status
+		default:
+			break Loop
+		}
 	}
 
 	log.Printf("Executor status: '%s'\n", self.status)
 }
 
-func NewExecutor(tester Tester, parser Parser, statusUpdate chan bool) *Executor {
-	self := new(Executor)
-	self.tester = tester
-	self.parser = parser
-	self.status = Idle
-	self.statusUpdate = statusUpdate
-	return self
+func NewExecutor(tester Tester, parser Parser, ch chan chan string) *Executor {
+	return &Executor{
+		tester:     tester,
+		parser:     parser,
+		status:     Idle,
+		statusChan: ch,
+		statusFlag: false,
+	}
 }
 
 var now = func() time.Time {

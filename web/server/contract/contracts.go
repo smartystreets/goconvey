@@ -21,6 +21,7 @@ type (
 	Executor interface {
 		ExecuteTests([]*Package) *CompleteOutput
 		Status() string
+		ClearStatusFlag() bool
 	}
 
 	Scanner interface {

@@ -93,9 +93,9 @@ func wireup() (*contract.Monitor, contract.Server) {
 	tester := exec.NewConcurrentTester(shell)
 	tester.SetBatchSize(packages)
 
-	statusNotif := make(chan bool, 1)
-	executor := exec.NewExecutor(tester, parser, statusNotif)
-	server := api.NewHTTPServer(watcher, executor, statusNotif)
+	longpollChan := make(chan chan string)
+	executor := exec.NewExecutor(tester, parser, longpollChan)
+	server := api.NewHTTPServer(watcher, executor, longpollChan)
 	scanner := watch.NewScanner(fs, watcher)
 	monitor := contract.NewMonitor(scanner, watcher, executor, server, sleeper)
 
