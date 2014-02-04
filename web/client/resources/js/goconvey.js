@@ -27,12 +27,9 @@ var convey = {
 		panic: { class: 'panic', text: "PANIC" },
 		buildfail: { class: 'buildfail', text: "BUILD FAILED" }
 	},
-	poller: {
-		timeout: 60000 * 2	// Major gotcha: should be LONGER than server's timeout!
-	},
-	serverStatus: "",		// what the server is currently doing
-	serverUp: true,			// whether or not we can connect to the server
 	intervals: {},			// intervals that execute periodically
+	poller: new Poller({timeout:5000}),	// the server poller
+	status: "",				// what the server is currently doing
 	overall: {},			// current overall results
 	theme: "",				// current theme being used
 	layout: {
@@ -101,11 +98,53 @@ function loadTheme(thmID)
 
 function initPoller()
 {
-	return;		// TODO
-	$.ajax({
-		url: "/status/poll",
-		timeout: convey.timeout
-	}).done(pollSuccess).fail(pollFailed);
+	$(convey.poller).on('serverstarting', function(event)
+	{
+		console.log("Server starting", arguments);	// TODO remove / or use log
+		convey.status = "starting";
+	});
+
+	$(convey.poller).on('pollsuccess', function(event, data)
+	{
+		console.log("POLL SUCCESS", event, data);	// TODO remove / or use log
+		if (status == "executing")
+			$(convey.poller).trigger('serverexec', data);
+		else if (status == "parsing")
+			$(convey.poller).trigger('serverparsing', data);
+		else if (status == "idle")
+			$(convey.poller).trigger('serveridle', data);
+	});
+
+	$(convey.poller).on('serverexec', function(event, data)
+	{
+		console.log("Server is EXECUTING.");	// TODO remove / or use log
+		if (!convey.status || convey.status == "idle")
+		{
+			// Just started executing
+			$('#run-tests').addClass('spin-slowly disabled');
+		}
+		convey.status = data.status;
+	});
+
+	$(convey.poller).on('serverparsing', function(event, data)
+	{
+		console.log("Server is PARSING.");	// TODO remove / or use log
+		convey.status = data.status;
+	});
+
+	$(convey.poller).on('serveridle', function(event, data)
+	{
+		console.log("Server is IDLE.");	// TODO remove / or use log
+		if (convey.status && convey.status != "idle")
+		{
+			// Just finished executing
+			latest();
+		}
+		$('#run-tests').removeClass('spin-slowly disabled');
+		convey.status = data.status;
+	});
+
+	convey.poller.start();
 }
 
 function wireup()
@@ -114,8 +153,9 @@ function wireup()
 	for (var k in convey.config.themes)
 		themes.push({ id: k, name: convey.config.themes[k].name });
 	$('#theme').html(render('tpl-theme-enum', themes));
-	
+
 	enumSel("theme", convey.theme);
+
 
 	$('.enum#theme').on('click', 'li', function()
 	{
@@ -126,18 +166,25 @@ function wireup()
 	convey.layout.header = $('header');
 	convey.layout.table = $('#frame');
 
+	updateWatchPath(true);	// true tells the server we're a new client
+
+	// Updates the watched directory with the server and make sure it exists
+	$('#path').change(function()
+	{
+		var tb = $(this);
+		var newpath = encodeURIComponent($.trim(tb.val()));
+		$.post('/watch?root='+newpath)
+			.done(function() { tb.removeClass('error'); })
+			.fail(function() { tb.addClass('error'); });
+	});
+
 	$('#run-tests').click(function()
 	{
 		var self = $(this);
-
-		if (self.hasClass('spin-slowly'))
-			return;	// Tests already running (TODO: better detection; maybe a state variable)
-		
-		// Add the CSS class with the animation
-		self.addClass('spin-slowly');
-		
-		// TODO: This should spin while tests are executing, until they finish
-		setTimeout(function() { self.removeClass('spin-slowly'); }, 3350);
+		if (self.hasClass('spin-slowly')
+			|| self.hasClass('disabled'))
+			return;
+		$.get("/execute");
 	});
 
 	$('#play-pause').click(function()
@@ -148,6 +195,21 @@ function wireup()
 	$('#toggle-notif').click(function()
 	{
 		$(this).toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
+
+		// Save updated preference for future loads
+		localStorage.setItem('notifications', !notif());
+
+		if (notif() && 'Notification' in window)
+		{
+			if (Notification.permission !== 'denied')
+			{
+				Notification.requestPermission(function(per)
+				{
+					if (!('permission' in Notification))	// help Chrome out a bit
+						Notification.permission = per;
+				});
+			}
+		}
 	});
 
 	$('#show-history').click(function()
@@ -169,7 +231,7 @@ function wireup()
 		target.toggleClass('hide-narrow show-narrow');
 	});
 
-	// Enumerations are lists where one item can be selected at a time
+	// Enumerations are horizontal lists where one item can be selected at a time
 	$('.enum').on('click', 'li', enumSel);
 
 	$(window).resize(reframe);
@@ -197,76 +259,443 @@ function wireup()
 	setTimeout(function() { changeStatus(convey.statuses.pass) }, 35000);
 }
 
-function pollSuccess(data, message, jqxhr)
+
+
+
+
+
+
+
+
+
+
+
+
+
+function latest()
 {
-	return;		// TODO
+/*
+	// Save this so we can revert to the same place we were before the update
+	convey.lastScrollPos = $(document).scrollTop();
 
-	// By getting in here, we know the server is up
-
-	if (!convey.serverUp)
+	$.getJSON("/latest", function(data, status, jqxhr)
 	{
-		// If the server was previously down, it is now starting
-		message = "starting";
-		showServerDown(jqxhr, message);
-	}
+		if (!data || !data.Revision)
+			return showServerDown(jqxhr, "starting");
+		else
+			$('#server-down').slideUp(convey.speed);
 
-	convey.serverUp = true;
+		if (data.Revision == convey.revisionHash)
+			return;
 
-	if (convey.serverStatus != "idle" && data == "idle")	// Just finished running
-		update();
-	else if (data != "" && data != "idle")	// Just started running
-		executing();
+		convey.revisionHash = data.Revision;
+		convey.payload = data;
 
-	convey.serverStatus = data;
-	initPoller();
-}
+		updateWatchPath();
 
-function pollFailed(jqxhr, message, exception)
-{
-	return;		// TODO
-	// When long-polling for the current status, the request failed
+		// Empty out the data from the last update
+		convey.overall = emptyOverall();
+		convey.assertions = emptyAssertions();
+		convey.failedBuilds = [];
 
-	if (message == "timeout")
-		initPoller();	// Poll again; timeout just means no server activity for a while
-	else
-	{
-		showServerDown(jqxhr, message, exception);
+		// Force page height to help smooth out the transition
+		$('html,body').css('height', $(document).outerHeight());
 
-		// At every interval, check to see if the server is up
-		var checkStatus = setInterval(function()
+		// Remove existing/old test results
+		$('.overall').slideUp(convey.speed);
+		$('#results').fadeOut(convey.speed, function()
 		{
-			if (convey.serverUp)
+			// Remove all templated items from the DOM as we'll
+			// replace them with new ones; also remove tipsy tooltips
+			// that may have lingered around
+			$('.templated, .tipsy').remove();
+
+			var uniqueID = 0;
+
+			// Look for failures and panics through the packages->tests->stories...
+			for (var i in data.Packages)
 			{
-				// By now, we know the previous interval called
-				// updateStatus because the server is obviously up.
-				// We're done here: continue polling as normal.
-				clearInterval(checkStatus);
-				initPoller();
-				return;
+				pkg = makeContext(data.Packages[i]);
+				convey.overall.duration += pkg.Elapsed;
+				pkg._id = uniqueID++;
+
+				if (pkg.Outcome == "build failure")
+				{
+					convey.overall.failedBuilds ++;
+					convey.failedBuilds.push(pkg);
+					continue;
+				}
+
+				for (var j in pkg.TestResults)
+				{
+					test = makeContext(pkg.TestResults[j]);
+					test._id = uniqueID;
+					uniqueID ++;
+
+					if (test.Stories.length == 0)
+					{
+						// Here we've got ourselves a classic Go test,
+						// not a GoConvey test that has stories and assertions
+						// so we'll treat this whole test as a single assertion
+						convey.overall.assertions ++;
+
+						if (test.Error)
+						{
+							test._status = convey.statuses.panic;
+							pkg._panicked ++;
+							test._panicked ++;
+							convey.assertions.panicked.push(test);
+						}
+						else if (test.Passed === false)
+						{
+							test._status = convey.statuses.fail;
+							pkg._failed ++;
+							test._failed ++;
+							convey.assertions.failed.push(test);
+						}
+						else
+						{
+							test._status = convey.statuses.pass;
+							pkg._passed ++;
+							test._passed ++;
+							convey.assertions.passed.push(test);
+						}
+					}
+					else
+						test._status = convey.statuses.pass;
+
+					var storyPath = [{ Depth: -1, Title: test.TestName }];	// Will maintain the current assertion's path
+
+					for (var k in test.Stories)
+					{
+						var story = makeContext(test.Stories[k]);
+
+						// Establish the current story path so we can report the context
+						// of failures and panicks more conveniently at the top of the page
+						if (storyPath.length > 0)
+							for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
+								storyPath.pop();
+						
+						storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
+
+						story._id = uniqueID;
+						convey.overall.assertions += story.Assertions.length;
+
+						for (var l in story.Assertions)
+						{
+							var assertion = story.Assertions[l];
+							assertion._id = uniqueID;
+							$.extend(assertion._path = [], storyPath);
+
+							if (assertion.Failure)
+							{
+								convey.assertions.failed.push(assertion);
+								pkg._failed ++;
+								test._failed ++;
+								story._failed ++;
+							}
+							if (assertion.Error)
+							{
+								convey.assertions.panicked.push(assertion);
+								pkg._panicked ++;
+								test._panicked ++;
+								story._panicked ++;
+							}
+							if (assertion.Skipped)
+							{
+								convey.assertions.skipped.push(assertion);
+								pkg._skipped ++;
+								test._skipped ++;
+								story._skipped ++;
+							}
+							if (!assertion.Failure && !assertion.Error && !assertion.Skipped)
+							{
+								convey.assertions.passed.push(assertion);
+								pkg._passed ++;
+								test._passed ++;
+								story._passed ++;
+							}
+						}
+
+						assignStatus(story);
+						uniqueID ++;
+					}
+				}
 			}
+
+			convey.overall.passed = convey.assertions.passed.length;
+			convey.overall.panics = convey.assertions.panicked.length;
+			convey.overall.failures = convey.assertions.failed.length;
+			convey.overall.skipped = convey.assertions.skipped.length;
+
+			convey.overall.duration = Math.round(convey.overall.duration * 1000) / 1000;
+
+			// Build failures trump panics,
+			// Panics trump failures,
+			// Failures trump passing.
+			if (convey.overall.failedBuilds)
+				convey.overall.status = convey.statuses.failedBuild;
+			else if (convey.overall.panics)
+				convey.overall.status = convey.statuses.panic;
+			else if (convey.overall.failures)
+				convey.overall.status = convey.statuses.fail;
+
+			// Show the overall status: passed, failed, or panicked
+			if (convey.overall.status == convey.statuses.pass)
+				$('#banners').append(render('tpl-overall-ok', convey.overall));
+			else if (convey.overall.status == convey.statuses.fail)
+				$('#banners').append(render('tpl-overall-fail', convey.overall));
+			else if (convey.overall.status == convey.statuses.panic)
+				$('#banners').append(render('tpl-overall-panic', convey.overall));
 			else
+				$('#banners').append(render('tpl-overall-buildfail', convey.overall));
+
+			// Show overall status
+			$('.overall').slideDown();
+			$('.favicon').attr('href', '/ico/goconvey-'+convey.overall.status+'.ico');
+
+			// Show shortucts and builds/failures/panics details
+			if (convey.overall.failedBuilds > 0)
 			{
-				// The current known state of the server is that
-				// it's down. Check to see if it's up, and if successful,
-				// run updateStatus to let the whole page know it's up.
-				$.get("/status").done(updateStatus);
+				$('#right-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
+				$('#contents').append(render('tpl-builds', convey.failedBuilds));
 			}
-		}, 1000);
+			if (convey.overall.panics > 0)
+			{
+				$('#right-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
+				$('#contents').append(render('tpl-panics', convey.assertions.panicked));
+			}
+			if (convey.overall.failures > 0)
+			{
+				$('#right-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
+				$('#contents').append(render('tpl-failures', convey.assertions.failed));
+			}
+
+			// Show stories
+			$('#contents').append(render('tpl-stories', data));
+
+			// Show shortcut links to packages
+			$('#left-sidebar').append(render('tpl-packages', data.Packages.sort(sortPackages)));
+
+			// Compute diffs
+			$(".failure").each(function() {
+				$(this).prettyTextDiff();
+			});
+
+
+			// Finally, show all the results at once, which appear below the banner,
+			// and hide the loading spinner, and update the title
+
+			$('#loading').hide();
+			
+			var cleanSummary = $.trim($('.overall .summary').text())
+								.replace(/\n+\s*|\s-\s/g, ', ')
+								.replace(/\s+|\t|-/ig, ' ');
+			$('title').text("GoConvey: " + cleanSummary);
+
+			// An homage to Star Wars
+			if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
+				$('body').append(render('tpl-ok-audio'));
+			
+			if (notif())
+			{
+				if (convey.notif)
+					convey.notif.close();
+
+				var cleanStatus = $.trim($('.overall:visible .status').text()).toUpperCase();
+
+				convey.notif = new Notification(cleanStatus, {
+					body: cleanSummary,
+					icon: $('.favicon').attr('href')
+				});
+
+				setTimeout(function() { convey.notif.close(); }, 3500);
+			}
+
+			$(this).fadeIn(function()
+			{
+				// Loading is finished
+				doneExecuting();
+
+				// Scroll to same position as before (doesn't account for different-sized content)
+				$(document).scrollTop(convey.lastScrollPos);
+
+				if ($('.stuck .overall').is(':visible'))
+					bannerClickToTop(true);	// make the banner across the top clickable again
+
+				// Remove the height attribute which smoothed out the transition
+				$('html,body').css('height', '');
+			});
+		});
+	});
+*/
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function Poller(config)
+{
+	// CONFIGURABLE
+	var endpoints = {
+		up: "/status/poll",		// url to poll when the server is up
+		down: "/status"			// url to poll at regular intervals when the server is down
+	};
+	var timeout =  60000 * 2;	// Major gotcha: this should be LONGER than server's timeout!
+	var intervalMs = 1000;		// ms between polls when the server is down
+
+	// INTERNAL STATE
+	var up = false;				// whether or not we can connect to the server
+	var req;					// the pending ajax request
+	var downPoller;				// the setInterval for polling when the server is down
+	var self = this;
+
+	if (typeof config === 'object')
+	{
+		if (typeof config.endpoints === 'object')
+		{
+			endpoints.up = config.endpoints.up;
+			endpoints.down = config.endpoints.down;
+		}
+		if (config.timeout)
+			timeout = config.timeout;
+		if (config.interval)
+			intervalMs = config.interval;
+	}
+
+	$(self).on('pollstart', function(event, data) {
+		log("Starting poller", req, event, data);
+	}).on('pollstop', function(event, data) {
+		log("Stopping poller", req, event, data);
+	});
+
+
+	this.start = function()
+	{
+		if (req)
+			return false;
+		doPoll();
+		$(self).trigger('pollstart', {url: endpoints.up, timeout: timeout});
+		return true;
+	};
+
+	this.stop = function()
+	{
+		if (!req)
+			return false;
+		req.abort();
+		req = undefined;
+		stopped = true;
+		stopDownPoller();
+		$(self).trigger('pollstop', {});
+		return true;
+	};
+
+	this.setTimeout = function(tmout)
+	{
+		timeout = tmout;	// takes effect at next poll
+	};
+
+	this.isUp = function()
+	{
+		return up;
+	};
+
+	function doPoll()
+	{
+		req = $.ajax({
+			url: endpoints.up,
+			timeout: timeout
+		}).done(pollSuccess).fail(pollFailed);
+		log("Polling", req);
+	}
+
+	function pollSuccess(data, message, jqxhr)
+	{
+		stopDownPoller();
+		
+		var wasUp = up;
+		up = true;
+		status = data;
+
+		var arg = {
+			status: status,
+			data: data,
+			jqxhr: jqxhr
+		};
+
+		if (!wasUp)
+			$(convey.poller).trigger('serverstarting', arg);
+		else
+			$(self).trigger('pollsuccess', arg);
+
+		doPoll();
+	}
+
+	function pollFailed(jqxhr, message, exception)
+	{
+		if (message == "timeout")
+		{
+			doPoll();	// in our case, timeout actually means no activity; poll again
+			return;
+		}
+
+		up = false;
+
+		log("Poll failed; server down", arguments);
+
+		downPoller = setInterval(function()
+		{
+			// If the server is still down, do a ping to see
+			// if it's up; pollSuccess() will do the rest.
+			if (!up)
+				$.get(endpoints.down).done(pollSuccess);
+		}, intervalMs);
+	}
+
+	function stopDownPoller()
+	{
+		if (!downPoller)
+			return;
+		clearInterval(downPoller);
+		downPoller = undefined;
 	}
 }
 
-function showServerDown(jqxhr, message, exception)
-{
-	return;		// TODO
-	convey.serverUp = false;
-	disableServerButtons("Server is down");
-	$('#server-down').remove();
-	$('#banners').prepend(render('tpl-server-down', {
-		jqxhr: jqxhr,
-		message: message,
-		error: exception
-	}));
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function enumSel(id, val)
 {
@@ -350,6 +779,31 @@ function changeStatus(newStatus)
 	convey.overall.status = newStatus;
 }
 
+function updateWatchPath(newClient)
+{
+	var tb = $('#path')[0];
+	var endpoint = "/watch";
+	if (newClient)
+		endpoint += "?newclient=1";
+
+	$.get(endpoint, function(data)
+	{
+		$(tb).val($.trim(data));
+	});
+}
+
+function coverageToColor(percent)
+{
+	// This converts a number between 0 and 360
+	// to an HSL (not RGB) value appropriate for
+	// displaying a basic coverage bar behind text.
+	// It works for any value between 0 to 360,
+	// but the hue at 120 happens to be about green,
+	// and 0 is red, between is yellow; just what we want.
+	var hue = percent * 1.2;
+	return "hsl(" + hue + ", 100%, 75%)";
+}
+
 function render(templateID, context)
 {
 	var tpl = $('#' + templateID).text();
@@ -361,6 +815,12 @@ function reframe()
 	var h = $(window).height() - convey.layout.header.outerHeight();
 	convey.layout.table.height(h);
 }
+
+function notif()
+{
+	return localStorage.getItem('notifications') === "true";	// stored as strings
+}
+
 
 function zerofill(val, count)
 {
