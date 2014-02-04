@@ -39,6 +39,21 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 	background: transparent;
 }
 
+::-webkit-input-placeholder {
+	font-style: italic;
+}
+:-moz-placeholder {
+	font-style: italic;
+}
+::-moz-placeholder {
+	font-style: italic;
+}
+:-ms-input-placeholder {
+	font-style: italic;
+}
+
+
+
 html, body {
 	height: 100%;
 	min-height: 100%;
@@ -79,7 +94,7 @@ input[type=text] {
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
 	outline: none;
-	padding-bottom: .25em;
+	padding-bottom: .1em;
 	font: 300 18px/1.5em 'Open Sans', sans-serif;
 }
 
@@ -125,6 +140,21 @@ input[type=text] {
 
 .logo {
 	font-family: 'Oswald', 'Impact', 'Arial Black', sans-serif;
+}
+
+.path-container {
+	margin-top: .4em;
+	margin-left: 5%;
+}
+
+#path {
+	width: 700px;
+	border-bottom-width: 0;
+}
+
+#path:hover,
+#path:focus {
+	border-bottom-width: 1px;
 }
 
 .main {
@@ -353,8 +383,7 @@ input[type=text] {
 	clear: both;
 }
 
-.spin-once,
-.spin-slowly {
+.disabled {
 	cursor: default !important;
 	background: transparent !important;
 }
@@ -391,6 +420,36 @@ input[type=text] {
 
 
 
+
+@media (min-width: 850px) and (max-width: 1220px) {
+	#path {
+		width: 400px;
+		font-size: 14px;
+		margin-top: 5px;
+	}
+
+	.path-container {
+		margin-left: 20px;
+	}
+}
+
+@media (min-width: 700px) and (max-width: 849px) {
+	#path {
+		width: 330px;
+		font-size: 12px;
+		margin-top: 8px;
+	}
+
+	.path-container {
+		margin-left: 0px;
+	}
+}
+
+@media (max-width: 699px) {
+	.path-container {
+		display: none;
+	}
+}
 
 
 @media (max-width: 499px) {

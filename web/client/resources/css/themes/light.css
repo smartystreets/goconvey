@@ -3,6 +3,19 @@
 	border-radius: 10px;
 }
 
+::-webkit-input-placeholder {
+    color: #CCC;
+}
+:-moz-placeholder {
+	color: #CCC;
+}
+::-moz-placeholder {
+	color: #CCC;
+}
+:-ms-input-placeholder {
+	color: #CCC;
+}
+
 body {
 	color: #333;
 	background: #EEE;
@@ -90,7 +103,10 @@ input[type=text] {
 	color: #333;
 }
 
-
+.error {
+	color: #CC0000 !important;
+	background: #FFD2D2 !important;
+}
 
 
 

@@ -26,7 +26,20 @@ a:hover {
 
 input[type=text] {
 	border-bottom-color: #33B5E5;
-	color: #CCC;
+	color: #BBB;
+}
+
+::-webkit-input-placeholder {
+	color: #555;
+}
+:-moz-placeholder {
+	color: #555;
+}
+::-moz-placeholder {
+	color: #555;
+}
+:-ms-input-placeholder {
+	color: #555;
 }
 
 .overall {
@@ -170,6 +183,11 @@ input[type=text] {
 
 .stats {
 	color: #FFF;
+}
+
+.error {
+	color: #F58888 !important;
+	background: rgba(255, 45, 45, 0.35) !important;
 }
 
 .spin-slowly,
