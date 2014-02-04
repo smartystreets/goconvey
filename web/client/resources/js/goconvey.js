@@ -107,50 +107,45 @@ function initPoller()
 	$(convey.poller).on('pollsuccess', function(event, data)
 	{
 		console.log("POLL SUCCESS", event, data);	// TODO remove / or use log
-		console.log("STATUS", data.status, convey.status);
 
+		// These two if statements determine if the server is now busy
+		// (and wasn't before) or is not busy (regardless of whether it was before)
 		if ((!convey.status || convey.status == "idle")
 				&& data.status != "idle")
 			$('#run-tests').addClass('spin-slowly disabled');
-		else if ((convey.status && convey.status != "idle")
-				&& data.status == "idle")
+		else if (convey.status != "idle" && data.status == "idle")
 			$('#run-tests').removeClass('spin-slowly disabled');
 
-		if (data.status == "executing")
-			$(convey.poller).trigger('serverexec', data);
-		else if (data.status == "parsing")
-			$(convey.poller).trigger('serverparsing', data);
-		else if (data.status == "idle")
-			$(convey.poller).trigger('serveridle', data);
+		switch (data.status)
+		{
+			case "executing":
+				$(convey.poller).trigger('serverexec', data);
+				break;
+			case "parsing":
+				$(convey.poller).trigger('serverparsing', data);
+				break;
+			case "idle":
+				$(convey.poller).trigger('serveridle', data);
+				break;
+		}
+
+		convey.status = data.status;
 	});
 
 	$(convey.poller).on('serverexec', function(event, data)
 	{
 		console.log("Server is EXECUTING.");	// TODO remove / or use log
-		if (!convey.status || convey.status == "idle")
-		{
-			// Just started executing
-			//$('#run-tests').addClass('spin-slowly disabled');
-		}
-		convey.status = data.status;
 	});
 
 	$(convey.poller).on('serverparsing', function(event, data)
 	{
 		console.log("Server is PARSING.");	// TODO remove / or use log
-		convey.status = data.status;
 	});
 
 	$(convey.poller).on('serveridle', function(event, data)
 	{
 		console.log("Server is IDLE.");	// TODO remove / or use log
-		if (convey.status && convey.status != "idle")
-		{
-			// Just finished executing
-			latest();
-		}
-		//$('#run-tests').removeClass('spin-slowly disabled');
-		convey.status = data.status;
+		// TODO: If execution just finished, get the latest...
 	});
 
 	convey.poller.start();
