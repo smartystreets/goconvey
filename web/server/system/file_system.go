@@ -40,5 +40,5 @@ func (self *FileSystem) Exists(directory string) bool {
 }
 
 func NewFileSystem() *FileSystem {
-	return &FileSystem{}
+	return new(FileSystem)
 }

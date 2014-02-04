@@ -63,7 +63,7 @@ func (self *MonitorFixture) sleep() {
 }
 
 func newMonitorFixture() *MonitorFixture {
-	self := &MonitorFixture{}
+	self := new(MonitorFixture)
 	self.server = newFakeServer()
 	self.watcher = newFakeWatcher()
 	self.scanner = newFakeScanner()
@@ -90,8 +90,7 @@ func (self *FakeServer) Results(http.ResponseWriter, *http.Request)        { pan
 func (self *FakeServer) Execute(http.ResponseWriter, *http.Request)        { panic("NOT SUPPORTED") }
 
 func newFakeServer() *FakeServer {
-	self := &FakeServer{}
-	return self
+	return new(FakeServer)
 }
 
 /******** FakeWatcher ********/
@@ -118,8 +117,7 @@ func (self *FakeWatcher) IsWatched(folder string) bool { panic("NOT SUPPORTED") 
 func (self *FakeWatcher) IsIgnored(folder string) bool { panic("NOT SUPPORTED") }
 
 func newFakeWatcher() *FakeWatcher {
-	self := &FakeWatcher{}
-	return self
+	return new(FakeWatcher)
 }
 
 /******** FakeScanner ********/
@@ -141,8 +139,7 @@ func (self *FakeScanner) Scan() (changed bool) {
 }
 
 func newFakeScanner() *FakeScanner {
-	self := &FakeScanner{}
-	return self
+	return new(FakeScanner)
 }
 
 /******** FakeExecutor ********/
@@ -150,7 +147,7 @@ func newFakeScanner() *FakeScanner {
 type FakeExecutor struct{}
 
 func (self *FakeExecutor) ExecuteTests(packages []*Package) *CompleteOutput {
-	complete := &CompleteOutput{}
+	complete := new(CompleteOutput)
 	complete.Packages = []*PackageResult{}
 	for _, p := range packages {
 		complete.Packages = append(complete.Packages, p.Result)
@@ -160,6 +157,5 @@ func (self *FakeExecutor) ExecuteTests(packages []*Package) *CompleteOutput {
 func (self *FakeExecutor) Status() string { panic("NOT SUPPORTED") }
 
 func newFakeExecutor() *FakeExecutor {
-	self := &FakeExecutor{}
-	return self
+	return new(FakeExecutor)
 }

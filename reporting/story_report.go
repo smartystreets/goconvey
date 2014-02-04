@@ -16,7 +16,7 @@ type StoryReport struct {
 func NewStoryReport(test T) *StoryReport {
 	file, line, name := gotest.ResolveExternalCaller()
 	name = removePackagePath(name)
-	self := &StoryReport{}
+	self := new(StoryReport)
 	self.Test = test
 	self.Name = name
 	self.File = file

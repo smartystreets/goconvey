@@ -2,6 +2,12 @@ package reporting
 
 import "fmt"
 
+type problem struct {
+	out      *Printer
+	errors   []*AssertionResult
+	failures []*AssertionResult
+}
+
 func (self *problem) BeginStory(story *StoryReport) {}
 
 func (self *problem) Enter(scope *ScopeReport) {}
@@ -47,18 +53,12 @@ func (self *problem) showFailures() {
 }
 
 func NewProblemReporter(out *Printer) *problem {
-	self := problem{}
+	self := new(problem)
 	self.out = out
 	self.prepareForNextStory()
-	return &self
+	return self
 }
 func (self *problem) prepareForNextStory() {
 	self.errors = []*AssertionResult{}
 	self.failures = []*AssertionResult{}
-}
-
-type problem struct {
-	out      *Printer
-	errors   []*AssertionResult
-	failures []*AssertionResult
 }

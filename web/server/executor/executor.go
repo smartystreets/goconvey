@@ -14,10 +14,10 @@ const (
 )
 
 type Executor struct {
-	tester      Tester
-	parser      Parser
-	status      string
-	statusNotif chan bool
+	tester       Tester
+	parser       Parser
+	status       string
+	statusUpdate chan bool
 }
 
 func (self *Executor) Status() string {
@@ -50,20 +50,20 @@ func (self *Executor) setStatus(status string) {
 	self.status = status
 
 	select {
-	case self.statusNotif <- true:
+	case self.statusUpdate <- true:
 	default:
 	}
 
 	log.Printf("Executor status: '%s'\n", self.status)
 }
 
-func NewExecutor(tester Tester, parser Parser, ch chan bool) *Executor {
-	return &Executor{
-		tester,
-		parser,
-		Idle,
-		ch,
-	}
+func NewExecutor(tester Tester, parser Parser, statusUpdate chan bool) *Executor {
+	self := new(Executor)
+	self.tester = tester
+	self.parser = parser
+	self.status = Idle
+	self.statusUpdate = statusUpdate
+	return self
 }
 
 var now = func() time.Time {

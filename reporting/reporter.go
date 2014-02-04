@@ -8,37 +8,22 @@ type Reporter interface {
 	EndStory()
 }
 
-func (self *reporters) BeginStory(story *StoryReport) {
-	for _, r := range self.collection {
-		r.BeginStory(story)
-	}
-}
-func (self *reporters) Enter(scope *ScopeReport) {
-	for _, r := range self.collection {
-		r.Enter(scope)
-	}
-}
-func (self *reporters) Report(report *AssertionResult) {
-	for _, x := range self.collection {
-		x.Report(report)
-	}
-}
-func (self *reporters) Exit() {
-	for _, r := range self.collection {
-		r.Exit()
-	}
-}
-func (self *reporters) EndStory() {
-	for _, r := range self.collection {
-		r.EndStory()
-	}
-}
+type reporters struct{ collection []Reporter }
 
-type reporters struct {
-	collection []Reporter
+func (self *reporters) BeginStory(s *StoryReport) { self.foreach(func(r Reporter) { r.BeginStory(s) }) }
+func (self *reporters) Enter(s *ScopeReport)      { self.foreach(func(r Reporter) { r.Enter(s) }) }
+func (self *reporters) Report(a *AssertionResult) { self.foreach(func(r Reporter) { r.Report(a) }) }
+func (self *reporters) Exit()                     { self.foreach(func(r Reporter) { r.Exit() }) }
+func (self *reporters) EndStory()                 { self.foreach(func(r Reporter) { r.EndStory() }) }
+
+func (self *reporters) foreach(action func(Reporter)) {
+	for _, r := range self.collection {
+		action(r)
+	}
 }
 
 func NewReporters(collection ...Reporter) *reporters {
-	self := reporters{collection}
-	return &self
+	self := new(reporters)
+	self.collection = collection
+	return self
 }

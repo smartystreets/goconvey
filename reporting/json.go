@@ -8,6 +8,14 @@ import (
 	"strings"
 )
 
+type JsonReporter struct {
+	out     *Printer
+	current *ScopeResult
+	index   map[string]*ScopeResult
+	scopes  []*ScopeResult
+	depth   int
+}
+
 func (self *JsonReporter) BeginStory(story *StoryReport) {}
 
 func (self *JsonReporter) Enter(scope *ScopeReport) {
@@ -58,18 +66,10 @@ func (self *JsonReporter) reset() {
 }
 
 func NewJsonReporter(out *Printer) *JsonReporter {
-	self := &JsonReporter{}
+	self := new(JsonReporter)
 	self.out = out
 	self.reset()
 	return self
-}
-
-type JsonReporter struct {
-	out     *Printer
-	current *ScopeResult
-	index   map[string]*ScopeResult
-	scopes  []*ScopeResult
-	depth   int
 }
 
 const OpenJson = ">>>>>"  // "⌦"

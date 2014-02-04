@@ -28,7 +28,7 @@ func (self *goPath) current() string {
 }
 
 func newGoPath(shell contract.Shell) *goPath {
-	self := &goPath{}
+	self := new(goPath)
 	self.shell = shell
 	return self
 }

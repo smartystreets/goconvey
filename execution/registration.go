@@ -16,7 +16,7 @@ func (self *Registration) IsTopLevel() bool {
 
 func NewRegistration(situation string, action *Action, test T) *Registration {
 	file, line, _ := gotest.ResolveExternalCaller()
-	self := &Registration{}
+	self := new(Registration)
 	self.Situation = situation
 	self.Action = action
 	self.Test = test

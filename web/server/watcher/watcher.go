@@ -98,7 +98,7 @@ func (self *Watcher) IsIgnored(folder string) bool {
 }
 
 func NewWatcher(files contract.FileSystem, shell contract.Shell) *Watcher {
-	self := &Watcher{}
+	self := new(Watcher)
 	self.files = files
 	self.shell = shell
 	self.watched = map[string]*contract.Package{}

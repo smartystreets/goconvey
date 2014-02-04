@@ -11,7 +11,7 @@ import (
 )
 
 // default acceptable delta for ShouldAlmostEqual
-var defaultDelta = 0.0000000001
+const defaultDelta = 0.0000000001
 
 // ShouldEqual receives exactly two parameters and does an equality check.
 func ShouldEqual(actual interface{}, expected ...interface{}) string {

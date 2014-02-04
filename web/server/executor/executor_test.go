@@ -36,7 +36,7 @@ func TestExecutor(t *testing.T) {
 				fixture.executor.setStatus(statusRotation(i, updateCount))
 
 				select {
-				case val := <-fixture.executor.statusNotif:
+				case val := <-fixture.executor.statusUpdate:
 					So(val, ShouldBeTrue)
 				default:
 					So(false, ShouldBeTrue)
@@ -49,10 +49,10 @@ func TestExecutor(t *testing.T) {
 						// a similar issue.
 
 						select {
-						case val := <-fixture.executor.statusNotif:
+						case val := <-fixture.executor.statusUpdate:
 							So(val, ShouldBeTrue)
 						default:
-							fixture.executor.statusNotif <- true
+							fixture.executor.statusUpdate <- true
 							So(false, ShouldBeTrue)
 						}
 
@@ -134,7 +134,7 @@ var (
 )
 
 func newExecutorFixture() *ExecutorFixture {
-	self := &ExecutorFixture{}
+	self := new(ExecutorFixture)
 	self.tester = newFakeTester()
 	self.parser = newFakeParser()
 	self.executor = NewExecutor(self.tester, self.parser, make(chan bool, 1))
@@ -173,7 +173,7 @@ func (self *FakeTester) addDelay(nap time.Duration) {
 }
 
 func newFakeTester() *FakeTester {
-	self := &FakeTester{}
+	self := new(FakeTester)
 	zero, _ := time.ParseDuration("0")
 	self.nap = zero
 	return self
@@ -202,7 +202,7 @@ func (self *FakeParser) addDelay(nap time.Duration) {
 }
 
 func newFakeParser() *FakeParser {
-	self := &FakeParser{}
+	self := new(FakeParser)
 	zero, _ := time.ParseDuration("0")
 	self.nap = zero
 	return self

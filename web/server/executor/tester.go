@@ -40,7 +40,7 @@ func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) 
 }
 
 func NewConcurrentTester(shell contract.Shell) *ConcurrentTester {
-	self := &ConcurrentTester{}
+	self := new(ConcurrentTester)
 	self.shell = shell
 	self.batchSize = defaultBatchSize
 	return self

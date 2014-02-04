@@ -27,14 +27,14 @@ type AssertionResult struct {
 }
 
 func NewFailureReport(failure string) *AssertionResult {
-	report := &AssertionResult{}
+	report := new(AssertionResult)
 	report.File, report.Line = caller()
 	report.StackTrace = stackTrace()
 	parseFailure(failure, report)
 	return report
 }
 func parseFailure(failure string, report *AssertionResult) {
-	view := &FailureView{}
+	view := new(FailureView)
 	err := json.Unmarshal([]byte(failure), view)
 	if err == nil {
 		report.Failure = view.Message
@@ -45,20 +45,20 @@ func parseFailure(failure string, report *AssertionResult) {
 	}
 }
 func NewErrorReport(err interface{}) *AssertionResult {
-	report := &AssertionResult{}
+	report := new(AssertionResult)
 	report.File, report.Line = caller()
 	report.StackTrace = fullStackTrace()
 	report.Error = fmt.Sprintf("%v", err)
 	return report
 }
 func NewSuccessReport() *AssertionResult {
-	report := &AssertionResult{}
+	report := new(AssertionResult)
 	report.File, report.Line = caller()
 	report.StackTrace = fullStackTrace()
 	return report
 }
 func NewSkipReport() *AssertionResult {
-	report := &AssertionResult{}
+	report := new(AssertionResult)
 	report.File, report.Line = caller()
 	report.StackTrace = fullStackTrace()
 	report.Skipped = true

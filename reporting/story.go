@@ -9,6 +9,11 @@ package reporting
 
 import "fmt"
 
+type story struct {
+	out        *Printer
+	titlesById map[string]string
+}
+
 func (self *story) BeginStory(story *StoryReport) {}
 
 func (self *story) Enter(scope *ScopeReport) {
@@ -49,13 +54,8 @@ func (self *story) EndStory() {
 }
 
 func NewStoryReporter(out *Printer) *story {
-	self := story{}
+	self := new(story)
 	self.out = out
 	self.titlesById = make(map[string]string)
-	return &self
-}
-
-type story struct {
-	out        *Printer
-	titlesById map[string]string
+	return self
 }

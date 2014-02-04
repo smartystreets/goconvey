@@ -26,7 +26,7 @@ func parseTestOutput(test *contract.TestResult) *contract.TestResult {
 }
 
 func newTestParser(test *contract.TestResult) *testParser {
-	self := &testParser{}
+	self := new(testParser)
 	self.test = test
 	return self
 }

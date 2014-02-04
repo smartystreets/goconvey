@@ -73,7 +73,7 @@ func (self *Scanner) latestTestResultsAreStale(checksum int64) bool {
 }
 
 func NewScanner(fs contract.FileSystem, watcher contract.Watcher) *Scanner {
-	self := &Scanner{}
+	self := new(Scanner)
 	self.fs = fs
 	self.watcher = watcher
 	self.latestFolders = make(map[string]bool)

@@ -2,6 +2,8 @@ package reporting
 
 import "fmt"
 
+type dot struct{ out *Printer }
+
 func (self *dot) BeginStory(story *StoryReport) {}
 
 func (self *dot) Enter(scope *ScopeReport) {}
@@ -32,5 +34,3 @@ func NewDotReporter(out *Printer) *dot {
 	self.out = out
 	return self
 }
-
-type dot struct{ out *Printer }

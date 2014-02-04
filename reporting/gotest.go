@@ -1,5 +1,7 @@
 package reporting
 
+type gotestReporter struct{ test T }
+
 func (self *gotestReporter) BeginStory(story *StoryReport) {
 	self.test = story.Test
 }
@@ -19,11 +21,8 @@ func (self *gotestReporter) EndStory() {
 }
 
 func NewGoTestReporter() *gotestReporter {
-	self := gotestReporter{}
-	return &self
+	return new(gotestReporter)
 }
-
-type gotestReporter struct{ test T }
 
 func passed(r *AssertionResult) bool {
 	return r.Error == nil && r.Failure == ""

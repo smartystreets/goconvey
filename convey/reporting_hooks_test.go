@@ -237,4 +237,4 @@ type fakeGoTest struct{}
 func (self *fakeGoTest) Fail()                                     {}
 func (self *fakeGoTest) Fatalf(format string, args ...interface{}) {}
 
-var test T = &fakeGoTest{}
+var test T = new(fakeGoTest)

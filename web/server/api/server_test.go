@@ -105,7 +105,7 @@ func TestHTTPServer(t *testing.T) {
 
 			Convey("The status channel buffer should have a true value", func() {
 				select {
-				case val := <-fixture.server.statusNotif:
+				case val := <-fixture.server.statusUpdate:
 					So(val, ShouldBeTrue)
 				default:
 					So(false, ShouldBeTrue)
@@ -325,7 +325,7 @@ func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, *httptest.
 	self.server.Results(response, request)
 
 	decoder := json.NewDecoder(strings.NewReader(response.Body.String()))
-	update := &contract.CompleteOutput{}
+	update := new(contract.CompleteOutput)
 	decoder.Decode(update)
 	return update, response
 }
@@ -409,7 +409,7 @@ func (self *ServerFixture) Reinstate(folder string) (status int, body string) {
 func (self *ServerFixture) SetExecutorStatus(status string) {
 	self.executor.status = status
 	select {
-	case self.executor.statusNotif <- true:
+	case self.executor.statusUpdate <- true:
 	default:
 	}
 }
@@ -435,12 +435,12 @@ func (self *ServerFixture) ManualExecution() int {
 }
 
 func newServerFixture() *ServerFixture {
-	self := &ServerFixture{}
+	self := new(ServerFixture)
 	self.watcher = newFakeWatcher()
 	self.watcher.SetRootWatch(initialRoot)
-	statusNotif := make(chan bool, 1)
-	self.executor = newFakeExecutor("", statusNotif)
-	self.server = NewHTTPServer(self.watcher, self.executor, statusNotif)
+	statusUpdate := make(chan bool, 1)
+	self.executor = newFakeExecutor("", statusUpdate)
+	self.server = NewHTTPServer(self.watcher, self.executor, statusUpdate)
 	return self
 }
 
@@ -481,15 +481,15 @@ func (self *FakeWatcher) IsWatched(folder string) bool { panic("NOT SUPPORTED") 
 func (self *FakeWatcher) IsIgnored(folder string) bool { panic("NOT SUPPORTED") }
 
 func newFakeWatcher() *FakeWatcher {
-	return &FakeWatcher{}
+	return new(FakeWatcher)
 }
 
 /********* Fake Executor *********/
 
 type FakeExecutor struct {
-	status      string
-	executed    bool
-	statusNotif chan bool
+	status       string
+	executed     bool
+	statusUpdate chan bool
 }
 
 func (self *FakeExecutor) Status() string {
@@ -497,15 +497,16 @@ func (self *FakeExecutor) Status() string {
 }
 
 func (self *FakeExecutor) ExecuteTests(watched []*contract.Package) *contract.CompleteOutput {
-	return &contract.CompleteOutput{Revision: watched[0].Path}
+	output := new(contract.CompleteOutput)
+	output.Revision = watched[0].Path
+	return output
 }
 
-func newFakeExecutor(status string, ch chan bool) *FakeExecutor {
-	return &FakeExecutor{
-		status,
-		false,
-		ch,
-	}
+func newFakeExecutor(status string, statusUpdate chan bool) *FakeExecutor {
+	self := new(FakeExecutor)
+	self.status = status
+	self.statusUpdate = statusUpdate
+	return self
 }
 
 var _ = fmt.Sprintf("hi")

@@ -4,7 +4,7 @@ import "testing"
 
 func TestReporterReceivesSuccessfulReport(t *testing.T) {
 	reporter := NewGoTestReporter()
-	test := &fakeTest{}
+	test := new(fakeTest)
 	reporter.BeginStory(NewStoryReport(test))
 	reporter.Report(NewSuccessReport())
 
@@ -15,7 +15,7 @@ func TestReporterReceivesSuccessfulReport(t *testing.T) {
 
 func TestReporterReceivesFailureReport(t *testing.T) {
 	reporter := NewGoTestReporter()
-	test := &fakeTest{}
+	test := new(fakeTest)
 	reporter.BeginStory(NewStoryReport(test))
 	reporter.Report(NewFailureReport("This is a failure."))
 
@@ -26,7 +26,7 @@ func TestReporterReceivesFailureReport(t *testing.T) {
 
 func TestReporterReceivesErrorReport(t *testing.T) {
 	reporter := NewGoTestReporter()
-	test := &fakeTest{}
+	test := new(fakeTest)
 	reporter.BeginStory(NewStoryReport(test))
 	reporter.Report(NewErrorReport("This is an error."))
 
@@ -38,7 +38,7 @@ func TestReporterReceivesErrorReport(t *testing.T) {
 func TestReporterIsResetAtTheEndOfTheStory(t *testing.T) {
 	defer catch(t)
 	reporter := NewGoTestReporter()
-	test := &fakeTest{}
+	test := new(fakeTest)
 	reporter.BeginStory(NewStoryReport(test))
 	reporter.EndStory()
 

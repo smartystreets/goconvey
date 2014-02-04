@@ -7,6 +7,19 @@ import (
 	"github.com/smartystreets/goconvey/reporting"
 )
 
+type scope struct {
+	name       string
+	title      string
+	action     *Action
+	children   map[string]*scope
+	birthOrder []*scope
+	child      int
+	resets     map[string]*Action
+	panicked   bool
+	reporter   reporting.Reporter
+	report     *reporting.ScopeReport
+}
+
 func (parent *scope) adopt(child *scope) {
 	if parent.hasChild(child) {
 		return
@@ -72,7 +85,7 @@ func (parent *scope) exit() {
 }
 
 func newScope(entry *Registration, reporter reporting.Reporter) *scope {
-	self := &scope{}
+	self := new(scope)
 	self.reporter = reporter
 	self.name = entry.Action.name
 	self.title = entry.Situation
@@ -82,17 +95,4 @@ func newScope(entry *Registration, reporter reporting.Reporter) *scope {
 	self.resets = make(map[string]*Action)
 	self.report = reporting.NewScopeReport(self.title, self.name)
 	return self
-}
-
-type scope struct {
-	name       string
-	title      string
-	action     *Action
-	children   map[string]*scope
-	birthOrder []*scope
-	child      int
-	resets     map[string]*Action
-	panicked   bool
-	reporter   reporting.Reporter
-	report     *reporting.ScopeReport
 }

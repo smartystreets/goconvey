@@ -10,10 +10,10 @@ import (
 )
 
 type HTTPServer struct {
-	watcher     contract.Watcher
-	executor    contract.Executor
-	latest      *contract.CompleteOutput
-	statusNotif chan bool
+	watcher      contract.Watcher
+	executor     contract.Executor
+	latest       *contract.CompleteOutput
+	statusUpdate chan bool
 }
 
 func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
@@ -29,7 +29,7 @@ func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Reques
 	// without missing a single beat.
 	if request.URL.Query().Get("newclient") != "" {
 		select {
-		case self.statusNotif <- true:
+		case self.statusUpdate <- true:
 		default:
 		}
 	}
@@ -88,7 +88,7 @@ func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Reque
 
 func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *http.Request) {
 	select {
-	case <-self.statusNotif:
+	case <-self.statusUpdate:
 		self.Status(response, request)
 	case <-time.After(1 * time.Minute): // MAJOR 'GOTCHA': This should be SHORTER than the client's timeout!
 	}
@@ -111,13 +111,12 @@ func (self *HTTPServer) execute() {
 	self.latest = self.executor.ExecuteTests(self.watcher.WatchedFolders())
 }
 
-func NewHTTPServer(watcher contract.Watcher, executor contract.Executor, ch chan bool) *HTTPServer {
-	return &HTTPServer{
-		watcher,
-		executor,
-		nil,
-		ch,
-	}
+func NewHTTPServer(watcher contract.Watcher, executor contract.Executor, status chan bool) *HTTPServer {
+	self := new(HTTPServer)
+	self.watcher = watcher
+	self.executor = executor
+	self.statusUpdate = status
+	return self
 }
 
 var _ = fmt.Sprintf("Hi")

@@ -15,6 +15,14 @@ type Runner interface {
 	Run()
 }
 
+type runner struct {
+	top   *scope
+	chain map[string]string
+	out   reporting.Reporter
+
+	awaitingNewStory bool
+}
+
 func (self *runner) Begin(entry *Registration) {
 	self.ensureStoryCanBegin()
 	self.out.BeginStory(reporting.NewStoryReport(entry.Test))
@@ -94,21 +102,13 @@ func (self *runner) Run() {
 	self.awaitingNewStory = true
 }
 
-type runner struct {
-	top   *scope
-	chain map[string]string
-	out   reporting.Reporter
-
-	awaitingNewStory bool
-}
-
 func NewRunner() *runner {
-	self := runner{}
+	self := new(runner)
 	self.out = NewNilReporter()
 	self.top = newScope(NewRegistration(topLevel, NewAction(func() {}), nil), self.out)
 	self.chain = make(map[string]string)
 	self.awaitingNewStory = true
-	return &self
+	return self
 }
 
 func (self *runner) UpgradeReporter(out reporting.Reporter) {
