@@ -9,6 +9,10 @@ func TestShouldStartWith(t *testing.T) {
 	fail(t, so("", ShouldStartWith, "asdf", "asdf"), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so("", ShouldStartWith, ""))
+	fail(t, so("", ShouldStartWith, "x"), "x||Expected '' to start with 'x' (but it didn't)!")
+	pass(t, so("abc", ShouldStartWith, "abc"))
+	fail(t, so("abc", ShouldStartWith, "abcd"), "abcd|abc|Expected 'abc' to start with 'abcd' (but it didn't)!")
+
 	pass(t, so("superman", ShouldStartWith, "super"))
 	fail(t, so("superman", ShouldStartWith, "bat"), "bat|sup...|Expected 'superman' to start with 'bat' (but it didn't)!")
 	fail(t, so("superman", ShouldStartWith, "man"), "man|sup...|Expected 'superman' to start with 'man' (but it didn't)!")
@@ -35,6 +39,10 @@ func TestShouldEndWith(t *testing.T) {
 	fail(t, so("", ShouldEndWith, "", ""), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so("", ShouldEndWith, ""))
+	fail(t, so("", ShouldEndWith, "z"), "z||Expected '' to end with 'z' (but it didn't)!")
+	pass(t, so("xyz", ShouldEndWith, "xyz"))
+	fail(t, so("xyz", ShouldEndWith, "wxyz"), "wxyz|xyz|Expected 'xyz' to end with 'wxyz' (but it didn't)!")
+
 	pass(t, so("superman", ShouldEndWith, "man"))
 	fail(t, so("superman", ShouldEndWith, "super"), "super|...erman|Expected 'superman' to end with 'super' (but it didn't)!")
 	fail(t, so("superman", ShouldEndWith, "blah"), "blah|...rman|Expected 'superman' to end with 'blah' (but it didn't)!")
