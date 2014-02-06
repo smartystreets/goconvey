@@ -8,7 +8,7 @@ import (
 
 func init() {
 	parseFlags()
-	suites = NewSuiteContext()
+	suites = newSuiteContext()
 }
 
 // parseFlags parses the command line args manually because the go test tool,
@@ -42,7 +42,7 @@ func buildReporter() reporting.Reporter {
 }
 
 var (
-	suites *SuiteContext
+	suites *suiteContext
 
 	// only set by internal tests
 	testReporter reporting.Reporter
