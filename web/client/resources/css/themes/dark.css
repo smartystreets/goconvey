@@ -5,7 +5,7 @@
 
 body {
 	-webkit-transform: translate3d(0, 0, 0);	/* fixes Chrome glitch when changing themes */
-	color: #DDD;
+	color: #D0D0D0;
 	background: fixed #040607;
 	background: fixed -moz-linear-gradient(top, hsl(200,27%,2%) 0%, hsl(203,29%,26%) 100%);
 	background: fixed -webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(200,27%,2%)), color-stop(100%,hsl(203,29%,26%)));
@@ -102,8 +102,20 @@ input[type=text] {
 	color: #FFF !important;
 }
 
+.pkg-cover-name {
+	text-shadow: 1px 1px 0px #000;
+}
 
-.main,
+.pkg-cover-name b, 
+.story-pkg-name b {
+	color: #FFF;
+}
+
+.pkg-cover:hover,
+.pkg-cover:hover b {
+	color: #FFF;
+}
+
 .expandable {
 	border-top-color: #33B5E5;
 }
@@ -168,9 +180,6 @@ input[type=text] {
 	background: rgba(55, 114, 163, .25);
 }
 
-.main {
-}
-
 .group {
 	background: -moz-linear-gradient(top, rgba(16,59,71,0) 0%, rgba(16,59,71,1) 100%);
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(16,59,71,0)), color-stop(100%,rgba(16,59,71,1)));
@@ -194,6 +203,53 @@ input[type=text] {
 .spin-once {
 	color: #33B5E5 !important;
 }
+
+
+
+
+.frame > tbody > tr > td {
+	border-color: #33B5E5;
+}
+
+
+
+.story-pkg {
+	background: rgba(0, 0, 0, .4);
+}
+
+.story-pkg:hover {
+	background: rgba(255, 255, 255, .05);
+}
+
+.story-line + .story-line {
+	border-top: 1px dashed rgba(255, 255, 255, .08);
+}
+
+.story-line-status-container {
+	border-right: 1px dashed #333;
+}
+
+.story-line.ok .story-line-status { background: #008000; }
+.story-line.ok:hover { background: rgba(0, 128, 0, .1); }
+
+.story-line.fail .story-line-status { background: #EA9C4D; }
+.story-line.fail:hover { background: rgba(234, 156, 77, .1); }
+
+.story-line.panic .story-line-status { background: #FF3232; }
+.story-line.panic:hover { background: rgba(255, 50, 50, .1); }
+
+.story-line.skip .story-line-status { background: #AAA; }
+.story-line.skip:hover { background: rgba(255, 255, 255, .1); }
+
+.statusicon.ok { color: #76C13C; }
+.statusicon.fail { color: #EA9C4D; }
+.statusicon.panic, .statusicon.panic .fa { color: #FF3232; }
+.statusicon.skip { color: #AAA; }
+
+
+
+
+
 
 
 

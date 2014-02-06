@@ -22,13 +22,13 @@ var convey = {
 
 
 	statuses: {				// contains some constants related to overall test status
-		pass: { class: 'ok', text: "PASS" },
-		fail: { class: 'fail', text: "FAIL" },
-		panic: { class: 'panic', text: "PANIC" },
-		buildfail: { class: 'buildfail', text: "BUILD FAILED" }
+		pass: { class: 'ok', text: "OK" },
+		fail: { class: 'fail', text: "Fail" },
+		panic: { class: 'panic', text: "Panic" },
+		buildfail: { class: 'buildfail', text: "Build Failure" }
 	},
 	intervals: {},			// intervals that execute periodically
-	poller: new Poller({timeout:5000}),	// the server poller
+	poller: new Poller(),	// the server poller
 	status: "",				// what the server is currently doing
 	overall: {},			// current overall results
 	theme: "",				// current theme being used
@@ -102,6 +102,7 @@ function initPoller()
 	{
 		console.log("Server starting", arguments);	// TODO remove / or use log
 		convey.status = "starting";
+		$('#run-tests').addClass('spin-slowly disabled');
 	});
 
 	$(convey.poller).on('pollsuccess', function(event, data)
@@ -111,7 +112,7 @@ function initPoller()
 		// These two if statements determine if the server is now busy
 		// (and wasn't before) or is not busy (regardless of whether it was before)
 		if ((!convey.status || convey.status == "idle")
-				&& data.status != "idle")
+				&& data.status && data.status != "idle")
 			$('#run-tests').addClass('spin-slowly disabled');
 		else if (convey.status != "idle" && data.status == "idle")
 			$('#run-tests').removeClass('spin-slowly disabled');
@@ -168,7 +169,7 @@ function wireup()
 	});
 
 	convey.layout.header = $('header');
-	convey.layout.table = $('#frame');
+	convey.layout.table = $('.frame');
 
 	updateWatchPath(true);	// true tells the server we're a new client
 
@@ -228,7 +229,17 @@ function wireup()
 
 	$('.controls li').tipsy({ live: true });
 
-	$('.toggler').click(function()
+	$('.toggler').not('.narrow').prepend('<i class="fa fa-angle-up fa-lg"></i>');
+	$('.toggler.narrow').prepend('<i class="fa fa-angle-down fa-lg"></i>');
+
+	$('.toggler').not('.narrow').click(function()
+	{
+		var target = $('#' + $(this).data('toggle'));
+		$('.fa-angle-down, .fa-angle-up', this).toggleClass('fa-angle-down fa-angle-up');
+		target.toggleClass('hide');
+	});
+
+	$('.toggler.narrow').click(function()
 	{
 		var target = $('#' + $(this).data('toggle'));
 		$('.fa-angle-down, .fa-angle-up', this).toggleClass('fa-angle-down fa-angle-up');
@@ -241,17 +252,19 @@ function wireup()
 	$(window).resize(reframe);
 	reframe();
 
-/*
+	latest();
+
 	convey.intervals.time = setInterval(function()
 	{
 		var t = new Date();
 		var h = zerofill(t.getUTCHours(), 2);
 		var m = zerofill(t.getUTCMinutes(), 2);
 		var s = zerofill(t.getUTCSeconds(), 2);
-		var ms = zerofill(t.getUTCMilliseconds(), 3);
+		//var ms = zerofill(t.getUTCMilliseconds(), 1);
+		var ms = 0;
 		$('#time').text(h + ":" + m + ":" + s + "." + ms);
-	}, 71);
-*/
+	}, 1000);
+
 
 	// Temporary, for effect:
 	setTimeout(function() { changeStatus(convey.statuses.panic) }, 2000);
@@ -278,261 +291,260 @@ function wireup()
 
 function latest()
 {
-/*
-	// Save this so we can revert to the same place we were before the update
-	convey.lastScrollPos = $(document).scrollTop();
+	$.getJSON("/latest", process);
+}
 
-	$.getJSON("/latest", function(data, status, jqxhr)
+function process(data, status, jqxhr)
+{
+	console.log("Latest", data, status, jqxhr);
+	/*if (!data || !data.Revision)
+		return showServerDown(jqxhr, "starting");
+	else
+		$('#server-down').slideUp(convey.speed);
+
+	if (data.Revision == convey.revisionHash)
+		return;
+
+	convey.revisionHash = data.Revision;
+	convey.payload = data;
+
+	updateWatchPath();
+
+	// Empty out the data from the last update
+	convey.overall = emptyOverall();
+	convey.assertions = emptyAssertions();
+	convey.failedBuilds = [];
+
+	// Force page height to help smooth out the transition
+	$('html,body').css('height', $(document).outerHeight());
+
+	// Remove existing/old test results
+	$('.overall').slideUp(convey.speed);
+	$('#results').fadeOut(convey.speed, function()
 	{
-		if (!data || !data.Revision)
-			return showServerDown(jqxhr, "starting");
-		else
-			$('#server-down').slideUp(convey.speed);
+		// Remove all templated items from the DOM as we'll
+		// replace them with new ones; also remove tipsy tooltips
+		// that may have lingered around
+		$('.templated, .tipsy').remove();
 
-		if (data.Revision == convey.revisionHash)
-			return;
+		var uniqueID = 0;
 
-		convey.revisionHash = data.Revision;
-		convey.payload = data;
-
-		updateWatchPath();
-
-		// Empty out the data from the last update
-		convey.overall = emptyOverall();
-		convey.assertions = emptyAssertions();
-		convey.failedBuilds = [];
-
-		// Force page height to help smooth out the transition
-		$('html,body').css('height', $(document).outerHeight());
-
-		// Remove existing/old test results
-		$('.overall').slideUp(convey.speed);
-		$('#results').fadeOut(convey.speed, function()
+		// Look for failures and panics through the packages->tests->stories...
+		for (var i in data.Packages)
 		{
-			// Remove all templated items from the DOM as we'll
-			// replace them with new ones; also remove tipsy tooltips
-			// that may have lingered around
-			$('.templated, .tipsy').remove();
+			pkg = makeContext(data.Packages[i]);
+			convey.overall.duration += pkg.Elapsed;
+			pkg._id = uniqueID++;
 
-			var uniqueID = 0;
-
-			// Look for failures and panics through the packages->tests->stories...
-			for (var i in data.Packages)
+			if (pkg.Outcome == "build failure")
 			{
-				pkg = makeContext(data.Packages[i]);
-				convey.overall.duration += pkg.Elapsed;
-				pkg._id = uniqueID++;
+				convey.overall.failedBuilds ++;
+				convey.failedBuilds.push(pkg);
+				continue;
+			}
 
-				if (pkg.Outcome == "build failure")
+			for (var j in pkg.TestResults)
+			{
+				test = makeContext(pkg.TestResults[j]);
+				test._id = uniqueID;
+				uniqueID ++;
+
+				if (test.Stories.length == 0)
 				{
-					convey.overall.failedBuilds ++;
-					convey.failedBuilds.push(pkg);
-					continue;
-				}
+					// Here we've got ourselves a classic Go test,
+					// not a GoConvey test that has stories and assertions
+					// so we'll treat this whole test as a single assertion
+					convey.overall.assertions ++;
 
-				for (var j in pkg.TestResults)
-				{
-					test = makeContext(pkg.TestResults[j]);
-					test._id = uniqueID;
-					uniqueID ++;
-
-					if (test.Stories.length == 0)
+					if (test.Error)
 					{
-						// Here we've got ourselves a classic Go test,
-						// not a GoConvey test that has stories and assertions
-						// so we'll treat this whole test as a single assertion
-						convey.overall.assertions ++;
-
-						if (test.Error)
-						{
-							test._status = convey.statuses.panic;
-							pkg._panicked ++;
-							test._panicked ++;
-							convey.assertions.panicked.push(test);
-						}
-						else if (test.Passed === false)
-						{
-							test._status = convey.statuses.fail;
-							pkg._failed ++;
-							test._failed ++;
-							convey.assertions.failed.push(test);
-						}
-						else
-						{
-							test._status = convey.statuses.pass;
-							pkg._passed ++;
-							test._passed ++;
-							convey.assertions.passed.push(test);
-						}
+						test._status = convey.statuses.panic;
+						pkg._panicked ++;
+						test._panicked ++;
+						convey.assertions.panicked.push(test);
+					}
+					else if (test.Passed === false)
+					{
+						test._status = convey.statuses.fail;
+						pkg._failed ++;
+						test._failed ++;
+						convey.assertions.failed.push(test);
 					}
 					else
-						test._status = convey.statuses.pass;
-
-					var storyPath = [{ Depth: -1, Title: test.TestName }];	// Will maintain the current assertion's path
-
-					for (var k in test.Stories)
 					{
-						var story = makeContext(test.Stories[k]);
-
-						// Establish the current story path so we can report the context
-						// of failures and panicks more conveniently at the top of the page
-						if (storyPath.length > 0)
-							for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
-								storyPath.pop();
-						
-						storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
-
-						story._id = uniqueID;
-						convey.overall.assertions += story.Assertions.length;
-
-						for (var l in story.Assertions)
-						{
-							var assertion = story.Assertions[l];
-							assertion._id = uniqueID;
-							$.extend(assertion._path = [], storyPath);
-
-							if (assertion.Failure)
-							{
-								convey.assertions.failed.push(assertion);
-								pkg._failed ++;
-								test._failed ++;
-								story._failed ++;
-							}
-							if (assertion.Error)
-							{
-								convey.assertions.panicked.push(assertion);
-								pkg._panicked ++;
-								test._panicked ++;
-								story._panicked ++;
-							}
-							if (assertion.Skipped)
-							{
-								convey.assertions.skipped.push(assertion);
-								pkg._skipped ++;
-								test._skipped ++;
-								story._skipped ++;
-							}
-							if (!assertion.Failure && !assertion.Error && !assertion.Skipped)
-							{
-								convey.assertions.passed.push(assertion);
-								pkg._passed ++;
-								test._passed ++;
-								story._passed ++;
-							}
-						}
-
-						assignStatus(story);
-						uniqueID ++;
+						test._status = convey.statuses.pass;
+						pkg._passed ++;
+						test._passed ++;
+						convey.assertions.passed.push(test);
 					}
 				}
+				else
+					test._status = convey.statuses.pass;
+
+				var storyPath = [{ Depth: -1, Title: test.TestName }];	// Will maintain the current assertion's path
+
+				for (var k in test.Stories)
+				{
+					var story = makeContext(test.Stories[k]);
+
+					// Establish the current story path so we can report the context
+					// of failures and panicks more conveniently at the top of the page
+					if (storyPath.length > 0)
+						for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
+							storyPath.pop();
+					
+					storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
+
+					story._id = uniqueID;
+					convey.overall.assertions += story.Assertions.length;
+
+					for (var l in story.Assertions)
+					{
+						var assertion = story.Assertions[l];
+						assertion._id = uniqueID;
+						$.extend(assertion._path = [], storyPath);
+
+						if (assertion.Failure)
+						{
+							convey.assertions.failed.push(assertion);
+							pkg._failed ++;
+							test._failed ++;
+							story._failed ++;
+						}
+						if (assertion.Error)
+						{
+							convey.assertions.panicked.push(assertion);
+							pkg._panicked ++;
+							test._panicked ++;
+							story._panicked ++;
+						}
+						if (assertion.Skipped)
+						{
+							convey.assertions.skipped.push(assertion);
+							pkg._skipped ++;
+							test._skipped ++;
+							story._skipped ++;
+						}
+						if (!assertion.Failure && !assertion.Error && !assertion.Skipped)
+						{
+							convey.assertions.passed.push(assertion);
+							pkg._passed ++;
+							test._passed ++;
+							story._passed ++;
+						}
+					}
+
+					assignStatus(story);
+					uniqueID ++;
+				}
 			}
+		}
 
-			convey.overall.passed = convey.assertions.passed.length;
-			convey.overall.panics = convey.assertions.panicked.length;
-			convey.overall.failures = convey.assertions.failed.length;
-			convey.overall.skipped = convey.assertions.skipped.length;
+		convey.overall.passed = convey.assertions.passed.length;
+		convey.overall.panics = convey.assertions.panicked.length;
+		convey.overall.failures = convey.assertions.failed.length;
+		convey.overall.skipped = convey.assertions.skipped.length;
 
-			convey.overall.duration = Math.round(convey.overall.duration * 1000) / 1000;
+		convey.overall.duration = Math.round(convey.overall.duration * 1000) / 1000;
 
-			// Build failures trump panics,
-			// Panics trump failures,
-			// Failures trump passing.
-			if (convey.overall.failedBuilds)
-				convey.overall.status = convey.statuses.failedBuild;
-			else if (convey.overall.panics)
-				convey.overall.status = convey.statuses.panic;
-			else if (convey.overall.failures)
-				convey.overall.status = convey.statuses.fail;
+		// Build failures trump panics,
+		// Panics trump failures,
+		// Failures trump passing.
+		if (convey.overall.failedBuilds)
+			convey.overall.status = convey.statuses.failedBuild;
+		else if (convey.overall.panics)
+			convey.overall.status = convey.statuses.panic;
+		else if (convey.overall.failures)
+			convey.overall.status = convey.statuses.fail;
 
-			// Show the overall status: passed, failed, or panicked
-			if (convey.overall.status == convey.statuses.pass)
-				$('#banners').append(render('tpl-overall-ok', convey.overall));
-			else if (convey.overall.status == convey.statuses.fail)
-				$('#banners').append(render('tpl-overall-fail', convey.overall));
-			else if (convey.overall.status == convey.statuses.panic)
-				$('#banners').append(render('tpl-overall-panic', convey.overall));
-			else
-				$('#banners').append(render('tpl-overall-buildfail', convey.overall));
+		// Show the overall status: passed, failed, or panicked
+		if (convey.overall.status == convey.statuses.pass)
+			$('#banners').append(render('tpl-overall-ok', convey.overall));
+		else if (convey.overall.status == convey.statuses.fail)
+			$('#banners').append(render('tpl-overall-fail', convey.overall));
+		else if (convey.overall.status == convey.statuses.panic)
+			$('#banners').append(render('tpl-overall-panic', convey.overall));
+		else
+			$('#banners').append(render('tpl-overall-buildfail', convey.overall));
 
-			// Show overall status
-			$('.overall').slideDown();
-			$('.favicon').attr('href', '/ico/goconvey-'+convey.overall.status+'.ico');
+		// Show overall status
+		$('.overall').slideDown();
+		$('.favicon').attr('href', '/ico/goconvey-'+convey.overall.status+'.ico');
 
-			// Show shortucts and builds/failures/panics details
-			if (convey.overall.failedBuilds > 0)
-			{
-				$('#right-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
-				$('#contents').append(render('tpl-builds', convey.failedBuilds));
-			}
-			if (convey.overall.panics > 0)
-			{
-				$('#right-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
-				$('#contents').append(render('tpl-panics', convey.assertions.panicked));
-			}
-			if (convey.overall.failures > 0)
-			{
-				$('#right-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
-				$('#contents').append(render('tpl-failures', convey.assertions.failed));
-			}
+		// Show shortucts and builds/failures/panics details
+		if (convey.overall.failedBuilds > 0)
+		{
+			$('#right-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
+			$('#contents').append(render('tpl-builds', convey.failedBuilds));
+		}
+		if (convey.overall.panics > 0)
+		{
+			$('#right-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
+			$('#contents').append(render('tpl-panics', convey.assertions.panicked));
+		}
+		if (convey.overall.failures > 0)
+		{
+			$('#right-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
+			$('#contents').append(render('tpl-failures', convey.assertions.failed));
+		}
 
-			// Show stories
-			$('#contents').append(render('tpl-stories', data));
+		// Show stories
+		$('#contents').append(render('tpl-stories', data));
 
-			// Show shortcut links to packages
-			$('#left-sidebar').append(render('tpl-packages', data.Packages.sort(sortPackages)));
+		// Show shortcut links to packages
+		$('#left-sidebar').append(render('tpl-packages', data.Packages.sort(sortPackages)));
 
-			// Compute diffs
-			$(".failure").each(function() {
-				$(this).prettyTextDiff();
+		// Compute diffs
+		$(".failure").each(function() {
+			$(this).prettyTextDiff();
+		});
+
+
+		// Finally, show all the results at once, which appear below the banner,
+		// and hide the loading spinner, and update the title
+
+		$('#loading').hide();
+		
+		var cleanSummary = $.trim($('.overall .summary').text())
+							.replace(/\n+\s*|\s-\s/g, ', ')
+							.replace(/\s+|\t|-/ig, ' ');
+		$('title').text("GoConvey: " + cleanSummary);
+
+		// An homage to Star Wars
+		if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
+			$('body').append(render('tpl-ok-audio'));
+		
+		if (notif())
+		{
+			if (convey.notif)
+				convey.notif.close();
+
+			var cleanStatus = $.trim($('.overall:visible .status').text()).toUpperCase();
+
+			convey.notif = new Notification(cleanStatus, {
+				body: cleanSummary,
+				icon: $('.favicon').attr('href')
 			});
 
+			setTimeout(function() { convey.notif.close(); }, 3500);
+		}
 
-			// Finally, show all the results at once, which appear below the banner,
-			// and hide the loading spinner, and update the title
+		$(this).fadeIn(function()
+		{
+			// Loading is finished
+			doneExecuting();
 
-			$('#loading').hide();
-			
-			var cleanSummary = $.trim($('.overall .summary').text())
-								.replace(/\n+\s*|\s-\s/g, ', ')
-								.replace(/\s+|\t|-/ig, ' ');
-			$('title').text("GoConvey: " + cleanSummary);
+			// Scroll to same position as before (doesn't account for different-sized content)
+			$(document).scrollTop(convey.lastScrollPos);
 
-			// An homage to Star Wars
-			if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
-				$('body').append(render('tpl-ok-audio'));
-			
-			if (notif())
-			{
-				if (convey.notif)
-					convey.notif.close();
+			if ($('.stuck .overall').is(':visible'))
+				bannerClickToTop(true);	// make the banner across the top clickable again
 
-				var cleanStatus = $.trim($('.overall:visible .status').text()).toUpperCase();
-
-				convey.notif = new Notification(cleanStatus, {
-					body: cleanSummary,
-					icon: $('.favicon').attr('href')
-				});
-
-				setTimeout(function() { convey.notif.close(); }, 3500);
-			}
-
-			$(this).fadeIn(function()
-			{
-				// Loading is finished
-				doneExecuting();
-
-				// Scroll to same position as before (doesn't account for different-sized content)
-				$(document).scrollTop(convey.lastScrollPos);
-
-				if ($('.stuck .overall').is(':visible'))
-					bannerClickToTop(true);	// make the banner across the top clickable again
-
-				// Remove the height attribute which smoothed out the transition
-				$('html,body').css('height', '');
-			});
+			// Remove the height attribute which smoothed out the transition
+			$('html,body').css('height', '');
 		});
 	});
-*/
+	*/
 }
 
 
@@ -562,7 +574,7 @@ function Poller(config)
 	var intervalMs = 1000;		// ms between polls when the server is down
 
 	// INTERNAL STATE
-	var up = false;				// whether or not we can connect to the server
+	var up = true;				// whether or not we can connect to the server
 	var req;					// the pending ajax request
 	var downPoller;				// the setInterval for polling when the server is down
 	var self = this;
@@ -581,9 +593,9 @@ function Poller(config)
 	}
 
 	$(self).on('pollstart', function(event, data) {
-		log("Starting poller", req, event, data);
+		log("Started poller", req, event, data);
 	}).on('pollstop', function(event, data) {
-		log("Stopping poller", req, event, data);
+		log("Stopped poller", req, event, data);
 	});
 
 
@@ -733,6 +745,7 @@ function toggle(jqelem, switchelem)
 			$(containerSel, jqelem).stop().animate({
 				opacity: 1
 			}, speed);
+			reframe();
 		});
 	}
 	else
@@ -743,7 +756,7 @@ function toggle(jqelem, switchelem)
 		{
 			if (switchelem)
 				switchelem.toggleClass(convey.layout.selClass);
-			jqelem.stop().slideUp(speed, transition);
+			jqelem.stop().slideUp(speed, transition, function() { reframe(); });
 		});
 	}
 }
@@ -778,7 +791,7 @@ function changeStatus(newStatus)
 		}
 	});
 
-	$('.overall').switchClass(convey.overall.status.class, newStatus.class, 1500);
+	$('.overall').switchClass(convey.overall.status.class, newStatus.class, 750);
 	convey.overall.status = newStatus;
 }
 

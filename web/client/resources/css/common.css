@@ -76,6 +76,10 @@ a:hover {
 	text-decoration: underline;
 }
 
+a.fa {
+	text-decoration: none;
+}
+
 hr {
 	border: 0;
 	background: 0;
@@ -125,6 +129,10 @@ input[type=text] {
 	cursor: pointer;
 }
 
+.toggler.narrow {
+	display: none;
+}
+
 .controls {
 	font-size: 18px;
 	line-height: 1em;
@@ -157,11 +165,13 @@ input[type=text] {
 	border-bottom-width: 1px;
 }
 
+/*
 .main {
 	border-top-width: 1px;
 	border-top-style: solid;
-	padding-bottom: 2.5em; /* must be same height as footer */
+	padding-bottom: 2.5em; /* must be same height as footer * /
 }
+*/
 /*
 #path {
 	border-bottom: 1px solid transparent;
@@ -263,38 +273,122 @@ input[type=text] {
 
 
 
-.hide {
-	display: none;
-}
 
 
 
-#frame {
+.frame {
 	position: relative;
 	z-index: 0;
 	width: 100%;
 	border-collapse: collapse;
 }
 
-#frame td {
-	border: 1px solid #33B5E5;
+.frame > tbody > tr > td {
+	border-width: 1px;
+	border-style: solid;
 }
 
-#frame td:first-child {
-	border-left: 0;
+.frame > tbody > tr > td:first-child {
+	border-left: none;
 }
 
-#frame td:last-child {
-	border-right: 0;
+.frame > tbody > tr > td:last-child {
+	border-right: none;
 }
 
-#frame tr:first-child td {
-	border-top: 0;
+.frame > tbody > tr:first-child > td {
+	border-top: none;
 }
 
-#frame tr:last-child td {
-	border-bottom: 0;
+.frame > tbody > tr:last-child > td {
+	border-bottom: none;
 }
+
+
+
+
+
+.coverage-td {
+	width: 20%;
+}
+
+#coverage {
+	font-size: 10px;
+}
+
+.pkg-cover {
+	padding-right: 5px;
+	position: relative;
+	cursor: pointer;
+}
+
+.pkg-cover-bar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	z-index: 1;
+}
+
+.pkg-cover-name {
+	position: relative;
+	z-index: 2;
+}
+
+
+#stories table {
+	width: 100%;
+}
+
+
+.story-pkg {
+	cursor: pointer;
+}
+
+.story-pkg td {
+	font-size: 14px;
+	white-space: nowrap;
+	padding: 10px;
+}
+
+.story-pkg td:first-child {
+	width: 1em;
+}
+
+.story-line {
+	font-size: 12px;
+	cursor: default;
+}
+
+.story-line-status-container {
+	padding: 5px 15px 5px 25px;
+	position: relative;
+	white-space: nowrap;
+}
+
+.story-line-status {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 5px;
+	height: 100%;
+}
+
+
+.statusicon {
+	font: 14px 'Open Sans', sans-serif;
+}
+
+
+.depth-0 { padding-left: 1.5em !important; }
+.depth-1 { padding-left: 3em !important; }
+.depth-2 { padding-left: 4.5em !important; }
+.depth-3 { padding-left: 6em !important; }
+.depth-4 { padding-left: 7.5em !important; }
+.depth-5 { padding-left: 9em !important; }
+.depth-6 { padding-left: 10.5em !important; }
+.depth-7 { padding-left: 11em !important; }
+
 
 
 
@@ -308,6 +402,14 @@ input[type=text] {
 }
 
 
+
+
+
+
+
+.rel {
+	position: relative;
+}
 
 .text-right {
 	text-align: right;
@@ -339,6 +441,14 @@ input[type=text] {
 
 .clr-blue {
 	color: #2B597F;
+}
+
+.show {
+	display: block;
+}
+
+.hide {
+	display: none;
 }
 
 .enum {
@@ -373,15 +483,9 @@ input[type=text] {
 
 
 
-/** Clearfix **/
-.cf:before,
-.cf:after {
-	content: " ";
-	display: table;
-}
-.cf:after {
-	clear: both;
-}
+
+
+
 
 .disabled {
 	cursor: default !important;
@@ -416,6 +520,19 @@ input[type=text] {
 
 
 
+/* Clearfix */
+.cf:before,
+.cf:after {
+	content: " ";
+	display: table;
+}
+.cf:after {
+	clear: both;
+}
+
+
+
+
 
 
 
@@ -430,6 +547,10 @@ input[type=text] {
 
 	.path-container {
 		margin-left: 20px;
+	}
+
+	#col4 {	/* TODO */
+		display: none;
 	}
 }
 
@@ -453,6 +574,10 @@ input[type=text] {
 
 
 @media (max-width: 499px) {
+	.toggler.narrow {
+		display: block;
+	}
+
 	.hide-narrow {
 		display: none;
 	}
@@ -532,24 +657,24 @@ input[type=text] {
 @-webkit-keyframes flash {
 	70% { opacity: 1; }
 	90% { opacity: 0; }
-	97% { opacity: 0; }
+	98% { opacity: 0; }
 	100% { opacity: 1; }
 }
 @-moz-keyframes flash {
 	70% { opacity: 1; }
 	90% { opacity: 0; }
-	97% { opacity: 0; }
+	98% { opacity: 0; }
 	100% { opacity: 1; }
 }
 @-o-keyframes flash {
 	70% { opacity: 1; }
 	90% { opacity: 0; }
-	97% { opacity: 0; }
+	98% { opacity: 0; }
 	100% { opacity: 1; }
 }
 @keyframes flash {
 	70% { opacity: 1; }
 	90% { opacity: 0; }
-	97% { opacity: 0; }
+	98% { opacity: 0; }
 	100% { opacity: 1; }
 }

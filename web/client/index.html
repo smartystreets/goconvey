@@ -22,16 +22,15 @@
 		<header>
 			<div class="overall ok">
 				<div class="status">
-					PASS
+					OK
 				</div>
 			</div>
 
-			<div class="toggler hide" data-toggle="controls">
-				<i class="fa fa-angle-down fa-lg"></i>
+			<div class="toggler narrow" data-toggle="controls">
 				Controls
 			</div>
 
-			<div id="controls" class="controls hide-narrow cf">
+			<div id="controls" class="controls hide-narrow">
 				<ul>
 					<li class="logo">GoConvey</li>
 				</ul>
@@ -45,8 +44,8 @@
 					<li class="fa fa-refresh" id="run-tests" title="Execute tests"></li>
 					<li class="fa fa-clock-o" id="show-history" title="Test history"></li>
 					<li class="fa fa-bell-o" id="toggle-notif" title="Toggle notifications"></li>
-					<li class="fa fa-cog link-fa" id="show-settings" title="Settings"></li>
-					<li class="fa fa-pencil-square-o link-fa" id="show-gen" title="Code generator"></li>
+					<li class="fa fa-cog" id="show-settings" title="Settings"></li>
+					<li class="fa fa-pencil-square-o" id="show-gen" title="Code generator"></li>
 				</ul>
 
 				<hr class="clear">
@@ -127,36 +126,316 @@
 		</header>
 
 
-		<table id="frame">
-			
+		<table class="frame">
 			<tr>
-				<td colspan="5">
-					<div class="toggler" data-toggle="row1">
-						<i class="fa fa-angle-down fa-lg"></i>
-						Results
+				<td class="coverage-td">
+					<div class="toggler" data-toggle="coverage">
+						Coverage
+					</div>
+					<div id="coverage">
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 75%; background-color: rgba(162, 221, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...artystreets/goconvey/<b>assertions</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 45%; background-color: rgba(224, 170, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...m/smartystreets/goconvey/<b>convey</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 32%; background-color: rgba(221, 60, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...martystreets/goconvey/<b>execution</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 65%; background-color: rgba(162, 221, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...tystreets/goconvey/web/<b>client</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 25%; background-color: rgba(221, 60, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...martystreets/goconvey/<b>execution</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 45%; background-color: rgba(224, 170, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...m/smartystreets/goconvey/<b>convey</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 72%; background-color: rgba(162, 221, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...tystreets/goconvey/web/<b>client</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 92%; background-color: rgba(162, 221, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...tystreets/goconvey/web/<b>client</b>
+							</div>
+						</div>
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" style="width: 5%; background-color: rgba(221, 60, 35, .3);"></div>
+							<div class="pkg-cover-name">
+								...martystreets/goconvey/<b>execution</b>
+							</div>
+						</div>
+					</div>
+				</td>
+				<td style="width: 60%;">
+					<div class="toggler hide" data-toggle="buildfailures">
+						Build Failures
+					</div>
+					<div id="buildfailures">
+					</div>
+
+					<div class="toggler hide" data-toggle="panics">
+						Panics
+					</div>
+					<div id="panics">
+					</div>
+
+					<div class="toggler hide" data-toggle="failures">
+						Failures
+					</div>
+					<div id="failures">
+					</div>
+
+
+					<div class="toggler" data-toggle="stories">
+						Stories
+					</div>
+					<div id="stories">
+						<table>
+							<tr class="story-pkg">
+								<td>
+									<a href="javascript:" class="fa fa-collapse-o fa-lg"></a>
+								</td>
+								<td class="story-pkg-name">
+									github.com/smartystreets/goconvey/<b>assertions</b>
+								</td>
+								<td>
+									<span class="statusicon panic"><i class="fa fa-bolt"></i></span> 1
+									&nbsp;
+									<span class="statusicon fail">&#10007;</span> 4
+									&nbsp;
+									<span class="statusicon ok">&#10003;</span> 12
+								</td>
+								<td class="story-pkg-watch-td">
+									<a class="fa fa-lg ignore fa-eye unwatch" href="javascript:" title="Toggle ignore"></a>
+								</td>
+							</tr>
+							<tr class="story-line ok">
+								<td>
+									<div class="story-line-status-container">
+										<div class="story-line-status"></div>
+										<span class="statusicon ok">3 &#10003;</span>
+									</div>
+								</td>
+								<td colspan="3" class="depth-0">
+									Subject: goPath abstracts the $GOPATH environment variable
+								</td>
+							</tr>
+							<tr class="story-line fail">
+								<td>
+									<div class="story-line-status-container">
+										<div class="story-line-status"></div>
+										<span class="statusicon fail">&#10007;</span>
+									</div>
+								</td>
+								<td colspan="3" class="depth-0">
+									Subject: goPath abstracts the $GOPATH environment variable
+								</td>
+							</tr>
+							<tr class="story-line panic">
+								<td>
+									<div class="story-line-status-container">
+										<div class="story-line-status"></div>
+										<span class="statusicon panic">2 <i class="fa fa-bolt"></i></span><br>
+										<span class="statusicon fail">3 &#10007;</span>
+									</div>
+								</td>
+								<td colspan="3" class="depth-1">
+									Something else here
+								</td>
+							</tr>
+							<tr class="story-line skip">
+								<td>
+									<div class="story-line-status-container">
+										<div class="story-line-status"></div>
+										<span class="statusicon skip">S</span>
+									</div>
+								</td>
+								<td colspan="3" class="depth-2">
+									Something else here
+								</td>
+							</tr>
+							<tr class="story-line ok">
+								<td>
+									<div class="story-line-status-container">
+										<div class="story-line-status"></div>
+										<span class="statusicon ok">2 &#10003;</span>
+									</div>
+								</td>
+								<td colspan="3" class="depth-1">
+									Something else here
+								</td>
+							</tr>
+							<tr class="story-line ok">
+								<td>
+									<div class="story-line-status-container">
+										<div class="story-line-status"></div>
+										<span class="statusicon ok">1 &#10003;</span>
+									</div>
+								</td>
+								<td colspan="3" class="depth-1">
+									Something else here
+								</td>
+							</tr>
+							<tr class="story-line ok">
+								<td>
+									<div class="story-line-status-container">
+										<div class="story-line-status"></div>
+										<span class="statusicon ok">5 &#10003;</span>
+									</div>
+								</td>
+								<td colspan="3" class="depth-1">
+									Something else here
+								</td>
+							</tr>
+
+
+
+							<tr class="story-pkg">
+								<td>
+									<a href="javascript:" class="fa fa-expand-o fa-lg"></a>
+								</td>
+								<td class="story-pkg-name">
+									github.com/smartystreets/goconvey/<b>convey</b>
+								</td>
+								<td>
+									<span class="statusicon ok">&#10003;</span> 9
+								</td>
+								<td class="story-pkg-watch-td">
+									<a class="fa fa-lg ignore fa-eye unwatch" href="javascript:" title="Toggle ignore"></a>
+								</td>
+							</tr>
+							<tr class="story-pkg">
+								<td>
+									<a href="javascript:" class="fa fa-expand-o fa-lg"></a>
+								</td>
+								<td class="story-pkg-name">
+									github.com/smartystreets/goconvey/<b>execution</b>
+								</td>
+								<td>
+									<span class="statusicon ok">&#10003;</span> 5
+								</td>
+								<td class="story-pkg-watch-td">
+									<a class="fa fa-lg ignore fa-eye unwatch" href="javascript:" title="Toggle ignore"></a>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</td>
+				<td id="col4" style="width: 300px; font-size: 10px;">
+					<div class="toggler" data-toggle="log">
+						LOG
+					</div>
+					<div id="log">
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Server is starting
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> 52 tests completed
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Parsing test results
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Transmitting
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Server idle
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Polling
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Processing results
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Overall: FAIL
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Computing diff
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Rendering
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Complete
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Poller timeout; re-polling
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Requesting test execution
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Running tests
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> 52 tests completed
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Parsing test results
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Transmitting
+						</div>
+						
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Server idle
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Processing results
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Computing diff
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Rendering
+						</div>
+						<div class="line">
+							<span style="color: #999">[02:41:32.539]</span> Complete
+						</div>
 					</div>
 				</td>
 			</tr>
-
-			
 			<tr>
-				<td>
-					
-				</td>
-				<td>
-					
-				</td>
-				<td>
-					
-				</td>
+				<td colspan="99" style="height: 100%;"></td>
 			</tr>
 			<tr>
-				<td colspan="3"></td>
+				<td colspan="99">
+					<span id="time"></span> UTC
+					&nbsp; &middot; &nbsp;
+					Last test 3m ago
+					&nbsp; &middot; &nbsp;
+					51 assertions
+					&nbsp;
+					0 failed
+					&nbsp;
+					1.687s
+				</td>
 			</tr>
 		</table>
-
-
-
 
 
 
