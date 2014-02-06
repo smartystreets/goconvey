@@ -22,13 +22,13 @@ func parseName(items []interface{}) string {
 	}
 	panic(parseError)
 }
-func parseGoTest(items []interface{}) T {
-	if test, parsed := items[1].(T); parsed {
+func parseGoTest(items []interface{}) t {
+	if test, parsed := items[1].(t); parsed {
 		return test
 	}
 	return nil
 }
-func parseAction(items []interface{}, test T) *execution.Action {
+func parseAction(items []interface{}, test t) *execution.Action {
 	var index = 1
 	if test != nil {
 		index = 2
@@ -46,7 +46,7 @@ func parseAction(items []interface{}, test T) *execution.Action {
 // This interface allows us to pass the *testing.T struct
 // throughout the internals of this tool without ever
 // having to import the "testing" package.
-type T interface {
+type t interface {
 	Fail()
 }
 

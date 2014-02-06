@@ -23,7 +23,11 @@ func ShouldStartWith(actual interface{}, expected ...interface{}) string {
 }
 func shouldStartWith(value, prefix string) string {
 	if !strings.HasPrefix(value, prefix) {
-		return serializer.serialize(prefix, value[:len(prefix)]+"...", fmt.Sprintf(shouldHaveStartedWith, value, prefix))
+		shortval := value
+		if len(shortval) > len(prefix) {
+			shortval = shortval[:len(prefix)] + "..."
+		}
+		return serializer.serialize(prefix, shortval, fmt.Sprintf(shouldHaveStartedWith, value, prefix))
 	}
 	return success
 }
@@ -73,7 +77,11 @@ func ShouldEndWith(actual interface{}, expected ...interface{}) string {
 }
 func shouldEndWith(value, suffix string) string {
 	if !strings.HasSuffix(value, suffix) {
-		return serializer.serialize(suffix, "..."+value[len(value)-len(suffix):], fmt.Sprintf(shouldHaveEndedWith, value, suffix))
+		shortval := value
+		if len(shortval) > len(suffix) {
+			shortval = "..." + shortval[len(shortval)-len(suffix):]
+		}
+		return serializer.serialize(suffix, shortval, fmt.Sprintf(shouldHaveEndedWith, value, suffix))
 	}
 	return success
 }

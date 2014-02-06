@@ -8,17 +8,17 @@ import (
 	"github.com/smartystreets/goconvey/reporting"
 )
 
-// SuiteContext magically handles all coordination of reporter, runners as they handle calls
+// suiteContext magically handles all coordination of reporter, runners as they handle calls
 // to Convey, So, and the like. It does this via runtime call stack inspection, making sure
 // that each test function has its own runner and reporter, and routes all live registrations
 // to the appropriate runner/reporter.
-type SuiteContext struct {
+type suiteContext struct {
 	runners   map[string]execution.Runner
 	reporters map[string]reporting.Reporter
 	lock      sync.Mutex
 }
 
-func (self *SuiteContext) Run(entry *execution.Registration) {
+func (self *suiteContext) Run(entry *execution.Registration) {
 	key := resolveTestPackageAndFunctionName()
 	if self.currentRunner() != nil {
 		panic(execution.ExtraGoTest)
@@ -41,7 +41,7 @@ func (self *SuiteContext) Run(entry *execution.Registration) {
 	self.lock.Unlock()
 }
 
-func (self *SuiteContext) CurrentRunner() execution.Runner {
+func (self *suiteContext) CurrentRunner() execution.Runner {
 	runner := self.currentRunner()
 
 	if runner == nil {
@@ -50,20 +50,20 @@ func (self *SuiteContext) CurrentRunner() execution.Runner {
 
 	return runner
 }
-func (self *SuiteContext) currentRunner() execution.Runner {
+func (self *suiteContext) currentRunner() execution.Runner {
 	self.lock.Lock()
 	defer self.lock.Unlock()
 	return self.runners[resolveTestPackageAndFunctionName()]
 }
 
-func (self *SuiteContext) CurrentReporter() reporting.Reporter {
+func (self *suiteContext) CurrentReporter() reporting.Reporter {
 	self.lock.Lock()
 	defer self.lock.Unlock()
 	return self.reporters[resolveTestPackageAndFunctionName()]
 }
 
-func NewSuiteContext() *SuiteContext {
-	self := new(SuiteContext)
+func newSuiteContext() *suiteContext {
+	self := new(suiteContext)
 	self.runners = make(map[string]execution.Runner)
 	self.reporters = make(map[string]reporting.Reporter)
 	return self
