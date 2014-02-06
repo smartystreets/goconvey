@@ -106,7 +106,11 @@ func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *ht
 		return
 	}
 
-	response.Write([]byte(<-myReqChan))
+	out := <-myReqChan
+
+	if out != "" { // TODO: Why is this check necessary? Sometimes it writes empty string...
+		response.Write([]byte(out))
+	}
 }
 
 func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
