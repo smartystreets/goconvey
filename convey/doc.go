@@ -39,6 +39,19 @@ func SkipConvey(items ...interface{}) {
 	register(entry)
 }
 
+// FocusConvey is has the inverse effect of SkipConvey. If the top-level
+// Convey is changed to `FocusConvey`, only nested scopes that are defined
+// with FocusConvey will be run. The rest will be ignored completely. This
+// is handy when debugging a large suite that runs a misbehaving function
+// repeatedly as you can disable all but one execution of that function
+// without swaths of `SkipConvey` calls, just a targeted chain of calls
+// to FocusConvey.
+func FocusConvey(items ...interface{}) {
+	entry := discover(items)
+	entry.Focus = true
+	register(entry)
+}
+
 func register(entry *execution.Registration) {
 	if entry.IsTopLevel() {
 		suites.Run(entry)
