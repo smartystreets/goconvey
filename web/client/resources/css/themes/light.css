@@ -96,6 +96,7 @@ body {
 .pkg-cover-name b, 
 .story-pkg-name b {
 	color: #000;
+	font-weight: bold;
 }
 
 .pkg-cover:hover,

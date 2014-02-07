@@ -333,6 +333,7 @@ input[type=text] {
 .pkg-cover-name {
 	position: relative;
 	z-index: 2;
+	font-family: 'Share Tech Mono', monospace;
 }
 
 
@@ -346,7 +347,7 @@ input[type=text] {
 }
 
 .story-pkg td {
-	font-size: 14px;
+	font: 16px 'Open Sans', sans-serif;
 	white-space: nowrap;
 	padding: 10px;
 }
@@ -356,7 +357,7 @@ input[type=text] {
 }
 
 .story-line {
-	font-size: 12px;
+	font: 12px 'Open Sans', sans-serif;
 	cursor: default;
 }
 

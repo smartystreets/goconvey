@@ -109,6 +109,7 @@ input[type=text] {
 .pkg-cover-name b, 
 .story-pkg-name b {
 	color: #FFF;
+	font-weight: bold;
 }
 
 .pkg-cover:hover,
