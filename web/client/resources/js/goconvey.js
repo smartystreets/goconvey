@@ -2,7 +2,6 @@ var convey = {
 
 	// Configure the GoConvey web UI client here
 	config: {
-
 		// Install new themes by adding them here; the first one will be default
 		themes: {
 			"dark": {name: "Dark", filename: "dark.css"},
@@ -10,10 +9,7 @@ var convey = {
 		},
 
 		// Path to the themes (end with forward-slash)
-		themePath: "/resources/css/themes/",
-
-		// Whether to enable debug output on the console
-		debug: true
+		themePath: "/resources/css/themes/"
 	},
 
 
@@ -22,7 +18,7 @@ var convey = {
 
 
 	statuses: {				// contains some constants related to overall test status
-		pass: { class: 'ok', text: "OK" },
+		pass: { class: 'ok', text: "Pass" },
 		fail: { class: 'fail', text: "Fail" },
 		panic: { class: 'panic', text: "Panic" },
 		buildfail: { class: 'buildfail', text: "Build Failure" }
@@ -35,20 +31,21 @@ var convey = {
 	layout: {
 		selClass: "sel",	// CSS class when an element is "selected"
 		header: undefined,	// Container element of the header area (overall, controls)
-		table: undefined	// Container element of the main body table
+		frame: undefined,	// Container element of the main body area (above footer)
+		footer: undefined	// Container element of the footer (stuck to bottom)
 	}
 };
 
 
-
-init();
+$(init);
 
 function init()
 {
+	log("Welcome to GoConvey. Initializing UI...");
 	convey.overall = emptyOverall();
 	loadTheme();
 	initPoller();
-	$(wireup);
+	wireup();
 }
 
 function emptyOverall()
@@ -73,10 +70,12 @@ function loadTheme(thmID)
 	if (!thmID)
 		thmID = localStorage.getItem('theme');
 
+	log("Initializing theme: " + thmID);
+
 	if (!thmID || !convey.config.themes[thmID])
 	{
 		replacement = Object.keys(convey.config.themes)[0] || defaultTheme;
-		log("WARNING", "Could not find '" + thmID + "' theme; defaulting to '" + replacement + "'");
+		log("WARNING: Could not find '" + thmID + "' theme; defaulting to '" + replacement + "'");
 		thmID = replacement;
 	}
 
@@ -100,15 +99,13 @@ function initPoller()
 {
 	$(convey.poller).on('serverstarting', function(event)
 	{
-		console.log("Server starting", arguments);	// TODO remove / or use log
+		log("Server is starting...");
 		convey.status = "starting";
 		$('#run-tests').addClass('spin-slowly disabled');
 	});
 
 	$(convey.poller).on('pollsuccess', function(event, data)
 	{
-		console.log("POLL SUCCESS", event, data);	// TODO remove / or use log
-
 		// These two if statements determine if the server is now busy
 		// (and wasn't before) or is not busy (regardless of whether it was before)
 		if ((!convey.status || convey.status == "idle")
@@ -135,17 +132,17 @@ function initPoller()
 
 	$(convey.poller).on('serverexec', function(event, data)
 	{
-		console.log("Server is EXECUTING.");	// TODO remove / or use log
+		log("Server status: executing");
 	});
 
 	$(convey.poller).on('serverparsing', function(event, data)
 	{
-		console.log("Server is PARSING.");	// TODO remove / or use log
+		log("Server status: Parsing");
 	});
 
 	$(convey.poller).on('serveridle', function(event, data)
 	{
-		console.log("Server is IDLE.");	// TODO remove / or use log
+		log("Server status: idle");
 		// TODO: If execution just finished, get the latest...
 	});
 
@@ -154,6 +151,8 @@ function initPoller()
 
 function wireup()
 {
+	log("Wireup");
+
 	var themes = [];
 	for (var k in convey.config.themes)
 		themes.push({ id: k, name: convey.config.themes[k].name });
@@ -168,8 +167,9 @@ function wireup()
 			loadTheme($(this).data('theme'));
 	});
 
-	convey.layout.header = $('header');
-	convey.layout.table = $('.frame');
+	convey.layout.header = $('header').first();
+	convey.layout.frame = $('.frame').first();
+	convey.layout.footer = $('footer').last();
 
 	updateWatchPath(true);	// true tells the server we're a new client
 
@@ -186,8 +186,7 @@ function wireup()
 	$('#run-tests').click(function()
 	{
 		var self = $(this);
-		if (self.hasClass('spin-slowly')
-			|| self.hasClass('disabled'))
+		if (self.hasClass('spin-slowly') || self.hasClass('disabled'))
 			return;
 		$.get("/execute");
 	});
@@ -201,7 +200,6 @@ function wireup()
 	{
 		$(this).toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
 
-		// Save updated preference for future loads
 		localStorage.setItem('notifications', !notif());
 
 		if (notif() && 'Notification' in window)
@@ -210,7 +208,7 @@ function wireup()
 			{
 				Notification.requestPermission(function(per)
 				{
-					if (!('permission' in Notification))	// help Chrome out a bit
+					if (!('permission' in Notification))
 						Notification.permission = per;
 				});
 			}
@@ -251,7 +249,6 @@ function wireup()
 
 	$(window).resize(reframe);
 	reframe();
-
 	latest();
 
 	convey.intervals.time = setInterval(function()
@@ -265,6 +262,36 @@ function wireup()
 		$('#time').text(h + ":" + m + ":" + s + "." + ms);
 	}, 1000);
 
+	$('.story-line').click(function()
+	{
+		$('.story-line-sel').not(this).removeClass('story-line-sel');
+		$(this).toggleClass('story-line-sel');
+	});
+
+	$('#stories').on('click', '.fa.ignore', function(event)
+	{
+		var pkg = $(this).closest('.pkg-story').data('pkg');
+		if ($(this).hasClass('disabled'))
+			return;
+		else if ($(this).hasClass('unwatch'))
+			$.get("/ignore", { path: pkg });
+		else
+			$.get("/reinstate", { path: pkg });
+		$(this).toggleClass('watch')
+			.toggleClass('unwatch')
+			.toggleClass('fa-eye')
+			.toggleClass('fa-eye-slash')
+			.toggleClass('clr-red');
+		return suppress(event);
+	});
+
+	$('#stories').on('click', '.story-pkg', function()
+	{
+		var pkg = $(this).data('pkg');
+		$('tr.story-line.pkg-'+pkg).toggle();
+		$('.fa-collapse-o, .fa-expand-o', this).toggleClass('fa-collapse-o fa-expand-o');
+		return suppress(event);
+	});
 
 	// Temporary, for effect:
 	setTimeout(function() { changeStatus(convey.statuses.panic) }, 2000);
@@ -288,9 +315,9 @@ function wireup()
 
 
 
-
 function latest()
 {
+	log("Fetching latest test results");
 	$.getJSON("/latest", process);
 }
 
@@ -593,9 +620,9 @@ function Poller(config)
 	}
 
 	$(self).on('pollstart', function(event, data) {
-		log("Started poller", req, event, data);
+		log("Started poller");
 	}).on('pollstop', function(event, data) {
-		log("Stopped poller", req, event, data);
+		log("Stopped poller");
 	});
 
 
@@ -636,7 +663,6 @@ function Poller(config)
 			url: endpoints.up + "?timeout=" + timeout,
 			timeout: timeout
 		}).done(pollSuccess).fail(pollFailed);
-		log("Polling", req);
 	}
 
 	function pollSuccess(data, message, jqxhr)
@@ -664,13 +690,14 @@ function Poller(config)
 	{
 		if (message == "timeout")
 		{
+			log("Poller timeout; re-polling...", req);
 			doPoll();	// in our case, timeout actually means no activity; poll again
 			return;
 		}
 
 		up = false;
 
-		log("Poll failed; server down", arguments);
+		log("Poll failed; server down");
 
 		downPoller = setInterval(function()
 		{
@@ -828,8 +855,9 @@ function render(templateID, context)
 
 function reframe()
 {
-	var h = $(window).height() - convey.layout.header.outerHeight();
-	convey.layout.table.height(h);
+	var heightBelowHeader = $(window).height() - convey.layout.header.outerHeight();
+	var middleHeight = heightBelowHeader - convey.layout.footer.outerHeight() - 1;	// -1 for borders
+	convey.layout.frame.height(middleHeight);
 }
 
 function notif()
@@ -837,18 +865,30 @@ function notif()
 	return localStorage.getItem('notifications') === "true";	// stored as strings
 }
 
+function log(msg)
+{
+	var logElem = $('#log')[0];
+	if (logElem)
+	{
+		var t = new Date();
+		var h = zerofill(t.getUTCHours(), 2);
+		var m = zerofill(t.getUTCMinutes(), 2);
+		var s = zerofill(t.getUTCSeconds(), 2);
+		var ms = zerofill(t.getUTCMilliseconds(), 3);
+		date = h + ":" + m + ":" + s + "." + ms;
+
+		$(logElem).append(render('tpl-log-line', { time: date, msg: msg }));
+		$(logElem).scrollTop(logElem.scrollHeight);
+	}
+	else
+		console.log(msg);
+}
 
 function zerofill(val, count)
 {
 	// Cheers to http://stackoverflow.com/a/9744576/1048862
 	var pad = new Array(1 + count).join('0');
 	return (pad + val).slice(-pad.length);
-}
-
-function log(type, msg)
-{
-	if (convey.config.debug)
-		console.log(type+":", msg);
 }
 
 function suppress(event)

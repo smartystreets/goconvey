@@ -21,6 +21,14 @@ body {
 	background: #F4F4F4;
 }
 
+a {
+	color: #247D9E;
+}
+
+a:hover {
+	color: #33B5E5;
+}
+
 .overall.ok,
 .history .item.ok {
 	background: #8CB700; /* Can't decide: #5AA02C */
@@ -66,11 +74,13 @@ body {
 	border-bottom: 1px solid #33B5E5;
 }
 
-.fa {
+li.fa,
+a.fa {
 	color: #6887A3;
 }
 
-.fa:hover {
+li.fa:hover,
+a.fa:hover {
 	color: #465B6D;
 }
 
@@ -131,11 +141,83 @@ input[type=text] {
 
 
 
-
-
-.frame > tbody > tr > td {
+.frame .col,
+footer {
 	border-color: #33B5E5;
 }
+
+
+
+.buildfail-pkg {
+	background: #CCC;
+}
+.buildfail-output {
+	background: #EEE;
+}
+
+
+
+.panic-pkg {
+	background: #E94D4D;
+	color: #FFF;
+}
+.panic-details {
+	border: 5px solid #E94D4D;
+	border-top: 0;
+	border-bottom: 0;
+	color: #CC0000;
+}
+.panic:last-child .panic-details {
+	border-bottom: 5px solid #E94D4D;
+}
+.panic-story {
+	padding: 10px;
+}
+.panic-output {
+	background: #FFF;
+}
+
+
+
+
+.failure-pkg {
+	background: #FFA300;
+	color: #FFF;
+}
+.failure-details {
+	border: 5px solid #FFA300;
+	border-top: 0;
+	border-bottom: 0;
+}
+.failure:last-child .failure-details {
+	border-bottom: 5px solid #FFA300;
+}
+.failure-story {
+	padding: 10px;
+	color: #A87A00;
+}
+.failure-output {
+	background: #FFF;
+}
+.failure-file {
+	color: #000;
+}
+
+.diff td {
+	border-color: #CCC;
+}
+
+.diff .exp {
+	background: #ADFFAD;
+}
+
+.diff .act {
+	background: #FFC0C0;
+}
+
+
+
+
 
 
 
@@ -160,21 +242,29 @@ input[type=text] {
 }
 
 .story-line.ok .story-line-status { background: #8CB700; }
-.story-line.ok:hover { background: #F4FFD8; }
+.story-line.ok:hover, .story-line.ok.story-line-sel { background: #F4FFD8; }
 
 .story-line.fail .story-line-status { background: #E79C07; }
-.story-line.fail:hover { background: #FFF1DB; }
+.story-line.fail:hover, .story-line.fail.story-line-sel { background: #FFF1DB; }
 
 .story-line.panic .story-line-status { background: #DD0606; }
-.story-line.panic:hover { background: #FFE8E8; }
+.story-line.panic:hover, .story-line.panic.story-line-sel { background: #FFE8E8; }
 
 .story-line.skip .story-line-status { background: #AAA; }
-.story-line.skip:hover { background: #F2F2F2; }
+.story-line.skip:hover, .story-line.skip.story-line-sel { background: #F2F2F2; }
 
 .statusicon.ok { color: #76C13C; }
 .statusicon.fail { color: #EA9C4D; }
 .statusicon.panic, .statusicon.panic .fa  { color: #FF3232; }
 .statusicon.skip { color: #AAA; }
+
+
+
+.log .timestamp {
+	color: #999;
+}
+
+
 
 
 

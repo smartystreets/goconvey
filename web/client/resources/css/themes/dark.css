@@ -205,12 +205,71 @@ input[type=text] {
 	color: #33B5E5 !important;
 }
 
-
-
-
-.frame > tbody > tr > td {
+.frame .col,
+footer {
 	border-color: #33B5E5;
 }
+
+
+
+.buildfail-pkg {
+	background: rgba(255, 255, 255, .1);
+}
+.buildfail-output {
+	background: rgba(255, 255, 255, .2);
+}
+
+
+
+.panic-pkg {
+	background: rgba(255, 0, 0, .3);
+}
+.panic-story {
+	padding: 10px;
+	background: rgba(255, 0, 0, .1);
+}
+.panic-story a,
+.panic-summary {
+	color: #E94A4A;
+}
+.panic-output {
+	color: #FF8181;
+}
+
+
+
+.failure-pkg {
+	background: rgba(255, 153, 0, .42);
+}
+.failure-story {
+	padding: 10px;
+	background: rgba(255, 153, 0, .1);
+}
+.failure-story a {
+	color: #FFB518;
+}
+.failure-output {
+	color: #FFBD47;
+}
+.failure-file {
+	color: #FFF;
+}
+
+
+.diff td {
+	border-color: rgba(0, 0, 0, .3);
+}
+
+.diff .exp {
+	background: rgba(131, 252, 131, 0.22);
+}
+
+.diff .act {
+	background: rgba(255, 52, 52, 0.33);
+}
+
+
+
 
 
 
@@ -231,22 +290,26 @@ input[type=text] {
 }
 
 .story-line.ok .story-line-status { background: #008000; }
-.story-line.ok:hover { background: rgba(0, 128, 0, .1); }
+.story-line.ok:hover, .story-line.ok.story-line-sel { background: rgba(0, 128, 0, .1); }
 
 .story-line.fail .story-line-status { background: #EA9C4D; }
-.story-line.fail:hover { background: rgba(234, 156, 77, .1); }
+.story-line.fail:hover, .story-line.fail.story-line-sel { background: rgba(234, 156, 77, .1); }
 
 .story-line.panic .story-line-status { background: #FF3232; }
-.story-line.panic:hover { background: rgba(255, 50, 50, .1); }
+.story-line.panic:hover, .story-line.panic.story-line-sel { background: rgba(255, 50, 50, .1); }
 
 .story-line.skip .story-line-status { background: #AAA; }
-.story-line.skip:hover { background: rgba(255, 255, 255, .1); }
+.story-line.skip:hover, .story-line.skip.story-line-sel { background: rgba(255, 255, 255, .1); }
 
 .statusicon.ok { color: #76C13C; }
 .statusicon.fail { color: #EA9C4D; }
 .statusicon.panic, .statusicon.panic .fa { color: #FF3232; }
 .statusicon.skip { color: #AAA; }
 
+
+.log .timestamp {
+	color: #999;
+}
 
 
 

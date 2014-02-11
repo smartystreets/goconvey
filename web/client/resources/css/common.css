@@ -80,6 +80,14 @@ a.fa {
 	text-decoration: none;
 }
 
+b {
+	font-weight: bold;
+}
+
+i {
+	font-style: italic;
+}
+
 hr {
 	border: 0;
 	background: 0;
@@ -131,6 +139,10 @@ input[type=text] {
 
 .toggler.narrow {
 	display: none;
+}
+
+.togglable {
+	overflow-x: auto;
 }
 
 .controls {
@@ -194,16 +206,17 @@ input[type=text] {
 
 	border-top-width: 1px;
 	border-top-style: solid;
-	overflow-x: hidden;
+	overflow-x: auto;
+	overflow-y: hidden;
 	text-align: center;
 	white-space: nowrap;
 	display: none;
 }
-
+/*
 .expandable:hover {
 	overflow-x: auto;
 }
-
+*/
 .settings {
 	white-space: normal;
 	overflow-x: auto;
@@ -248,10 +261,10 @@ input[type=text] {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 
-	transition: opacity .15s linear;
-	-moz-transition: opacity .15s linear;
-	-webkit-transition: opacity .15s linear;
-	-o-transition: opacity .15s linear;
+	transition: all .15s linear;
+	-moz-transition: all .15s linear;
+	-webkit-transition: all .15s linear;
+	-o-transition: all .15s linear;
 
 	display: inline-block;
 	text-align: left;
@@ -267,6 +280,14 @@ input[type=text] {
 	opacity: 1;
 }
 
+.history .item:nth-child(odd):hover {
+	-webkit-transform: scale(1.1) rotate(5deg);
+}
+
+.history .item:nth-child(even):hover {
+	-webkit-transform: scale(1.1) rotate(-5deg);
+}
+
 .history .item .summary {
 	font: 14px/1.5em 'Share Tech Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
 }
@@ -280,37 +301,52 @@ input[type=text] {
 	position: relative;
 	z-index: 0;
 	width: 100%;
-	border-collapse: collapse;
 }
 
-.frame > tbody > tr > td {
-	border-width: 1px;
-	border-style: solid;
+.frame .col {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+
+	border-right-width: 1px;
+	border-right-style: solid;
+	float: left;
+	height: 100%;
+	overflow-y: auto;
 }
 
-.frame > tbody > tr > td:first-child {
+.frame .col:first-child {
 	border-left: none;
 }
 
-.frame > tbody > tr > td:last-child {
+.frame .col:last-child {
 	border-right: none;
 }
 
-.frame > tbody > tr:first-child > td {
-	border-top: none;
-}
 
-.frame > tbody > tr:last-child > td {
-	border-bottom: none;
-}
-
-
-
-
-
-.coverage-td {
+#col-1 {
 	width: 20%;
 }
+
+#col-2 {
+	width: 60%;
+}
+
+#col-3 {
+	width: 20%;
+}
+
+footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	border-top-width: 1px;
+	border-top-style: solid;
+	padding: 5px;
+	font-size: 12px;
+}
+
 
 #coverage {
 	font-size: 10px;
@@ -335,6 +371,65 @@ input[type=text] {
 	z-index: 2;
 	font-family: 'Share Tech Mono', monospace;
 }
+
+.buildfail-pkg,
+.panic-pkg,
+.failure-pkg {
+	padding: 5px 10px;
+	font: 14px 'Open Sans', sans-serif;
+}
+
+.buildfail-output,
+.panic-output,
+.failure-output {
+	padding: 10px;
+	font-size: 12px;
+	line-height: 1.25em;
+}
+
+.panic-story,
+.failure-story {
+	font-size: 10px;
+	line-height: 1.25em;
+	font-family: 'Open Sans', sans-serif;
+}
+
+.panic-summary {
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 1.5em;
+}
+
+.panic-file,
+.failure-file {
+	font-size: 13px;
+	line-height: 1.5em;
+}
+
+.diff {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.diff td {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	padding: 2px 5px;
+	font-size: 10px;
+}
+
+.diff tr:first-child td {
+	border-top-width: 1px;
+	border-top-style: solid;
+}
+
+.diff td:first-child {
+	width: 65px;
+	border-right-width: 1px;
+	border-right-style: solid;
+}
+
+
 
 
 #stories table {
@@ -389,6 +484,14 @@ input[type=text] {
 .depth-5 { padding-left: 9em !important; }
 .depth-6 { padding-left: 10.5em !important; }
 .depth-7 { padding-left: 11em !important; }
+
+
+.log {
+	font-size: 10px;
+	line-height: 1.5em;
+}
+
+
 
 
 
@@ -537,7 +640,16 @@ input[type=text] {
 
 
 
+@media (max-width: 1100px) {
+	#col-2 {
+		width: 80%;
+		border-right: none;
+	}
 
+	#col-3 {
+		display: none;
+	}
+}
 
 @media (min-width: 850px) and (max-width: 1220px) {
 	#path {
@@ -548,10 +660,6 @@ input[type=text] {
 
 	.path-container {
 		margin-left: 20px;
-	}
-
-	#col4 {	/* TODO */
-		display: none;
 	}
 }
 
@@ -570,6 +678,14 @@ input[type=text] {
 @media (max-width: 699px) {
 	.path-container {
 		display: none;
+	}
+
+	#col-1 {
+		display: none;
+	}
+
+	#col-2 {
+		width: 100%;
 	}
 }
 
