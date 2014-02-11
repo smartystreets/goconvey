@@ -22,19 +22,6 @@ func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
 }
 
 func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Request) {
-
-	// In case a web UI client disconnected (closed the tab),
-	// the web UI will request, when it initially loads the page
-	// and gets the watched directory, that the status channel
-	// buffer be filled so that it can get the latest status updates
-	// without missing a single beat.
-	/*if request.URL.Query().Get("newclient") != "" {
-		select {
-		case self.statusUpdate <- true:
-		default:
-		}
-	}*/
-
 	if request.Method == "POST" {
 		self.adjustRoot(response, request)
 	} else if request.Method == "GET" {
