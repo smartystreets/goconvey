@@ -21,9 +21,11 @@ type runner struct {
 	out   reporting.Reporter
 
 	awaitingNewStory bool
+	focus            bool
 }
 
 func (self *runner) Begin(entry *Registration) {
+	self.focus = entry.Focus
 	self.ensureStoryCanBegin()
 	self.out.BeginStory(reporting.NewStoryReport(entry.Test))
 	self.Register(entry)
@@ -37,6 +39,9 @@ func (self *runner) ensureStoryCanBegin() {
 }
 
 func (self *runner) Register(entry *Registration) {
+	if self.focus && !entry.Focus {
+		return
+	}
 	self.ensureStoryAlreadyStarted()
 	parentAction := self.link(entry.Action)
 	parent := self.accessScope(parentAction)

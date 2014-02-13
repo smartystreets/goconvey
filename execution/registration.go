@@ -8,6 +8,7 @@ type Registration struct {
 	Test      T
 	File      string
 	Line      int
+	Focus     bool
 }
 
 func (self *Registration) IsTopLevel() bool {

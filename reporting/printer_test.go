@@ -14,11 +14,33 @@ func TestPrint(t *testing.T) {
 	}
 }
 
+func TestPrintPreservesEncodedStrings(t *testing.T) {
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+	const expected = "= -> %3D"
+	printer.Print(expected)
+
+	if file.buffer != expected {
+		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
+	}
+}
+
 func TestPrintln(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
 	const expected = "Hello, World!"
 
+	printer.Println(expected)
+
+	if file.buffer != expected+"\n" {
+		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
+	}
+}
+
+func TestPrintlnPreservesEncodedStrings(t *testing.T) {
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+	const expected = "= -> %3D"
 	printer.Println(expected)
 
 	if file.buffer != expected+"\n" {

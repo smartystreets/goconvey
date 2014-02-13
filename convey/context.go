@@ -73,11 +73,18 @@ func newSuiteContext() *suiteContext {
 // the go testing harnass call ("testing.tRunner") and then grabs the very next entry,
 // which represents the package under test and the test function name. Voila!
 func resolveTestPackageAndFunctionName() string {
-	var callerId uintptr
+	var (
+		callerId uintptr
+		found    bool
+	)
 	callers := runtime.Callers(0, callStack)
 
 	for y := callers; y > 0; y-- {
-		callerId, _, _, _ = runtime.Caller(y)
+		callerId, _, _, found = runtime.Caller(y)
+		if !found {
+			continue
+		}
+
 		packageAndTestFunctionName := runtime.FuncForPC(callerId).Name()
 		if packageAndTestFunctionName == goTestHarness {
 			callerId, _, _, _ = runtime.Caller(y - 1)

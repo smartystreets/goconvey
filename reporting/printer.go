@@ -26,7 +26,12 @@ func (self *Printer) Insert(text string) {
 }
 
 func (self *Printer) format(message string, values ...interface{}) string {
-	formatted := self.prefix + fmt.Sprintf(message, values...)
+	var formatted string
+	if len(values) == 0 {
+		formatted = self.prefix + message
+	} else {
+		formatted = self.prefix + fmt.Sprintf(message, values...)
+	}
 	indented := strings.Replace(formatted, newline, newline+self.prefix, -1)
 	return strings.TrimRight(indented, space)
 }
