@@ -210,6 +210,10 @@ footer {
 	border-color: #33B5E5;
 }
 
+footer {
+	background: rgba(0, 0, 0, .5);
+}
+
 
 
 .buildfail-pkg {
@@ -256,18 +260,21 @@ footer {
 }
 
 
-.diff td {
+.diffviewer td {
 	border-color: rgba(0, 0, 0, .3);
 }
 
-.diff .exp {
+/* prettyTextDiff expected/deleted colors */
+.diffviewer .exp,
+.diff del {
 	background: rgba(131, 252, 131, 0.22);
 }
 
-.diff .act {
+/* prettyTextDiff actual/inserted colors */
+.diffviewer .act,
+.diff ins {
 	background: rgba(255, 52, 52, 0.33);
 }
-
 
 
 
@@ -285,7 +292,7 @@ footer {
 	border-top: 1px dashed rgba(255, 255, 255, .08);
 }
 
-.story-line-status-container {
+.story-line-summary-container {
 	border-right: 1px dashed #333;
 }
 

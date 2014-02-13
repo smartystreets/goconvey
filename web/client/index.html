@@ -21,9 +21,7 @@
 	<body>
 		<header>
 			<div class="overall ok">
-				<div class="status">
-					Pass
-				</div>
+				<div class="status">PASS</div>
 			</div>
 
 			<div class="toggler narrow" data-toggle="controls">
@@ -125,159 +123,251 @@
 			</div>
 		</header>
 
+
+
+
+
+
 		<div class="frame cf">
+
 
 			<div class="col" id="col-1">
 				<div class="toggler" data-toggle="coverage">
 					Coverage
 				</div>
-				<div class="togglable" id="coverage">
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 75%; background-color: rgba(162, 221, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...artystreets/goconvey/<b>assertions</b>
+				<div class="togglable" id="coverage"></div>
+				<script id="tpl-coverage" type="text/template">
+					<div class="templated">
+						{{.}}
+						{{if Outcome|notequals>no go code}}
+						<div class="pkg-cover">
+							<div class="pkg-cover-bar" data-width="{{Coverage|coveragePct}}"></div>
+							<div class="pkg-cover-name">
+								{{PackageName|chopEnd>20|boldPkgName}}
+							</div>
 						</div>
+						{{/if}}
+						{{/.}}
 					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 45%; background-color: rgba(224, 170, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...m/smartystreets/goconvey/<b>convey</b>
-						</div>
-					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 32%; background-color: rgba(221, 60, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...martystreets/goconvey/<b>execution</b>
-						</div>
-					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 65%; background-color: rgba(162, 221, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...tystreets/goconvey/web/<b>client</b>
-						</div>
-					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 25%; background-color: rgba(221, 60, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...martystreets/goconvey/<b>execution</b>
-						</div>
-					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 45%; background-color: rgba(224, 170, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...m/smartystreets/goconvey/<b>convey</b>
-						</div>
-					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 72%; background-color: rgba(162, 221, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...tystreets/goconvey/web/<b>client</b>
-						</div>
-					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 92%; background-color: rgba(162, 221, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...tystreets/goconvey/web/<b>client</b>
-						</div>
-					</div>
-					<div class="pkg-cover">
-						<div class="pkg-cover-bar" style="width: 5%; background-color: rgba(221, 60, 35, .3);"></div>
-						<div class="pkg-cover-name">
-							...martystreets/goconvey/<b>execution</b>
-						</div>
-					</div>
+				</script>
+
+
+
+				<div class="toggler" data-toggle="notestfn">
+					No Test Functions
 				</div>
+				<div class="togglable" id="notestfn"></div>
+				<script id="tpl-notestfn" type="text/template">
+					<div class="templated">
+						{{.}}
+							{{PackageName|chopEnd>20|boldPkgName}}
+						{{/.}}
+					</div>
+				</script>
+
+
+				<div class="toggler" data-toggle="notestfiles">
+					No Test Files
+				</div>
+				<div class="togglable" id="notestfiles"></div>
+				<script id="tpl-notestfiles" type="text/template">
+					<div class="templated">
+						{{.}}
+							{{PackageName|chopEnd>20|boldPkgName}}
+						{{/.}}
+					</div>
+				</script>
+
+
+
+				<div class="toggler" data-toggle="nogofiles">
+					No Go Files
+				</div>
+				<div class="togglable" id="nogofiles"></div>
+				<script id="tpl-nogofiles" type="text/template">
+					<div class="templated">
+						{{.}}
+							{{PackageName|chopEnd>20|boldPkgName}}
+						{{/.}}
+					</div>
+				</script>
 			</div>
 
 
 
+
+
+
+
+
+
+
+
 			<div class="col" id="col-2">
-				<div class="toggler" data-toggle="buildfailures">
+
+				<div class="toggler buildfailures" data-toggle="buildfailures">
 					Build Failures
 				</div>
-				<div class="togglable" id="buildfailures">
-					<div class="buildfail">
-						<div class="buildfail-pkg"><i class="fa fa-wrench"></i>&nbsp; github.com/smartystreets/goconvey/<b>client</b></div>
-						<div class="buildfail-output">some output here<br>and more</div>
+				<div class="togglable buildfailures" id="buildfailures"></div>
+				<script id="tpl-buildfailures" type="text/template">
+					<div class="templated">
+						{{.}}
+						<div class="buildfail">
+							<div class="buildfail-pkg"><i class="fa fa-wrench"></i>&nbsp; {{PackageName|boldPkgName}}</div>
+							<div class="buildfail-output">{{BuildOutput|showhtml}}</div>
+						</div>
+						{{/.}}
 					</div>
-					<div class="buildfail">
-						<div class="buildfail-pkg"><i class="fa fa-wrench"></i>&nbsp; github.com/smartystreets/goconvey/<b>client</b></div>
-						<div class="buildfail-output">some output here<br>and more</div>
-					</div>
-				</div>
+				</script>
 
-				<div class="toggler" data-toggle="panics">
+
+
+				<div class="toggler panics" data-toggle="panics">
 					Panics
 				</div>
-				<div class="togglable" id="panics">
-					<div class="panic">
-						<div class="panic-pkg"><i class="fa fa-exclamation"></i>&nbsp; github.com/smartystreets/goconvey/<b>client</b></div>
+				<div class="togglable panics" id="panics"></div>
+				<script id="tpl-panics" type="text/template">
+					<div class="templated">
+						{{.}}
+						<div class="panic">
+							<div class="panic-pkg">
+								<i class="fa fa-exclamation"></i>&nbsp; {{_pkg|boldPkgName}}
+							</div>
 						<div class="panic-details">
 							<div class="panic-story">
-								<div class="panic-file"><a href="javascript:">examples/<b>bowling_game_test.go</b></a>&nbsp; &nbsp; &middot; &nbsp; &nbsp;<a href="javascript:"><i class="fa fa-share"></i> Line 47</a></div>
-								<div class="depth-0">TestScoring</div>
-								<div class="depth-1">Given a fresh score card</div>
-								<div class="depth-2">When a thing is thrown</div>
-								<div class="depth-3">They should get as many points as pins</div>
-								<div class="depth-3 panic-summary">Nil pointer dereference rubbish</div>
+							<div class="panic-file">{{if File|notempty}}{{File|relativePath|boldPkgName}}:{{Line}}{{else}}{{TestName}}{{/if}}</div>
+						{{if _path|notempty}}
+							{{_path}}
+								<div{{if Depth|more>-1}} class="depth-{{Depth}}"{{/if}}>{{Title}}</div>
+							{{/_path}}
+						{{/if}}
+								{{if StackTrace|notempty}}<div class="depth-{{_maxDepth}} panic-summary">{{Error}}</div>{{/if}}
 							</div>
-							<div class="panic-output">some output here<br>and more</div>
+							<div class="panic-output">{{if StackTrace|empty}}{{Error|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}</div>
 						</div>
+						{{/.}}
 					</div>
-					<div class="panic">
-						<div class="panic-pkg"><i class="fa fa-exclamation"></i>&nbsp; github.com/smartystreets/goconvey/<b>client</b></div>
-						<div class="panic-details">
-							<div class="panic-story">
-								<div class="panic-file"><a href="javascript:">examples/<b>bowling_game_test.go</b></a>&nbsp; &nbsp; &middot; &nbsp; &nbsp;<a href="javascript:"><i class="fa fa-share"></i> Line 47</a></div>
-								<div class="depth-0">TestScoring</div>
-								<div class="depth-1">Given a fresh score card</div>
-								<div class="depth-2">When a thing is thrown</div>
-								<div class="depth-3">They should get as many points as pins</div>
-								<div class="depth-3 panic-summary">Nil pointer dereference rubbish</div>
-							</div>
-							<div class="panic-output">some output here<br>and more</div>
-						</div>
-					</div>
-				</div>
+				</script>
 
-				<div class="toggler" data-toggle="failures">
+
+
+
+				<div class="toggler failures" data-toggle="failures">
 					Failures
 				</div>
-				<div class="togglable" id="failures">
-					<div class="failure">
-						<div class="failure-pkg"><i class="fa fa-chain-broken"></i>&nbsp; github.com/smartystreets/goconvey/<b>client</b></div>
-						<div class="failure-details">
-							<div class="failure-story">
-								<div class="failure-file"><a href="javascript:">examples/<b>bowling_game_test.go</b></a>&nbsp; &nbsp; &middot; &nbsp; &nbsp;<a href="javascript:"><i class="fa fa-share"></i> Line 47</a></div>
-								<div class="depth-0">TestScoring</div>
-								<div class="depth-1">Given a fresh score card</div>
-								<div class="depth-2">When a thing is thrown</div>
-								<div class="depth-3">They should get as many points as pins</div>							
+				<div class="togglable failures" id="failures"></div>
+				<script id="tpl-failures" type="text/template">
+					<div class="templated">
+						{{.}}
+						<div class="failure">
+							<div class="failure-pkg"><i class="fa fa-chain-broken"></i>&nbsp; {{_pkg|boldPkgName}}</div>
+							<div class="failure-details">
+								<div class="failure-story">
+									<div class="failure-file"><a href="javascript:">{{if File|notempty}}{{File|relativePath|boldPkgName}}{{else}}{{TestName}}{{/if}}</b></a>&nbsp; &nbsp; &middot; &nbsp; &nbsp;{{if Line|more>0}}<a href="subl://open/?url=file://{{File|url}}&line={{Line}}"><i class="fa fa-share"></i> Line {{Line}}</a>{{/if}}</div>
+							{{if _path|notempty}}
+								{{_path}}
+									<div{{if Depth|more>-1}} class="depth-{{Depth}}"{{/if}}>{{Title}}</div>
+								{{/_path}}
+							{{/if}}
+								</div>
+								<div class="failure-output">{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}
+										{{StackTrace|showhtml}}{{/if}}{{/if}}</div>
+								{{if .|needsDiff}}
+								<table class="diffviewer">
+									<tr>
+										<td class="exp">Expected</td>
+										<td class="original">{{Expected|showhtml}}</td>
+									</tr>
+									<tr>
+										<td class="act">Actual</td>
+										<td class="changed">{{Actual|showhtml}}</td>
+									</tr>
+									<tr>
+										<td>Diff</td>
+										<td class="diff"></td>
+									</tr>
+								</table>
+								{{/if}}
 							</div>
-							<div class="failure-output">some output here<br>and more</div>
-							<table class="diff">
-								<tr>
-									<td class="exp">EXPECTED</td>
-									<td class="expected">Some expected</td>
-								</tr>
-								<tr>
-									<td class="act">ACTUAL</td>
-									<td class="actual">Some actual...</td>
-								</tr>
-								<tr>
-									<td>DIFF</td>
-									<td>The difference!</td>
-								</tr>
-							</table>
 						</div>
+						{{/.}}
 					</div>
-				</div>
+				</script>
 
 
-				<div class="toggler" data-toggle="stories">
+				<div class="toggler stories" data-toggle="stories">
 					Stories
 				</div>
-				<div class="togglable" id="stories">
+				<div class="togglable stories" id="stories"></div>
+
+				<script id="tpl-stories" type="text/template">
+					<table>
+					{{.}}
+						<tr class="story-pkg" data-pkg="{{_id}}">
+							<td colspan="2">
+								<a href="javascript:" class="fa fa-collapse-o fa-lg"></a>
+							</td>
+							<td class="story-pkg-name">
+								{{PackageName|boldPkgName}}
+							</td>
+							<td class="story-pkg-summary">
+								{{if _panicked|more>0}}<span class="story-pkg-panic-count"><span class="statusicon panic"><i class="fa fa-bolt"></i></span> {{_panicked}}
+								&nbsp;</span>{{/if}}
+								{{if _failed|more>0}}<span class="story-pkg-failure-count"><span class="statusicon fail">&#10007;</span> {{_failed}}
+								&nbsp;</span>{{/if}}
+								{{if _passed|more>0}}<span class="story-pkg-pass-count"><span class="statusicon ok">&#10003;</span> {{_passed}}</span>{{/if}}
+							</td>
+							<td class="story-pkg-watch-td">
+								<a class="fa fa-lg ignore {{if Outcome|notequals>ignored}}fa-eye unwatch{{else}}fa-eye-slash watch clr-red{{/if}}" href="javascript:" title="Toggle ignore" data-pkg="{{PackageName}}"></a>
+							</td>
+						</tr>
+						{{TestResults}}
+						<tr class="story-line {{if _status.class}}{{_status.class}}{{else}}skip{{/if}} test-{{_id}} pkg-something-TODO">
+							<td class="story-line-status"></td>
+							<td class="story-line-summary-container">
+								
+									{{if Stories|empty}}
+										{{if _passed}}<span class="statusicon ok">&#10003; {{_passed}}</span><br>{{/if}}
+										{{if _failed}}<span class="statusicon fail">{{_failed}} &#10007;</span><br>{{/if}}
+										{{if _panicked}}<span class="statusicon panic">{{_panicked}} <i class="fa fa-bolt"></i></span><br>{{/if}}
+										{{if _skipped}}<span class="statusicon skip">{{_skipped}} S</span><br>{{/if}}
+									{{/if}}
+
+							</td>
+							<td colspan="3" class="depth-0 story-line-desc">
+								<b>{{TestName|showhtml}}</b>
+								{{if Message}}<div class="message">{{Message|showhtml}}</div>{{/if}}
+							</td>
+						</tr>
+
+
+
+							{{Stories}}
+							<tr class="story-line {{if _status.class}}{{_status.class}}{{else}}skip{{/if}} pkg-something-TODO"  id="test-{{_id}}">
+								<td class="story-line-status"></td>
+								<td class="story-line-summary-container">
+									
+										{{if Stories|empty}}
+											{{if _passed}}<span class="statusicon ok">&#10003; {{_passed}}</span><br>{{/if}}
+											{{if _failed}}<span class="statusicon fail">{{_failed}} &#10007;</span><br>{{/if}}
+											{{if _panicked}}<span class="statusicon panic">{{_panicked}} <i class="fa fa-bolt"></i></span><br>{{/if}}
+											{{if _skipped}}<span class="statusicon skip">{{_skipped}} S</span><br>{{/if}}
+										{{/if}}
+
+								</td>
+								<td colspan="3" class="depth-{{Depth}} story-line-desc">
+									{{Title|showhtml}}
+								</td>
+							</tr>
+							{{/Stories}}
+
+
+						{{/TestResults}}
+					{{/.}}
+					</table>
+				</script>
+
+					<!--
 					<table>
 						<tr class="story-pkg" data-pkg="something">
 							<td>
@@ -407,7 +497,7 @@
 							</td>
 						</tr>
 					</table>
-				</div>
+				</div>-->
 			</div>
 
 

@@ -203,15 +203,19 @@ footer {
 	color: #000;
 }
 
-.diff td {
+.diffviewer td {
 	border-color: #CCC;
 }
 
-.diff .exp {
+/* prettyTextDiff expected/deleted colors */
+.diffviewer .exp,
+.diff del {
 	background: #ADFFAD;
 }
 
-.diff .act {
+/* prettyTextDiff actual/inserted colors */
+.diffviewer .act,
+.diff ins {
 	background: #FFC0C0;
 }
 
@@ -237,7 +241,7 @@ footer {
 	border-top: 1px dashed #DDD;
 }
 
-.story-line-status-container {
+.story-line-summary-container {
 	border-right: 1px dashed #DDD;
 }
 

@@ -4,8 +4,8 @@ var convey = {
 	config: {
 		// Install new themes by adding them here; the first one will be default
 		themes: {
-			"dark": {name: "Dark", filename: "dark.css"},
-			"light": {name: "Light", filename: "light.css"}
+			"dark": { name: "Dark", filename: "dark.css", coverage: "hsla({{hue}}, 75%, 30%, .3)" },
+			"light": { name: "Light", filename: "light.css", coverage: "hsla({{hue}}, 62%, 75%, 1)" }
 		},
 
 		// Path to the themes (end with forward-slash)
@@ -18,22 +18,24 @@ var convey = {
 
 
 	statuses: {				// contains some constants related to overall test status
-		pass: { class: 'ok', text: "Pass" },
+		pass: { class: 'ok', text: "Pass" },	// class name must also be that in the favicon file name
 		fail: { class: 'fail', text: "Fail" },
 		panic: { class: 'panic', text: "Panic" },
 		buildfail: { class: 'buildfail', text: "Build Failure" }
 	},
+	notif: undefined,		// The notification currently being displayed
 	intervals: {},			// intervals that execute periodically
 	poller: new Poller(),	// the server poller
-	status: "",				// what the server is currently doing
-	overall: {},			// current overall results
+	status: "",				// what the _server_ is currently doing (not overall test results)
+	overallClass: "",		// The class name of the "overall" status banner
 	theme: "",				// current theme being used
 	layout: {
 		selClass: "sel",	// CSS class when an element is "selected"
 		header: undefined,	// Container element of the header area (overall, controls)
 		frame: undefined,	// Container element of the main body area (above footer)
 		footer: undefined	// Container element of the footer (stuck to bottom)
-	}
+	},
+	history: [],			// Complete history of states (test results and aggregated data), including the current one
 };
 
 
@@ -41,25 +43,12 @@ $(init);
 
 function init()
 {
-	log("Welcome to GoConvey. Initializing UI...");
+	log("Welcome to GoConvey");
+	log("Initializing interface");
 	convey.overall = emptyOverall();
 	loadTheme();
 	initPoller();
 	wireup();
-}
-
-function emptyOverall()
-{
-	return {
-		status: convey.statuses.pass,
-		duration: 0,
-		assertions: 0,
-		passed: 0,
-		panics: 0,
-		failures: 0,
-		skipped: 0,
-		failedBuilds: 0
-	};
 }
 
 function loadTheme(thmID)
@@ -93,6 +82,8 @@ function loadTheme(thmID)
 	}
 	else
 		linkTag.attr('href', fullPath);
+
+	colorizeCoverageBars();	// their color is set dynamically, so we have to use the theme's template
 }
 
 function initPoller()
@@ -112,7 +103,10 @@ function initPoller()
 				&& data.status && data.status != "idle")
 			$('#run-tests').addClass('spin-slowly disabled');
 		else if (convey.status != "idle" && data.status == "idle")
+		{
 			$('#run-tests').removeClass('spin-slowly disabled');
+			latest();	// TODO: Move this into server-is-idle handler?
+		}
 
 		switch (data.status)
 		{
@@ -152,6 +146,7 @@ function initPoller()
 function wireup()
 {
 	log("Wireup");
+	customMarkupPipes();
 
 	var themes = [];
 	for (var k in convey.config.themes)
@@ -171,7 +166,7 @@ function wireup()
 	convey.layout.frame = $('.frame').first();
 	convey.layout.footer = $('footer').last();
 
-	updateWatchPath(true);	// true tells the server we're a new client
+	updateWatchPath();
 
 	// Updates the watched directory with the server and make sure it exists
 	$('#path').change(function()
@@ -234,7 +229,7 @@ function wireup()
 	{
 		var target = $('#' + $(this).data('toggle'));
 		$('.fa-angle-down, .fa-angle-up', this).toggleClass('fa-angle-down fa-angle-up');
-		target.toggleClass('hide');
+		target.toggle();
 	});
 
 	$('.toggler.narrow').click(function()
@@ -257,20 +252,13 @@ function wireup()
 		var h = zerofill(t.getUTCHours(), 2);
 		var m = zerofill(t.getUTCMinutes(), 2);
 		var s = zerofill(t.getUTCSeconds(), 2);
-		//var ms = zerofill(t.getUTCMilliseconds(), 1);
-		var ms = 0;
+		var ms = zerofill(t.getUTCMilliseconds(), 1);
 		$('#time').text(h + ":" + m + ":" + s + "." + ms);
-	}, 1000);
-
-	$('.story-line').click(function()
-	{
-		$('.story-line-sel').not(this).removeClass('story-line-sel');
-		$(this).toggleClass('story-line-sel');
-	});
+	}, 100);
 
 	$('#stories').on('click', '.fa.ignore', function(event)
 	{
-		var pkg = $(this).closest('.pkg-story').data('pkg');
+		var pkg = $(this).data('pkg');
 		if ($(this).hasClass('disabled'))
 			return;
 		else if ($(this).hasClass('unwatch'))
@@ -293,14 +281,11 @@ function wireup()
 		return suppress(event);
 	});
 
-	// Temporary, for effect:
-	setTimeout(function() { changeStatus(convey.statuses.panic) }, 2000);
-
-	setTimeout(function() { changeStatus(convey.statuses.buildfail) }, 16000);
-
-	setTimeout(function() { changeStatus(convey.statuses.fail) }, 25000);
-
-	setTimeout(function() { changeStatus(convey.statuses.pass) }, 35000);
+	$('#stories').on('click', '.story-line', function()
+	{
+		$('.story-line-sel').not(this).removeClass('story-line-sel');
+		$(this).toggleClass('story-line-sel');
+	});
 }
 
 
@@ -324,254 +309,287 @@ function latest()
 function process(data, status, jqxhr)
 {
 	console.log("Latest", data, status, jqxhr);
-	/*if (!data || !data.Revision)
+
+/*
+	TODO: Handle server down
+	if (!data || !data.Revision)
 		return showServerDown(jqxhr, "starting");
 	else
 		$('#server-down').slideUp(convey.speed);
+*/
 
-	if (data.Revision == convey.revisionHash)
+	if (data.Revision == current().results.Revision)
+	{
+		changeStatus(current().overall.status);	// re-assure that status is unchanged
 		return;
+	}
 
-	convey.revisionHash = data.Revision;
-	convey.payload = data;
+	convey.history.push(newState());
+	current().results = data;
 
 	updateWatchPath();
 
-	// Empty out the data from the last update
-	convey.overall = emptyOverall();
-	convey.assertions = emptyAssertions();
-	convey.failedBuilds = [];
+	// Remove all templated items from the DOM as we'll
+	// replace them with new ones; also remove tipsy tooltips
+	// that may have lingered around
+	$('.templated, .tipsy').remove();
 
-	// Force page height to help smooth out the transition
-	$('html,body').css('height', $(document).outerHeight());
+	var uniqueID = 0;
 
-	// Remove existing/old test results
-	$('.overall').slideUp(convey.speed);
-	$('#results').fadeOut(convey.speed, function()
+	var packages = {
+		tested: [],
+		nogofiles: [],
+		notestfiles: [],
+		notestfn: []
+	};
+
+	// Look for failures and panics through the packages->tests->stories...
+	for (var i in data.Packages)
 	{
-		// Remove all templated items from the DOM as we'll
-		// replace them with new ones; also remove tipsy tooltips
-		// that may have lingered around
-		$('.templated, .tipsy').remove();
+		pkg = makeContext(data.Packages[i]);
+		current().overall.duration += pkg.Elapsed;
+		pkg._id = uniqueID++;
 
-		var uniqueID = 0;
-
-		// Look for failures and panics through the packages->tests->stories...
-		for (var i in data.Packages)
+		if (pkg.Outcome == "build failure")
 		{
-			pkg = makeContext(data.Packages[i]);
-			convey.overall.duration += pkg.Elapsed;
-			pkg._id = uniqueID++;
+			current().overall.failedBuilds++;
+			current().failedBuilds.push(pkg);
+			continue;
+		}
 
-			if (pkg.Outcome == "build failure")
+
+		if (pkg.Outcome == "no go code")
+			packages.nogofiles.push(pkg);
+		else if (pkg.Outcome == "no test files")
+			packages.notestfiles.push(pkg);
+		else if (pkg.Outcome == "no test functions")
+			packages.notestfn.push(pkg);
+		else
+			packages.tested.push(pkg);
+
+
+		for (var j in pkg.TestResults)
+		{
+			test = makeContext(pkg.TestResults[j]);
+			test._id = uniqueID++;
+
+			if (test.Stories.length == 0)
 			{
-				convey.overall.failedBuilds ++;
-				convey.failedBuilds.push(pkg);
-				continue;
-			}
+				// Here we've got ourselves a classic Go test,
+				// not a GoConvey test that has stories and assertions
+				// so we'll treat this whole test as a single assertion
+				current().overall.assertions++;
 
-			for (var j in pkg.TestResults)
-			{
-				test = makeContext(pkg.TestResults[j]);
-				test._id = uniqueID;
-				uniqueID ++;
-
-				if (test.Stories.length == 0)
+				if (test.Error)
 				{
-					// Here we've got ourselves a classic Go test,
-					// not a GoConvey test that has stories and assertions
-					// so we'll treat this whole test as a single assertion
-					convey.overall.assertions ++;
-
-					if (test.Error)
-					{
-						test._status = convey.statuses.panic;
-						pkg._panicked ++;
-						test._panicked ++;
-						convey.assertions.panicked.push(test);
-					}
-					else if (test.Passed === false)
-					{
-						test._status = convey.statuses.fail;
-						pkg._failed ++;
-						test._failed ++;
-						convey.assertions.failed.push(test);
-					}
-					else
-					{
-						test._status = convey.statuses.pass;
-						pkg._passed ++;
-						test._passed ++;
-						convey.assertions.passed.push(test);
-					}
+					test._status = convey.statuses.panic;
+					pkg._panicked++;
+					test._panicked++;
+					current().assertions.panicked.push(test);
+				}
+				else if (test.Passed === false)
+				{
+					test._status = convey.statuses.fail;
+					pkg._failed++;
+					test._failed++;
+					current().assertions.failed.push(test);
 				}
 				else
-					test._status = convey.statuses.pass;
-
-				var storyPath = [{ Depth: -1, Title: test.TestName }];	// Will maintain the current assertion's path
-
-				for (var k in test.Stories)
 				{
-					var story = makeContext(test.Stories[k]);
-
-					// Establish the current story path so we can report the context
-					// of failures and panicks more conveniently at the top of the page
-					if (storyPath.length > 0)
-						for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
-							storyPath.pop();
-					
-					storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
-
-					story._id = uniqueID;
-					convey.overall.assertions += story.Assertions.length;
-
-					for (var l in story.Assertions)
-					{
-						var assertion = story.Assertions[l];
-						assertion._id = uniqueID;
-						$.extend(assertion._path = [], storyPath);
-
-						if (assertion.Failure)
-						{
-							convey.assertions.failed.push(assertion);
-							pkg._failed ++;
-							test._failed ++;
-							story._failed ++;
-						}
-						if (assertion.Error)
-						{
-							convey.assertions.panicked.push(assertion);
-							pkg._panicked ++;
-							test._panicked ++;
-							story._panicked ++;
-						}
-						if (assertion.Skipped)
-						{
-							convey.assertions.skipped.push(assertion);
-							pkg._skipped ++;
-							test._skipped ++;
-							story._skipped ++;
-						}
-						if (!assertion.Failure && !assertion.Error && !assertion.Skipped)
-						{
-							convey.assertions.passed.push(assertion);
-							pkg._passed ++;
-							test._passed ++;
-							story._passed ++;
-						}
-					}
-
-					assignStatus(story);
-					uniqueID ++;
+					test._status = convey.statuses.pass;
+					pkg._passed++;
+					test._passed++;
+					current().assertions.passed.push(test);
 				}
 			}
+			else
+				test._status = convey.statuses.pass;
+
+			var storyPath = [{ Depth: -1, Title: test.TestName }];	// Maintains the current assertion's story as we iterate
+
+			for (var k in test.Stories)
+			{
+				var story = makeContext(test.Stories[k]);
+
+				// Establish the current story path so we can report the context
+				// of failures and panicks more conveniently at the top of the page
+				if (storyPath.length > 0)
+					for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
+						storyPath.pop();
+				
+				storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
+
+				story._id = uniqueID;
+				current().overall.assertions += story.Assertions.length;
+
+				for (var l in story.Assertions)
+				{
+					var assertion = story.Assertions[l];
+					assertion._id = uniqueID;
+					assertion._pkg = pkg.PackageName;
+					assertion._maxDepth = storyPath[storyPath.length - 1].Depth;
+					$.extend(assertion._path = [], storyPath);
+
+					if (assertion.Failure)
+					{
+						current().assertions.failed.push(assertion);
+						pkg._failed++;
+						test._failed++;
+						story._failed++;
+					}
+					if (assertion.Error)
+					{
+						current().assertions.panicked.push(assertion);
+						pkg._panicked++;
+						test._panicked++;
+						story._panicked++;
+					}
+					if (assertion.Skipped)
+					{
+						current().assertions.skipped.push(assertion);
+						pkg._skipped++;
+						test._skipped++;
+						story._skipped++;
+					}
+					if (!assertion.Failure && !assertion.Error && !assertion.Skipped)
+					{
+						current().assertions.passed.push(assertion);
+						pkg._passed++;
+						test._passed++;
+						story._passed++;
+					}
+				}
+
+				assignStatus(story);
+				uniqueID++;
+			}
 		}
+	}
 
-		convey.overall.passed = convey.assertions.passed.length;
-		convey.overall.panics = convey.assertions.panicked.length;
-		convey.overall.failures = convey.assertions.failed.length;
-		convey.overall.skipped = convey.assertions.skipped.length;
+	current().overall.passed = current().assertions.passed.length;
+	current().overall.panics = current().assertions.panicked.length;
+	current().overall.failures = current().assertions.failed.length;
+	current().overall.skipped = current().assertions.skipped.length;
 
-		convey.overall.duration = Math.round(convey.overall.duration * 1000) / 1000;
+	current().overall.duration = Math.round(current().overall.duration * 1000) / 1000;
 
-		// Build failures trump panics,
-		// Panics trump failures,
-		// Failures trump passing.
-		if (convey.overall.failedBuilds)
-			convey.overall.status = convey.statuses.failedBuild;
-		else if (convey.overall.panics)
-			convey.overall.status = convey.statuses.panic;
-		else if (convey.overall.failures)
-			convey.overall.status = convey.statuses.fail;
+	// Build failures trump panics,
+	// Panics trump failures,
+	// Failures trump pass.
+	if (current().overall.failedBuilds)
+		changeStatus(convey.statuses.buildfail);
+	else if (current().overall.panics)
+		changeStatus(convey.statuses.panic);
+	else if (current().overall.failures)
+		changeStatus(convey.statuses.fail);
+	else
+		changeStatus(convey.statuses.pass);
 
-		// Show the overall status: passed, failed, or panicked
-		if (convey.overall.status == convey.statuses.pass)
-			$('#banners').append(render('tpl-overall-ok', convey.overall));
-		else if (convey.overall.status == convey.statuses.fail)
-			$('#banners').append(render('tpl-overall-fail', convey.overall));
-		else if (convey.overall.status == convey.statuses.panic)
-			$('#banners').append(render('tpl-overall-panic', convey.overall));
-		else
-			$('#banners').append(render('tpl-overall-buildfail', convey.overall));
 
-		// Show overall status
-		$('.overall').slideDown();
-		$('.favicon').attr('href', '/ico/goconvey-'+convey.overall.status+'.ico');
 
-		// Show shortucts and builds/failures/panics details
-		if (convey.overall.failedBuilds > 0)
-		{
-			$('#right-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
-			$('#contents').append(render('tpl-builds', convey.failedBuilds));
-		}
-		if (convey.overall.panics > 0)
-		{
-			$('#right-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
-			$('#contents').append(render('tpl-panics', convey.assertions.panicked));
-		}
-		if (convey.overall.failures > 0)
-		{
-			$('#right-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
-			$('#contents').append(render('tpl-failures', convey.assertions.failed));
-		}
+	// Render... Render ALL THE THINGS!
 
-		// Show stories
-		$('#contents').append(render('tpl-stories', data));
+	$('#coverage').html(render('tpl-coverage', data.Packages.sort(sortPackages)));
+	$('#nogofiles').html(render('tpl-nogofiles', packages.nogofiles));
+	$('#notestfiles').html(render('tpl-notestfiles', packages.notestfiles));
+	$('#notestfn').html(render('tpl-notestfn', packages.notestfn));
 
-		// Show shortcut links to packages
-		$('#left-sidebar').append(render('tpl-packages', data.Packages.sort(sortPackages)));
+	if (current().overall.failedBuilds)
+	{
+		$('.buildfailures').show();
+		$('#buildfailures').html(render('tpl-buildfailures', current().failedBuilds));
+	}
+	else
+		$('.buildfailures').hide();
 
-		// Compute diffs
+	if (current().overall.panics)
+	{
+		$('.panics').show();
+		$('#panics').html(render('tpl-panics', current().assertions.panicked));
+	}
+	else
+		$('.panics').hide();
+
+
+	if (current().overall.failures)
+	{
+		$('.failures').show();
+		$('#failures').html(render('tpl-failures', current().assertions.failed));
 		$(".failure").each(function() {
 			$(this).prettyTextDiff();
 		});
+	}
+	else
+		$('.failures').hide();
+
+	$('#stories').html(render('tpl-stories', packages.tested));
 
 
-		// Finally, show all the results at once, which appear below the banner,
-		// and hide the loading spinner, and update the title
+	console.log(data);
 
-		$('#loading').hide();
-		
-		var cleanSummary = $.trim($('.overall .summary').text())
-							.replace(/\n+\s*|\s-\s/g, ', ')
-							.replace(/\s+|\t|-/ig, ' ');
-		$('title').text("GoConvey: " + cleanSummary);
+	colorizeCoverageBars();
+/*
+	// Show shortucts and builds/failures/panics details
+	if (convey.overall.failedBuilds > 0)
+	{
+		$('#right-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
+		$('#contents').append(render('tpl-builds', convey.failedBuilds));
+	}
+	if (convey.overall.panics > 0)
+	{
+		$('#right-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
+		$('#contents').append(render('tpl-panics', convey.assertions.panicked));
+	}
+	if (convey.overall.failures > 0)
+	{
+		$('#right-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
+		$('#contents').append(render('tpl-failures', convey.assertions.failed));
+	}
 
-		// An homage to Star Wars
-		if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
-			$('body').append(render('tpl-ok-audio'));
-		
-		if (notif())
-		{
-			if (convey.notif)
-				convey.notif.close();
+	// Show stories
+	$('#contents').append(render('tpl-stories', data));
 
-			var cleanStatus = $.trim($('.overall:visible .status').text()).toUpperCase();
+	// Show shortcut links to packages
+	$('#left-sidebar').append(render('tpl-packages', data.Packages.sort(sortPackages)));
 
-			convey.notif = new Notification(cleanStatus, {
-				body: cleanSummary,
-				icon: $('.favicon').attr('href')
-			});
-
-			setTimeout(function() { convey.notif.close(); }, 3500);
-		}
-
-		$(this).fadeIn(function()
-		{
-			// Loading is finished
-			doneExecuting();
-
-			// Scroll to same position as before (doesn't account for different-sized content)
-			$(document).scrollTop(convey.lastScrollPos);
-
-			if ($('.stuck .overall').is(':visible'))
-				bannerClickToTop(true);	// make the banner across the top clickable again
-
-			// Remove the height attribute which smoothed out the transition
-			$('html,body').css('height', '');
-		});
+	// Compute diffs
+	$(".failure").each(function() {
+		$(this).prettyTextDiff();
 	});
-	*/
+
+
+	// Finally, show all the results at once, which appear below the banner,
+	// and hide the loading spinner, and update the title
+
+	$('#loading').hide();
+	
+	var cleanSummary = $.trim($('.overall .summary').text())
+						.replace(/\n+\s*|\s-\s/g, ', ')
+						.replace(/\s+|\t|-/ig, ' ');
+	$('title').text("GoConvey: " + cleanSummary);
+
+	// An homage to Star Wars
+	if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
+		$('body').append(render('tpl-ok-audio'));
+
+	if (notif())
+	{
+		if (convey.notif)
+			convey.notif.close();
+
+		var cleanStatus = $.trim($('.overall:visible .status').text()).toUpperCase();
+
+		convey.notif = new Notification(cleanStatus, {
+			body: cleanSummary,
+			icon: $('.favicon').attr('href')
+		});
+
+		setTimeout(function() { convey.notif.close(); }, 3500);
+	}
+*/
+	
+	// All done!
+	$(convey).trigger('loaded');
 }
 
 
@@ -793,16 +811,21 @@ function changeStatus(newStatus)
 	if (!newStatus || !newStatus.class || !newStatus.text)
 		newStatus = convey.statuses.pass;
 
+	var sameStatus = newStatus.class == convey.overallClass;
+
 	// The CSS class .flash and the jQuery UI 'pulsate' effect don't play well together.
 	// This series of callbacks does the flickering/pulsating as well as
 	// enabling/disabling flashing in the proper order so that they don't overlap.
-	// TODO: I suppose the pulsating could also be done with just CSS...
+	// TODO: I suppose the pulsating could also be done with just CSS, maybe...?
 
-	$('.overall .status').removeClass('flash').effect("pulsate", {times: 2}, 300, function()
+	var times = sameStatus ? 3 : 2;
+	var duration = sameStatus ? 500 : 300;
+
+	$('.overall .status').removeClass('flash').effect("pulsate", {times: times}, duration, function()
 	{
-		 $(this).text(newStatus.text);
+		$(this).text(newStatus.text);
 
-		if (newStatus != convey.statuses.pass)
+		if (newStatus != convey.statuses.pass)	// only flicker extra when not currently passing
 		{
 			$(this).effect("pulsate", {times: 2}, 300, function()
 			{
@@ -818,33 +841,35 @@ function changeStatus(newStatus)
 		}
 	});
 
-	$('.overall').switchClass(convey.overall.status.class, newStatus.class, 750);
-	convey.overall.status = newStatus;
+	if (!sameStatus)	// change the color
+		$('.overall').switchClass(convey.overallClass, newStatus.class, 750);
+
+	current().overall.status = newStatus;
+	convey.overallClass = newStatus.class;
+	$('.favicon').attr('href', '/resources/ico/goconvey-'+newStatus.class+'.ico');
 }
 
-function updateWatchPath(newClient)
+function updateWatchPath()
 {
-	var tb = $('#path')[0];
-	var endpoint = "/watch";
-	if (newClient)
-		endpoint += "?newclient=1";
-
-	$.get(endpoint, function(data)
+	$.get("/watch", function(data)
 	{
-		$(tb).val($.trim(data));
+		$('#path').val($.trim(data));
 	});
 }
 
-function coverageToColor(percent)
+function colorizeCoverageBars()
 {
-	// This converts a number between 0 and 360
-	// to an HSL (not RGB) value appropriate for
-	// displaying a basic coverage bar behind text.
-	// It works for any value between 0 to 360,
-	// but the hue at 120 happens to be about green,
-	// and 0 is red, between is yellow; just what we want.
-	var hue = percent * 1.2;
-	return "hsl(" + hue + ", 100%, 75%)";
+	var colorTpl = convey.config.themes[convey.theme].coverage
+					|| "hsla({{hue}}, 75%, 30%, .3)";
+
+	$('.pkg-cover-bar').each(function()
+	{
+		var hue = $(this).data("width");
+		$(this).css({
+			background: colorTpl.replace("{{hue}}", hue),
+			width: hue + "%"
+		});
+	});
 }
 
 function render(templateID, context)
@@ -856,7 +881,7 @@ function render(templateID, context)
 function reframe()
 {
 	var heightBelowHeader = $(window).height() - convey.layout.header.outerHeight();
-	var middleHeight = heightBelowHeader - convey.layout.footer.outerHeight() - 1;	// -1 for borders
+	var middleHeight = heightBelowHeader - convey.layout.footer.outerHeight();
 	convey.layout.frame.height(middleHeight);
 }
 
@@ -889,6 +914,153 @@ function zerofill(val, count)
 	// Cheers to http://stackoverflow.com/a/9744576/1048862
 	var pad = new Array(1 + count).join('0');
 	return (pad + val).slice(-pad.length);
+}
+
+function sortPackages(a, b)
+{
+	// sorts packages ascending by only the last part of their name
+	var aPkg = splitPathName(a.PackageName);
+	var bPkg = splitPathName(b.PackageName);
+
+	if (aPkg.length == 0 || bPkg.length == 0)
+		return 0;
+
+	var aName = aPkg.parts[aPkg.parts.length - 1];
+	var bName = bPkg.parts[bPkg.parts.length - 1];
+
+	if (aName < bName)
+		return -1;
+	else if (aName > bName)
+		return 1;
+	else
+		return 0;
+
+	/*
+	Use to sort by entire package name:
+	if (a.PackageName < b.PackageName) return -1;
+	else if (a.PackageName > b.PackageName) return 1;
+	else return 0;
+	*/
+}
+
+function splitPathName(str)
+{
+	var delim = str.indexOf('\\') > -1 ? '\\' : '/';
+	return { delim: delim, parts: str.split(delim) };
+}
+
+function newState()
+{
+	return {
+		results: {},					// response from server (with some of our own context info)
+		overall: emptyOverall(),		// overall status info, compiled from server's response
+		assertions: emptyAssertions(),	// lists of assertions, compiled from server's response
+		failedBuilds: []				// list of packages that failed to build
+	};
+}
+
+function emptyOverall()
+{
+	return {
+		status: {},
+		duration: 0,
+		assertions: 0,
+		passed: 0,
+		panics: 0,
+		failures: 0,
+		skipped: 0,
+		failedBuilds: 0
+	};
+}
+
+function emptyAssertions()
+{
+	return {
+		passed: [],
+		failed: [],
+		panicked: [],
+		skipped: []
+	};
+}
+
+function makeContext(obj)
+{
+	obj._passed = 0;
+	obj._failed = 0;
+	obj._panicked = 0;
+	obj._skipped = 0;
+	obj._status = '';
+	return obj;
+}
+
+function current()
+{
+	return convey.history[convey.history.length - 1] || newState();
+}
+
+function assignStatus(obj)
+{
+	if (obj._skipped)
+		obj._status = 'skip';
+	else if (obj.Outcome == "ignored")
+		obj._status = convey.statuses.ignored;
+	else if (obj._panicked)
+		obj._status = convey.statuses.panic;
+	else if (obj._failed || obj.Outcome == "failed")
+		obj._status = convey.statuses.fail;
+	else
+		obj._status = convey.statuses.pass;
+}
+
+function customMarkupPipes()
+{
+	// MARKUP.JS
+	// Custom pipes
+	// TODO: Are all of these being used?
+	Mark.pipes.relativePath = function(str)
+	{
+		basePath = new RegExp($('#path').val()+'[\\/]', 'gi');
+		return str.replace(basePath, '');
+	};
+	Mark.pipes.showhtml = function(str)
+	{
+		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	};
+	Mark.pipes.nothing = function(str)
+	{
+		return str == "no test files" || str == "no test functions" || str == "no go code"
+	};
+	Mark.pipes.boldPkgName = function(str)
+	{
+		var pkg = splitPathName(str);
+		pkg.parts[pkg.parts.length - 1] = "<b>" + pkg.parts[pkg.parts.length - 1] + "</b>";
+		return pkg.parts.join(pkg.delim);
+	};
+	Mark.pipes.chopEnd = function(str, n)
+	{
+		return str.length > n ? "..." + str.substr(str.length - n) : str;
+	};
+	Mark.pipes.needsDiff = function(test)
+	{
+		return !!test.Failure && (test.Expected != "" || test.Actual != "");
+	};
+	Mark.pipes.coveragePct = function(str)
+	{
+		// Expected input: 75% to be represented as: "75.0"
+		var num = parseInt(str);	// we only need int precision
+		if (num < 0)
+			return "0";
+		else if (num <= 5)
+			return "5px";	// Still shows low coverage
+		else if (num > 100)
+			str = "100";
+		return str;
+	};
+	Mark.pipes.coverageDisplay = function(str)
+	{
+		var num = parseFloat(str);
+		return num < 0 ? "" : num + "% coverage";
+	}
 }
 
 function suppress(event)
