@@ -7,14 +7,6 @@ import (
 	"github.com/smartystreets/goconvey/reporting"
 )
 
-type Runner interface {
-	Begin(entry *Registration)
-	Register(entry *Registration)
-	RegisterReset(action *Action)
-	UpgradeReporter(out reporting.Reporter)
-	Run()
-}
-
 type runner struct {
 	top   *scope
 	chain map[string]string
@@ -118,6 +110,10 @@ func NewRunner() *runner {
 
 func (self *runner) UpgradeReporter(out reporting.Reporter) {
 	self.out = out
+}
+
+func (self *runner) Report(result *reporting.AssertionResult) {
+	self.out.Report(result)
 }
 
 const topLevel = "TOP"

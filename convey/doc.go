@@ -56,18 +56,18 @@ func register(entry *execution.Registration) {
 	if entry.IsTopLevel() {
 		suites.Run(entry)
 	} else {
-		suites.CurrentRunner().Register(entry)
+		suites.Current().Register(entry)
 	}
 }
 
 func skipReport() {
-	suites.CurrentReporter().Report(reporting.NewSkipReport())
+	suites.Current().Report(reporting.NewSkipReport())
 }
 
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
-	suites.CurrentRunner().RegisterReset(execution.NewAction(action))
+	suites.Current().RegisterReset(execution.NewAction(action))
 }
 
 // So is the means by which assertions are made against the system under test.
@@ -79,9 +79,9 @@ func Reset(action func()) {
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
 	if result := assert(actual, expected...); result == assertionSuccess {
-		suites.CurrentReporter().Report(reporting.NewSuccessReport())
+		suites.Current().Report(reporting.NewSuccessReport())
 	} else {
-		suites.CurrentReporter().Report(reporting.NewFailureReport(result))
+		suites.Current().Report(reporting.NewFailureReport(result))
 	}
 }
 

@@ -2,6 +2,8 @@ package convey
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"path"
 	"runtime"
 	"strconv"
@@ -173,6 +175,19 @@ func TestIterativeConveysReported(t *testing.T) {
 	})
 
 	expectEqual(t, "Begin|A|0|Success|Exit|Exit|A|1|Success|Exit|Exit|A|2|Success|Exit|Exit|End", myReporter.wholeStory())
+}
+
+func TestEmbeddedAssertionReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	Convey("A", test, func() {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			So(r.FormValue("msg"), ShouldEqual, "ping")
+		}))
+		http.DefaultClient.Get(ts.URL + "?msg=ping")
+	})
+
+	expectEqual(t, "Begin|A|Success|Exit|End", myReporter.wholeStory())
 }
 
 func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
