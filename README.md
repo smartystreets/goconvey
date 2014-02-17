@@ -1,7 +1,7 @@
 GoConvey is awesome Go testing 
 ==============================
 
-![Build Status](https://travis-ci.org/mdwhatcott/pyspecs.png)
+![Build Status](https://travis-ci.org/smartystreets/goconvey.png)
 
 [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.png)](http://godoc.org/github.com/smartystreets/goconvey)
 
