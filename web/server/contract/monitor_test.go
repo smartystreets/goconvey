@@ -20,7 +20,12 @@ func TestMonitor(t *testing.T) {
 				fixture.Scan()
 
 				Convey("The watched packages should be executed and the results should be passed to the server", func() {
-					So(fixture.server.latest, ShouldResemble, &CompleteOutput{Packages: []*PackageResult{NewPackageResult("1"), NewPackageResult("2")}})
+					So(fixture.server.latest, ShouldResemble, &CompleteOutput{
+						Packages: []*PackageResult{
+							NewPackageResult("1", "/root"),
+							NewPackageResult("2", "/root/nested"),
+						},
+					})
 				})
 			})
 		})
@@ -99,8 +104,8 @@ type FakeWatcher struct{}
 
 func (self *FakeWatcher) WatchedFolders() []*Package {
 	return []*Package{
-		&Package{Path: "/root", Result: NewPackageResult("1")},
-		&Package{Path: "/root/nested", Result: NewPackageResult("2")},
+		&Package{Path: "/root", Result: NewPackageResult("1", "/root")},
+		&Package{Path: "/root/nested", Result: NewPackageResult("2", "/root/nested")},
 	}
 }
 

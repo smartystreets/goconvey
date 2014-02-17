@@ -6,3 +6,6 @@ examples/output.json
 webserver/webserver
 
 web/server/server
+
+goconvey_profile.out
+goconvey_coverage.html

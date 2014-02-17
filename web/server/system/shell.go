@@ -28,6 +28,9 @@ func (self *Shell) goTest(directory string) (output string, err error) {
 
 	if err != nil && self.coverage != "" {
 		output, err = self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s")
+	} else if self.coverage != "" {
+		self.execute(directory, self.gobin, "test", "-covermode=count", "-coverprofile=goconvey_profile.out")
+		self.execute(directory, self.gobin, "tool", "cover", "-html=goconvey_profile.out", "-o", "goconvey_coverage.html")
 	}
 	return
 }
