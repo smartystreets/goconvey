@@ -7,19 +7,34 @@ import (
 )
 
 func init() {
-	parseFlags()
 	suites = newSuiteContext()
 }
 
-// parseFlags parses the command line args manually because the go test tool,
+func buildReporter() reporting.Reporter {
+	if testReporter != nil {
+		return testReporter
+
+	} else if flagFound(jsonEnabled) {
+		return reporting.BuildJsonReporter()
+
+	} else if flagFound(silentEnabled) {
+		return reporting.BuildSilentReporter()
+
+	} else if flagFound(verboseEnabled) || flagFound(storyEnabled) {
+		return reporting.BuildStoryReporter()
+
+	} else {
+		return reporting.BuildDotReporter()
+
+	}
+}
+
+// flagFound parses the command line args manually because the go test tool,
 // which shares the same process space with this code, already defines
 // the -v argument (verbosity) and we can't feed in a custom flag to old-style
 // go test packages (like -json, which I would prefer). So, we use the timeout
-// flag with a value of -42 to request json output. My deepest sympothies.
-func parseFlags() {
-	verbose = flagFound(verboseEnabledValue)
-	json = flagFound(jsonEnabledValue)
-}
+// flag with a value of -42 to request json output and other negative values
+// as needed. My deepest sympothies.
 func flagFound(flagValue string) bool {
 	for _, arg := range os.Args {
 		if arg == flagValue {
@@ -29,18 +44,6 @@ func flagFound(flagValue string) bool {
 	return false
 }
 
-func buildReporter() reporting.Reporter {
-	if testReporter != nil {
-		return testReporter
-	} else if json {
-		return reporting.BuildJsonReporter()
-	} else if verbose {
-		return reporting.BuildStoryReporter()
-	} else {
-		return reporting.BuildDotReporter()
-	}
-}
-
 var (
 	suites *suiteContext
 
@@ -48,10 +51,11 @@ var (
 	testReporter reporting.Reporter
 )
 
-var (
-	json    bool
-	verbose bool
-)
+const (
+	verboseEnabled = "-test.v=true"
 
-const verboseEnabledValue = "-test.v=true"
-const jsonEnabledValue = "-test.timeout=-42s" // HACK! (see parseFlags() above)
+	// Hack! I hope go test *always* supports negative timeouts...
+	jsonEnabled   = "-test.timeout=-42s"
+	silentEnabled = "-test.timeout=-43s"
+	storyEnabled  = "-test.timeout=-44s"
+)
