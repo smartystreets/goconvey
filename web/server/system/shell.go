@@ -12,9 +12,22 @@ type Shell struct {
 }
 
 func (self *Shell) GoTest(directory string) (output string, err error) {
-	output, err = self.execute(directory, self.gobin, "test", "-i")
+	output, err = self.compileDependencies(directory)
 	if err == nil {
-		output, err = self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s", self.coverage)
+		output, err = self.goTest(directory)
+	}
+	return
+}
+
+func (self *Shell) compileDependencies(directory string) (output string, err error) {
+	return self.execute(directory, self.gobin, "test", "-i")
+}
+
+func (self *Shell) goTest(directory string) (output string, err error) {
+	output, err = self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s", self.coverage)
+
+	if err != nil && self.coverage != "" {
+		output, err = self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s")
 	}
 	return
 }
