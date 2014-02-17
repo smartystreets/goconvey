@@ -5,6 +5,6 @@ go:
   - 1.2
   - tip
 
- install:
+install:
   - go get github.com/jacobsa/ogletest
   - go get github.com/jacobsa/oglematchers
