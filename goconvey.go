@@ -24,19 +24,19 @@ import (
 )
 
 func init() {
-	quarterSecond, _ := time.ParseDuration("250ms")
 	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
 	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	flag.DurationVar(&nap, "poll", quarterSecond, "The interval to wait between polling the file system for changes (default: 250ms).")
 	flag.IntVar(&packages, "packages", 10, "The number of packages to test in parallel. Higher == faster but more costly in terms of computing. (default: 10)")
-	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH)")
+	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
+	flag.BoolVar(&cover, "cover", false, "Enable package-level coverage statistics. Warning: this will obfuscate line number reporting on panics and build failures! Requires Go 1.2+ and the go cover tool. (default: false)")
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {
 	flag.Parse()
-	log.Printf("Initial configuration: [host: %s] [port: %d] [poll %v]\n", host, port, nap)
+	log.Printf("Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n", host, port, nap, cover)
 
 	monitor, server := wireup()
 
@@ -84,7 +84,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	}
 
 	fs := system.NewFileSystem()
-	shell := system.NewShell(gobin)
+	shell := system.NewShell(gobin, cover)
 
 	watcher := watch.NewWatcher(fs, shell)
 	watcher.Adjust(working)
@@ -112,4 +112,7 @@ var (
 	gobin    string
 	nap      time.Duration
 	packages int
+	cover    bool
+
+	quarterSecond = time.Millisecond * 250
 )

@@ -38,10 +38,10 @@ func (self *Shell) Setenv(key, value string) error {
 	return nil
 }
 
-func NewShell(gobin string) *Shell {
+func NewShell(gobin string, cover bool) *Shell {
 	self := new(Shell)
 	self.gobin = gobin
-	if goVersion_1_2_orGreater() {
+	if cover && goVersion_1_2_orGreater() {
 		self.coverage = coverageFlag
 	}
 	return self
