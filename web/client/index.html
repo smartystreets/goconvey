@@ -63,6 +63,17 @@
 							</div>
 						</div>
 						<div class="setting">
+							<div class="setting-meta">
+								Packages Default
+							</div>
+							<div class="setting-val">
+								<ol class="enum" id="pkg-expand-collapse">
+									<li data-pkg-expand-collapse="expand">Expand All</li>
+									<li data-pkg-expand-collapse="collapse">Collapse All</li>
+								</ol>
+							</div>
+						</div>
+						<div class="setting">
 							<div class="setting-val">
 								<label><input type="checkbox">Full coverage report</label>
 							</div>
@@ -310,9 +321,9 @@
 				<script id="tpl-stories" type="text/template">
 					<table>
 					{{.}}
-						<tr class="story-pkg" data-pkg="{{_id}}">
+						<tr class="story-pkg expanded" data-pkg="{{_id}}" data-pkg-name="{{PackageName}}">
 							<td colspan="2">
-								<a href="javascript:" class="fa fa-minus-square-o"></a>
+								<a href="javascript:" class="fa fa-minus-square-o pkg-toggle"></a>
 							</td>
 							<td class="story-pkg-name">
 								{{PackageName|boldPkgName}}
@@ -390,138 +401,6 @@
 					{{/.}}
 					</table>
 				</script>
-
-					<!--
-					<table>
-						<tr class="story-pkg" data-pkg="something">
-							<td>
-								<a href="javascript:" class="fa fa-collapse-o fa-lg"></a>
-							</td>
-							<td class="story-pkg-name">
-								github.com/smartystreets/goconvey/<b>assertions</b>
-							</td>
-							<td>
-								<span class="statusicon panic"><i class="fa fa-bolt"></i></span> 1
-								&nbsp;
-								<span class="statusicon fail">&#10007;</span> 4
-								&nbsp;
-								<span class="statusicon ok">&#10003;</span> 12
-							</td>
-							<td class="story-pkg-watch-td">
-								<a class="fa fa-lg ignore fa-eye unwatch" href="javascript:" title="Toggle ignore"></a>
-							</td>
-						</tr>
-						<tr class="story-line ok pkg-something">
-							<td>
-								<div class="story-line-status-container">
-									<div class="story-line-status"></div>
-									<span class="statusicon ok">3 &#10003;</span>
-								</div>
-							</td>
-							<td colspan="3" class="depth-0">
-								Subject: goPath abstracts the $GOPATH environment variable
-							</td>
-						</tr>
-						<tr class="story-line fail pkg-something">
-							<td>
-								<div class="story-line-status-container">
-									<div class="story-line-status"></div>
-									<span class="statusicon fail">&#10007;</span>
-								</div>
-							</td>
-							<td colspan="3" class="depth-0">
-								Subject: goPath abstracts the $GOPATH environment variable
-							</td>
-						</tr>
-						<tr class="story-line panic pkg-something">
-							<td>
-								<div class="story-line-status-container">
-									<div class="story-line-status"></div>
-									<span class="statusicon panic">2 <i class="fa fa-bolt"></i></span><br>
-									<span class="statusicon fail">3 &#10007;</span>
-								</div>
-							</td>
-							<td colspan="3" class="depth-1">
-								Something else here
-							</td>
-						</tr>
-						<tr class="story-line skip pkg-something">
-							<td>
-								<div class="story-line-status-container">
-									<div class="story-line-status"></div>
-									<span class="statusicon skip">S</span>
-								</div>
-							</td>
-							<td colspan="3" class="depth-2">
-								Something else here
-							</td>
-						</tr>
-						<tr class="story-line ok pkg-something">
-							<td>
-								<div class="story-line-status-container">
-									<div class="story-line-status"></div>
-									<span class="statusicon ok">2 &#10003;</span>
-								</div>
-							</td>
-							<td colspan="3" class="depth-1">
-								Something else here
-							</td>
-						</tr>
-						<tr class="story-line ok pkg-something">
-							<td>
-								<div class="story-line-status-container">
-									<div class="story-line-status"></div>
-									<span class="statusicon ok">1 &#10003;</span>
-								</div>
-							</td>
-							<td colspan="3" class="depth-1">
-								Something else here
-							</td>
-						</tr>
-						<tr class="story-line ok pkg-something">
-							<td>
-								<div class="story-line-status-container">
-									<div class="story-line-status"></div>
-									<span class="statusicon ok">5 &#10003;</span>
-								</div>
-							</td>
-							<td colspan="3" class="depth-1">
-								Something else here
-							</td>
-						</tr>
-
-
-
-						<tr class="story-pkg">
-							<td>
-								<a href="javascript:" class="fa fa-expand-o fa-lg"></a>
-							</td>
-							<td class="story-pkg-name">
-								github.com/smartystreets/goconvey/<b>convey</b>
-							</td>
-							<td>
-								<span class="statusicon ok">&#10003;</span> 9
-							</td>
-							<td class="story-pkg-watch-td">
-								<a class="fa fa-lg ignore fa-eye unwatch" href="javascript:" title="Toggle ignore"></a>
-							</td>
-						</tr>
-						<tr class="story-pkg">
-							<td>
-								<a href="javascript:" class="fa fa-expand-o fa-lg"></a>
-							</td>
-							<td class="story-pkg-name">
-								github.com/smartystreets/goconvey/<b>execution</b>
-							</td>
-							<td>
-								<span class="statusicon ok">&#10003;</span> 5
-							</td>
-							<td class="story-pkg-watch-td">
-								<a class="fa fa-lg ignore fa-eye unwatch" href="javascript:" title="Toggle ignore"></a>
-							</td>
-						</tr>
-					</table>
-				</div>-->
 			</div>
 
 
@@ -542,7 +421,7 @@
 		</div>
 
 		<footer>
-			<span id="time"></span> UTC
+			<span id="time"></span>
 			&nbsp; &middot; &nbsp;
 			Last test 3m ago
 			&nbsp; &middot; &nbsp;

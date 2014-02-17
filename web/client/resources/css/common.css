@@ -201,7 +201,7 @@ input[type=text] {
 .settings .setting {
 	font-size: 13px;
 	display: inline-block;
-	margin-right: 100px;
+	margin-right: 5%;
 }
 
 .settings .setting .setting-meta {
@@ -803,3 +803,28 @@ footer {
 	98% { opacity: 0; }
 	100% { opacity: 1; }
 }
+
+
+
+
+
+
+
+
+
+
+
+/*
+#coverage {
+	perspective: 1000;
+}
+
+#coverage .pkg-cover {
+	-webkit-transition: .7s;
+	transform-style: preserve-3d;
+	position: relative;
+}
+
+#coverage:hover .pkg-cover {
+	-webkit-transform: rotateX(180deg);
+}*/

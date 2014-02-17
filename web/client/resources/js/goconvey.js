@@ -29,6 +29,7 @@ var convey = {
 	status: "",				// what the _server_ is currently doing (not overall test results)
 	overallClass: "",		// The class name of the "overall" status banner
 	theme: "",				// current theme being used
+	packagePreferences: {}, // which packages were manually collapsed or expanded
 	layout: {
 		selClass: "sel",	// CSS class when an element is "selected"
 		header: undefined,	// Container element of the header area (overall, controls)
@@ -57,7 +58,7 @@ function loadTheme(thmID)
 	var linkTagId = "themeRef";
 
 	if (!thmID)
-		thmID = localStorage.getItem('theme');
+		thmID = get('theme');
 
 	log("Initializing theme: " + thmID);
 
@@ -69,7 +70,7 @@ function loadTheme(thmID)
 	}
 
 	convey.theme = thmID;
-	localStorage.setItem('theme', convey.theme);
+	save('theme', convey.theme);
 
 	var linkTag = $('#'+linkTagId);
 	var fullPath = convey.config.themePath
@@ -146,6 +147,7 @@ function initPoller()
 function wireup()
 {
 	log("Wireup");
+
 	customMarkupPipes();
 
 	var themes = [];
@@ -155,10 +157,20 @@ function wireup()
 
 	enumSel("theme", convey.theme);
 
+	loadStorage();
+
+	$('.enum#pkg-expand-collapse').on('click', 'li', function()
+	{
+		var newSetting = $(this).data('pkg-expand-collapse');
+		if (enumItemNewlySelected(this))
+			save('pkg-expand-collapse', newSetting);
+		var storyPkgSelector = '.story-pkg' + (newSetting == "expand" ? '.collapsed' : '.expanded');
+		$(storyPkgSelector).each(function() { console.log($(this).data('pkg-name')); togglePackage(this, false); });
+	});
 
 	$('.enum#theme').on('click', 'li', function()
 	{
-		if (!$(this).hasClass(convey.layout.selClass))
+		if (enumItemNewlySelected(this))
 			loadTheme($(this).data('theme'));
 	});
 
@@ -195,7 +207,7 @@ function wireup()
 	{
 		$(this).toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
 
-		localStorage.setItem('notifications', !notif());
+		save('notifications', !notif());
 
 		if (notif() && 'Notification' in window)
 		{
@@ -249,10 +261,10 @@ function wireup()
 	convey.intervals.time = setInterval(function()
 	{
 		var t = new Date();
-		var h = zerofill(t.getUTCHours(), 2);
-		var m = zerofill(t.getUTCMinutes(), 2);
-		var s = zerofill(t.getUTCSeconds(), 2);
-		var ms = zerofill(t.getUTCMilliseconds(), 1);
+		var h = zerofill(t.getHours(), 2);
+		var m = zerofill(t.getMinutes(), 2);
+		var s = zerofill(t.getSeconds(), 2);
+		var ms = zerofill(t.getMilliseconds(), 1);
 		$('#time').text(h + ":" + m + ":" + s + "." + ms);
 	}, 100);
 
@@ -273,11 +285,9 @@ function wireup()
 		return suppress(event);
 	});
 
-	$('#stories').on('click', '.story-pkg', function()
+	$('#stories').on('click', '.story-pkg', function(event)
 	{
-		var pkg = $(this).data('pkg');
-		$('tr.story-line.pkg-'+pkg).toggle();
-		$('.fa-minus-square-o, .fa-plus-square-o', this).toggleClass('fa-minus-square-o fa-plus-square-o');
+		togglePackage(this, true);
 		return suppress(event);
 	});
 
@@ -288,7 +298,41 @@ function wireup()
 	});
 }
 
+function togglePackage(storyPkg, savePreference)
+{
+	var pkg = $(storyPkg).data('pkg');
+	var toggler = $('.pkg-toggle', storyPkg);
 
+	$('tr.story-line.pkg-'+pkg).toggle();
+	toggler.toggleClass('fa-minus-square-o fa-plus-square-o');
+	$(storyPkg).toggleClass('expanded collapsed');
+
+	if (savePreference)
+	{
+		convey.packagePreferences[$(storyPkg).data('pkg-name')] =
+			$(storyPkg).hasClass('expanded') ? "expanded" : "collapsed";
+		save("packagePreferences", convey.packagePreferences);
+	}
+}
+
+function loadStorage()
+{
+	var pkgExpCollapse = get("pkg-expand-collapse");
+	if (!pkgExpCollapse)
+	{
+		pkgExpCollapse = "expand";
+		save("pkg-expand-collapse", pkgExpCollapse);
+	}
+	enumSel("pkg-expand-collapse", pkgExpCollapse);
+
+	var pkgPreferences = get("packagePreferences");
+	if (!pkgPreferences)
+	{
+		pkgPreferences = {};
+		save("pkgPreferences", pkgPreferences);
+	}
+	convey.packagePreferences = pkgPreferences;
+}
 
 
 
@@ -527,6 +571,17 @@ function process(data, status, jqxhr)
 	$('#stories').html(render('tpl-stories', packages.tested));
 
 	colorizeCoverageBars();
+
+	if (get('pkg-expand-collapse') == "collapse")
+	{
+		$('.story-pkg').each(function()
+		{
+			if (convey.packagePreferences[$(this).data('pkg-name')] == "expanded")
+				return;
+			togglePackage(this, false);
+		});
+	}
+
 /*
 	// Show shortucts and builds/failures/panics details
 	if (convey.overall.failedBuilds > 0)
@@ -886,7 +941,7 @@ function reframe()
 
 function notif()
 {
-	return localStorage.getItem('notifications') === "true";	// stored as strings
+	return get('notifications') === "true";	// stored as strings
 }
 
 function log(msg)
@@ -895,10 +950,10 @@ function log(msg)
 	if (logElem)
 	{
 		var t = new Date();
-		var h = zerofill(t.getUTCHours(), 2);
-		var m = zerofill(t.getUTCMinutes(), 2);
-		var s = zerofill(t.getUTCSeconds(), 2);
-		var ms = zerofill(t.getUTCMilliseconds(), 3);
+		var h = zerofill(t.getHours(), 2);
+		var m = zerofill(t.getMinutes(), 2);
+		var s = zerofill(t.getSeconds(), 2);
+		var ms = zerofill(t.getMilliseconds(), 3);
 		date = h + ":" + m + ":" + s + "." + ms;
 
 		$(logElem).append(render('tpl-log-line', { time: date, msg: msg }));
@@ -942,10 +997,33 @@ function sortPackages(a, b)
 	*/
 }
 
+function get(key)
+{
+	var val = localStorage.getItem(key);
+	if (val[0] == '[' || val[0] == '{')
+		return JSON.parse(val);
+	else
+		return val;
+}
+
+function save(key, val)
+{
+	if (typeof val === 'object' || typeof val === 'array')
+		val = JSON.stringify(val);
+	else if (typeof val === 'number' || typeof val === "boolean")
+		val = "" + val;
+	localStorage.setItem(key, val);
+}
+
 function splitPathName(str)
 {
 	var delim = str.indexOf('\\') > -1 ? '\\' : '/';
 	return { delim: delim, parts: str.split(delim) };
+}
+
+function enumItemNewlySelected(itemElem)
+{
+	return !$(itemElem).hasClass(convey.layout.selClass);
 }
 
 function newState()
