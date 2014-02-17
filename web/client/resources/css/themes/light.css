@@ -109,11 +109,6 @@ a.fa:hover {
 	font-weight: bold;
 }
 
-.pkg-cover:hover,
-.pkg-cover:hover b {
-	color: #AAA;
-}
-
 .expandable {
 	background: rgba(0, 0, 0, .1);
 	border-top-color: #33B5E5;
@@ -161,19 +156,21 @@ footer {
 	background: #E94D4D;
 	color: #FFF;
 }
-.panic-details {
+.panics .panic-details {
 	border: 5px solid #E94D4D;
 	border-top: 0;
 	border-bottom: 0;
+}
+.panic-details {
 	color: #CC0000;
 }
-.panic:last-child .panic-details {
+.panics .panic:last-child .panic-details {
 	border-bottom: 5px solid #E94D4D;
 }
 .panic-story {
 	padding: 10px;
 }
-.panic-output {
+.panics .panic-output {
 	background: #FFF;
 }
 
@@ -184,19 +181,22 @@ footer {
 	background: #FFA300;
 	color: #FFF;
 }
-.failure-details {
+.failures .failure-details {
 	border: 5px solid #FFA300;
 	border-top: 0;
 	border-bottom: 0;
 }
-.failure:last-child .failure-details {
+.failures .failure:last-child .failure-details {
 	border-bottom: 5px solid #FFA300;
 }
 .failure-story {
 	padding: 10px;
 	color: #A87A00;
 }
-.failure-output {
+.stories .failure-output {
+	color: #EA9C4D;
+}
+.failures .failure-output {
 	background: #FFF;
 }
 .failure-file {
@@ -205,6 +205,7 @@ footer {
 
 .diffviewer td {
 	border-color: #CCC;
+	background: #FFF;
 }
 
 /* prettyTextDiff expected/deleted colors */
@@ -235,6 +236,10 @@ footer {
 
 .story-line {
 	background: #FFF;
+}
+
+.story-line-desc .message {
+	color: #888;
 }
 
 .story-line + .story-line {

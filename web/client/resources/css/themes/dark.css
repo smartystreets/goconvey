@@ -1,3 +1,12 @@
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
 	background-color: rgba(255, 255, 255, .35);
 	border-radius: 10px;
@@ -290,6 +299,10 @@ footer {
 
 .story-line + .story-line {
 	border-top: 1px dashed rgba(255, 255, 255, .08);
+}
+
+.story-line-desc .message {
+	color: #999;
 }
 
 .story-line-summary-container {

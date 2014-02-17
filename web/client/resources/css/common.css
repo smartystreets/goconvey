@@ -30,15 +30,6 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 	text-shadow: none;
 }
 
-::-webkit-scrollbar {
-	width: 10px;
-	height: 10px;
-}
-
-::-webkit-scrollbar-corner {
-	background: transparent;
-}
-
 ::-webkit-input-placeholder {
 	font-style: italic;
 }
@@ -131,10 +122,11 @@ input[type=text] {
 
 .toggler {
 	font-size: 10px;
-	padding: 0 1em;
+	padding: 3px 5px;
 	text-decoration: none;
 	text-transform: uppercase;
 	cursor: pointer;
+	line-height: 1.5em;
 }
 
 .toggler.narrow {
@@ -177,28 +169,6 @@ input[type=text] {
 	border-bottom-width: 1px;
 }
 
-/*
-.main {
-	border-top-width: 1px;
-	border-top-style: solid;
-	padding-bottom: 2.5em; /* must be same height as footer * /
-}
-*/
-/*
-#path {
-	border-bottom: 1px solid transparent;
-	width: 75%;
-	max-width: 500px;
-	margin-left: -.75em;
-	padding-left: 1.25em;
-}
-
-#path:hover,
-#path:focus {
-	border-bottom-color: #33B5E5;
-}
-*/
-
 .expandable {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -206,17 +176,13 @@ input[type=text] {
 
 	border-top-width: 1px;
 	border-top-style: solid;
-	overflow-x: auto;
 	overflow-y: hidden;
+	overflow-x: auto;
 	text-align: center;
 	white-space: nowrap;
 	display: none;
 }
-/*
-.expandable:hover {
-	overflow-x: auto;
-}
-*/
+
 .settings {
 	white-space: normal;
 	overflow-x: auto;
@@ -338,7 +304,6 @@ input[type=text] {
 	width: 25%;
 }
 
-
 #coverage {
 	font-size: 10px;
 	white-space: nowrap;
@@ -348,8 +313,11 @@ input[type=text] {
 	display: none;
 }
 
+.rtl {
+	direction: rtl;
+}
+
 .pkg-cover {
-	padding-right: 5px;
 	position: relative;
 	cursor: pointer;
 }
@@ -365,7 +333,14 @@ input[type=text] {
 .pkg-cover-name {
 	position: relative;
 	z-index: 2;
+}
+
+.pkg-cover-name,
+.pkg-list {
 	font-family: 'Menlo', 'Share Tech Mono', monospace;
+	font-size: 10px;
+	padding-right: 5%;
+	white-space: nowrap;
 }
 
 .buildfail-pkg,
@@ -384,6 +359,7 @@ input[type=text] {
 	max-height: 150px;
 	overflow-y: auto;
 	white-space: pre-wrap;
+	font-family: 'Menlo', 'Share Tech Mono', monospace;
 }
 
 .panic-story,
@@ -466,9 +442,10 @@ input[type=text] {
 }
 
 .story-line-summary-container {
-	padding: 0 10px 0 20px;
+	padding: 0 10px 0 10px;
 	white-space: nowrap;
 	width: 35px;
+	text-align: center;
 }
 
 .story-line-status {
@@ -480,6 +457,9 @@ input[type=text] {
 	padding: 5px;
 }
 
+.story-line-desc .message {
+	font-family: 'Menlo', 'Share Tech Mono', monospace;
+}
 
 .statusicon {
 	font: 14px 'Open Sans', sans-serif;
@@ -660,8 +640,12 @@ footer {
 
 
 @media (max-width: 1099px) {
+	#col-1 {
+		width: 25%;
+	}
+
 	#col-2 {
-		width: 85%;
+		width: 75%;
 		border-right: none;
 	}
 

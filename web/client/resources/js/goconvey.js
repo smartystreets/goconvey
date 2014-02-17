@@ -220,7 +220,7 @@ function wireup()
 		toggle($('.settings'), $(this));
 	});
 
-	$('.controls li').tipsy({ live: true });
+	$('.controls li, .pkg-cover-name').tipsy({ live: true });
 
 	$('.toggler').not('.narrow').prepend('<i class="fa fa-angle-up fa-lg"></i>');
 	$('.toggler.narrow').prepend('<i class="fa fa-angle-down fa-lg"></i>');
@@ -277,7 +277,7 @@ function wireup()
 	{
 		var pkg = $(this).data('pkg');
 		$('tr.story-line.pkg-'+pkg).toggle();
-		$('.fa-collapse-o, .fa-expand-o', this).toggleClass('fa-collapse-o fa-expand-o');
+		$('.fa-minus-square-o, .fa-plus-square-o', this).toggleClass('fa-minus-square-o fa-plus-square-o');
 		return suppress(event);
 	});
 
@@ -372,6 +372,7 @@ function process(data, status, jqxhr)
 		{
 			test = makeContext(pkg.TestResults[j]);
 			test._id = uniqueID++;
+			test._pkgid = pkg._id;
 
 			if (test.Stories.length == 0)
 			{
@@ -420,6 +421,7 @@ function process(data, status, jqxhr)
 				storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
 
 				story._id = uniqueID;
+				story._pkgid = pkg._id;
 				current().overall.assertions += story.Assertions.length;
 
 				for (var l in story.Assertions)
@@ -523,9 +525,6 @@ function process(data, status, jqxhr)
 		$('.failures').hide();
 
 	$('#stories').html(render('tpl-stories', packages.tested));
-
-
-	console.log(data);
 
 	colorizeCoverageBars();
 /*
