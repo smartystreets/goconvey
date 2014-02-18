@@ -15,11 +15,11 @@ func TestFakeShell(t *testing.T) {
 		shell = NewFakeShell()
 
 		Convey("When executing go test", func() {
-			output, err = shell.GoTest("/hi")
-			shell.GoTest("/bye")
+			output, err = shell.GoTest("/hi", "-there")
+			shell.GoTest("/bye", "-bye")
 
 			Convey("The output should be an echo of the input", func() {
-				So(output, ShouldEqual, "/hi")
+				So(output, ShouldEqual, "/hi-there")
 			})
 
 			Convey("There should be no error", func() {
@@ -27,7 +27,7 @@ func TestFakeShell(t *testing.T) {
 			})
 
 			Convey("The shell should remember the directory of execution", func() {
-				So(shell.Executions(), ShouldResemble, []string{"/hi", "/bye"})
+				So(shell.Executions(), ShouldResemble, []string{"/hi-there", "/bye-bye"})
 			})
 		})
 

@@ -139,6 +139,15 @@ function initPlugins()
 		var num = parseFloat(str);
 		return num < 0 ? "" : num + "% coverage";
 	}
+	Mark.pipes.coverageAvailable = function(str)
+	{
+		var num = parseFloat(str);
+		return num >= 0;
+	}
+	Mark.pipes.coverageReportName = function(str)
+	{
+		return str.replace(/\//g, "-");
+	}
 
 	// JQUERY TIPSY
 	// Wire-up nice tooltips
