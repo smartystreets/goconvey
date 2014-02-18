@@ -9,11 +9,81 @@ import (
 	"github.com/smartystreets/goconvey/gotest"
 )
 
+////////////////// ScopeReport ////////////////////
+
+type ScopeReport struct {
+	Title string
+	ID    string
+	File  string
+	Line  int
+}
+
+func NewScopeReport(title, name string) *ScopeReport {
+	file, line, _ := gotest.ResolveExternalCaller()
+	self := new(ScopeReport)
+	self.Title = title
+	self.ID = fmt.Sprintf("%s|%s", title, name)
+	self.File = file
+	self.Line = line
+	return self
+}
+
+////////////////// ScopeResult ////////////////////
+
+type ScopeResult struct {
+	Title      string
+	File       string
+	Line       int
+	Depth      int
+	Assertions []*AssertionResult
+}
+
+func newScopeResult(title string, depth int, file string, line int) *ScopeResult {
+	self := new(ScopeResult)
+	self.Title = title
+	self.Depth = depth
+	self.File = file
+	self.Line = line
+	self.Assertions = []*AssertionResult{}
+	return self
+}
+
+/////////////////// StoryReport /////////////////////
+
+type StoryReport struct {
+	Test T
+	Name string
+	File string
+	Line int
+}
+
+func NewStoryReport(test T) *StoryReport {
+	file, line, name := gotest.ResolveExternalCaller()
+	name = removePackagePath(name)
+	self := new(StoryReport)
+	self.Test = test
+	self.Name = name
+	self.File = file
+	self.Line = line
+	return self
+}
+
+// name comes in looking like "github.com/smartystreets/goconvey/examples.TestName".
+// We only want the stuff after the last '.', which is the name of the test function.
+func removePackagePath(name string) string {
+	parts := strings.Split(name, ".")
+	return parts[len(parts)-1]
+}
+
+/////////////////// FailureView ////////////////////////
+
 type FailureView struct {
 	Message  string
 	Expected string
 	Actual   string
 }
+
+////////////////////AssertionResult //////////////////////
 
 type AssertionResult struct {
 	File       string
