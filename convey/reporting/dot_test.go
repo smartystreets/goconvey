@@ -29,8 +29,8 @@ func TestDotReporterOnlyReportsAssertions(t *testing.T) {
 	printer := NewPrinter(file)
 	reporter := NewDotReporter(printer)
 
-	reporter.BeginStory(NewStoryReport(t))
-	reporter.Enter(NewScopeReport("title", "name"))
+	reporter.BeginStory(nil)
+	reporter.Enter(nil)
 	reporter.Exit()
 	reporter.EndStory()
 

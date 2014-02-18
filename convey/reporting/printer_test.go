@@ -161,6 +161,8 @@ func TestInsert(t *testing.T) {
 	}
 }
 
+////////////////// memoryFile ////////////////////
+
 type memoryFile struct {
 	buffer string
 }
@@ -168,6 +170,10 @@ type memoryFile struct {
 func (self *memoryFile) Write(p []byte) (n int, err error) {
 	self.buffer += string(p)
 	return len(p), nil
+}
+
+func (self *memoryFile) String() string {
+	return self.buffer
 }
 
 func newMemoryFile() *memoryFile {
