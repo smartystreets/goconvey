@@ -41,7 +41,7 @@ func (self *Shell) goTest(directory, packageName string) (output string, err err
 }
 
 func (self *Shell) runWithCoverage(directory, profile string) (string, error) {
-	return self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s", "-covermode=count", "-coverprofile="+profile)
+	return self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s", "-covermode=set", "-coverprofile="+profile)
 }
 func (self *Shell) runWithoutCoverage(directory string) (string, error) {
 	return self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s")
