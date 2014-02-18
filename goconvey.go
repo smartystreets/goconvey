@@ -24,6 +24,10 @@ import (
 )
 
 func init() {
+	flags()
+	folders()
+}
+func flags() {
 	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
 	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	flag.DurationVar(&nap, "poll", quarterSecond, "The interval to wait between polling the file system for changes (default: 250ms).")
@@ -32,14 +36,12 @@ func init() {
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Warning: this will obfuscate line number reporting on panics and build failures! Requires Go 1.2+ and the go cover tool. (default: true)")
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
+}
+func folders() {
 	_, file, _, _ := runtime.Caller(0)
 	here := filepath.Dir(file)
 	static = filepath.Join(here, "/web/client")
-	if cover {
-		reports = filepath.Join(here, ".coverage-reports")
-		os.MkdirAll(reports, os.ModeDir|os.ModeSetgid|os.ModeSetuid)
-	}
+	reports = filepath.Join(static, "reports")
 }
 
 func main() {
@@ -61,7 +63,6 @@ func serveHTTP(server contract.Server) {
 
 func serveStaticResources() {
 	http.Handle("/", http.FileServer(http.Dir(static)))
-	http.Handle("/coverage-reports", http.FileServer(http.Dir(reports)))
 }
 
 func serveAjaxMethods(server contract.Server) {
@@ -120,8 +121,8 @@ var (
 	packages int
 	cover    bool
 
-	reports string
 	static  string
+	reports string
 
 	quarterSecond = time.Millisecond * 250
 )
