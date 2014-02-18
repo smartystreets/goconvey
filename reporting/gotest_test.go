@@ -45,6 +45,12 @@ func TestReporterIsResetAtTheEndOfTheStory(t *testing.T) {
 	reporter.Report(NewSuccessReport())
 }
 
+func TestReporterNoopMethods(t *testing.T) {
+	reporter := NewGoTestReporter()
+	reporter.Enter(NewScopeReport("title", "name"))
+	reporter.Exit()
+}
+
 func catch(t *testing.T) {
 	if r := recover(); r != nil {
 		t.Log("Getting to this point means we've passed (because we caught a panic appropriately).")
