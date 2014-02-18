@@ -1,6 +1,11 @@
 package convey
 
-import "github.com/smartystreets/goconvey/gotest"
+import (
+	"reflect"
+	"runtime"
+
+	"github.com/smartystreets/goconvey/gotest"
+)
 
 type registration struct {
 	Situation string
@@ -24,4 +29,43 @@ func newRegistration(situation string, action *action, test t) *registration {
 	self.File = file
 	self.Line = line
 	return self
+}
+
+////////////////////////// action ///////////////////////
+
+type action struct {
+	wrapped func()
+	name    string
+}
+
+func (self *action) Invoke() {
+	self.wrapped()
+}
+
+func newAction(wrapped func()) *action {
+	self := new(action)
+	self.name = functionName(wrapped)
+	self.wrapped = wrapped
+	return self
+}
+
+func newSkippedAction(wrapped func()) *action {
+	self := new(action)
+
+	// The choice to use the filename and line number as the action name
+	// reflects the need for something unique but also that corresponds
+	// in a determinist way to the action itself.
+	self.name = gotest.FormatExternalFileAndLine()
+	self.wrapped = wrapped
+	return self
+}
+
+///////////////////////// helpers //////////////////////////////
+
+func functionName(action func()) string {
+	return runtime.FuncForPC(functionId(action)).Name()
+}
+
+func functionId(action func()) uintptr {
+	return reflect.ValueOf(action).Pointer()
 }

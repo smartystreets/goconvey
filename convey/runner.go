@@ -116,7 +116,22 @@ func (self *runner) Report(result *reporting.AssertionResult) {
 	self.out.Report(result)
 }
 
+func last(group []string) string {
+	return group[len(group)-1]
+}
+
 const topLevel = "TOP"
 const missingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T. 
     Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
 const extraGoTest = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+
+//////////////////////// nilReporter /////////////////////////////
+
+type nilReporter struct{}
+
+func (self *nilReporter) BeginStory(story *reporting.StoryReport)  {}
+func (self *nilReporter) Enter(scope *reporting.ScopeReport)       {}
+func (self *nilReporter) Report(report *reporting.AssertionResult) {}
+func (self *nilReporter) Exit()                                    {}
+func (self *nilReporter) EndStory()                                {}
+func newNilReporter() *nilReporter                                 { return new(nilReporter) }
