@@ -21,7 +21,7 @@ func NewPackage(path string) *Package {
 	self.Active = true
 	self.Path = path
 	self.Name = resolvePackageName(path)
-	self.Result = NewPackageResult(self.Name, self.Path)
+	self.Result = NewPackageResult(self.Name)
 	return self
 }
 
@@ -42,21 +42,19 @@ var ( // PackageResult.Outcome values:
 )
 
 type PackageResult struct {
-	PackageName        string
-	Elapsed            float64
-	Coverage           float64
-	Outcome            string
-	BuildOutput        string
-	TestResults        []TestResult
-	CoverageReportPath string
+	PackageName string
+	Elapsed     float64
+	Coverage    float64
+	Outcome     string
+	BuildOutput string
+	TestResults []TestResult
 }
 
-func NewPackageResult(packageName, path string) *PackageResult {
+func NewPackageResult(packageName string) *PackageResult {
 	self := new(PackageResult)
 	self.PackageName = packageName
 	self.TestResults = []TestResult{}
 	self.Coverage = -1
-	self.CoverageReportPath = filepath.Join(path, "goconvey_coverage.html")
 	return self
 }
 

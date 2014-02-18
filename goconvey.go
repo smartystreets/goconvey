@@ -32,6 +32,14 @@ func init() {
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Warning: this will obfuscate line number reporting on panics and build failures! Requires Go 1.2+ and the go cover tool. (default: true)")
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	_, file, _, _ := runtime.Caller(0)
+	here := filepath.Dir(file)
+	static = filepath.Join(here, "/web/client")
+	if cover {
+		reports = filepath.Join(here, ".coverage-reports")
+		os.MkdirAll(reports, os.ModeDir|os.ModeSetgid|os.ModeSetuid)
+	}
 }
 
 func main() {
@@ -52,10 +60,8 @@ func serveHTTP(server contract.Server) {
 }
 
 func serveStaticResources() {
-	_, file, _, _ := runtime.Caller(0)
-	here := filepath.Dir(file)
-	static := filepath.Join(here, "/web/client")
 	http.Handle("/", http.FileServer(http.Dir(static)))
+	http.Handle("/coverage-reports", http.FileServer(http.Dir(reports)))
 }
 
 func serveAjaxMethods(server contract.Server) {
@@ -84,7 +90,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	}
 
 	fs := system.NewFileSystem()
-	shell := system.NewShell(gobin, cover)
+	shell := system.NewShell(gobin, cover, reports)
 
 	watcher := watch.NewWatcher(fs, shell)
 	watcher.Adjust(working)
@@ -113,6 +119,9 @@ var (
 	nap      time.Duration
 	packages int
 	cover    bool
+
+	reports string
+	static  string
 
 	quarterSecond = time.Millisecond * 250
 )

@@ -1,20 +1,24 @@
 package system
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 type Shell struct {
-	coverage string
-	gobin    string
+	coverage      string
+	gobin         string
+	reportsFolder string
 }
 
-func (self *Shell) GoTest(directory string) (output string, err error) {
+func (self *Shell) GoTest(directory, packageName string) (output string, err error) {
 	output, err = self.compileDependencies(directory)
 	if err == nil {
-		output, err = self.goTest(directory)
+		output, err = self.goTest(directory, packageName)
 	}
 	return
 }
@@ -23,14 +27,17 @@ func (self *Shell) compileDependencies(directory string) (output string, err err
 	return self.execute(directory, self.gobin, "test", "-i")
 }
 
-func (self *Shell) goTest(directory string) (output string, err error) {
+func (self *Shell) goTest(directory, packageName string) (output string, err error) {
 	output, err = self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s", self.coverage)
 
 	if err != nil && self.coverage != "" {
 		output, err = self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s")
 	} else if self.coverage != "" {
-		self.execute(directory, self.gobin, "test", "-covermode=count", "-coverprofile=goconvey_profile.out")
-		self.execute(directory, self.gobin, "tool", "cover", "-html=goconvey_profile.out", "-o", "goconvey_coverage.html")
+		reportPath := filepath.Join(self.reportsFolder, strings.Replace(packageName, string(os.PathSeparator), "-", -1))
+		profile := fmt.Sprintf("%s.out", reportPath)
+		html := fmt.Sprintf("%s.html", reportPath)
+		self.execute(directory, self.gobin, "test", "-covermode=count", fmt.Sprintf("-coverprofile=%s", profile))
+		self.execute(directory, self.gobin, "tool", "cover", fmt.Sprintf("-html=%s", profile), "-o", html)
 	}
 	return
 }
@@ -54,9 +61,10 @@ func (self *Shell) Setenv(key, value string) error {
 	return nil
 }
 
-func NewShell(gobin string, cover bool) *Shell {
+func NewShell(gobin string, cover bool, reportsFolder string) *Shell {
 	self := new(Shell)
 	self.gobin = gobin
+	self.reportsFolder = reportsFolder
 	if cover && goVersion_1_2_orGreater() {
 		self.coverage = coverageFlag
 	}

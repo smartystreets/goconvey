@@ -76,7 +76,7 @@ func (self *Watcher) WatchedFolders() []*contract.Package {
 			Active: item.Active,
 			Path:   item.Path,
 			Name:   item.Name,
-			Result: contract.NewPackageResult(item.Name, item.Path),
+			Result: contract.NewPackageResult(item.Name),
 		}
 		i++
 	}
