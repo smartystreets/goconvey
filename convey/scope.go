@@ -1,4 +1,4 @@
-package execution
+package convey
 
 import (
 	"fmt"
@@ -10,11 +10,11 @@ import (
 type scope struct {
 	name       string
 	title      string
-	action     *Action
+	action     *action
 	children   map[string]*scope
 	birthOrder []*scope
 	child      int
-	resets     map[string]*Action
+	resets     map[string]*action
 	panicked   bool
 	reporter   reporting.Reporter
 	report     *reporting.ScopeReport
@@ -36,7 +36,7 @@ func (parent *scope) hasChild(child *scope) bool {
 	return false
 }
 
-func (self *scope) registerReset(action *Action) {
+func (self *scope) registerReset(action *action) {
 	self.resets[action.name] = action
 }
 
@@ -75,7 +75,7 @@ func (parent *scope) cleanup() {
 }
 func (parent *scope) exit() {
 	if problem := recover(); problem != nil {
-		if strings.HasPrefix(fmt.Sprintf("%v", problem), ExtraGoTest) {
+		if strings.HasPrefix(fmt.Sprintf("%v", problem), extraGoTest) {
 			panic(problem)
 		}
 		parent.panicked = true
@@ -84,15 +84,15 @@ func (parent *scope) exit() {
 	parent.reporter.Exit()
 }
 
-func newScope(entry *Registration, reporter reporting.Reporter) *scope {
+func newScope(entry *registration, reporter reporting.Reporter) *scope {
 	self := new(scope)
 	self.reporter = reporter
-	self.name = entry.Action.name
+	self.name = entry.action.name
 	self.title = entry.Situation
-	self.action = entry.Action
+	self.action = entry.action
 	self.children = make(map[string]*scope)
 	self.birthOrder = []*scope{}
-	self.resets = make(map[string]*Action)
+	self.resets = make(map[string]*action)
 	self.report = reporting.NewScopeReport(self.title, self.name)
 	return self
 }

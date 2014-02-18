@@ -3,8 +3,6 @@ package convey
 import (
 	"strconv"
 	"testing"
-
-	"github.com/smartystreets/goconvey/execution"
 )
 
 func TestSingleScope(t *testing.T) {
@@ -252,6 +250,6 @@ func TestIterativeConveys(t *testing.T) {
 }
 
 func prepare() string {
-	testReporter = execution.NewNilReporter()
+	testReporter = newNilReporter()
 	return ""
 }

@@ -1,4 +1,4 @@
-package execution
+package convey
 
 import "github.com/smartystreets/goconvey/reporting"
 
@@ -9,4 +9,4 @@ func (self *nilReporter) Enter(scope *reporting.ScopeReport)       {}
 func (self *nilReporter) Report(report *reporting.AssertionResult) {}
 func (self *nilReporter) Exit()                                    {}
 func (self *nilReporter) EndStory()                                {}
-func NewNilReporter() *nilReporter                                 { return new(nilReporter) }
+func newNilReporter() *nilReporter                                 { return new(nilReporter) }

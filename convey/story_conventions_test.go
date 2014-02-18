@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-
-	"github.com/smartystreets/goconvey/execution"
 )
 
 func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {
@@ -24,7 +22,7 @@ func requireGoTestReference(t *testing.T) {
 	if err == nil {
 		t.Error("We should have recovered a panic here (because of a missing *testing.T reference)!")
 	} else {
-		expectEqual(t, execution.MissingGoTest, err)
+		expectEqual(t, missingGoTest, err)
 	}
 }
 
@@ -53,7 +51,7 @@ func TestExtraReferencePanics(t *testing.T) {
 		err := recover()
 		if err == nil {
 			t.Error("We should have recovered a panic here (because of an extra *testing.T reference)!")
-		} else if !strings.HasPrefix(fmt.Sprintf("%v", err), execution.ExtraGoTest) {
+		} else if !strings.HasPrefix(fmt.Sprintf("%v", err), extraGoTest) {
 			t.Error("Should have panicked with the 'extra go test' error!")
 		}
 		if output["bad"] {
