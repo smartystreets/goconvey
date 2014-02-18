@@ -14,6 +14,20 @@ func TestPrint(t *testing.T) {
 	}
 }
 
+func TestPrintFormat(t *testing.T) {
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+	template := "Hi, %s"
+	name := "Ralph"
+	expected := "Hi, Ralph"
+
+	printer.Print(template, name)
+
+	if file.buffer != expected {
+		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
+	}
+}
+
 func TestPrintPreservesEncodedStrings(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
@@ -33,6 +47,20 @@ func TestPrintln(t *testing.T) {
 	printer.Println(expected)
 
 	if file.buffer != expected+"\n" {
+		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
+	}
+}
+
+func TestPrintlnFormat(t *testing.T) {
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+	template := "Hi, %s"
+	name := "Ralph"
+	expected := "Hi, Ralph\n"
+
+	printer.Println(template, name)
+
+	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
 	}
 }
