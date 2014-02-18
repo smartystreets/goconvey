@@ -28,8 +28,5 @@ func NewStoryReport(test T) *StoryReport {
 // We only want the stuff after the last '.', which is the name of the test function.
 func removePackagePath(name string) string {
 	parts := strings.Split(name, ".")
-	if len(parts) == 1 {
-		return name
-	}
 	return parts[len(parts)-1]
 }
