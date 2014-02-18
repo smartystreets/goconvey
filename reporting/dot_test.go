@@ -22,3 +22,19 @@ func TestDotReporterAssertionPrinting(t *testing.T) {
 		t.Errorf("\nExpected: '%s'\nActual:  '%s'", expected, file.buffer)
 	}
 }
+
+func TestDotReporterOnlyReportsAssertions(t *testing.T) {
+	monochrome()
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+	reporter := NewDotReporter(printer)
+
+	reporter.BeginStory(NewStoryReport(t))
+	reporter.Enter(NewScopeReport("title", "name"))
+	reporter.Exit()
+	reporter.EndStory()
+
+	if file.buffer != "" {
+		t.Errorf("\nExpected: '(blank)'\nActual:  '%s'", file.buffer)
+	}
+}
