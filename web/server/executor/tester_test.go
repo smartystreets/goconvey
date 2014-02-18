@@ -225,7 +225,7 @@ func (self *TimedShell) setExitWithError() {
 	self.err = errors.New("Simulate test failure")
 }
 
-func (self *TimedShell) GoTest(directory string) (output string, err error) {
+func (self *TimedShell) GoTest(directory, packageName string) (output string, err error) {
 	if self.panicMessage != "" {
 		return "", errors.New(self.panicMessage)
 	}

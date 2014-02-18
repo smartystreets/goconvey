@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/convey/reporting"
 	"github.com/smartystreets/goconvey/web/server/contract"
 )
 

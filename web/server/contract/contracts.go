@@ -50,7 +50,7 @@ type (
 	}
 
 	Shell interface {
-		GoTest(directory string) (output string, err error)
+		GoTest(directory, packageName string) (output string, err error)
 		Getenv(key string) string
 		Setenv(key, value string) error
 	}

@@ -37,6 +37,12 @@ func BuildStoryReporter() Reporter {
 		NewStoryReporter(out),
 		NewProblemReporter(out))
 }
+func BuildSilentReporter() Reporter {
+	out := NewPrinter(NewConsole())
+	return NewReporters(
+		NewGoTestReporter(),
+		NewProblemReporter(out))
+}
 
 var (
 	newline         = "\n"

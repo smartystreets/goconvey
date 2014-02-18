@@ -1,15 +1,13 @@
 package convey
 
-import "github.com/smartystreets/goconvey/execution"
-
-func discover(items []interface{}) *execution.Registration {
+func discover(items []interface{}) *registration {
 	ensureEnough(items)
 
 	name := parseName(items)
 	test := parseGoTest(items)
 	action := parseAction(items, test)
 
-	return execution.NewRegistration(name, action, test)
+	return newRegistration(name, action, test)
 }
 func ensureEnough(items []interface{}) {
 	if len(items) < 2 {
@@ -28,17 +26,17 @@ func parseGoTest(items []interface{}) t {
 	}
 	return nil
 }
-func parseAction(items []interface{}, test t) *execution.Action {
+func parseAction(items []interface{}, test t) *action {
 	var index = 1
 	if test != nil {
 		index = 2
 	}
 
 	if action, parsed := items[index].(func()); parsed {
-		return execution.NewAction(action)
+		return newAction(action)
 	}
 	if items[index] == nil {
-		return execution.NewSkippedAction(skipReport)
+		return newSkippedAction(skipReport)
 	}
 	panic(parseError)
 }

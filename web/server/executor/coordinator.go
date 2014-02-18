@@ -36,7 +36,7 @@ func (self *concurrentCoordinator) worker(id int) {
 			continue
 		}
 		log.Printf("Executing concurrent tests: %s\n", folder.Name)
-		folder.Output, folder.Error = self.shell.GoTest(folder.Path)
+		folder.Output, folder.Error = self.shell.GoTest(folder.Path, folder.Name)
 	}
 	self.waiter.Done()
 }

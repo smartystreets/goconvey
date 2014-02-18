@@ -10,9 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/reporting"
 )
 
 // suiteContext magically handles all coordination of reporter, runners as they handle calls
@@ -21,19 +18,19 @@ import (
 // to the appropriate runner.
 type suiteContext struct {
 	lock    sync.Mutex
-	runners map[string]runner // key: testName;
+	runners map[string]*runner // key: testName;
 
 	// stores a correlation to the actual runner for outside-of-stack scenaios
 	locations map[string]string // key: file:line; value: testName (key to runners)
 }
 
-func (self *suiteContext) Run(entry *execution.Registration) {
+func (self *suiteContext) Run(entry *registration) {
 	if self.current() != nil {
-		panic(execution.ExtraGoTest)
+		panic(extraGoTest)
 	}
 
 	reporter := buildReporter()
-	runner := execution.NewRunner()
+	runner := newRunner()
 	runner.UpgradeReporter(reporter)
 
 	testName, location, _ := suiteAnchor()
@@ -52,13 +49,13 @@ func (self *suiteContext) Run(entry *execution.Registration) {
 	self.lock.Unlock()
 }
 
-func (self *suiteContext) Current() runner {
+func (self *suiteContext) Current() *runner {
 	if runner := self.current(); runner != nil {
 		return runner
 	}
-	panic(execution.MissingGoTest)
+	panic(missingGoTest)
 }
-func (self *suiteContext) current() runner {
+func (self *suiteContext) current() *runner {
 	self.lock.Lock()
 	defer self.lock.Unlock()
 	testName, _, err := suiteAnchor()
@@ -73,7 +70,7 @@ func (self *suiteContext) current() runner {
 func newSuiteContext() *suiteContext {
 	self := new(suiteContext)
 	self.locations = make(map[string]string)
-	self.runners = make(map[string]runner)
+	self.runners = make(map[string]*runner)
 	return self
 }
 
@@ -153,14 +150,3 @@ const maxStackDepth = 100               // This had better be enough...
 const goTestHarness = "testing.tRunner" // I hope this doesn't change...
 
 var callStack []uintptr = make([]uintptr, maxStackDepth, maxStackDepth)
-
-/////////////////////// Interop ////////////////////////
-
-type runner interface {
-	Begin(entry *execution.Registration)
-	Register(entry *execution.Registration)
-	RegisterReset(action *execution.Action)
-	UpgradeReporter(out reporting.Reporter)
-	Report(result *reporting.AssertionResult)
-	Run()
-}
