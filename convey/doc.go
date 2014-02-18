@@ -3,7 +3,7 @@
 // packages from this project as they serve internal purposes.
 package convey
 
-import "github.com/smartystreets/goconvey/reporting"
+import "github.com/smartystreets/goconvey/convey/reporting"
 
 // Convey is the method intended for use when declaring the scopes
 // of a specification. Each scope has a description and a func()

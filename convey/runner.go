@@ -3,8 +3,8 @@ package convey
 import (
 	"fmt"
 
-	"github.com/smartystreets/goconvey/gotest"
-	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/convey/gotest"
+	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
 type runner struct {

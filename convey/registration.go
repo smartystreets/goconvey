@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/smartystreets/goconvey/gotest"
+	"github.com/smartystreets/goconvey/convey/gotest"
 )
 
 type registration struct {

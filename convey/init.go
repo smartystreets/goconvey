@@ -3,7 +3,7 @@ package convey
 import (
 	"os"
 
-	"github.com/smartystreets/goconvey/reporting"
+	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
 func init() {
