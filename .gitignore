@@ -1,10 +1,5 @@
 .DS_Store
-
-
 examples/output.json
-
 webserver/webserver
-
 web/server/server
-
 web/client/_old/

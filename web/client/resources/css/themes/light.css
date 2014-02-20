@@ -75,13 +75,21 @@ a:hover {
 }
 
 li.fa,
-a.fa {
+a.fa,
+.toggle-all-pkg {
 	color: #6887A3;
 }
 
 li.fa:hover,
-a.fa:hover {
+a.fa:hover,
+.toggle-all-pkg:hover {
 	color: #465B6D;
+}
+
+li.fa:active,
+a.fa:active,
+.toggle-all-pkg:active {
+	color: #33B5E5;
 }
 
 .controls li,
@@ -259,7 +267,7 @@ footer {
 .story-line.panic .story-line-status { background: #DD0606; }
 .story-line.panic:hover, .story-line.panic.story-line-sel { background: #FFE8E8; }
 
-.story-line.skip .story-line-status { background: #AAA; }
+.story-line.skip .story-line-status { background: #4E4E4E; }
 .story-line.skip:hover, .story-line.skip.story-line-sel { background: #F2F2F2; }
 
 .statusicon.ok { color: #76C13C; }
@@ -273,8 +281,9 @@ footer {
 	color: #999;
 }
 
-
-
+.clr-red {
+	color: #CC0000;
+}
 
 
 .tipsy-inner {

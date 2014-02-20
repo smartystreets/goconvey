@@ -64,20 +64,20 @@
 						</div>
 						<div class="setting">
 							<div class="setting-meta">
-								Packages Default
+								Default View
 							</div>
 							<div class="setting-val">
 								<ol class="enum" id="pkg-expand-collapse">
-									<li data-pkg-expand-collapse="expand">Expand All</li>
-									<li data-pkg-expand-collapse="collapse">Collapse All</li>
+									<li data-pkg-expand-collapse="expanded">Expand All</li>
+									<li data-pkg-expand-collapse="collapsed">Collapse All</li>
 								</ol>
 							</div>
 						</div>
-						<div class="setting">
+						<!--<div class="setting">
 							<div class="setting-val">
 								<label><input type="checkbox">Full coverage report</label>
 							</div>
-						</div>
+						</div>-->
 					</div>
 				</div>
 
@@ -321,9 +321,12 @@
 				<script id="tpl-stories" type="text/template">
 					<table>
 					{{.}}
-						<tr class="story-pkg expanded" data-pkg="{{_id}}" data-pkg-name="{{PackageName}}">
+						<tr class="story-pkg expanded pkg-{{_id}}" data-pkg="{{_id}}" data-pkg-name="{{PackageName}}" data-pkg-state="expanded">
 							<td colspan="2">
-								<a href="javascript:" class="fa fa-minus-square-o pkg-toggle"></a>
+								<span class="pkg-toggle-container">
+									<a href="javascript:" class="fa fa-minus-square-o pkg-toggle"></a>
+									<span class="toggle-all-pkg">ALL</span>
+								</span>
 							</td>
 							<td class="story-pkg-name">
 								{{PackageName|boldPkgName}}

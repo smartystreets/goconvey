@@ -25,11 +25,13 @@ body {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#040607', endColorstr='#2f4756',GradientType=0 );
 }
 
-a {
+a,
+.toggle-all-pkg {
 	color: #247D9E;
 }
 
-a:hover {
+a:hover,
+.toggle-all-pkg:hover {
 	color: #33B5E5;
 }
 
@@ -332,6 +334,9 @@ footer {
 }
 
 
+.clr-red {
+	color: #FF2222;
+}
 
 
 

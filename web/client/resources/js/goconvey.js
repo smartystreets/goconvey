@@ -23,13 +23,13 @@ var convey = {
 		panic: { class: 'panic', text: "Panic" },
 		buildfail: { class: 'buildfail', text: "Build Failure" }
 	},
-	notif: undefined,		// The notification currently being displayed
+	notif: undefined,		// the notification currently being displayed
 	intervals: {},			// intervals that execute periodically
 	poller: new Poller(),	// the server poller
 	status: "",				// what the _server_ is currently doing (not overall test results)
-	overallClass: "",		// The class name of the "overall" status banner
-	theme: "",				// current theme being used
-	packagePreferences: {}, // which packages were manually collapsed or expanded
+	overallClass: "",		// class name of the "overall" status banner
+	theme: "",				// theme currently being used
+	packageStates: {}, // packages manually collapsed or expanded during this page's lifetime
 	layout: {
 		selClass: "sel",	// CSS class when an element is "selected"
 		header: undefined,	// Container element of the header area (overall, controls)
@@ -44,10 +44,11 @@ $(init);
 
 function init()
 {
-	log("Welcome to GoConvey");
+	log("Welcome to GoConvey!");
 	log("Initializing interface");
 	convey.overall = emptyOverall();
 	loadTheme();
+	$('body').show();
 	initPoller();
 	wireup();
 }
@@ -58,11 +59,11 @@ function loadTheme(thmID)
 	var linkTagId = "themeRef";
 
 	if (!thmID)
-		thmID = get('theme');
+		thmID = get('theme') || defaultTheme;
 
 	log("Initializing theme: " + thmID);
 
-	if (!thmID || !convey.config.themes[thmID])
+	if (!convey.config.themes[thmID])
 	{
 		replacement = Object.keys(convey.config.themes)[0] || defaultTheme;
 		log("WARNING: Could not find '" + thmID + "' theme; defaulting to '" + replacement + "'");
@@ -83,7 +84,7 @@ function loadTheme(thmID)
 	}
 	else
 		linkTag.attr('href', fullPath);
-
+	
 	colorizeCoverageBars();	// their color is set dynamically, so we have to use the theme's template
 }
 
@@ -138,7 +139,7 @@ function initPoller()
 	$(convey.poller).on('serveridle', function(event, data)
 	{
 		log("Server status: idle");
-		// TODO: If execution just finished, get the latest...
+		// TODO: If execution just finished, get the latest...?
 	});
 
 	convey.poller.start();
@@ -157,21 +158,31 @@ function wireup()
 
 	enumSel("theme", convey.theme);
 
-	loadStorage();
+	loadSettingsFromStorage();
 
-	$('.enum#pkg-expand-collapse').on('click', 'li', function()
+	$('#stories').on('click', '.toggle-all-pkg', function(event)
 	{
-		var newSetting = $(this).data('pkg-expand-collapse');
-		if (enumItemNewlySelected(this))
-			save('pkg-expand-collapse', newSetting);
-		var storyPkgSelector = '.story-pkg' + (newSetting == "expand" ? '.collapsed' : '.expanded');
-		$(storyPkgSelector).each(function() { console.log($(this).data('pkg-name')); togglePackage(this, false); });
+		if ($(this).closest('.story-pkg').data('pkg-state') == "expanded")
+			collapseAll();
+		else
+			expandAll();
+		return suppress(event);
 	});
 
-	$('.enum#theme').on('click', 'li', function()
+	$('.enum#pkg-expand-collapse').on('click', 'li:not(.sel)', function()
 	{
-		if (enumItemNewlySelected(this))
-			loadTheme($(this).data('theme'));
+		var newSetting = $(this).data('pkg-expand-collapse');
+		convey.packageStates = {};
+		save('pkg-expand-collapse', newSetting);
+		if (newSetting == "expanded")
+			expandAll();
+		else
+			collapseAll();
+	});
+
+	$('.enum#theme').on('click', 'li:not(.sel)', function()
+	{
+		loadTheme($(this).data('theme'));
 	});
 
 	convey.layout.header = $('header').first();
@@ -285,6 +296,11 @@ function wireup()
 		return suppress(event);
 	});
 
+	$('#stories').on({
+		mouseenter: function() { $('.toggle-all-pkg', this).stop().show('fast'); },
+		mouseleave: function() { $('.toggle-all-pkg', this).stop().hide('fast'); }
+	}, '.pkg-toggle-container');
+
 	$('#stories').on('click', '.story-pkg', function(event)
 	{
 		togglePackage(this, true);
@@ -298,40 +314,68 @@ function wireup()
 	});
 }
 
-function togglePackage(storyPkg, savePreference)
+function expandAll()
 {
-	var pkg = $(storyPkg).data('pkg');
-	var toggler = $('.pkg-toggle', storyPkg);
+	$('.story-pkg').each(function() { expandPackage($(this).data('pkg')); });
+}
 
-	$('tr.story-line.pkg-'+pkg).toggle();
-	toggler.toggleClass('fa-minus-square-o fa-plus-square-o');
-	$(storyPkg).toggleClass('expanded collapsed');
+function collapseAll()
+{
+	$('.story-pkg').each(function() { collapsePackage($(this).data('pkg')); });
+}
 
-	if (savePreference)
+function expandPackage(pkgId)
+{
+	var pkg = $('.story-pkg.pkg-'+pkgId);
+	var rows = $('.story-line.pkg-'+pkgId);
+
+	pkg.data('pkg-state', "expanded").addClass('expanded').removeClass('collapsed');
+
+	$('.pkg-toggle', pkg)
+		.addClass('fa-minus-square-o')
+		.removeClass('fa-plus-square-o');
+
+	rows.show();
+}
+
+function collapsePackage(pkgId)
+{
+	var pkg = $('.story-pkg.pkg-'+pkgId);
+	var rows = $('.story-line.pkg-'+pkgId);
+
+	pkg.data('pkg-state', "collapsed").addClass('collapsed').removeClass('expanded');
+
+	$('.pkg-toggle', pkg)
+		.addClass('fa-plus-square-o')
+		.removeClass('fa-minus-square-o');
+
+	rows.hide();
+}
+
+function togglePackage(storyPkgElem)
+{
+	var pkgId = $(storyPkgElem).data('pkg');
+	if ($(storyPkgElem).data('pkg-state') == "expanded")
 	{
-		convey.packagePreferences[$(storyPkg).data('pkg-name')] =
-			$(storyPkg).hasClass('expanded') ? "expanded" : "collapsed";
-		save("packagePreferences", convey.packagePreferences);
+		collapsePackage(pkgId);
+		convey.packageStates[$(storyPkgElem).data('pkg-name')] = "collapsed";
+	}
+	else
+	{
+		expandPackage(pkgId);
+		convey.packageStates[$(storyPkgElem).data('pkg-name')] = "expanded";
 	}
 }
 
-function loadStorage()
+function loadSettingsFromStorage()
 {
 	var pkgExpCollapse = get("pkg-expand-collapse");
 	if (!pkgExpCollapse)
 	{
-		pkgExpCollapse = "expand";
+		pkgExpCollapse = "expanded";
 		save("pkg-expand-collapse", pkgExpCollapse);
 	}
 	enumSel("pkg-expand-collapse", pkgExpCollapse);
-
-	var pkgPreferences = get("packagePreferences");
-	if (!pkgPreferences)
-	{
-		pkgPreferences = {};
-		save("pkgPreferences", pkgPreferences);
-	}
-	convey.packagePreferences = pkgPreferences;
 }
 
 
@@ -568,19 +612,16 @@ function process(data, status, jqxhr)
 	else
 		$('.failures').hide();
 
-	$('#stories').html(render('tpl-stories', packages.tested));
+	$('#stories').html(render('tpl-stories', packages.tested.sort(sortPackages)));
+
+	var pkgDefaultView = get('pkg-expand-collapse');
+	$('.story-pkg.expanded').each(function()
+	{
+		if (pkgDefaultView == "collapsed" && convey.packageStates[$(this).data('pkg-name')] != "expanded")
+			collapsePackage($(this).data('pkg'));
+	});
 
 	colorizeCoverageBars();
-
-	if (get('pkg-expand-collapse') == "collapse")
-	{
-		$('.story-pkg').each(function()
-		{
-			if (convey.packagePreferences[$(this).data('pkg-name')] == "expanded")
-				return;
-			togglePackage(this, false);
-		});
-	}
 
 /*
 	// Show shortucts and builds/failures/panics details
@@ -920,9 +961,10 @@ function colorizeCoverageBars()
 	{
 		var hue = $(this).data("width");
 		$(this).css({
-			background: colorTpl.replace("{{hue}}", hue),
+			background: colorTpl.replace("{{hue}}", hue)
+		}).animate({
 			width: hue + "%"
-		});
+		}, 1000);
 	});
 }
 
@@ -1000,7 +1042,7 @@ function sortPackages(a, b)
 function get(key)
 {
 	var val = localStorage.getItem(key);
-	if (val[0] == '[' || val[0] == '{')
+	if (val && (val[0] == '[' || val[0] == '{'))
 		return JSON.parse(val);
 	else
 		return val;
@@ -1019,11 +1061,6 @@ function splitPathName(str)
 {
 	var delim = str.indexOf('\\') > -1 ? '\\' : '/';
 	return { delim: delim, parts: str.split(delim) };
-}
-
-function enumItemNewlySelected(itemElem)
-{
-	return !$(itemElem).hasClass(convey.layout.selClass);
 }
 
 function newState()

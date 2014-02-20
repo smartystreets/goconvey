@@ -57,6 +57,7 @@ body {
 	line-height: 1.5em;
 	font-size: 14px;
 	overflow: hidden;
+	display: none;
 }
 
 a {
@@ -439,6 +440,20 @@ input[type=text] {
 .story-line td {
 	padding-top: 7px;
 	padding-bottom: 7px;
+}
+
+.pkg-toggle-container {
+	position: relative;
+	display: inline-block;
+}
+
+.toggle-all-pkg {
+	font-size: 10px;
+	text-transform: uppercase;
+	position: absolute;
+	padding: 5px;
+	font-family: 'Menlo', 'Open Sans', sans-serif;
+	display: none;
 }
 
 .story-line-summary-container {
