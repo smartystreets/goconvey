@@ -84,7 +84,7 @@ function loadTheme(thmID)
 	}
 	else
 		linkTag.attr('href', fullPath);
-	
+
 	colorizeCoverageBars();	// their color is set dynamically, so we have to use the theme's template
 }
 
@@ -426,6 +426,7 @@ function process(data, status, jqxhr)
 
 	var packages = {
 		tested: [],
+		coverage: {},
 		nogofiles: [],
 		notestfiles: [],
 		notestfn: []
@@ -453,7 +454,10 @@ function process(data, status, jqxhr)
 		else if (pkg.Outcome == "no test functions")
 			packages.notestfn.push(pkg);
 		else
+		{
+			packages.coverage[pkg.PackageName] = pkg.Coverage;
 			packages.tested.push(pkg);
+		}
 
 
 		for (var j in pkg.TestResults)
@@ -575,14 +579,16 @@ function process(data, status, jqxhr)
 	else
 		changeStatus(convey.statuses.pass);
 
+	// Save our organized package lists
+	current().packages = packages;
 
 
-	// Render... Render ALL THE THINGS!
+	// Render... Render ALL THE THINGS! (all model/state modifications are DONE!)
 
-	$('#coverage').html(render('tpl-coverage', data.Packages.sort(sortPackages)));
-	$('#nogofiles').html(render('tpl-nogofiles', packages.nogofiles));
-	$('#notestfiles').html(render('tpl-notestfiles', packages.notestfiles));
-	$('#notestfn').html(render('tpl-notestfn', packages.notestfn));
+	$('#coverage').html(render('tpl-coverage', packages.tested.sort(sortPackages)));
+	$('#nogofiles').html(render('tpl-nogofiles', packages.nogofiles.sort(sortPackages)));
+	$('#notestfiles').html(render('tpl-notestfiles', packages.notestfiles.sort(sortPackages)));
+	$('#notestfn').html(render('tpl-notestfn', packages.notestfn.sort(sortPackages)));
 
 	if (current().overall.failedBuilds)
 	{
@@ -959,12 +965,22 @@ function colorizeCoverageBars()
 
 	$('.pkg-cover-bar').each(function()
 	{
+		var pkgName = $(this).data("pkg");
 		var hue = $(this).data("width");
+		var hueDiff = hue;
+
+		if (convey.history.length > 1)
+		{
+			var oldHue = convey.history[convey.history.length - 2].packages.coverage[pkgName];
+			$(this).width(oldHue + "%");
+			hueDiff = hue - oldHue;
+		}
+
 		$(this).css({
 			background: colorTpl.replace("{{hue}}", hue)
 		}).animate({
-			width: hue + "%"
-		}, 1000);
+			width: "+=" + hueDiff + "%"
+		}, 1250);
 	});
 }
 
@@ -1021,8 +1037,8 @@ function sortPackages(a, b)
 	if (aPkg.length == 0 || bPkg.length == 0)
 		return 0;
 
-	var aName = aPkg.parts[aPkg.parts.length - 1];
-	var bName = bPkg.parts[bPkg.parts.length - 1];
+	var aName = aPkg.parts[aPkg.parts.length - 1].toLowerCase();
+	var bName = bPkg.parts[bPkg.parts.length - 1].toLowerCase();
 
 	if (aName < bName)
 		return -1;
@@ -1067,6 +1083,7 @@ function newState()
 {
 	return {
 		results: {},					// response from server (with some of our own context info)
+		packages: {},					// packages organized into statuses for convenience (like with coverage)
 		overall: emptyOverall(),		// overall status info, compiled from server's response
 		assertions: emptyAssertions(),	// lists of assertions, compiled from server's response
 		failedBuilds: []				// list of packages that failed to build

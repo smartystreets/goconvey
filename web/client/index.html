@@ -152,7 +152,7 @@
 						{{.}}
 						{{if Outcome|notequals>no go code}}
 						<div class="pkg-cover">
-							<div class="pkg-cover-bar" data-width="{{Coverage|coveragePct}}"></div>
+							<div class="pkg-cover-bar" data-pkg="{{PackageName}}" data-width="{{Coverage|coveragePct}}"></div>
 							<div class="pkg-cover-name rtl pad-right{{if Coverage|coveragePct|equals>0}} no-coverage{{/if}}" title="{{Coverage|coveragePct}}% coverage">
 								{{PackageName|boldPkgName}}
 							</div>
