@@ -320,7 +320,11 @@ input[type=text] {
 
 .pkg-cover {
 	position: relative;
-	cursor: pointer;
+}
+
+.pkg-cover a {
+	color: inherit !important;
+	text-decoration: none;
 }
 
 .pkg-cover-bar {
@@ -340,7 +344,7 @@ input[type=text] {
 .pkg-list {
 	font-family: 'Menlo', 'Share Tech Mono', monospace;
 	font-size: 10px;
-	padding-right: 5%;
+	padding-right: 2%;
 	white-space: nowrap;
 }
 

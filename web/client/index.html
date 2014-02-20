@@ -154,7 +154,7 @@
 						<div class="pkg-cover">
 							<div class="pkg-cover-bar" data-pkg="{{PackageName}}" data-width="{{Coverage|coveragePct}}"></div>
 							<div class="pkg-cover-name rtl pad-right{{if Coverage|coveragePct|equals>0}} no-coverage{{/if}}" title="{{Coverage|coveragePct}}% coverage">
-								{{PackageName|boldPkgName}}
+								<a class="fa fa-level-down" href="#pkg-{{_id}}" style="padding: 0 5px;"></a>{{if Coverage|more>0}}<a href="/reports/{{PackageName|coverageReportName}}.html" target="_blank">{{PackageName|boldPkgName}}</a>{{else}}{{PackageName|boldPkgName}}{{/if}}
 							</div>
 						</div>
 						{{/if}}
@@ -321,7 +321,7 @@
 				<script id="tpl-stories" type="text/template">
 					<table>
 					{{.}}
-						<tr class="story-pkg expanded pkg-{{_id}}" data-pkg="{{_id}}" data-pkg-name="{{PackageName}}" data-pkg-state="expanded">
+						<tr class="story-pkg expanded pkg-{{_id}}" data-pkg="{{_id}}" data-pkg-name="{{PackageName}}" data-pkg-state="expanded" id="pkg-{{_id}}">
 							<td colspan="2">
 								<span class="pkg-toggle-container">
 									<a href="javascript:" class="fa fa-minus-square-o pkg-toggle"></a>

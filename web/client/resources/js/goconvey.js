@@ -1191,7 +1191,11 @@ function customMarkupPipes()
 	{
 		var num = parseFloat(str);
 		return num < 0 ? "" : num + "% coverage";
-	}
+	};
+	Mark.pipes.coverageReportName = function(str)
+	{
+		return str.replace(/\//g, "-");
+	};
 }
 
 function suppress(event)
