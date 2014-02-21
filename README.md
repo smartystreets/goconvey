@@ -17,7 +17,6 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 - Readable, colorized console output (understandable by any manager, IT or not)
 - Test code generator
 - Desktop notifications (optional)
-- Auto-test script automatically runs tests in the terminal
 - Immediately open problem lines in [Sublime Text](http://www.sublimetext.com) ([some assembly required](https://github.com/asuth/subl-handler))
 
 **Menu:**
