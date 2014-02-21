@@ -103,7 +103,7 @@ func TestShouldResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"hi"}))
-	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "{bye}|{hi}|Expected: '{bye}' Actual: '{hi}' (Should resemble)!")
+	fail(t, so(Thing1{"hi"}, ShouldResemble, Thing1{"bye"}), "{bye}|{hi}|Expected: '{a:bye}' Actual: '{a:hi}' (Should resemble)!")
 }
 
 func TestShouldNotResemble(t *testing.T) {
@@ -111,7 +111,7 @@ func TestShouldNotResemble(t *testing.T) {
 	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}, Thing1{"hi"}), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"bye"}))
-	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}), "Expected '{hi}' to NOT resemble '{hi}' (but it did)!")
+	fail(t, so(Thing1{"hi"}, ShouldNotResemble, Thing1{"hi"}), "Expected '{a:hi}' to NOT resemble '{a:hi}' (but it did)!")
 }
 
 func TestShouldPointTo(t *testing.T) {
@@ -129,7 +129,7 @@ func TestShouldPointTo(t *testing.T) {
 
 	pass(t, so(t1, ShouldPointTo, t2))
 	fail(t, so(t1, ShouldPointTo, t3), fmt.Sprintf(
-		"%v|%v|Expected '&{}' (address: '%v') and '&{}' (address: '%v') to be the same address (but their weren't)!",
+		"%v|%v|Expected '&{a:}' (address: '%v') and '&{a:}' (address: '%v') to be the same address (but their weren't)!",
 		pointer3, pointer1, pointer1, pointer3))
 
 	t4 := Thing1{}
@@ -152,7 +152,7 @@ func TestShouldNotPointTo(t *testing.T) {
 	fail(t, so(t1, ShouldNotPointTo, t2, t3), "This assertion requires exactly 1 comparison values (you provided 2).")
 
 	pass(t, so(t1, ShouldNotPointTo, t3))
-	fail(t, so(t1, ShouldNotPointTo, t2), fmt.Sprintf("Expected '&{}' and '&{}' to be different references (but they matched: '%v')!", pointer1))
+	fail(t, so(t1, ShouldNotPointTo, t2), fmt.Sprintf("Expected '&{a:}' and '&{a:}' to be different references (but they matched: '%v')!", pointer1))
 
 	t4 := Thing1{}
 	t5 := t4
@@ -236,6 +236,7 @@ func TestShouldBeZeroValue(t *testing.T) {
 	fail(t, so("123", ShouldBeZeroValue), "|123|'123' should have been the zero value")                                //"Expected: (zero value) Actual: 123")
 	fail(t, so(" ", ShouldBeZeroValue), "| |' ' should have been the zero value")                                      //"Expected: (zero value) Actual:  ")
 	fail(t, so([]string{"Nonempty"}, ShouldBeZeroValue), "[]|[Nonempty]|'[Nonempty]' should have been the zero value") //"Expected: (zero value) Actual: [Nonempty]")
+	fail(t, so(struct{ a string }{a: "asdf"}, ShouldBeZeroValue), "{}|{asdf}|'{a:asdf}' should have been the zero value")
 	pass(t, so(0, ShouldBeZeroValue))
 	pass(t, so(false, ShouldBeZeroValue))
 	pass(t, so("", ShouldBeZeroValue))
