@@ -78,8 +78,10 @@ func (parent *scope) exit() {
 		if strings.HasPrefix(fmt.Sprintf("%v", problem), extraGoTest) {
 			panic(problem)
 		}
-		parent.panicked = true
-		parent.reporter.Report(reporting.NewErrorReport(problem))
+		if problem != failureHalt {
+			parent.panicked = true
+			parent.reporter.Report(reporting.NewErrorReport(problem))
+		}
 	}
 	parent.reporter.Exit()
 }

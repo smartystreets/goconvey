@@ -45,6 +45,17 @@ func TestFailureReported(t *testing.T) {
 	expectEqual(t, "Begin|A|Failure|Exit|End", myReporter.wholeStory())
 }
 
+func TestFirstFailureEndsScopeExecution(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	Convey("A", test, func() {
+		So(1, ShouldBeNil)
+		So(nil, ShouldBeNil)
+	})
+
+	expectEqual(t, "Begin|A|Failure|Exit|End", myReporter.wholeStory())
+}
+
 func TestComparisonFailureDeserializedAndReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
@@ -71,11 +82,11 @@ func TestSuccessAndFailureReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
 	Convey("A", test, func() {
-		So(1, ShouldBeNil)
 		So(nil, ShouldBeNil)
+		So(1, ShouldBeNil)
 	})
 
-	expectEqual(t, "Begin|A|Failure|Success|Exit|End", myReporter.wholeStory())
+	expectEqual(t, "Begin|A|Success|Failure|Exit|End", myReporter.wholeStory())
 }
 
 func TestIncompleteActionReportedAsSkipped(t *testing.T) {

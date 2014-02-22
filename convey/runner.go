@@ -8,9 +8,9 @@ import (
 )
 
 type runner struct {
-	top   *scope
-	chain map[string]string
-	out   reporting.Reporter
+	top      *scope
+	chain    map[string]string
+	reporter reporting.Reporter
 
 	awaitingNewStory bool
 	focus            bool
@@ -19,7 +19,7 @@ type runner struct {
 func (self *runner) Begin(entry *registration) {
 	self.focus = entry.Focus
 	self.ensureStoryCanBegin()
-	self.out.BeginStory(reporting.NewStoryReport(entry.Test))
+	self.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
 	self.Register(entry)
 }
 func (self *runner) ensureStoryCanBegin() {
@@ -37,7 +37,7 @@ func (self *runner) Register(entry *registration) {
 	self.ensureStoryAlreadyStarted()
 	parentAction := self.link(entry.action)
 	parent := self.accessScope(parentAction)
-	child := newScope(entry, self.out)
+	child := newScope(entry, self.reporter)
 	parent.adopt(child)
 }
 func (self *runner) ensureStoryAlreadyStarted() {
@@ -95,25 +95,28 @@ func (self *runner) Run() {
 	for !self.top.visited() {
 		self.top.visit()
 	}
-	self.out.EndStory()
+	self.reporter.EndStory()
 	self.awaitingNewStory = true
 }
 
 func newRunner() *runner {
 	self := new(runner)
-	self.out = newNilReporter()
-	self.top = newScope(newRegistration(topLevel, newAction(func() {}), nil), self.out)
+	self.reporter = newNilReporter()
+	self.top = newScope(newRegistration(topLevel, newAction(func() {}), nil), self.reporter)
 	self.chain = make(map[string]string)
 	self.awaitingNewStory = true
 	return self
 }
 
-func (self *runner) UpgradeReporter(out reporting.Reporter) {
-	self.out = out
+func (self *runner) UpgradeReporter(reporter reporting.Reporter) {
+	self.reporter = reporter
 }
 
 func (self *runner) Report(result *reporting.AssertionResult) {
-	self.out.Report(result)
+	self.reporter.Report(result)
+	if result.Failure != "" {
+		panic(failureHalt)
+	}
 }
 
 func last(group []string) string {
@@ -124,6 +127,7 @@ const topLevel = "TOP"
 const missingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T. 
     Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
 const extraGoTest = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+const failureHalt = "___FAILURE_HALT___"
 
 //////////////////////// nilReporter /////////////////////////////
 
