@@ -135,7 +135,21 @@ func TestSingleScopeWithMultipleRegistrationsAndMultipleResets(t *testing.T) {
 	expectEqual(t, "1ab2ab", output)
 }
 
-func TestPanicAtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
+func Test_Failure_AtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
+	output := prepare()
+
+	Convey("This step fails", t, func() {
+		So(1, ShouldEqual, 2)
+
+		Convey("this should NOT be executed", func() {
+			output += "a"
+		})
+	})
+
+	expectEqual(t, "", output)
+}
+
+func Test_Panic_AtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
 	output := prepare()
 
 	Convey("This step panics", t, func() {
@@ -149,7 +163,7 @@ func TestPanicAtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
 	expectEqual(t, "", output)
 }
 
-func TestPanicInChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {
+func Test_Panic_InChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {
 	output := prepare()
 
 	Convey("This is the parent", t, func() {
@@ -166,7 +180,24 @@ func TestPanicInChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T)
 	expectEqual(t, "2", output)
 }
 
-func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
+func Test_Failure_InChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {
+	output := prepare()
+
+	Convey("This is the parent", t, func() {
+		Convey("This step fails", func() {
+			So(1, ShouldEqual, 2)
+			output += "1"
+		})
+
+		Convey("This sibling should execute", func() {
+			output += "2"
+		})
+	})
+
+	expectEqual(t, "2", output)
+}
+
+func TestResetsAreAlwaysExecutedAfterScope_Panics(t *testing.T) {
 	output := prepare()
 
 	Convey("This is the parent", t, func() {
@@ -176,6 +207,31 @@ func TestResetsAreAlwaysExecutedAfterScopePanics(t *testing.T) {
 		})
 
 		Convey("This sibling step does not panic", func() {
+			output += "a"
+
+			Reset(func() {
+				output += "b"
+			})
+		})
+
+		Reset(func() {
+			output += "2"
+		})
+	})
+
+	expectEqual(t, "2ab2", output)
+}
+
+func TestResetsAreAlwaysExecutedAfterScope_Failures(t *testing.T) {
+	output := prepare()
+
+	Convey("This is the parent", t, func() {
+		Convey("This step fails", func() {
+			So(1, ShouldEqual, 2)
+			output += "1"
+		})
+
+		Convey("This sibling step does not fail", func() {
 			output += "a"
 
 			Reset(func() {
