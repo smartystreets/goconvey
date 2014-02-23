@@ -216,7 +216,7 @@
 									</td>
 									<td class="line">
 									{{if Line|more>0}}
-										<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>
+										<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>
 										{{/if}}
 									</td>
 								</tr>
@@ -260,7 +260,7 @@
 										<a href="#test-{{_id}}" class="block">{{if File|notempty}}{{File|relativePath}}{{else}}{{TestName}}{{/if}} <i class="fa fa-level-down"></i></a>
 									</td>
 									<td class="line">
-										{{if Line|more>0}}<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>{{/if}}
+										{{if Line|more>0}}<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}">Line {{Line}}</a>{{/if}}
 									</td>
 								</tr>
 								{{if Stories|empty}}
@@ -402,7 +402,7 @@
 					<div class="panic-shortcuts templated">
 						<b>Panics</b><hr>
 						{{.}}
-							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
 							<a href="#test-{{_id}}" class="goto" title="See in context"><i class="fa fa-level-down"></i></a><br>
 						{{/.}}
 					</div>
@@ -411,7 +411,7 @@
 					<div class="failure-shortcuts templated">
 						<b>Failures</b><hr>
 						{{.}}
-							<a href="subl://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
+							<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}">{{if File}}{{File|relativePath}}{{else}}{{TestName}}{{/if}}{{if Line}}:{{Line}}{{/if}}</a>
 							<a href="#test-{{_id}}" class="goto"><i class="fa fa-level-down"></i></a><br>
 						{{/.}}
 					</div>
