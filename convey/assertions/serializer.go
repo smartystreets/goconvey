@@ -16,8 +16,8 @@ type failureSerializer struct{}
 func (self *failureSerializer) serialize(expected, actual interface{}, message string) string {
 	view := reporting.FailureView{
 		Message:  message,
-		Expected: fmt.Sprintf("%v", expected),
-		Actual:   fmt.Sprintf("%v", actual),
+		Expected: fmt.Sprintf("%+v", expected),
+		Actual:   fmt.Sprintf("%+v", actual),
 	}
 	serialized, err := json.Marshal(view)
 	if err != nil {

@@ -18,8 +18,8 @@ func TestSerializerCreatesSerializedVersionOfAssertionResult(t *testing.T) {
 
 	expectedResult, _ := json.Marshal(reporting.FailureView{
 		Message:  message,
-		Expected: fmt.Sprintf("%v", thing1),
-		Actual:   fmt.Sprintf("%v", thing2),
+		Expected: fmt.Sprintf("%+v", thing1),
+		Actual:   fmt.Sprintf("%+v", thing2),
 	})
 
 	if actualResult != string(expectedResult) {
