@@ -244,7 +244,7 @@ function wireup()
 	});
 
 	$('#show-gen').click(function() {
-		var writer = window.open("/writer.html");
+		var writer = window.open("/composer.html");
 		if (window.focus)
 			writer.focus();
 	});
