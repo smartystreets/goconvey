@@ -13,7 +13,7 @@
 }
 
 body {
-	-webkit-transform: translate3d(0, 0, 0);	/* fixes Chrome glitch when changing themes */
+	/*-webkit-transform: translate3d(0, 0, 0);	/* fixes Chrome glitch when changing themes */
 	color: #D0D0D0;
 	background: fixed #040607;
 	background: fixed -moz-linear-gradient(top, hsl(200,27%,2%) 0%, hsl(203,29%,26%) 100%);
