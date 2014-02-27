@@ -225,6 +225,14 @@ footer {
 	background: rgba(0, 0, 0, .5);
 }
 
+footer .recording.live .fa {
+	color: #CC0000;
+}
+
+footer .recording.replay .fa {
+	color: #33B5E5;
+}
+
 
 
 .buildfail-pkg {

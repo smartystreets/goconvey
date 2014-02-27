@@ -509,17 +509,28 @@ input[type=text] {
 
 
 footer {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+
 	position: absolute;
 	bottom: 0;
 	left: 0;
+	padding: 5px 15px;
 	width: 100%;
 	border-top-width: 1px;
 	border-top-style: solid;
-	padding: 5px;
 	font-size: 12px;
 }
 
+footer section {
+	float: left;
+	width: 50%;
+}
 
+footer section:last-child {
+	text-align: right;
+}
 
 
 

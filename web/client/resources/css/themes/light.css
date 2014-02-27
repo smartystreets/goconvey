@@ -143,12 +143,22 @@ input[type=text] {
 }
 
 
+footer {
+	background: #F4F4F4;
+}
 
 .frame .col,
 footer {
 	border-color: #33B5E5;
 }
 
+footer .recording.live .fa {
+	color: #CC0000;
+}
+
+footer .recording.replay .fa {
+	color: #33B5E5;
+}
 
 
 .buildfail-pkg {

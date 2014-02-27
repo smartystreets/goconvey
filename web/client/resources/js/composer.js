@@ -42,6 +42,7 @@ $(function()
 	composer.template = $('#tpl-convey').text();
 
 	tabOverride.set(document.getElementById('input'));
+	$('#input').focus();
 });
 
 

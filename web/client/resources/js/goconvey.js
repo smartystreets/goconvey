@@ -4,7 +4,7 @@ var convey = {
 	config: {
 		// Install new themes by adding them here; the first one will be default
 		themes: {
-			"dark": { name: "Dark", filename: "dark.css", coverage: "hsla({{hue}}, 75%, 30%, .3)" },
+			"dark": { name: "Dark", filename: "dark.css", coverage: "hsla({{hue}}, 75%, 30%, .5)" },
 			"light": { name: "Light", filename: "light.css", coverage: "hsla({{hue}}, 62%, 75%, 1)" }
 		},
 
@@ -37,6 +37,7 @@ var convey = {
 		footer: undefined	// Container element of the footer (stuck to bottom)
 	},
 	history: [],			// Complete history of states (test results and aggregated data), including the current one
+	moments: {}				// Elements that display time relative to the current time, keyed by ID, with the moment() as a value
 };
 
 
@@ -284,6 +285,12 @@ function wireup()
 		var ms = zerofill(t.getMilliseconds(), 1);
 		$('#time').text(h + ":" + m + ":" + s + "." + ms);
 	}, 100);
+
+	convey.intervals.momentjs = setInterval(function()
+	{
+		for (var id in convey.moments)
+			$('#'+id).html(convey.moments[id].fromNow());
+	}, 5000);
 
 	$('#stories').on('click', '.fa.ignore', function(event)
 	{
@@ -634,6 +641,15 @@ function process(data, status, jqxhr)
 	});
 
 	redrawCoverageBars();
+
+	$('#assert-count').html("<b>"+current().overall.assertions+"</b> assertion"
+							+ (current().overall.assertions != 1 ? "s" : ""));
+	$('#fail-count').html("<b>"+current().assertions.failed.length + "</b> failed");
+	$('#panic-count').html("<b>"+current().assertions.panicked.length + "</b> panicked");
+	$('#duration').html("<b>"+current().overall.duration + "</b>s");
+
+	/*$('#last-test').html(moment().fromNow());*/
+	convey.moments['last-test'] = moment();
 
 /*
 	// Show shortucts and builds/failures/panics details
@@ -1103,7 +1119,8 @@ function newState()
 		packages: {},					// packages organized into statuses for convenience (like with coverage)
 		overall: emptyOverall(),		// overall status info, compiled from server's response
 		assertions: emptyAssertions(),	// lists of assertions, compiled from server's response
-		failedBuilds: []				// list of packages that failed to build
+		failedBuilds: [],				// list of packages that failed to build
+		timestamp: moment()				// the timestamp of this "freeze-state"
 	};
 }
 
