@@ -15,57 +15,55 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestScoring(t *testing.T) {
-	Convey("Subject: Bowling Game Scoring", t, func() {
-		var game *Game // Whatever you do, don't do this: game := NewGame()
-		// Otherwise nested closures won't reference the correct instance
+func TestBowlingGameScoring(t *testing.T) {
+	var game *Game // Whatever you do, don't do this: game := NewGame()
+	// Otherwise nested closures won't reference the correct instance
 
-		Convey("Given a fresh score card", func() {
-			game = NewGame()
+	Convey("Given a fresh score card", t, func() {
+		game = NewGame()
 
-			Convey("When all gutter balls are thrown", func() {
-				game.rollMany(20, 0)
+		Convey("When all gutter balls are thrown", func() {
+			game.rollMany(20, 0)
 
-				Convey("The score should be zero", func() {
-					So(game.Score(), ShouldEqual, 0)
-				})
+			Convey("The score should be zero", func() {
+				So(game.Score(), ShouldEqual, 0)
 			})
+		})
 
-			Convey("When all throws knock down only one pin", func() {
-				game.rollMany(20, 1)
+		Convey("When all throws knock down only one pin", func() {
+			game.rollMany(20, 1)
 
-				Convey("The score should be 20", func() {
-					So(game.Score(), ShouldEqual, 20)
-				})
+			Convey("The score should be 20", func() {
+				So(game.Score(), ShouldEqual, 20)
 			})
+		})
 
-			Convey("When a spare is thrown", func() {
-				game.rollSpare()
-				game.Roll(3)
-				game.rollMany(17, 0)
+		Convey("When a spare is thrown", func() {
+			game.rollSpare()
+			game.Roll(3)
+			game.rollMany(17, 0)
 
-				Convey("The score should include a spare bonus.", func() {
-					So(game.Score(), ShouldEqual, 16)
-				})
+			Convey("The score should include a spare bonus.", func() {
+				So(game.Score(), ShouldEqual, 16)
 			})
+		})
 
-			Convey("When a strike is thrown", func() {
-				game.rollStrike()
-				game.Roll(3)
-				game.Roll(4)
-				game.rollMany(16, 0)
+		Convey("When a strike is thrown", func() {
+			game.rollStrike()
+			game.Roll(3)
+			game.Roll(4)
+			game.rollMany(16, 0)
 
-				Convey("The score should include a strike bonus.", func() {
-					So(game.Score(), ShouldEqual, 24)
-				})
+			Convey("The score should include a strike bonus.", func() {
+				So(game.Score(), ShouldEqual, 24)
 			})
+		})
 
-			Convey("When all strikes are thrown", func() {
-				game.rollMany(21, 10)
+		Convey("When all strikes are thrown", func() {
+			game.rollMany(21, 10)
 
-				Convey("The score should be 300.", func() {
-					So(game.Score(), ShouldEqual, 300)
-				})
+			Convey("The score should be 300.", func() {
+				So(game.Score(), ShouldEqual, 300)
 			})
 		})
 	})
