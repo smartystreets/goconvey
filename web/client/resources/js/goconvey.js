@@ -648,7 +648,6 @@ function process(data, status, jqxhr)
 	$('#panic-count').html("<b>"+current().assertions.panicked.length + "</b> panicked");
 	$('#duration').html("<b>"+current().overall.duration + "</b>s");
 
-	/*$('#last-test').html(moment().fromNow());*/
 	convey.moments['last-test'] = moment();
 
 /*

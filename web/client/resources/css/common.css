@@ -525,11 +525,15 @@ footer {
 
 footer section {
 	float: left;
-	width: 50%;
+}
+
+footer section:first-child {
+	width: 80%;
 }
 
 footer section:last-child {
 	text-align: right;
+	width: 20%;
 }
 
 

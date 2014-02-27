@@ -84,6 +84,11 @@
 
 				<div class="expandable history">
 					<div class="container">
+
+
+
+
+						<!--
 						<div class="item ok">
 							<div class="status">1 min ago</div>
 							<div class="summary">PASS<br>3/3 pass<br>0 fail, 1 skip</div>
@@ -128,7 +133,16 @@
 							<div class="status">2 min ago</div>
 							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
 						</div>
+						-->
 					</div>
+					<script id="tpl-history" type="text/template">
+						{{.}}
+						<div class="item {{status}}">
+							<div class="status momentjs" id="frame-{{number}}"></div>
+							<div class="summary">{{status|upcase}}<br>{{pass}}/{{assertions}} pass<br>{{failed}} fail, {{skipped}} skip</div>
+						</div>
+						{{/.}}
+					</script>
 				</div>
 
 
