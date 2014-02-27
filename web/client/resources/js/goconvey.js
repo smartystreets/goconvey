@@ -243,6 +243,12 @@ function wireup()
 		toggle($('.settings'), $(this));
 	});
 
+	$('#show-gen').click(function() {
+		var writer = window.open("/writer.html");
+		if (window.focus)
+			writer.focus();
+	});
+
 	$('.controls li, .pkg-cover-name').tipsy({ live: true });
 
 	$('.toggler').not('.narrow').prepend('<i class="fa fa-angle-up fa-lg"></i>');
@@ -627,7 +633,7 @@ function process(data, status, jqxhr)
 			collapsePackage($(this).data('pkg'));
 	});
 
-	colorizeCoverageBars();
+	redrawCoverageBars();
 
 /*
 	// Show shortucts and builds/failures/panics details
@@ -958,11 +964,8 @@ function updateWatchPath()
 	});
 }
 
-function colorizeCoverageBars()
+function redrawCoverageBars()
 {
-	var colorTpl = convey.config.themes[convey.theme].coverage
-					|| "hsla({{hue}}, 75%, 30%, .3)";
-
 	$('.pkg-cover-bar').each(function()
 	{
 		var pkgName = $(this).data("pkg");
@@ -976,11 +979,25 @@ function colorizeCoverageBars()
 			hueDiff = hue - oldHue;
 		}
 
-		$(this).css({
-			background: colorTpl.replace("{{hue}}", hue)
-		}).animate({
+		$(this).animate({
 			width: "+=" + hueDiff + "%"
 		}, 1250);
+	});
+
+	colorizeCoverageBars();
+}
+
+function colorizeCoverageBars()
+{
+	var colorTpl = convey.config.themes[convey.theme].coverage
+					|| "hsla({{hue}}, 75%, 30%, .3)";	//default color template
+
+	$('.pkg-cover-bar').each(function()
+	{
+		var hue = $(this).data("width");
+		$(this).css({
+			background: colorTpl.replace("{{hue}}", hue)
+		});
 	});
 }
 
