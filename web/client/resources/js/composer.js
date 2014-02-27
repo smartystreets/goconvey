@@ -16,7 +16,7 @@ $(function()
 {
 	// Begin layout sizing
 	var headerHeight = $('header').outerHeight();
-	var padding = $('#input, #output').css('padding').replace("px", "") * 2;
+	var padding = $('#input, #output').css('padding-top').replace("px", "") * 2 + 1;
 	var outputPlaceholder = $('#output').text();
 
 	$(window).resize(function()
