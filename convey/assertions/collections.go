@@ -122,7 +122,7 @@ func ShouldBeEmpty(actual interface{}, expected ...interface{}) string {
 		}
 	}
 
-	return fmt.Sprintf("Expected %+v to be empty (but it wasn't)!", actual)
+	return fmt.Sprintf(shouldHaveBeenEmpty, actual)
 }
 
 // ShouldNotBeEmpty receives a single parameter (actual) and determines whether or not
@@ -136,5 +136,5 @@ func ShouldNotBeEmpty(actual interface{}, expected ...interface{}) string {
 	if empty := ShouldBeEmpty(actual, expected...); empty != success {
 		return success
 	}
-	return fmt.Sprintf("Expected %+v to NOT be empty (but it was)!", actual)
+	return fmt.Sprintf(shouldNotHaveBeenEmpty, actual)
 }

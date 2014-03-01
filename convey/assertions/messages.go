@@ -37,6 +37,8 @@ const ( // collections
 	shouldNotHaveBeenIn                 = "Expected '%v' NOT to be in the container (%v, but it was)!"
 	shouldHaveBeenAValidCollection      = "You must provide a valid container (was %v)!"
 	shouldHaveProvidedCollectionMembers = "This assertion requires at least 1 comparison value (you provided 0)."
+	shouldHaveBeenEmpty                 = "Expected %+v to be empty (but it wasn't)!"
+	shouldNotHaveBeenEmpty              = "Expected %+v to NOT be empty (but it was)!"
 )
 
 const ( // strings
