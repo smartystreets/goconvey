@@ -44,7 +44,7 @@ func ShouldNotPanic(actual interface{}, expected ...interface{}) (message string
 	defer func() {
 		recovered := recover()
 		if recovered != nil {
-			message = shouldNotHavePanicked
+			message = fmt.Sprintf(shouldNotHavePanicked, recovered)
 		} else {
 			message = success
 		}
