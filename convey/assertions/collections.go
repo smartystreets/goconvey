@@ -83,3 +83,58 @@ func shouldNotBeIn(actual interface{}, expected interface{}) string {
 	}
 	return success
 }
+
+// ShouldBeEmpty receives a single parameter (actual) and determines whether or not
+// calling len(actual) would return `0`. It obeys the rules specified by the len
+// function for determining length: http://golang.org/pkg/builtin/#len
+func ShouldBeEmpty(actual interface{}, expected ...interface{}) string {
+	if fail := need(0, expected); fail != success {
+		return fail
+	}
+
+	if actual == nil {
+		return success
+	}
+
+	value := reflect.ValueOf(actual)
+	switch value.Kind() {
+	case reflect.Slice:
+		if value.Len() == 0 {
+			return success
+		}
+	case reflect.Chan:
+		if value.Len() == 0 {
+			return success
+		}
+	case reflect.Map:
+		if value.Len() == 0 {
+			return success
+		}
+	case reflect.String:
+		if value.Len() == 0 {
+			return success
+		}
+	case reflect.Ptr:
+		elem := value.Elem()
+		kind := elem.Kind()
+		if (kind == reflect.Slice || kind == reflect.Array) && elem.Len() == 0 {
+			return success
+		}
+	}
+
+	return fmt.Sprintf("Expected %+v to be empty (but it wasn't)!", actual)
+}
+
+// ShouldNotBeEmpty receives a single parameter (actual) and determines whether or not
+// calling len(actual) would return a value greater than zero. It obeys the rules
+// specified by the `len` function for determining length: http://golang.org/pkg/builtin/#len
+func ShouldNotBeEmpty(actual interface{}, expected ...interface{}) string {
+	if fail := need(0, expected); fail != success {
+		return fail
+	}
+
+	if empty := ShouldBeEmpty(actual, expected...); empty != success {
+		return success
+	}
+	return fmt.Sprintf("Expected %+v to NOT be empty (but it was)!", actual)
+}
