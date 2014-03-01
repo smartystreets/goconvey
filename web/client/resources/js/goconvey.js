@@ -23,6 +23,8 @@ var convey = {
 		panic: { class: 'panic', text: "Panic" },
 		buildfail: { class: 'buildfail', text: "Build Failure" }
 	},
+	frameCounter: 0,		// gives each frame a unique ID
+	maxHistory: 20,			// how many tests to keep in the history
 	notif: undefined,		// the notification currently being displayed
 	intervals: {},			// intervals that execute periodically
 	poller: new Poller(),	// the server poller
@@ -425,7 +427,14 @@ function process(data, status, jqxhr)
 		return;
 	}
 
-	convey.history.push(newState());
+
+
+	convey.history.push(newFrame());
+
+
+
+
+
 	current().results = data;
 
 	updateWatchPath();
@@ -478,6 +487,7 @@ function process(data, status, jqxhr)
 			test = makeContext(pkg.TestResults[j]);
 			test._id = uniqueID++;
 			test._pkgid = pkg._id;
+			test._pkg = pkg.PackageName;
 
 			if (test.Stories.length == 0)
 			{
@@ -649,6 +659,18 @@ function process(data, status, jqxhr)
 	$('#duration').html("<b>"+current().overall.duration + "</b>s");
 
 	convey.moments['last-test'] = moment();
+
+
+
+
+	var framePiece = render('tpl-history', current());
+	$('.history .container').prepend(framePiece);
+	convey.moments['frame-'+current().id] = moment();
+	if (convey.history.length > convey.maxHistory)
+	{
+		convey.history.splice(0, 1);
+		$('.history .container .item').last().remove();
+	}
 
 /*
 	// Show shortucts and builds/failures/panics details
@@ -1111,7 +1133,7 @@ function splitPathName(str)
 	return { delim: delim, parts: str.split(delim) };
 }
 
-function newState()
+function newFrame()
 {
 	return {
 		results: {},					// response from server (with some of our own context info)
@@ -1119,7 +1141,8 @@ function newState()
 		overall: emptyOverall(),		// overall status info, compiled from server's response
 		assertions: emptyAssertions(),	// lists of assertions, compiled from server's response
 		failedBuilds: [],				// list of packages that failed to build
-		timestamp: moment()				// the timestamp of this "freeze-state"
+		timestamp: moment(),			// the timestamp of this "freeze-state"
+		id: convey.frameCounter++		// unique ID for this frame
 	};
 }
 
@@ -1159,7 +1182,7 @@ function makeContext(obj)
 
 function current()
 {
-	return convey.history[convey.history.length - 1] || newState();
+	return convey.history[convey.history.length - 1] || newFrame();
 }
 
 function assignStatus(obj)

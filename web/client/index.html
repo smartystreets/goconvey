@@ -136,12 +136,10 @@
 						-->
 					</div>
 					<script id="tpl-history" type="text/template">
-						{{.}}
-						<div class="item {{status}}">
-							<div class="status momentjs" id="frame-{{number}}"></div>
-							<div class="summary">{{status|upcase}}<br>{{pass}}/{{assertions}} pass<br>{{failed}} fail, {{skipped}} skip</div>
+						<div class="item {{overall.status.class}} frame-{{id}}">
+							<div class="status momentjs" id="frame-{{id}}"></div>
+							<div class="summary">{{overall.status.text|upcase}}<br>{{overall.passed}}/{{overall.assertions}} pass<br>{{overall.failures}} fail, {{overall.skipped}} skip</div>
 						</div>
-						{{/.}}
 					</script>
 				</div>
 

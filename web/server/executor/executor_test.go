@@ -35,13 +35,13 @@ func TestExecutor(t *testing.T) {
 			for i := 0; i < updateCount; i++ {
 				fixture.executor.setStatus(statusRotation(i, updateCount))
 
-				select {
+				/*select {
 				case val := <-fixture.executor.statusUpdate:
 					So(val, ShouldBeTrue)
 				default:
 					So(false, ShouldBeTrue)
 				}
-				/*Convey("The status notification channel should have a true value", func() {
+				Convey("The status notification channel should have a true value", func() {
 
 						// TODO: When issue #81 is fixed and Conveys can be nested
 						// inside loops agian, I'd rather put the select {...} stuff
@@ -137,7 +137,7 @@ func newExecutorFixture() *ExecutorFixture {
 	self := new(ExecutorFixture)
 	self.tester = newFakeTester()
 	self.parser = newFakeParser()
-	self.executor = NewExecutor(self.tester, self.parser, make(chan bool, 1))
+	self.executor = NewExecutor(self.tester, self.parser, make(chan chan string, 1))
 	self.folders = []*contract.Package{
 		&contract.Package{Active: true, Path: prefix + packageA, Name: packageA},
 		&contract.Package{Active: true, Path: prefix + packageB, Name: packageB},
