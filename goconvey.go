@@ -34,6 +34,8 @@ func flags() {
 	flag.IntVar(&packages, "packages", 10, "The number of packages to test in parallel. Higher == faster but more costly in terms of computing. (default: 10)")
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Warning: this will obfuscate line number reporting on panics and build failures! Requires Go 1.2+ and the go cover tool. (default: true)")
+	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
+
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
@@ -90,10 +92,10 @@ func wireup() (*contract.Monitor, contract.Server) {
 		panic(err)
 	}
 
-	fs := system.NewFileSystem()
+	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
 	shell := system.NewShell(gobin, cover, reports)
 
-	watcher := watch.NewWatcher(fs, shell)
+	watcher := watch.NewWatcher(depthLimit, shell)
 	watcher.Adjust(working)
 
 	parser := parse.NewParser(parse.ParsePackageResults)
@@ -103,7 +105,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	statusNotif := make(chan bool, 1)
 	executor := exec.NewExecutor(tester, parser, statusNotif)
 	server := api.NewHTTPServer(watcher, executor, statusNotif)
-	scanner := watch.NewScanner(fs, watcher)
+	scanner := watch.NewScanner(depthLimit, watcher)
 	monitor := contract.NewMonitor(scanner, watcher, executor, server, sleeper)
 
 	return monitor, server
@@ -120,6 +122,7 @@ var (
 	nap      time.Duration
 	packages int
 	cover    bool
+	depth    int
 
 	static  string
 	reports string
