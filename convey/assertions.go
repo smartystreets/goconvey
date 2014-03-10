@@ -28,6 +28,8 @@ var (
 	ShouldNotContain = assertions.ShouldNotContain
 	ShouldBeIn       = assertions.ShouldBeIn
 	ShouldNotBeIn    = assertions.ShouldNotBeIn
+	ShouldBeEmpty    = assertions.ShouldBeEmpty
+	ShouldNotBeEmpty = assertions.ShouldNotBeEmpty
 
 	ShouldStartWith           = assertions.ShouldStartWith
 	ShouldNotStartWith        = assertions.ShouldNotStartWith
