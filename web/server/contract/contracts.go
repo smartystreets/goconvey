@@ -34,8 +34,8 @@ type (
 		Deletion(folder string)
 		Creation(folder string)
 
-		Ignore(folder string)
-		Reinstate(folder string)
+		Ignore(folders string)
+		Reinstate(folders string)
 
 		WatchedFolders() []*Package
 		IsWatched(folder string) bool
