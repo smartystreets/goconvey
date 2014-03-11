@@ -223,9 +223,9 @@ function initHandlers()
 		if ($(this).hasClass('disabled'))
 			return;
 		else if ($(this).hasClass('unwatch'))
-			$.get("/ignore", { path: $(this).data("pkg") });
+			$.get("/ignore", { paths: $(this).data("pkg") });
 		else
-			$.get("/reinstate", { path: $(this).data("pkg") });
+			$.get("/reinstate", { paths: $(this).data("pkg") });
 
 		$(this).toggleClass('watch')
 			.toggleClass('unwatch')
