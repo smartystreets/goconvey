@@ -249,9 +249,12 @@ function initHandlers()
 				$.get("/reinstate", { paths: generatePathsString(packages) });
 			}
 		} else {
-			packages = getAllOtherPackageElements($(this))
-			toggleClasses(getUnwatchedPackages(packages))
-			toggleClass(ignoreSibling)
+			packages = getAllOtherPackageElements($(this));
+			unwatched = getUnwatchedPackages(packages);
+			if (unwatched) {
+				toggleClasses(unwatched);
+			}
+			toggleClass(ignoreSibling);
 
 			$.get("/reinstate", { paths: $(this).data("pkg") });
 			$.get("/ignore", { paths: generatePathsString(packages) });
@@ -295,12 +298,12 @@ function getAllOtherPackageElements(self) {
 
 function toggleClasses(elements) {
 	for (i = 0; i < elements.length; i++){
-		toggleClass(elements[i])
+		toggleClass(elements[i]);
 	}
 }
 
 function toggleClass(element) {
-		elements.toggleClass('watch')
+		element.toggleClass('watch')
 			.toggleClass('unwatch')
 			.toggleClass('fa-eye')
 			.toggleClass('fa-eye-slash')
@@ -311,14 +314,16 @@ function getUnwatchedPackages(elements) {
 	arr = []
 	for (i = 0; i < elements.length; i++){
 		if (elements[i].hasClass('unwatch')) {
-			arr.push(elements[i])
+			arr.push(elements[i]);
 		}
 	}
+
+	return arr;
 }
 function generatePathsString(elements) {
 	paths = [];
 	for (i = 0; i < elements.length; i++) {
-		paths.push(elements[i].data("pkg"))
+		paths.push(elements[i].data("pkg"));
 	}
 	return sortUnique(paths).join(";");
 }
