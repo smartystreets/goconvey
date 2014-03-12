@@ -232,15 +232,42 @@ function initHandlers()
 		if ($(this).hasClass('disabled'))
 			return;
 		else if ($(this).hasClass('unwatch'))
-			$.get("/ignore", { path: $(this).data("pkg") });
+			$.get("/ignore", { paths: $(this).data("pkg") });
 		else
-			$.get("/reinstate", { path: $(this).data("pkg") });
+			$.get("/reinstate", { paths: $(this).data("pkg") });
 
 		$(this).toggleClass('watch')
 			.toggleClass('unwatch')
 			.toggleClass('fa-eye')
 			.toggleClass('fa-eye-slash')
 			.toggleClass('clr-red');
+	});
+	// Unwatch all other packages (ignore-other) 
+	$('body').on('click', '.ignore-others', function()
+	{
+		ignoreSibling = $(this).siblings('.ignore')
+		if (ignoreSibling.hasClass('disabled')) {
+			return;
+		} else if (ignoreSibling.hasClass('unwatch')) {
+			packages = getAllOtherPackageElements($(this));
+			if (containsUnwatchedPackages(packages)) {
+				toggleClasses(packages);
+				$.get("/ignore", { paths: generatePathsString(packages) });
+			} else {
+				toggleClasses(packages);
+				$.get("/reinstate", { paths: generatePathsString(packages) });
+			}
+		} else {
+			packages = getAllOtherPackageElements($(this));
+			unwatched = getUnwatchedPackages(packages);
+			if (unwatched) {
+				toggleClasses(unwatched);
+			}
+			toggleClass(ignoreSibling);
+
+			$.get("/reinstate", { paths: $(this).data("pkg") });
+			$.get("/ignore", { paths: generatePathsString(packages) });
+		}
 	});
 	// END TOGGLERS
 
@@ -254,6 +281,65 @@ function initHandlers()
 			.fail(function() {
 				self.css('color', '#DD0000');
 			});
+	});
+}
+
+function containsUnwatchedPackages(elements) {
+	for (i = 0; i < elements.length; i++){
+		if (elements[i].hasClass('unwatch')) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function getAllOtherPackageElements(self) {
+	elements = [];
+	$(".ignore").each(function(i, element)
+	{
+		if (self.data("pkg") != $(element).data("pkg")) {
+			elements.push($(element));
+		}
+	});
+	return elements
+}
+
+function toggleClasses(elements) {
+	for (i = 0; i < elements.length; i++){
+		toggleClass(elements[i]);
+	}
+}
+
+function toggleClass(element) {
+		element.toggleClass('watch')
+			.toggleClass('unwatch')
+			.toggleClass('fa-eye')
+			.toggleClass('fa-eye-slash')
+			.toggleClass('clr-red');
+}
+
+function getUnwatchedPackages(elements) {
+	arr = []
+	for (i = 0; i < elements.length; i++){
+		if (elements[i].hasClass('unwatch')) {
+			arr.push(elements[i]);
+		}
+	}
+
+	return arr;
+}
+function generatePathsString(elements) {
+	paths = [];
+	for (i = 0; i < elements.length; i++) {
+		paths.push(elements[i].data("pkg"));
+	}
+	return sortUnique(paths).join(";");
+}
+
+function sortUnique(arr) {
+	return arr.sort().filter(function(el,i,a) {
+		return (i==a.indexOf(el));
 	});
 }
 

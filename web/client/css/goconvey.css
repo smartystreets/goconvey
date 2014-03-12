@@ -466,6 +466,10 @@ del, .failures th.expected {
 	float: right;
 }
 
+.package-story .ignore-others {
+	float: right;
+}
+
 .package-story .package-header {
 	position: relative;
 	z-index: 1;
