@@ -194,7 +194,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The body should contain a helpful error message", func() {
-					So(body, ShouldEqual, "No 'path' query string parameter included!")
+					So(body, ShouldEqual, "No 'paths' query string parameter included!")
 				})
 
 				Convey("The server should not ignore anything", func() {
@@ -235,7 +235,7 @@ func TestHTTPServer(t *testing.T) {
 				})
 
 				Convey("The body should contain a helpful error message", func() {
-					So(body, ShouldEqual, "No 'path' query string parameter included!")
+					So(body, ShouldEqual, "No 'paths' query string parameter included!")
 				})
 
 				Convey("The server should not ignore anything", func() {
@@ -376,7 +376,7 @@ func (self *ServerFixture) IgnoreMalformed() (status int, body string) {
 
 func (self *ServerFixture) Ignore(folder string) (status int, body string) {
 	escapedFolder := url.QueryEscape(folder)
-	request, _ := http.NewRequest("POST", "http://localhost:8080/ignore?path="+escapedFolder, nil)
+	request, _ := http.NewRequest("POST", "http://localhost:8080/ignore?paths="+escapedFolder, nil)
 	response := httptest.NewRecorder()
 
 	self.server.Ignore(response, request)
@@ -397,7 +397,7 @@ func (self *ServerFixture) ReinstateMalformed() (status int, body string) {
 
 func (self *ServerFixture) Reinstate(folder string) (status int, body string) {
 	escapedFolder := url.QueryEscape(folder)
-	request, _ := http.NewRequest("POST", "http://localhost:8080/reinstate?path="+escapedFolder, nil)
+	request, _ := http.NewRequest("POST", "http://localhost:8080/reinstate?paths="+escapedFolder, nil)
 	response := httptest.NewRecorder()
 
 	self.server.Reinstate(response, request)

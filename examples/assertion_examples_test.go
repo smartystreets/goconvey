@@ -42,6 +42,8 @@ func TestAssertions(t *testing.T) {
 		So([]int{1, 2, 3}, ShouldNotContain, 4)
 		So(1, ShouldBeIn, []int{1, 2, 3})
 		So(4, ShouldNotBeIn, []int{1, 2, 3})
+		So([]int{}, ShouldBeEmpty)
+		So([]int{1}, ShouldNotBeEmpty)
 	})
 
 	Convey("String assertions should be accessible", t, func() {
