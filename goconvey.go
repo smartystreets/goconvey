@@ -35,6 +35,7 @@ func flags() {
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Warning: this will obfuscate line number reporting on panics and build failures! Requires Go 1.2+ and the go cover tool. (default: true)")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
+	flag.StringVar(&testflags, "testflags", "", "Any extra flags to be passed to go test tool (default: true)`")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -93,7 +94,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	}
 
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
-	shell := system.NewShell(gobin, cover, reports)
+	shell := system.NewShell(gobin, testflags, cover, reports)
 
 	watcher := watch.NewWatcher(depthLimit, shell)
 	watcher.Adjust(working)
@@ -116,13 +117,14 @@ func sleeper() {
 }
 
 var (
-	port     int
-	host     string
-	gobin    string
-	nap      time.Duration
-	packages int
-	cover    bool
-	depth    int
+	port      int
+	host      string
+	gobin     string
+	nap       time.Duration
+	packages  int
+	cover     bool
+	depth     int
+	testflags string
 
 	static  string
 	reports string
