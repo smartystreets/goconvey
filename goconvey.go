@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/smartystreets/goconvey/web/server/api"
@@ -49,7 +50,7 @@ func folders() {
 
 func main() {
 	flag.Parse()
-	log.Printf("Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n", host, port, nap, cover)
+	log.Printf("Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [testflags: %v]\n", host, port, nap, cover, testflags)
 
 	monitor, server := wireup()
 
@@ -91,6 +92,13 @@ func wireup() (*contract.Monitor, contract.Server) {
 	working, err := os.Getwd()
 	if err != nil {
 		panic(err)
+	}
+
+	// Ensure testflags does not contain any disallowed flags
+	for _, a := range strings.Fields(testflags) {
+		if a == "-test.parallel" || a == "-parallel" {
+			log.Fatal("GoConvey does not support the parallel test flag")
+		}
 	}
 
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
