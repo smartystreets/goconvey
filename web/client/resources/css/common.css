@@ -51,6 +51,7 @@ html, body {
 }
 
 body {
+	-webkit-transform: translate3d(0, 0, 0);	/* attempts to fix Chrome glitching on Mac */
 	background-position: fixed;
 	background-repeat: no-repeat;
 	font-family: Menlo, Monaco, 'Courier New', monospace;
