@@ -9,9 +9,10 @@ import (
 )
 
 type Shell struct {
-	coverage bool
-	gobin    string
-	reports  string
+	coverage  bool
+	gobin     string
+	testflags string
+	reports   string
 }
 
 func (self *Shell) GoTest(directory, packageName string) (output string, err error) {
@@ -41,10 +42,16 @@ func (self *Shell) goTest(directory, packageName string) (output string, err err
 }
 
 func (self *Shell) runWithCoverage(directory, profile string) (string, error) {
-	return self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s", "-covermode=set", "-coverprofile="+profile)
+	args := []string{"test", "-v", "-timeout=-42s", "-covermode=set", "-coverprofile=" + profile}
+	args = append(args, strings.Split(strings.TrimSpace(self.testflags), " ")...)
+
+	return self.execute(directory, self.gobin, args...)
 }
 func (self *Shell) runWithoutCoverage(directory string) (string, error) {
-	return self.execute(directory, self.gobin, "test", "-v", "-timeout=-42s")
+	args := []string{"test", "-v", "-timeout=-42s"}
+	args = append(args, strings.Split(strings.TrimSpace(self.testflags), " ")...)
+
+	return self.execute(directory, self.gobin, args...)
 }
 
 func (self *Shell) generateCoverageReports(directory, profile, html string) {
@@ -70,9 +77,10 @@ func (self *Shell) Setenv(key, value string) error {
 	return nil
 }
 
-func NewShell(gobin string, cover bool, reports string) *Shell {
+func NewShell(gobin string, testflags string, cover bool, reports string) *Shell {
 	self := new(Shell)
 	self.gobin = gobin
+	self.testflags = testflags
 	self.reports = reports
 	if cover && goVersion_1_2_orGreater() {
 		self.coverage = true
