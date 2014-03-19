@@ -79,3 +79,7 @@ const ( // time comparisons
 	// format params: incorrect-index, previous-index, previous-time, incorrect-index, incorrect-time
 	shouldHaveBeenChronological = "The 'Time' at index [%d] should have happened after the previous one (but it didn't!):\n  [%d]: %s\n  [%d]: %s (see, it happened before!)"
 )
+
+const ( // implements
+	shouldImplement = "Expected '%v' implement '%v' (but was: '%v')!"
+)
