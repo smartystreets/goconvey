@@ -296,7 +296,8 @@ footer .recording.replay .fa {
 	color: #999;
 }
 
-.clr-red {
+.clr-red,
+a.clr-red {
 	color: #CC0000;
 }
 
