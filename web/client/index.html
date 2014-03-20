@@ -393,31 +393,21 @@
 
 		<footer>
 			<section>
-				<span id="time"></span>
-				
-				&nbsp; &bull; &nbsp;
-				
-				Last test <span id="last-test"><!-- Populated by Javascript --></span>
-				
-				&nbsp; &bull; &nbsp;
-				
-				<span id="assert-count"><!-- Populated by Javascript --></span>
-				
-				&nbsp; &bull; &nbsp;
-
-				<span id="skip-count"><!-- Populated by Javascript --></span>
-				
-				&nbsp; &bull; &nbsp;
-				
-				<span id="fail-count"><!-- Populated by Javascript --></span>
-
-				&nbsp; &bull; &nbsp;
-
-				<span id="panic-count"><!-- Populated by Javascript --></span>
-				
-				&nbsp; &bull; &nbsp;
-				
-				<span class="momentjs" id="duration"><!-- Populated by Javascript --></span>
+				<span id="summary">
+					<span class="info" id="time"><!-- Populated by Javascript --></span>
+					<span class="info" id="last-test-container">Last test <span id="last-test"><!-- Populated by Javascript --></span></span>
+					<span class="info" id="assert-count"><!-- Populated by Javascript --></span>
+					<span class="info skip-clr" id="skip-count"><!-- Populated by Javascript --></span>
+					<span class="info fail-clr" id="fail-count"><!-- Populated by Javascript --></span>
+					<span class="info panic-clr" id="panic-count"><!-- Populated by Javascript --></span>
+					<span class="momentjs" id="duration"><!-- Populated by Javascript --></span>
+				</span>
+				<span id="narrow-summary">
+					<span id="narrow-assert-count"><!-- Populated by Javascript --></span>:
+					<span class="skip-clr" id="narrow-skip-count"><!-- Populated by Javascript --></span> /
+					<span class="fail-clr" id="narrow-fail-count"><!-- Populated by Javascript --></span> /
+					<span class="panic-clr" id="narrow-panic-count"><!-- Populated by Javascript --></span>
+				</span>
 			</section>
 			<section>
 				<span class="server-not-down recording live">

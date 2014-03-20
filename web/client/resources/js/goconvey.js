@@ -39,7 +39,22 @@ var convey = {
 		footer: undefined	// Container element of the footer (stuck to bottom)
 	},
 	history: [],			// Complete history of states (test results and aggregated data), including the current one
-	moments: {}				// Elements that display time relative to the current time, keyed by ID, with the moment() as a value
+	moments: {},			// Elements that display time relative to the current time, keyed by ID, with the moment() as a value
+	intervalFuncs: {		// Functions executed by each interval in convey.intervals
+		time: function()
+		{
+			var t = new Date();
+			var h = zerofill(t.getHours(), 2);
+			var m = zerofill(t.getMinutes(), 2);
+			var s = zerofill(t.getSeconds(), 2);
+			$('#time').text(h + ":" + m + ":" + s);
+		},
+		momentjs: function()
+		{
+			for (var id in convey.moments)
+				$('#'+id).html(convey.moments[id].fromNow());
+		}
+	}
 };
 
 
@@ -289,21 +304,9 @@ function wireup()
 	reframe();
 	latest();
 
-	convey.intervals.time = setInterval(function()
-	{
-		var t = new Date();
-		var h = zerofill(t.getHours(), 2);
-		var m = zerofill(t.getMinutes(), 2);
-		var s = zerofill(t.getSeconds(), 2);
-		var ms = zerofill(t.getMilliseconds(), 1);
-		$('#time').text(h + ":" + m + ":" + s + "." + ms);
-	}, 100);
-
-	convey.intervals.momentjs = setInterval(function()
-	{
-		for (var id in convey.moments)
-			$('#'+id).html(convey.moments[id].fromNow());
-	}, 5000);
+	convey.intervals.time = setInterval(convey.intervalFuncs.time, 1000);
+	convey.intervals.momentjs = setInterval(convey.intervalFuncs.momentjs, 5000);
+	convey.intervalFuncs.time();
 
 	$('#stories').on('click', '.fa.ignore', function(event)
 	{
@@ -661,8 +664,13 @@ function process(data, status, jqxhr)
 	$('#panic-count').html("<b>"+current().assertions.panicked.length + "</b> panicked");
 	$('#duration').html("<b>"+current().overall.duration + "</b>s");
 
-	convey.moments['last-test'] = moment();
+	$('#narrow-assert-count').html("<b>"+current().overall.assertions+"</b>");
+	$('#narrow-skip-count').html("<b>"+current().assertions.skipped.length + "</b>");
+	$('#narrow-fail-count').html("<b>"+current().assertions.failed.length + "</b>");
+	$('#narrow-panic-count').html("<b>"+current().assertions.panicked.length + "</b>");
 
+
+	convey.moments['last-test'] = moment();	// timestamp when this test was executed
 
 
 
@@ -674,6 +682,8 @@ function process(data, status, jqxhr)
 		convey.history.splice(0, 1);
 		$('.history .container .item').last().remove();
 	}
+
+	convey.intervalFuncs.momentjs();	// Shows "Last test ..." in footer immediately
 
 /*
 	// Show shortucts and builds/failures/panics details
@@ -1057,7 +1067,9 @@ function reframe()
 	var middleHeight = heightBelowHeader - convey.layout.footer.outerHeight();
 	convey.layout.frame.height(middleHeight);
 
-	$('#path-container').width($(window).width() - $('#logo').outerWidth() - $('#control-buttons').outerWidth() - 5);
+	var pathWidth = $(window).width() - $('#logo').outerWidth() - $('#control-buttons').outerWidth() - 5;
+	$('#path-container').width(pathWidth);
+
 }
 
 function notif()
@@ -1070,12 +1082,14 @@ function showServerDown(message)
 	$('.server-down .message').text(message);
 	$('.server-down').show();
 	$('.server-not-down').hide();
+	reframe();
 }
 
 function hideServerDown()
 {
 	$('.server-down').hide();
 	$('.server-not-down').show();
+	reframe();
 }
 
 function log(msg)
@@ -1242,7 +1256,8 @@ function customMarkupPipes()
 	Mark.pipes.boldPkgName = function(str)
 	{
 		var pkg = splitPathName(str);
-		pkg.parts[pkg.parts.length - 1] = "<b>" + pkg.parts[pkg.parts.length - 1] + "</b>";
+		pkg.parts[0] = '<span class="not-pkg-name">' + pkg.parts[0];
+		pkg.parts[pkg.parts.length - 1] = "</span><b>" + pkg.parts[pkg.parts.length - 1] + "</b>";
 		return pkg.parts.join(pkg.delim);
 	};
 	Mark.pipes.chopEnd = function(str, n)

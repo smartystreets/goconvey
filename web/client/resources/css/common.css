@@ -481,6 +481,7 @@ footer .server-down {
 
 .story-line-status {
 	width: 6px;
+	min-width: 6px;
 	height: 100%;
 }
 
@@ -518,8 +519,10 @@ footer .server-down {
 	padding-bottom: 1.5em;
 }
 
-
-
+.log .line {
+	padding-left: 2em;
+	text-indent: -2em;
+}
 
 
 
@@ -553,8 +556,17 @@ footer section:last-child {
 	width: 20%;
 }
 
+footer .info {
+	padding: 0 10px;
+}
 
+footer .info:first-child {
+	padding-left: 0;
+}
 
+#narrow-summary {
+	display: none;
+}
 
 
 
@@ -703,6 +715,16 @@ footer section:last-child {
 	#col-3 {
 		display: none;
 	}
+
+	footer #duration {
+		display: none;
+	}
+}
+
+@media (max-width: 900px) {
+	footer #last-test-container {
+		display: none;
+	}
 }
 
 @media (min-width: 850px) and (max-width: 1220px) {
@@ -727,11 +749,27 @@ footer section:last-child {
 	#col-2 {
 		width: 100%;
 	}
+
+	#stories .story-pkg-name {
+		font-size: 14px;
+	}
+
+	#stories .story-pkg-watch-td {
+		display: none;
+	}
 }
 
 @media (max-width: 700px) {
 	#path-container {
 		display: none;
+	}
+
+	footer #time {
+		display: none;
+	}
+
+	footer .info {
+		padding: 0 5px;
 	}
 }
 
@@ -790,6 +828,30 @@ footer section:last-child {
 
 	.server-down {
 		font-size: 14px;
+	}
+
+	#stories .story-pkg-name {
+		font-size: 16px;
+	}
+	
+	#stories .not-pkg-name {
+		display: none;
+	}
+
+	#stories .story-pkg-summary {
+		display: none;
+	}
+
+	footer #duration {
+		display: none;
+	}
+
+	footer #summary {
+		display: none;
+	}
+
+	footer #narrow-summary {
+		display: inline;
 	}
 }
 

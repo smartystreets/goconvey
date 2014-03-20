@@ -332,9 +332,9 @@ footer .recording.replay .fa {
 .story-line.skip:hover, .story-line.skip.story-line-sel { background: rgba(255, 255, 255, .1); }
 
 .statusicon.ok { color: #76C13C; }
-.statusicon.fail, #fail-count { color: #EA9C4D; }
-.statusicon.panic, .statusicon.panic .fa, #panic-count { color: #FF3232; }
-.statusicon.skip, #skip-count { color: #888; }
+.statusicon.fail, .fail-clr { color: #EA9C4D; }
+.statusicon.panic, .statusicon.panic .fa, .panic-clr { color: #FF3232; }
+.statusicon.skip, .skip-clr { color: #888; }
 
 
 .log .timestamp {
