@@ -1007,7 +1007,7 @@ function notifSummary(overall)
 	if (overall.failedBuilds)
 		body += overall.failedBuilds + " build" + (overall.failedBuilds != 1 ? "s" : "") + " failed, ";
 	if (overall.failures)
-		body += overall.failed + " failed, ";
+		body += overall.failures + " failed, ";
 	if (overall.panics)
 		body += overall.panics + " panicked, ";
 
