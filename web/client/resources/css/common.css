@@ -516,10 +516,11 @@ footer .server-down {
 	font-size: 11px;
 	line-height: 1.5em;
 	padding: 5px;
-	padding-bottom: 1.5em;
+	padding-bottom: .5em;
 }
 
 .log .line {
+	white-space: pre-wrap;
 	padding-left: 2em;
 	text-indent: -2em;
 }

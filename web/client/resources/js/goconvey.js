@@ -136,7 +136,6 @@ function initPoller()
 		else if (convey.status != "idle" && data.status == "idle")
 		{
 			$('#run-tests').removeClass('spin-slowly disabled');
-			latest();	// TODO: Move this into server-is-idle handler?
 		}
 
 		switch (data.status)
@@ -167,7 +166,8 @@ function initPoller()
 	$(convey.poller).on('serveridle', function(event, data)
 	{
 		log("Server status: idle");
-		// TODO: If execution just finished, get the latest...?
+		log("Tests have finished executing");
+		latest();
 	});
 
 	convey.poller.start();
@@ -234,18 +234,23 @@ function wireup()
 		var self = $(this);
 		if (self.hasClass('spin-slowly') || self.hasClass('disabled'))
 			return;
+		log("Test run invoked from web UI");
 		$.get("/execute");
 	});
 
 	$('#play-pause').click(function()
 	{
+		if ($(this).hasClass("throb"))
+			log("Resuming auto-execution of tests");
+		else
+			log("Pausing auto-execution of tests");
 		$(this).toggleClass("throb " + convey.layout.selClass);
 	});
 
 	$('#toggle-notif').click(function()
 	{
+		log("Turning notifications " + (notif() ? "off" : "on"));
 		$(this).toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
-
 		save('notifications', !notif());
 
 		if (notif() && 'Notification' in window)
@@ -258,6 +263,8 @@ function wireup()
 						Notification.permission = per;
 				});
 			}
+			else
+				log("Permission denied to show desktop notification");
 		}
 	});
 
@@ -426,11 +433,15 @@ function process(data, status, jqxhr)
 	console.log("Latest", data, status, jqxhr);	// TODO: temp
 
 	if (!data || !data.Revision)
+	{
+		log("No data received or revision timestamp was missing");
 		return;
+	}
 
 	if (data.Revision == current().results.Revision)
 	{
-		changeStatus(current().overall.status);	// re-assure that status is unchanged
+		log("No changes");
+		changeStatus(current().overall.status);	// re-assures that status is unchanged
 		return;
 	}
 
@@ -444,6 +455,7 @@ function process(data, status, jqxhr)
 
 	current().results = data;
 
+	log("Updating watched path");
 	updateWatchPath();
 
 	// Remove all templated items from the DOM as we'll
@@ -452,7 +464,7 @@ function process(data, status, jqxhr)
 	$('.templated, .tipsy').remove();
 
 	var uniqueID = 0;
-
+	var coverageAvgHelper = { countedPackages: 0, coverageSum: 0 };
 	var packages = {
 		tested: [],
 		coverage: {},
@@ -460,6 +472,8 @@ function process(data, status, jqxhr)
 		notestfiles: [],
 		notestfn: []
 	};
+
+	log("Compiling package statistics");
 
 	// Look for failures and panics through the packages->tests->stories...
 	for (var i in data.Packages)
@@ -482,8 +496,10 @@ function process(data, status, jqxhr)
 			packages.notestfiles.push(pkg);
 		else if (pkg.Outcome == "no test functions")
 			packages.notestfn.push(pkg);
-		else
+		else if (pkg.Coverage >= 0)
 		{
+			coverageAvgHelper.coverageSum += pkg.Coverage;
+			coverageAvgHelper.countedPackages++;
 			packages.coverage[pkg.PackageName] = pkg.Coverage;
 			packages.tested.push(pkg);
 		}
@@ -594,7 +610,8 @@ function process(data, status, jqxhr)
 	current().overall.panics = current().assertions.panicked.length;
 	current().overall.failures = current().assertions.failed.length;
 	current().overall.skipped = current().assertions.skipped.length;
-
+	
+	current().overall.coverage = coverageAvgHelper.coverageSum / coverageAvgHelper.countedPackages;
 	current().overall.duration = Math.round(current().overall.duration * 1000) / 1000;
 
 	// Build failures trump panics,
@@ -612,8 +629,16 @@ function process(data, status, jqxhr)
 	// Save our organized package lists
 	current().packages = packages;
 
+	log("    Assertions: " + current().overall.assertions);
+	log("          Pass: " + current().overall.passed);
+	log("       Skipped: " + current().overall.skipped);
+	log("      Failures: " + current().overall.failures);
+	log("        Panics: " + current().overall.panics);
+	log("Build Failures: " + current().overall.failedBuilds);
+	log("      Coverage: " + current().overall.coverage + "%");
 
-	// Render... Render ALL THE THINGS! (all model/state modifications are DONE!)
+	// Render... render ALL THE THINGS! (All model/state modifications are DONE!)
+	log("Entering rendering phase");
 
 	$('#coverage').html(render('tpl-coverage', packages.tested.sort(sortPackages)));
 	$('#nogofiles').html(render('tpl-nogofiles', packages.nogofiles.sort(sortPackages)));
@@ -695,6 +720,7 @@ function process(data, status, jqxhr)
 	// Show notification, if enabled
 	if (notif())
 	{
+		log("Showing notification");
 		if (convey.notif)
 		{
 			clearTimeout(convey.notifTimer);
@@ -719,6 +745,8 @@ function process(data, status, jqxhr)
 
 	
 	// All done!
+	log("Rendering finished");
+	log("Processing complete");
 	$(convey).trigger('loaded');
 }
 
@@ -1185,7 +1213,8 @@ function emptyOverall()
 		panics: 0,
 		failures: 0,
 		skipped: 0,
-		failedBuilds: 0
+		failedBuilds: 0,
+		coverage: 0
 	};
 }
 
