@@ -485,6 +485,10 @@ input[type=text] {
 	font: 14px 'Open Sans', sans-serif;
 }
 
+.statusicon.skip {
+	font-size: 16px;
+}
+
 
 .depth-0 { padding-left: 1.5em !important; }
 .depth-1 { padding-left: 3em !important; }

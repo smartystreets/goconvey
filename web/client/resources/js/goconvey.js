@@ -654,6 +654,7 @@ function process(data, status, jqxhr)
 
 	$('#assert-count').html("<b>"+current().overall.assertions+"</b> assertion"
 							+ (current().overall.assertions != 1 ? "s" : ""));
+	$('#skip-count').html("<b>"+current().assertions.skipped.length + "</b> skipped");
 	$('#fail-count').html("<b>"+current().assertions.failed.length + "</b> failed");
 	$('#panic-count').html("<b>"+current().assertions.panicked.length + "</b> panicked");
 	$('#duration').html("<b>"+current().overall.duration + "</b>s");

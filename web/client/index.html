@@ -350,6 +350,7 @@
 								{{if _failed|more>0}}<span class="story-pkg-failure-count"><span class="statusicon fail">&#10007;</span> {{_failed}}
 								&nbsp;</span>{{/if}}
 								{{if _passed|more>0}}<span class="story-pkg-pass-count"><span class="statusicon ok">&#10003;</span> {{_passed}}</span>{{/if}}
+								{{if _skipped|more>0}}<span class="story-pkg-skip-count">&nbsp; <span class="statusicon skip"><b>S</b></span> {{_skipped}}</span>{{/if}}
 							</td>
 							<td class="story-pkg-watch-td">
 								<a class="fa fa-lg ignore {{if Outcome|notequals>ignored}}fa-eye unwatch{{else}}fa-eye-slash watch clr-red{{/if}}" href="javascript:" title="Toggle ignore" data-pkg="{{PackageName}}"></a>
@@ -446,6 +447,10 @@
 				&nbsp; &bull; &nbsp;
 				
 				<span id="assert-count"></span>
+				
+				&nbsp; &bull; &nbsp;
+
+				<span id="skip-count"></span>
 				
 				&nbsp; &bull; &nbsp;
 				
