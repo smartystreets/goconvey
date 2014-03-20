@@ -26,20 +26,21 @@ var convey = {
 	frameCounter: 0,		// gives each frame a unique ID
 	maxHistory: 20,			// how many tests to keep in the history
 	notif: undefined,		// the notification currently being displayed
-	intervals: {},			// intervals that execute periodically
+	notifTimer: undefined,	// the timer that clears the notifications automatically
 	poller: new Poller(),	// the server poller
 	status: "",				// what the _server_ is currently doing (not overall test results)
 	overallClass: "",		// class name of the "overall" status banner
 	theme: "",				// theme currently being used
-	packageStates: {}, // packages manually collapsed or expanded during this page's lifetime
+	packageStates: {},		// packages manually collapsed or expanded during this page's lifetime
 	layout: {
 		selClass: "sel",	// CSS class when an element is "selected"
-		header: undefined,	// Container element of the header area (overall, controls)
-		frame: undefined,	// Container element of the main body area (above footer)
-		footer: undefined	// Container element of the footer (stuck to bottom)
+		header: undefined,	// container element of the header area (overall, controls)
+		frame: undefined,	// container element of the main body area (above footer)
+		footer: undefined	// container element of the footer (stuck to bottom)
 	},
-	history: [],			// Complete history of states (test results and aggregated data), including the current one
-	moments: {},			// Elements that display time relative to the current time, keyed by ID, with the moment() as a value
+	history: [],			// complete history of states (test results and aggregated data), including the current one
+	moments: {},			// elements that display time relative to the current time, keyed by ID, with the moment() as a value
+	intervals: {},			// ntervals that execute periodically
 	intervalFuncs: {		// Functions executed by each interval in convey.intervals
 		time: function()
 		{
@@ -59,6 +60,12 @@ var convey = {
 
 
 $(init);
+
+$(window).load(function()
+{
+	// Things may shift after all the elements (images/fonts) are loaded
+	reframe();
+});
 
 function init()
 {
@@ -220,9 +227,9 @@ function wireup()
 
 	updateWatchPath();
 
-	// Updates the watched directory with the server and make sure it exists
 	$('#path').change(function()
 	{
+		// Updates the watched directory with the server and makes sure it exists
 		var tb = $(this);
 		var newpath = encodeURIComponent($.trim(tb.val()));
 		$.post('/watch?root='+newpath)
@@ -401,6 +408,9 @@ function loadSettingsFromStorage()
 		save("pkg-expand-collapse", pkgExpCollapse);
 	}
 	enumSel("pkg-expand-collapse", pkgExpCollapse);
+
+	if (notif())
+		$('#toggle-notif').toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
 }
 
 
@@ -669,86 +679,56 @@ function process(data, status, jqxhr)
 	$('#narrow-fail-count').html("<b>"+current().assertions.failed.length + "</b>");
 	$('#narrow-panic-count').html("<b>"+current().assertions.panicked.length + "</b>");
 
+	convey.moments['last-test'] = moment();	// save timestamp when this test was executed
 
-	convey.moments['last-test'] = moment();	// timestamp when this test was executed
-
-
-
+	// Render the frame in the history pane
 	var framePiece = render('tpl-history', current());
 	$('.history .container').prepend(framePiece);
 	convey.moments['frame-'+current().id] = moment();
 	if (convey.history.length > convey.maxHistory)
 	{
+		// Delete the oldest frame out of the history pane
 		convey.history.splice(0, 1);
 		$('.history .container .item').last().remove();
 	}
 
 	convey.intervalFuncs.momentjs();	// Shows "Last test ..." in footer immediately
 
-/*
-	// Show shortucts and builds/failures/panics details
-	if (convey.overall.failedBuilds > 0)
-	{
-		$('#right-sidebar').append(render('tpl-builds-shortcuts', convey.failedBuilds));
-		$('#contents').append(render('tpl-builds', convey.failedBuilds));
-	}
-	if (convey.overall.panics > 0)
-	{
-		$('#right-sidebar').append(render('tpl-panic-shortcuts', convey.assertions.panicked));
-		$('#contents').append(render('tpl-panics', convey.assertions.panicked));
-	}
-	if (convey.overall.failures > 0)
-	{
-		$('#right-sidebar').append(render('tpl-failure-shortcuts', convey.assertions.failed));
-		$('#contents').append(render('tpl-failures', convey.assertions.failed));
-	}
 
-	// Show stories
-	$('#contents').append(render('tpl-stories', data));
+	// TODO: An homage to Star Wars?
+	//if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
+	//	$('body').append(render('tpl-ok-audio'));
 
-	// Show shortcut links to packages
-	$('#left-sidebar').append(render('tpl-packages', data.Packages.sort(sortPackages)));
-
-	// Compute diffs
-	$(".failure").each(function() {
-		$(this).prettyTextDiff();
-	});
-
-
-	// Finally, show all the results at once, which appear below the banner,
-	// and hide the loading spinner, and update the title
-
-	$('#loading').hide();
-	
-	var cleanSummary = $.trim($('.overall .summary').text())
-						.replace(/\n+\s*|\s-\s/g, ', ')
-						.replace(/\s+|\t|-/ig, ' ');
-	$('title').text("GoConvey: " + cleanSummary);
-
-	// An homage to Star Wars
-	if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
-		$('body').append(render('tpl-ok-audio'));
-
+		
+	// Show notification, if enabled
 	if (notif())
 	{
 		if (convey.notif)
+		{
+			clearTimeout(convey.notifTimer);
 			convey.notif.close();
+		}
 
-		var cleanStatus = $.trim($('.overall:visible .status').text()).toUpperCase();
+		var notifText = notifSummary(current().overall)
 
-		convey.notif = new Notification(cleanStatus, {
-			body: cleanSummary,
+		convey.notif = new Notification(notifText.title, {
+			body: notifText.body,
 			icon: $('.favicon').attr('href')
 		});
 
-		setTimeout(function() { convey.notif.close(); }, 3500);
+		convey.notifTimer = setTimeout(function() { convey.notif.close(); }, 5000);
 	}
-*/
+
+	// Update title in title bar
+	if (current().overall.passed == current().overall.assertions && current().overall.status.class == "ok")
+		$('title').text("GoConvey (ALL PASS)");
+	else
+		$('title').text("GoConvey (" + current().overall.passed + "/" + current().overall.assertions + " pass)");
+
 	
 	// All done!
 	$(convey).trigger('loaded');
 }
-
 
 
 
@@ -1018,6 +998,27 @@ function updateWatchPath()
 	});
 }
 
+function notifSummary(overall)
+{
+	var body = "(" + overall.duration + "s)\r\n";
+
+	body += overall.passed + " passed, ";
+
+	if (overall.failedBuilds)
+		body += overall.failedBuilds + " build" + (overall.failedBuilds != 1 ? "s" : "") + " failed, ";
+	if (overall.failures)
+		body += overall.failed + " failed, ";
+	if (overall.panics)
+		body += overall.panics + " panicked, ";
+
+	body += overall.skipped + " skipped";
+
+	return {
+		title: overall.status.text.toUpperCase(),
+		body: body
+	};
+}
+
 function redrawCoverageBars()
 {
 	$('.pkg-cover-bar').each(function()
@@ -1067,7 +1068,7 @@ function reframe()
 	var middleHeight = heightBelowHeader - convey.layout.footer.outerHeight();
 	convey.layout.frame.height(middleHeight);
 
-	var pathWidth = $(window).width() - $('#logo').outerWidth() - $('#control-buttons').outerWidth() - 5;
+	var pathWidth = $(window).width() - $('#logo').outerWidth() - $('#control-buttons').outerWidth() - 10;
 	$('#path-container').width(pathWidth);
 
 }
