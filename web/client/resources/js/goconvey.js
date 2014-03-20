@@ -1058,8 +1058,8 @@ function notif()
 
 function log(msg)
 {
-	var logElem = $('#log')[0];
-	if (logElem)
+	var jqLog = $('#log');
+	if (jqLog.length > 0)
 	{
 		var t = new Date();
 		var h = zerofill(t.getHours(), 2);
@@ -1068,8 +1068,8 @@ function log(msg)
 		var ms = zerofill(t.getMilliseconds(), 3);
 		date = h + ":" + m + ":" + s + "." + ms;
 
-		$(logElem).append(render('tpl-log-line', { time: date, msg: msg }));
-		$(logElem).scrollTop(logElem.scrollHeight);
+		$(jqLog).append(render('tpl-log-line', { time: date, msg: msg }));
+		$(jqLog).parent('.col').scrollTop(jqLog[0].scrollHeight);
 	}
 	else
 		console.log(msg);

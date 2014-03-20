@@ -425,13 +425,12 @@
 				<div class="toggler" data-toggle="log">
 					LOG
 				</div>
-				<div class="togglable log" id="log">
-					<script id="tpl-log-line" type="text/template">
-						<div class="line">
-							<span class="timestamp">[{{time}}]</span> {{msg|clean}}
-						</div>
-					</script>
-				</div>
+				<div class="togglable log" id="log"></div>
+				<script id="tpl-log-line" type="text/template">
+					<div class="line">
+						<span class="timestamp">[{{time}}]</span> {{msg|clean}}
+					</div>
+				</script>
 			</div>
 
 		</div>

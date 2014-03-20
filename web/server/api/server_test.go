@@ -65,8 +65,8 @@ func TestHTTPServer(t *testing.T) {
 				}
 			}()
 
-			Convey("When the status is changed by the executor, the response should immediately reflect that", func() {
-				/*for i := 0; i < lpRequests; i++ {
+			SkipConvey("When the status is changed by the executor, the response should immediately reflect that", func() {
+				for i := 0; i < lpRequests; i++ {
 					expectedStatus := statusRotation(i, lpRequests)
 					fixture.SetExecutorStatus(expectedStatus)
 
@@ -84,7 +84,7 @@ func TestHTTPServer(t *testing.T) {
 						// to actually make the assertions. Also see executor_test.go
 						// for a similar problem.
 					})
-				}*/
+				}
 			})
 		})
 
@@ -98,19 +98,6 @@ func TestHTTPServer(t *testing.T) {
 			Convey("The server returns HTTP 200 - OK", func() {
 				So(status, ShouldEqual, http.StatusOK)
 			})
-		})
-
-		Convey("When the root watch is queried as a new client", func() {
-			fixture.QueryRootWatch(true)
-
-			/*Convey("The status channel buffer should have a true value", func() {
-				select {
-				case val := <-fixture.server.statusUpdate:
-					So(val, ShouldBeTrue)
-				default:
-					So(false, ShouldBeTrue)
-				}
-			})*/
 		})
 
 		Convey("When the root watch is adjusted", func() {
@@ -407,11 +394,11 @@ func (self *ServerFixture) Reinstate(folder string) (status int, body string) {
 }
 
 func (self *ServerFixture) SetExecutorStatus(status string) {
-	/*self.executor.status = status
+	self.executor.status = status
 	select {
-	case self.executor.statusUpdate <- true:
+	case self.executor.statusUpdate <- make(chan string):
 	default:
-	}*/
+	}
 }
 
 func (self *ServerFixture) RequestExecutorStatus() (code int, status string) {
@@ -489,6 +476,7 @@ func newFakeWatcher() *FakeWatcher {
 type FakeExecutor struct {
 	status       string
 	executed     bool
+	statusFlag   bool
 	statusUpdate chan chan string
 }
 
@@ -496,14 +484,16 @@ func (self *FakeExecutor) Status() string {
 	return self.status
 }
 
+func (self *FakeExecutor) ClearStatusFlag() bool {
+	hasNewStatus := self.statusFlag
+	self.statusFlag = false
+	return hasNewStatus
+}
+
 func (self *FakeExecutor) ExecuteTests(watched []*contract.Package) *contract.CompleteOutput {
 	output := new(contract.CompleteOutput)
 	output.Revision = watched[0].Path
 	return output
-}
-
-func (self *FakeExecutor) ClearStatusFlag() bool {
-	return true
 }
 
 func newFakeExecutor(status string, statusUpdate chan chan string) *FakeExecutor {
