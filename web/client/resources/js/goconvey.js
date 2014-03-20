@@ -321,9 +321,9 @@ function wireup()
 		if ($(this).hasClass('disabled'))
 			return;
 		else if ($(this).hasClass('unwatch'))
-			$.get("/ignore", { path: pkg });
+			$.get("/ignore", { paths: pkg });
 		else
-			$.get("/reinstate", { path: pkg });
+			$.get("/reinstate", { paths: pkg });
 		$(this).toggleClass('watch unwatch fa-eye fa-eye-slash clr-red');
 		return suppress(event);
 	});
