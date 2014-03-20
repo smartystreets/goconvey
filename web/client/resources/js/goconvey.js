@@ -244,6 +244,7 @@ function wireup()
 			log("Resuming auto-execution of tests");
 		else
 			log("Pausing auto-execution of tests");
+
 		$(this).toggleClass("throb " + convey.layout.selClass);
 	});
 
@@ -496,9 +497,10 @@ function process(data, status, jqxhr)
 			packages.notestfiles.push(pkg);
 		else if (pkg.Outcome == "no test functions")
 			packages.notestfn.push(pkg);
-		else if (pkg.Coverage >= 0)
+		else
 		{
-			coverageAvgHelper.coverageSum += pkg.Coverage;
+			if (pkg.Coverage >= 0)
+				coverageAvgHelper.coverageSum += pkg.Coverage;
 			coverageAvgHelper.countedPackages++;
 			packages.coverage[pkg.PackageName] = pkg.Coverage;
 			packages.tested.push(pkg);
