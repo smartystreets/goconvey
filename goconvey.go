@@ -114,7 +114,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	longpollChan := make(chan chan string)
 	executor := exec.NewExecutor(tester, parser, longpollChan)
 	server := api.NewHTTPServer(watcher, executor, longpollChan)
-	scanner := watch.NewScanner(fs, watcher)
+	scanner := watch.NewScanner(depthLimit, watcher)
 	monitor := contract.NewMonitor(scanner, watcher, executor, server, sleeper)
 
 	return monitor, server
