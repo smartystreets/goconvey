@@ -455,7 +455,7 @@ function process(data, status, jqxhr)
 
 	current().results = data;
 
-	log("Updating watched path");
+	log("Updating watch path");
 	updateWatchPath();
 
 	// Remove all templated items from the DOM as we'll
@@ -532,6 +532,13 @@ function process(data, status, jqxhr)
 					pkg._failed++;
 					test._failed++;
 					current().assertions.failed.push(test);
+				}
+				else if (test.Skipped)
+				{
+					test._status = convey.statuses.skipped;
+					pkg._skipped++;
+					test._skipped++;
+					current().assertions.skipped.push(test);
 				}
 				else
 				{
