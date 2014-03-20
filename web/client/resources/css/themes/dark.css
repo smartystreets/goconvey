@@ -82,6 +82,11 @@ input[type=text] {
 	color: #EEE;
 }
 
+.server-down {
+	background: rgba(255, 45, 45, 0.55);
+	color: #FFF;
+}
+
 .toggler {
 	background: #132535;
 }

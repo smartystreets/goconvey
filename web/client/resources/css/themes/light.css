@@ -53,6 +53,11 @@ a:hover {
 	color: #EEE;
 }
 
+.server-down {
+	background: #BB0000;
+	color: #FFF;
+}
+
 .toggler {
 	background: #6887A3;
 	color: #FFF;

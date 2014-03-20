@@ -152,6 +152,17 @@ input[type=text] {
 	cursor: pointer;
 }
 
+.server-down {
+	display: none;
+	text-align: center;
+	padding: 10px 0;
+}
+
+footer .server-down {
+	padding: 8px 15px;
+	text-transform: uppercase;
+}
+
 #logo {
 	font-family: 'Oswald', 'Impact', 'Arial Black', sans-serif;
 }
@@ -775,6 +786,10 @@ footer section:last-child {
 
 	.history .item .summary {
 		display: none;
+	}
+
+	.server-down {
+		font-size: 14px;
 	}
 }
 

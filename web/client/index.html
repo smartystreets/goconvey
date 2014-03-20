@@ -30,22 +30,28 @@
 			</div>
 
 			<div id="controls" class="controls hide-narrow">
-				<ul>
-					<li id="logo">GoConvey</li>
-				</ul>
+				<div class="server-not-down">
+					<ul>
+						<li id="logo">GoConvey</li>
+					</ul>
 
-				<div class="float-left" id="path-container">
-					<input type="text" id="path" placeholder="Watched directory">
+					<div class="float-left" id="path-container">
+						<input type="text" id="path" placeholder="Watched directory">
+					</div>
+
+					<ul class="float-right" id="control-buttons">
+						<li class="fa fa-pause" id="play-pause" title="Play/pause tests"></li>
+						<li class="fa fa-refresh" id="run-tests" title="Execute tests"></li>
+						<li class="fa fa-clock-o" id="show-history" title="Test history"></li>
+						<li class="fa fa-bell-o" id="toggle-notif" title="Toggle notifications"></li>
+						<li class="fa fa-cog" id="show-settings" title="Settings"></li>
+						<li class="fa fa-pencil-square-o" id="show-gen" title="Composer"></li>
+					</ul>
 				</div>
-
-				<ul class="float-right" id="control-buttons">
-					<li class="fa fa-pause" id="play-pause" title="Play/pause tests"></li>
-					<li class="fa fa-refresh" id="run-tests" title="Execute tests"></li>
-					<li class="fa fa-clock-o" id="show-history" title="Test history"></li>
-					<li class="fa fa-bell-o" id="toggle-notif" title="Toggle notifications"></li>
-					<li class="fa fa-cog" id="show-settings" title="Settings"></li>
-					<li class="fa fa-pencil-square-o" id="show-gen" title="Composer"></li>
-				</ul>
+				<div class="server-down">
+					<span class="flash">WARNING:</span>
+					<span class="message"><!-- Populated by Javascript --></span>
+				</div>
 
 				<hr class="clear">
 
@@ -83,58 +89,7 @@
 				</div>
 
 				<div class="expandable history">
-					<div class="container">
-
-
-
-
-						<!--
-						<div class="item ok">
-							<div class="status">1 min ago</div>
-							<div class="summary">PASS<br>3/3 pass<br>0 fail, 1 skip</div>
-						</div>
-						<div class="item fail">
-							<div class="status">2 min ago</div>
-							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-						</div>
-						<div class="item panic">
-							<div class="status">1 hr ago</div>
-							<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
-						</div>
-						<div class="item buildfail">
-							<div class="status">1 day ago</div>
-							<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
-						</div>
-						<div class="item fail">
-							<div class="status">2 min ago</div>
-							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-						</div>
-						<div class="item ok">
-							<div class="status">1 min ago</div>
-							<div class="summary">PASS<br>3/3 pass<br>0 fail, 1 skip</div>
-						</div>
-						<div class="item ok">
-							<div class="status">1 min ago</div>
-							<div class="summary">PASS<br>3/3 pass<br>0 fail, 1 skip</div>
-						</div>
-						<div class="item buildfail">
-							<div class="status">1 day ago</div>
-							<div class="summary">BUILD FAILED<br>0/1 pass<br>.0843s</div>
-						</div>
-						<div class="item panic">
-							<div class="status">1 hr ago</div>
-							<div class="summary">PANIC<br>0/2 pass<br>1 panic, 1 fail</div>
-						</div>
-						<div class="item fail">
-							<div class="status">2 min ago</div>
-							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-						</div>
-						<div class="item fail">
-							<div class="status">2 min ago</div>
-							<div class="summary">FAIL<br>0/1 pass<br>1 fail, 0 skip</div>
-						</div>
-						-->
-					</div>
+					<div class="container"><!-- Populated by Javascript --></div>
 					<script id="tpl-history" type="text/template">
 						<div class="item {{overall.status.class}} frame-{{id}}">
 							<div class="status momentjs" id="frame-{{id}}"></div>
@@ -159,7 +114,7 @@
 				<div class="toggler" data-toggle="coverage">
 					Coverage
 				</div>
-				<div class="togglable" id="coverage"></div>
+				<div class="togglable" id="coverage"><!-- Populated by Javascript --></div>
 				<script id="tpl-coverage" type="text/template">
 					<div class="templated">
 						{{.}}
@@ -180,7 +135,7 @@
 				<div class="toggler" data-toggle="notestfn">
 					No Test Functions
 				</div>
-				<div class="togglable" id="notestfn"></div>
+				<div class="togglable" id="notestfn"><!-- Populated by Javascript --></div>
 				<script id="tpl-notestfn" type="text/template">
 					<div class="templated">
 						<div class="rtl pkg-list">
@@ -195,7 +150,7 @@
 				<div class="toggler" data-toggle="notestfiles">
 					No Test Files
 				</div>
-				<div class="togglable" id="notestfiles"></div>
+				<div class="togglable" id="notestfiles"><!-- Populated by Javascript --></div>
 				<script id="tpl-notestfiles" type="text/template">
 					<div class="templated">
 						<div class="rtl pkg-list">
@@ -211,7 +166,7 @@
 				<div class="toggler" data-toggle="nogofiles">
 					No Go Files
 				</div>
-				<div class="togglable" id="nogofiles"></div>
+				<div class="togglable" id="nogofiles"><!-- Populated by Javascript --></div>
 				<script id="tpl-nogofiles" type="text/template">
 					<div class="templated">
 						<div class="rtl pkg-list">
@@ -238,7 +193,7 @@
 				<div class="toggler buildfailures" data-toggle="buildfailures">
 					Build Failures
 				</div>
-				<div class="togglable buildfailures" id="buildfailures"></div>
+				<div class="togglable buildfailures" id="buildfailures"><!-- Populated by Javascript --></div>
 				<script id="tpl-buildfailures" type="text/template">
 					<div class="templated">
 						{{.}}
@@ -255,7 +210,7 @@
 				<div class="toggler panics" data-toggle="panics">
 					Panics
 				</div>
-				<div class="togglable panics" id="panics"></div>
+				<div class="togglable panics" id="panics"><!-- Populated by Javascript --></div>
 				<script id="tpl-panics" type="text/template">
 					<div class="templated">
 						{{.}}
@@ -285,7 +240,7 @@
 				<div class="toggler failures" data-toggle="failures">
 					Failures
 				</div>
-				<div class="togglable failures" id="failures"></div>
+				<div class="togglable failures" id="failures"><!-- Populated by Javascript --></div>
 				<script id="tpl-failures" type="text/template">
 					<div class="templated">
 						{{.}}
@@ -329,7 +284,7 @@
 				<div class="toggler stories" data-toggle="stories">
 					Stories
 				</div>
-				<div class="togglable stories" id="stories"></div>
+				<div class="togglable stories" id="stories"><!-- Populated by Javascript --></div>
 
 				<script id="tpl-stories" type="text/template">
 					<table>
@@ -426,7 +381,7 @@
 				<div class="toggler" data-toggle="log">
 					LOG
 				</div>
-				<div class="togglable log" id="log"></div>
+				<div class="togglable log" id="log"><!-- Populated by Javascript --></div>
 				<script id="tpl-log-line" type="text/template">
 					<div class="line">
 						<span class="timestamp">[{{time}}]</span> {{msg|clean}}
@@ -442,31 +397,35 @@
 				
 				&nbsp; &bull; &nbsp;
 				
-				Last test <span id="last-test"></span>
+				Last test <span id="last-test"><!-- Populated by Javascript --></span>
 				
 				&nbsp; &bull; &nbsp;
 				
-				<span id="assert-count"></span>
+				<span id="assert-count"><!-- Populated by Javascript --></span>
 				
-				&nbsp; &bull; &nbsp;
-
-				<span id="skip-count"></span>
-				
-				&nbsp; &bull; &nbsp;
-				
-				<span id="fail-count"></span>
-
 				&nbsp; &bull; &nbsp;
 
-				<span id="panic-count"></span>
+				<span id="skip-count"><!-- Populated by Javascript --></span>
 				
 				&nbsp; &bull; &nbsp;
 				
-				<span class="momentjs" id="duration"></span>
+				<span id="fail-count"><!-- Populated by Javascript --></span>
+
+				&nbsp; &bull; &nbsp;
+
+				<span id="panic-count"><!-- Populated by Javascript --></span>
+				
+				&nbsp; &bull; &nbsp;
+				
+				<span class="momentjs" id="duration"><!-- Populated by Javascript --></span>
 			</section>
 			<section>
-				<span class="recording live">
+				<span class="server-not-down recording live">
 					<i class="fa fa-circle"></i> LIVE
+				</span>
+				<span class="server-down">
+					<i class="fa fa-exclamation-triangle fa-lg flash"></i>
+					<span class="message"><!-- Populated by Javascript --></span>
 				</span>
 			</section>
 		</footer>

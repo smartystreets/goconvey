@@ -97,11 +97,15 @@ function initPoller()
 	{
 		log("Server is starting...");
 		convey.status = "starting";
+		showServerDown("Server starting");
 		$('#run-tests').addClass('spin-slowly disabled');
 	});
 
 	$(convey.poller).on('pollsuccess', function(event, data)
 	{
+		if (convey.status != "starting")
+			hideServerDown();
+
 		// These two if statements determine if the server is now busy
 		// (and wasn't before) or is not busy (regardless of whether it was before)
 		if ((!convey.status || convey.status == "idle")
@@ -127,6 +131,13 @@ function initPoller()
 		}
 
 		convey.status = data.status;
+	});
+
+	$(convey.poller).on('pollfail', function(event, data)
+	{
+		log("Poll failed; server down");
+		convey.status = "down";
+		showServerDown("GoConvey server down");
 	});
 
 	$(convey.poller).on('serverexec', function(event, data)
@@ -407,15 +418,10 @@ function latest()
 
 function process(data, status, jqxhr)
 {
-	console.log("Latest", data, status, jqxhr);
+	console.log("Latest", data, status, jqxhr);	// TODO: temp
 
-/*
-	TODO: Handle server down
 	if (!data || !data.Revision)
-		return showServerDown(jqxhr, "starting");
-	else
-		$('#server-down').slideUp(convey.speed);
-*/
+		return;
 
 	if (data.Revision == current().results.Revision)
 	{
@@ -856,8 +862,6 @@ function Poller(config)
 
 		up = false;
 
-		log("Poll failed; server down");
-
 		downPoller = setInterval(function()
 		{
 			// If the server is still down, do a ping to see
@@ -865,6 +869,12 @@ function Poller(config)
 			if (!up)
 				$.get(endpoints.down).done(pollSuccess);
 		}, intervalMs);
+
+		$(self).trigger('pollfail', {
+			exception: exception,
+			message: message,
+			jqxhr: jqxhr
+		});
 	}
 
 	function stopDownPoller()
@@ -1003,7 +1013,6 @@ function redrawCoverageBars()
 	$('.pkg-cover-bar').each(function()
 	{
 		var pkgName = $(this).data("pkg");
-		console.log(pkgName);
 		var hue = $(this).data("width");
 		var hueDiff = hue;
 
@@ -1054,6 +1063,19 @@ function reframe()
 function notif()
 {
 	return get('notifications') === "true";	// stored as strings
+}
+
+function showServerDown(message)
+{
+	$('.server-down .message').text(message);
+	$('.server-down').show();
+	$('.server-not-down').hide();
+}
+
+function hideServerDown()
+{
+	$('.server-down').hide();
+	$('.server-not-down').show();
 }
 
 function log(msg)
