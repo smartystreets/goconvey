@@ -36,7 +36,7 @@ func flags() {
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Warning: this will obfuscate line number reporting on panics and build failures! Requires Go 1.2+ and the go cover tool. (default: true)")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
-	flag.StringVar(&testflags, "testflags", "", "Any extra flags to be passed to go test tool (default: '')`")
+	flag.StringVar(&testflags, "testflags", "", "Any extra flags to be passed to go test tool (default: '') (example: '-testflags="-test.short=true")`")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
