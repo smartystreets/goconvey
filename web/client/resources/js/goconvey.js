@@ -144,9 +144,6 @@ function initPoller()
 			case "executing":
 				$(convey.poller).trigger('serverexec', data);
 				break;
-			case "parsing":
-				$(convey.poller).trigger('serverparsing', data);
-				break;
 			case "idle":
 				$(convey.poller).trigger('serveridle', data);
 				break;
@@ -165,11 +162,6 @@ function initPoller()
 	$(convey.poller).on('serverexec', function(event, data)
 	{
 		log("Server status: executing");
-	});
-
-	$(convey.poller).on('serverparsing', function(event, data)
-	{
-		log("Server status: Parsing");
 	});
 
 	$(convey.poller).on('serveridle', function(event, data)

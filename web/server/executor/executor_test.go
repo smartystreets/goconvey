@@ -68,14 +68,6 @@ func TestExecutor(t *testing.T) {
 				So(status, ShouldEqual, Executing)
 			})
 		})
-
-		Convey("During test output parsing", func() {
-			status := fixture.CaptureStatusDuringParsingPhase()
-
-			Convey("The status of the executor should be 'parsing'", func() {
-				So(status, ShouldEqual, Parsing)
-			})
-		})
 	})
 }
 
@@ -83,8 +75,6 @@ func statusRotation(i, total int) string {
 	switch i % total {
 	case 0:
 		return Executing
-	case 1:
-		return Parsing
 	default:
 		return Idle
 	}
@@ -107,12 +97,6 @@ func (self *ExecutorFixture) ExecuteTests() {
 func (self *ExecutorFixture) CaptureStatusDuringExecutionPhase() string {
 	nap, _ := time.ParseDuration("25ms")
 	self.tester.addDelay(nap)
-	return self.delayedExecution(nap)
-}
-
-func (self *ExecutorFixture) CaptureStatusDuringParsingPhase() string {
-	nap, _ := time.ParseDuration("25ms")
-	self.parser.addDelay(nap)
 	return self.delayedExecution(nap)
 }
 

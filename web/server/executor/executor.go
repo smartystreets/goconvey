@@ -10,7 +10,6 @@ import (
 const (
 	Idle      = "idle"
 	Executing = "executing"
-	Parsing   = "parsing"
 )
 
 type Executor struct {
@@ -44,7 +43,6 @@ func (self *Executor) execute(folders []*contract.Package) {
 }
 
 func (self *Executor) parse(folders []*contract.Package) *contract.CompleteOutput {
-	self.setStatus(Parsing)
 	result := &contract.CompleteOutput{Revision: now().String()}
 	self.parser.Parse(folders)
 	for _, folder := range folders {
