@@ -54,17 +54,24 @@ func (self *Watcher) Creation(folder string) {
 	self.watched[folder] = contract.NewPackage(folder)
 }
 
-func (self *Watcher) Ignore(packageName string) {
-	for key, value := range self.watched {
-		if strings.HasSuffix(key, packageName) {
-			value.Active = false
+func (self *Watcher) Ignore(packageNames string) {
+	paths := strings.Split(packageNames, ";")
+	for _, path := range paths {
+		for key, value := range self.watched {
+			if strings.HasSuffix(key, path) {
+				value.Active = false
+			}
 		}
 	}
 }
-func (self *Watcher) Reinstate(packageName string) {
-	for key, value := range self.watched {
-		if strings.HasSuffix(key, packageName) {
-			value.Active = true
+
+func (self *Watcher) Reinstate(packageNames string) {
+	paths := strings.Split(packageNames, ";")
+	for _, path := range paths {
+		for key, value := range self.watched {
+			if strings.HasSuffix(key, path) {
+				value.Active = true
+			}
 		}
 	}
 }

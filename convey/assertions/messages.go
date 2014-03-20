@@ -37,6 +37,8 @@ const ( // collections
 	shouldNotHaveBeenIn                 = "Expected '%v' NOT to be in the container (%v, but it was)!"
 	shouldHaveBeenAValidCollection      = "You must provide a valid container (was %v)!"
 	shouldHaveProvidedCollectionMembers = "This assertion requires at least 1 comparison value (you provided 0)."
+	shouldHaveBeenEmpty                 = "Expected %+v to be empty (but it wasn't)!"
+	shouldNotHaveBeenEmpty              = "Expected %+v to NOT be empty (but it was)!"
 )
 
 const ( // strings
@@ -56,7 +58,7 @@ const ( // panics
 	shouldUseVoidNiladicFunction = "You must provide a void, niladic function as the first argument!"
 	shouldHavePanickedWith       = "Expected func() to panic with '%v' (but it panicked with '%v')!"
 	shouldHavePanicked           = "Expected func() to panic (but it didn't)!"
-	shouldNotHavePanicked        = "Expected func() NOT to panic (but it did)!"
+	shouldNotHavePanicked        = "Expected func() NOT to panic (error: '%+v')!"
 	shouldNotHavePanickedWith    = "Expected func() NOT to panic with '%v' (but it did)!"
 )
 
@@ -76,4 +78,8 @@ const ( // time comparisons
 
 	// format params: incorrect-index, previous-index, previous-time, incorrect-index, incorrect-time
 	shouldHaveBeenChronological = "The 'Time' at index [%d] should have happened after the previous one (but it didn't!):\n  [%d]: %s\n  [%d]: %s (see, it happened before!)"
+)
+
+const ( // implements
+	shouldImplement = "Expected '%v' implement '%v' (but was: '%v')!"
 )

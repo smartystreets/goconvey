@@ -1,6 +1,9 @@
 package assertions
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestShouldPanic(t *testing.T) {
 	fail(t, so(func() {}, ShouldPanic, 1), "This assertion requires exactly 0 comparison values (you provided 1).")
@@ -21,7 +24,7 @@ func TestShouldNotPanic(t *testing.T) {
 	fail(t, so(1, ShouldNotPanic), shouldUseVoidNiladicFunction)
 	fail(t, so(func(i int) {}, ShouldNotPanic), shouldUseVoidNiladicFunction)
 
-	fail(t, so(func() { panic("hi") }, ShouldNotPanic), shouldNotHavePanicked)
+	fail(t, so(func() { panic("hi") }, ShouldNotPanic), fmt.Sprintf(shouldNotHavePanicked, "hi"))
 	pass(t, so(func() {}, ShouldNotPanic))
 }
 

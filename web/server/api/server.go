@@ -41,16 +41,16 @@ func (self *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.R
 }
 
 func (self *HTTPServer) Ignore(response http.ResponseWriter, request *http.Request) {
-	path := self.parseQueryString("path", response, request)
-	if path != "" {
-		self.watcher.Ignore(path)
+	paths := self.parseQueryString("paths", response, request)
+	if paths != "" {
+		self.watcher.Ignore(paths)
 	}
 }
 
 func (self *HTTPServer) Reinstate(response http.ResponseWriter, request *http.Request) {
-	path := self.parseQueryString("path", response, request)
-	if path != "" {
-		self.watcher.Reinstate(path)
+	paths := self.parseQueryString("paths", response, request)
+	if paths != "" {
+		self.watcher.Reinstate(paths)
 	}
 }
 
