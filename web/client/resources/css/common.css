@@ -152,17 +152,17 @@ input[type=text] {
 	cursor: pointer;
 }
 
-.logo {
+#logo {
 	font-family: 'Oswald', 'Impact', 'Arial Black', sans-serif;
 }
 
-.path-container {
+#path-container {
 	margin-top: .4em;
-	margin-left: 5%;
 }
 
 #path {
-	width: 700px;
+	width: 100%;
+	text-align: center;
 	border-bottom-width: 0;
 }
 
@@ -696,25 +696,15 @@ footer section:last-child {
 
 @media (min-width: 850px) and (max-width: 1220px) {
 	#path {
-		width: 400px;
 		font-size: 14px;
 		margin-top: 5px;
-	}
-
-	.path-container {
-		margin-left: 20px;
 	}
 }
 
 @media (min-width: 700px) and (max-width: 849px) {
 	#path {
-		width: 330px;
 		font-size: 12px;
 		margin-top: 8px;
-	}
-
-	.path-container {
-		margin-left: 0px;
 	}
 }
 
@@ -729,7 +719,7 @@ footer section:last-child {
 }
 
 @media (max-width: 700px) {
-	.path-container {
+	#path-container {
 		display: none;
 	}
 }
@@ -775,7 +765,7 @@ footer section:last-child {
 		display: block;
 	}
 
-	.controls .logo {
+	#logo {
 		display: none;
 	}
 

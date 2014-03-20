@@ -94,10 +94,6 @@ input[type=text] {
 	border-bottom: 1px solid #33B5E5;
 }
 
-.controls .logo {
-	color: #1F3E5B;
-}
-
 .controls li {
 	color: #2A5A84;
 }
@@ -331,9 +327,9 @@ footer .recording.replay .fa {
 .story-line.skip:hover, .story-line.skip.story-line-sel { background: rgba(255, 255, 255, .1); }
 
 .statusicon.ok { color: #76C13C; }
-.statusicon.fail { color: #EA9C4D; }
-.statusicon.panic, .statusicon.panic .fa { color: #FF3232; }
-.statusicon.skip { color: #AAA; }
+.statusicon.fail, #fail-count { color: #EA9C4D; }
+.statusicon.panic, .statusicon.panic .fa, #panic-count { color: #FF3232; }
+.statusicon.skip, #skip-count { color: #888; }
 
 
 .log .timestamp {

@@ -303,11 +303,7 @@ function wireup()
 			$.get("/ignore", { path: pkg });
 		else
 			$.get("/reinstate", { path: pkg });
-		$(this).toggleClass('watch')
-			.toggleClass('unwatch')
-			.toggleClass('fa-eye')
-			.toggleClass('fa-eye-slash')
-			.toggleClass('clr-red');
+		$(this).toggleClass('watch unwatch fa-eye fa-eye-slash clr-red');
 		return suppress(event);
 	});
 
@@ -987,7 +983,7 @@ function changeStatus(newStatus)
 	});
 
 	if (!sameStatus)	// change the color
-		$('.overall').switchClass(convey.overallClass, newStatus.class, 750);
+		$('.overall').switchClass(convey.overallClass, newStatus.class, 1000);
 
 	current().overall.status = newStatus;
 	convey.overallClass = newStatus.class;
@@ -1007,12 +1003,13 @@ function redrawCoverageBars()
 	$('.pkg-cover-bar').each(function()
 	{
 		var pkgName = $(this).data("pkg");
+		console.log(pkgName);
 		var hue = $(this).data("width");
 		var hueDiff = hue;
 
 		if (convey.history.length > 1)
 		{
-			var oldHue = convey.history[convey.history.length - 2].packages.coverage[pkgName];
+			var oldHue = convey.history[convey.history.length - 2].packages.coverage[pkgName] || 0;
 			$(this).width(oldHue + "%");
 			hueDiff = hue - oldHue;
 		}
@@ -1050,6 +1047,8 @@ function reframe()
 	var heightBelowHeader = $(window).height() - convey.layout.header.outerHeight();
 	var middleHeight = heightBelowHeader - convey.layout.footer.outerHeight();
 	convey.layout.frame.height(middleHeight);
+
+	$('#path-container').width($(window).width() - $('#logo').outerWidth() - $('#control-buttons').outerWidth() - 5);
 }
 
 function notif()
