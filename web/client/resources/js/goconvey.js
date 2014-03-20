@@ -611,7 +611,7 @@ function process(data, status, jqxhr)
 	current().overall.failures = current().assertions.failed.length;
 	current().overall.skipped = current().assertions.skipped.length;
 	
-	current().overall.coverage = coverageAvgHelper.coverageSum / coverageAvgHelper.countedPackages;
+	current().overall.coverage = Math.round((coverageAvgHelper.coverageSum / coverageAvgHelper.countedPackages) * 100) / 100;
 	current().overall.duration = Math.round(current().overall.duration * 1000) / 1000;
 
 	// Build failures trump panics,
@@ -630,93 +630,40 @@ function process(data, status, jqxhr)
 	current().packages = packages;
 
 	log("    Assertions: " + current().overall.assertions);
-	log("          Pass: " + current().overall.passed);
+	log("        Passed: " + current().overall.passed);
 	log("       Skipped: " + current().overall.skipped);
 	log("      Failures: " + current().overall.failures);
 	log("        Panics: " + current().overall.panics);
 	log("Build Failures: " + current().overall.failedBuilds);
 	log("      Coverage: " + current().overall.coverage + "%");
 
+	// Save timestamp when this test was executed
+	// and show it immediately rather than waiting for interval
+	convey.moments['last-test'] = moment();
+	convey.intervalFuncs.momentjs();
+
+
+
 	// Render... render ALL THE THINGS! (All model/state modifications are DONE!)
-	log("Entering rendering phase");
-
-	$('#coverage').html(render('tpl-coverage', packages.tested.sort(sortPackages)));
-	$('#nogofiles').html(render('tpl-nogofiles', packages.nogofiles.sort(sortPackages)));
-	$('#notestfiles').html(render('tpl-notestfiles', packages.notestfiles.sort(sortPackages)));
-	$('#notestfn').html(render('tpl-notestfn', packages.notestfn.sort(sortPackages)));
-
-	if (current().overall.failedBuilds)
-	{
-		$('.buildfailures').show();
-		$('#buildfailures').html(render('tpl-buildfailures', current().failedBuilds));
-	}
-	else
-		$('.buildfailures').hide();
-
-	if (current().overall.panics)
-	{
-		$('.panics').show();
-		$('#panics').html(render('tpl-panics', current().assertions.panicked));
-	}
-	else
-		$('.panics').hide();
+	renderFrame(current());
+	// Now, just finish up miscellaneous UI things
 
 
-	if (current().overall.failures)
-	{
-		$('.failures').show();
-		$('#failures').html(render('tpl-failures', current().assertions.failed));
-		$(".failure").each(function() {
-			$(this).prettyTextDiff();
-		});
-	}
-	else
-		$('.failures').hide();
-
-	$('#stories').html(render('tpl-stories', packages.tested.sort(sortPackages)));
-
-	var pkgDefaultView = get('pkg-expand-collapse');
-	$('.story-pkg.expanded').each(function()
-	{
-		if (pkgDefaultView == "collapsed" && convey.packageStates[$(this).data('pkg-name')] != "expanded")
-			collapsePackage($(this).data('pkg'));
-	});
-
-	redrawCoverageBars();
-
-	$('#assert-count').html("<b>"+current().overall.assertions+"</b> assertion"
-							+ (current().overall.assertions != 1 ? "s" : ""));
-	$('#skip-count').html("<b>"+current().assertions.skipped.length + "</b> skipped");
-	$('#fail-count').html("<b>"+current().assertions.failed.length + "</b> failed");
-	$('#panic-count').html("<b>"+current().assertions.panicked.length + "</b> panicked");
-	$('#duration').html("<b>"+current().overall.duration + "</b>s");
-
-	$('#narrow-assert-count').html("<b>"+current().overall.assertions+"</b>");
-	$('#narrow-skip-count').html("<b>"+current().assertions.skipped.length + "</b>");
-	$('#narrow-fail-count').html("<b>"+current().assertions.failed.length + "</b>");
-	$('#narrow-panic-count').html("<b>"+current().assertions.panicked.length + "</b>");
-
-	convey.moments['last-test'] = moment();	// save timestamp when this test was executed
-
-	// Render the frame in the history pane
+	// Add this frame to the history pane
 	var framePiece = render('tpl-history', current());
 	$('.history .container').prepend(framePiece);
 	convey.moments['frame-'+current().id] = moment();
 	if (convey.history.length > convey.maxHistory)
 	{
-		// Delete the oldest frame out of the history pane
+		// Delete the oldest frame out of the history pane if we have too many
 		convey.history.splice(0, 1);
 		$('.history .container .item').last().remove();
 	}
 
-	convey.intervalFuncs.momentjs();	// Shows "Last test ..." in footer immediately
-
-
 	// TODO: An homage to Star Wars?
 	//if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
 	//	$('body').append(render('tpl-ok-audio'));
-
-		
+	
 	// Show notification, if enabled
 	if (notif())
 	{
@@ -743,16 +690,80 @@ function process(data, status, jqxhr)
 	else
 		$('title').text("GoConvey (" + current().overall.passed + "/" + current().overall.assertions + " pass)");
 
-	
 	// All done!
-	log("Rendering finished");
 	log("Processing complete");
-	$(convey).trigger('loaded');
+	$(convey).trigger('loaded');	// TODO: Not currently used
 }
 
 
 
 
+
+
+
+// Updates the entire UI given a frame from the history
+function renderFrame(frame)
+{
+	log("Rendering started");
+
+	$('#coverage').html(render('tpl-coverage', frame.packages.tested.sort(sortPackages)));
+	$('#nogofiles').html(render('tpl-nogofiles', frame.packages.nogofiles.sort(sortPackages)));
+	$('#notestfiles').html(render('tpl-notestfiles', frame.packages.notestfiles.sort(sortPackages)));
+	$('#notestfn').html(render('tpl-notestfn', frame.packages.notestfn.sort(sortPackages)));
+
+	if (frame.overall.failedBuilds)
+	{
+		$('.buildfailures').show();
+		$('#buildfailures').html(render('tpl-buildfailures', frame.failedBuilds));
+	}
+	else
+		$('.buildfailures').hide();
+
+	if (frame.overall.panics)
+	{
+		$('.panics').show();
+		$('#panics').html(render('tpl-panics', frame.assertions.panicked));
+	}
+	else
+		$('.panics').hide();
+
+
+	if (frame.overall.failures)
+	{
+		$('.failures').show();
+		$('#failures').html(render('tpl-failures', frame.assertions.failed));
+		$(".failure").each(function() {
+			$(this).prettyTextDiff();
+		});
+	}
+	else
+		$('.failures').hide();
+
+	$('#stories').html(render('tpl-stories', frame.packages.tested.sort(sortPackages)));
+
+	var pkgDefaultView = get('pkg-expand-collapse');
+	$('.story-pkg.expanded').each(function()
+	{
+		if (pkgDefaultView == "collapsed" && convey.packageStates[$(this).data('pkg-name')] != "expanded")
+			collapsePackage($(this).data('pkg'));
+	});
+
+	redrawCoverageBars();
+
+	$('#assert-count').html("<b>"+frame.overall.assertions+"</b> assertion"
+							+ (frame.overall.assertions != 1 ? "s" : ""));
+	$('#skip-count').html("<b>"+frame.assertions.skipped.length + "</b> skipped");
+	$('#fail-count').html("<b>"+frame.assertions.failed.length + "</b> failed");
+	$('#panic-count').html("<b>"+frame.assertions.panicked.length + "</b> panicked");
+	$('#duration').html("<b>"+frame.overall.duration + "</b>s");
+
+	$('#narrow-assert-count').html("<b>"+frame.overall.assertions+"</b>");
+	$('#narrow-skip-count').html("<b>"+frame.assertions.skipped.length + "</b>");
+	$('#narrow-fail-count').html("<b>"+frame.assertions.failed.length + "</b>");
+	$('#narrow-panic-count').html("<b>"+frame.assertions.panicked.length + "</b>");
+
+	log("Rendering finished");
+}
 
 
 
