@@ -157,12 +157,16 @@ footer {
 	border-color: #33B5E5;
 }
 
-footer .recording.live .fa {
+footer .recording .fa {
 	color: #CC0000;
 }
 
-footer .recording.replay .fa {
+footer .replay .fa {
 	color: #33B5E5;
+}
+
+footer .paused .fa {
+	color: #333;
 }
 
 

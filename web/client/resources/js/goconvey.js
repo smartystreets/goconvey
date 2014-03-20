@@ -245,6 +245,7 @@ function wireup()
 		else
 			log("Pausing auto-execution of tests");
 
+		$('footer .recording, footer .paused').toggle();
 		$(this).toggleClass("throb " + convey.layout.selClass);
 	});
 
@@ -713,12 +714,14 @@ function process(data, status, jqxhr)
 // Updates the entire UI given a frame from the history
 function renderFrame(frame)
 {
-	log("Rendering started");
+	log("Rendering side panel");
 
 	$('#coverage').html(render('tpl-coverage', frame.packages.tested.sort(sortPackages)));
 	$('#nogofiles').html(render('tpl-nogofiles', frame.packages.nogofiles.sort(sortPackages)));
 	$('#notestfiles').html(render('tpl-notestfiles', frame.packages.notestfiles.sort(sortPackages)));
 	$('#notestfn').html(render('tpl-notestfn', frame.packages.notestfn.sort(sortPackages)));
+
+	log("Rendering failures and panics");
 
 	if (frame.overall.failedBuilds)
 	{
@@ -748,6 +751,8 @@ function renderFrame(frame)
 	else
 		$('.failures').hide();
 
+	log("Rendering stories");
+
 	$('#stories').html(render('tpl-stories', frame.packages.tested.sort(sortPackages)));
 
 	var pkgDefaultView = get('pkg-expand-collapse');
@@ -758,6 +763,8 @@ function renderFrame(frame)
 	});
 
 	redrawCoverageBars();
+
+	log("Rendering footer");
 
 	$('#assert-count').html("<b>"+frame.overall.assertions+"</b> assertion"
 							+ (frame.overall.assertions != 1 ? "s" : ""));

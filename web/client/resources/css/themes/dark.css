@@ -225,8 +225,16 @@ footer {
 	background: rgba(0, 0, 0, .5);
 }
 
-footer .recording.live .fa {
+footer .recording .fa {
 	color: #CC0000;
+}
+
+footer .replay .fa {
+	color: #33B5E5;
+}
+
+footer .paused .fa {
+	color: #AAA;
 }
 
 footer .recording.replay .fa {

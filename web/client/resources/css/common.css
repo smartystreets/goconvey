@@ -569,7 +569,10 @@ footer .info:first-child {
 	display: none;
 }
 
-
+footer .replay,
+footer .paused {
+	display: none;
+}
 
 
 
