@@ -1,6 +1,6 @@
 var convey = {
 
-	// Configure the GoConvey web UI client here
+	// Configure the GoConvey web UI client inhere
 	config: {
 		// Install new themes by adding them here; the first one will be default
 		themes: {
@@ -76,6 +76,7 @@ function init()
 	$('body').show();
 	initPoller();
 	wireup();
+	latest();
 }
 
 function loadTheme(thmID)
@@ -91,7 +92,7 @@ function loadTheme(thmID)
 	if (!convey.config.themes[thmID])
 	{
 		replacement = Object.keys(convey.config.themes)[0] || defaultTheme;
-		log("WARNING: Could not find '" + thmID + "' theme; defaulting to '" + replacement + "'");
+		log("NOTICE: Could not find '" + thmID + "' theme; defaulting to '" + replacement + "'");
 		thmID = replacement;
 	}
 
@@ -110,7 +111,7 @@ function loadTheme(thmID)
 	else
 		linkTag.attr('href', fullPath);
 
-	colorizeCoverageBars();	// their color is set dynamically, so we have to use the theme's template
+	colorizeCoverageBars();
 }
 
 function initPoller()
@@ -286,8 +287,13 @@ function wireup()
 			writer.focus();
 	});
 
+	// Wire-up the tipsy tooltips
 	$('.controls li, .pkg-cover-name').tipsy({ live: true });
 	$('footer .replay').tipsy({ live: true, gravity: 'e' });
+	$('#path').tipsy({ delayIn: 500 });
+	$('.ignore').tipsy({ live: true, gravity: $.fn.tipsy.autoNS });
+	$('#logo').tipsy({ gravity: 'w' });
+
 
 	$('.toggler').not('.narrow').prepend('<i class="fa fa-angle-up fa-lg"></i>');
 	$('.toggler.narrow').prepend('<i class="fa fa-angle-down fa-lg"></i>');
@@ -313,13 +319,6 @@ function wireup()
 	convey.intervals.time = setInterval(convey.intervalFuncs.time, 1000);
 	convey.intervals.momentjs = setInterval(convey.intervalFuncs.momentjs, 5000);
 	convey.intervalFuncs.time();
-
-	// Keep everything positioned and sized properly on window resize
-	$(window).resize(reframe);
-	reframe();
-
-	// Get the latest
-	latest();
 
 	// Ignore/un-ignore package
 	$('#stories').on('click', '.fa.ignore', function(event)
@@ -390,6 +389,10 @@ function wireup()
 		if ($('#show-history').hasClass('sel'))
 			$('#show-history').click();
 	});
+
+	// Keep everything positioned and sized properly on window resize
+	reframe();
+	$(window).resize(reframe);
 }
 
 function expandAll()
