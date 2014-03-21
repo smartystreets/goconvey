@@ -198,6 +198,11 @@ function wireup()
 		return suppress(event);
 	});
 
+	// Wireup the settings switches
+	$('.enum#theme').on('click', 'li:not(.sel)', function()
+	{
+		loadTheme($(this).data('theme'));
+	});
 	$('.enum#pkg-expand-collapse').on('click', 'li:not(.sel)', function()
 	{
 		var newSetting = $(this).data('pkg-expand-collapse');
@@ -208,11 +213,16 @@ function wireup()
 		else
 			collapseAll();
 	});
-
-	$('.enum#theme').on('click', 'li:not(.sel)', function()
+	$('.enum#show-debug-output').on('click', 'li:not(.sel)', function()
 	{
-		loadTheme($(this).data('theme'));
+		var newSetting = $(this).data('show-debug-output');
+		save('show-debug-output', newSetting);
+		if (newSetting == "show")
+			$('.story-line-desc .message').show();
+		else
+			$('.story-line-desc .message').hide();
 	});
+	// End settings wireup
 
 	convey.layout.header = $('header').first();
 	convey.layout.frame = $('.frame').first();
@@ -469,6 +479,14 @@ function loadSettingsFromStorage()
 		save("pkg-expand-collapse", pkgExpCollapse);
 	}
 	enumSel("pkg-expand-collapse", pkgExpCollapse);
+
+	var showDebugOutput = get("show-debug-output");
+	if (!showDebugOutput)
+	{
+		showDebugOutput = "show";
+		save("show-debug-output", showDebugOutput);
+	}
+	enumSel("show-debug-output", showDebugOutput);
 
 	if (notif())
 		$('#toggle-notif').toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
@@ -839,6 +857,9 @@ function renderFrame(frame)
 	$('#narrow-panic-count').html("<b>"+frame.assertions.panicked.length + "</b>");
 
 	$('.history .item').removeClass('selected');
+
+	if (get('show-debug-output') == "hide")
+		$('.story-line-desc .message').hide();
 
 	log("Rendering finished");
 }
