@@ -358,7 +358,7 @@ function wireup()
 	$('.history .container').on('click', '.item', function(event)
 	{
 		var frame = getFrame($(this).data("frameid"));
-		changeStatus(frame.overall.status);
+		changeStatus(frame.overall.status, true);
 		renderFrame(frame);
 		$(this).addClass('selected');
 
@@ -1037,7 +1037,7 @@ function toggle(jqelem, switchelem)
 	}
 }
 
-function changeStatus(newStatus)
+function changeStatus(newStatus, isHistoricalFrame)
 {
 	if (!newStatus || !newStatus.class || !newStatus.text)
 		newStatus = convey.statuses.pass;
@@ -1075,7 +1075,8 @@ function changeStatus(newStatus)
 	if (!sameStatus)	// change the color
 		$('.overall').switchClass(convey.overallClass, newStatus.class, 1000);
 
-	current().overall.status = newStatus;
+	if (!isHistoricalFrame)
+		current().overall.status = newStatus;
 	convey.overallClass = newStatus.class;
 	$('.favicon').attr('href', '/resources/ico/goconvey-'+newStatus.class+'.ico');
 }
