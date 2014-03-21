@@ -156,7 +156,7 @@ function initPoller()
 	{
 		log("Poll failed; server down");
 		convey.status = "down";
-		showServerDown("GoConvey server down");
+		showServerDown("Server down");
 	});
 
 	$(convey.poller).on('serverexec', function(event, data)

@@ -586,6 +586,9 @@ footer .replay {
 	cursor: pointer;
 }
 
+footer .server-down .notice-message {
+	font-size: 10px;
+}
 
 
 
@@ -786,6 +789,10 @@ footer .replay {
 
 	footer .info {
 		padding: 0 5px;
+	}
+
+	footer .server-down .notice-message {
+		display: none;
 	}
 }
 
