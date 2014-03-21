@@ -50,6 +50,8 @@ func folders() {
 
 func main() {
 	flag.Parse()
+	ensureProperGoTestFlags()
+
 	log.Printf("Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [testflags: %v]\n", host, port, nap, cover, testflags)
 
 	monitor, server := wireup()
@@ -57,6 +59,15 @@ func main() {
 	go monitor.ScanForever()
 
 	serveHTTP(server)
+}
+
+func ensureProperGoTestFlags() {
+	testflags = strings.TrimSpace(testflags)
+	for _, a := range strings.Fields(testflags) {
+		if a == "-test.parallel" || a == "-parallel" {
+			log.Fatal("GoConvey does not support the parallel test flag")
+		}
+	}
 }
 
 func serveHTTP(server contract.Server) {
@@ -91,14 +102,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	log.Println("Constructing components...")
 	working, err := os.Getwd()
 	if err != nil {
-		panic(err)
-	}
-
-	// Ensure testflags does not contain any disallowed flags
-	for _, a := range strings.Fields(testflags) {
-		if a == "-test.parallel" || a == "-parallel" {
-			log.Fatal("GoConvey does not support the parallel test flag")
-		}
+		log.Fatal(err)
 	}
 
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
