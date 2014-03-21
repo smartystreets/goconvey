@@ -91,7 +91,7 @@
 				<div class="expandable history">
 					<div class="container"><!-- Populated by Javascript --></div>
 					<script id="tpl-history" type="text/template">
-						<div class="item {{overall.status.class}} frame-{{id}}">
+						<div class="item {{overall.status.class}} frame-{{id}}" data-frameid="{{id}}">
 							<div class="status momentjs" id="frame-{{id}}"></div>
 							<div class="summary">{{overall.status.text|upcase}}<br>{{overall.passed}}/{{overall.assertions}} pass<br>{{overall.failures}} fail, {{overall.skipped}} skip</div>
 						</div>
@@ -118,14 +118,12 @@
 				<script id="tpl-coverage" type="text/template">
 					<div class="templated">
 						{{.}}
-						{{if Outcome|notequals>no go code}}
 						<div class="pkg-cover">
 							<div class="pkg-cover-bar" data-pkg="{{PackageName}}" data-width="{{Coverage|coveragePct}}"></div>
 							<div class="pkg-cover-name rtl pad-right{{if Coverage|coveragePct|equals>0}} no-coverage{{/if}}" title="{{Coverage|coveragePct}}% coverage">
 								<a class="fa fa-level-down" href="#pkg-{{_id}}" style="padding: 0 5px;"></a>{{if Coverage|more>0}}<a href="/reports/{{PackageName|coverageReportName}}.html" target="_blank">{{PackageName|boldPkgName}}</a>{{else}}{{PackageName|boldPkgName}}{{/if}}
 							</div>
 						</div>
-						{{/if}}
 						{{/.}}
 					</div>
 				</script>
@@ -412,7 +410,7 @@
 					<span class="recording">
 						<i class="fa fa-circle"></i> LIVE
 					</span>
-					<span class="replay">
+					<span class="replay" title="Click for current test results">
 						<i class="fa fa-play"></i> REPLAY
 					</span>
 					<span class="paused">

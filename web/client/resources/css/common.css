@@ -240,10 +240,10 @@ footer .server-down {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 
-	transition: all .15s linear;
-	-moz-transition: all .15s linear;
-	-webkit-transition: all .15s linear;
-	-o-transition: all .15s linear;
+	transition: all .1s linear;
+	-moz-transition: all .1s linear;
+	-webkit-transition: all .1s linear;
+	-o-transition: all .1s linear;
 
 	display: inline-block;
 	text-align: left;
@@ -271,6 +271,14 @@ footer .server-down {
 
 .history .item .summary {
 	font: 14px/1.5em 'Share Tech Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+.history .item.selected {
+	opacity: 1;
+}
+
+.history .status {
+	font-size: 13px;
 }
 
 
@@ -572,6 +580,10 @@ footer .info:first-child {
 footer .replay,
 footer .paused {
 	display: none;
+}
+
+footer .replay {
+	cursor: pointer;
 }
 
 

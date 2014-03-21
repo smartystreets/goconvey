@@ -68,6 +68,24 @@ Mark.pipes.safeFunc = function(val)
 	return val.replace(/[^a-z0-9_]/gi, '');
 }
 
+Mark.pipes.properCase = function(str)
+{
+	if (str.length == 0)
+		return "";
+	
+	str = str.charAt(0).toUpperCase() + str.substr(1);
+
+	if (str.length < 2)
+		return str;
+
+	return str.replace(/[\s_][a-z]+/g, function(txt)
+	{
+		return txt.charAt(0)
+				+ txt.charAt(1).toUpperCase()
+				+ txt.substr(2).toLowerCase();
+	});
+}
+
 Mark.pipes.showImports = function(item)
 {
 	console.log(item);

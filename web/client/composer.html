@@ -24,7 +24,7 @@
 <script id="tpl-convey" type="text/template">{{.}}{{if .|notTestFunc}}{{depth|indent}}Convey("{{title}}", {{if showT}}t, {{/if}}{{if stories|empty}}nil{{else}}func() {
 
 {{stories|recursivelyRender}}{{depth|indent}}}{{/if}})
-{{else}}func {{title|safeFunc}}(t *testing.T) {
+{{else}}func {{title|properCase|safeFunc}}(t *testing.T) {
 
 {{stories|recursivelyRender}}}
 {{/if}}

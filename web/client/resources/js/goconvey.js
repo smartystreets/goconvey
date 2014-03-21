@@ -287,6 +287,7 @@ function wireup()
 	});
 
 	$('.controls li, .pkg-cover-name').tipsy({ live: true });
+	$('footer .replay').tipsy({ live: true, gravity: 'e' });
 
 	$('.toggler').not('.narrow').prepend('<i class="fa fa-angle-up fa-lg"></i>');
 	$('.toggler.narrow').prepend('<i class="fa fa-angle-down fa-lg"></i>');
@@ -308,14 +309,19 @@ function wireup()
 	// Enumerations are horizontal lists where one item can be selected at a time
 	$('.enum').on('click', 'li', enumSel);
 
-	$(window).resize(reframe);
-	reframe();
-	latest();
-
+	// Start ticking time
 	convey.intervals.time = setInterval(convey.intervalFuncs.time, 1000);
 	convey.intervals.momentjs = setInterval(convey.intervalFuncs.momentjs, 5000);
 	convey.intervalFuncs.time();
 
+	// Keep everything positioned and sized properly on window resize
+	$(window).resize(reframe);
+	reframe();
+
+	// Get the latest
+	latest();
+
+	// Ignore/un-ignore package
 	$('#stories').on('click', '.fa.ignore', function(event)
 	{
 		var pkg = $(this).data('pkg');
@@ -329,21 +335,60 @@ function wireup()
 		return suppress(event);
 	});
 
+	// Show "All" link when hovering the toggler on packages in the stories
 	$('#stories').on({
 		mouseenter: function() { $('.toggle-all-pkg', this).stop().show('fast'); },
 		mouseleave: function() { $('.toggle-all-pkg', this).stop().hide('fast'); }
 	}, '.pkg-toggle-container');
 
+	// Toggle a package in the stories when clicked
 	$('#stories').on('click', '.story-pkg', function(event)
 	{
 		togglePackage(this, true);
 		return suppress(event);
 	});
 
+	// Select a story line when it is clicked
 	$('#stories').on('click', '.story-line', function()
 	{
 		$('.story-line-sel').not(this).removeClass('story-line-sel');
 		$(this).toggleClass('story-line-sel');
+	});
+
+	// Render a frame from the history when clicked
+	$('.history .container').on('click', '.item', function(event)
+	{
+		var frame = getFrame($(this).data("frameid"));
+		changeStatus(frame.overall.status);
+		renderFrame(frame);
+		$(this).addClass('selected');
+
+		// Update current status down in the footer
+		if ($(this).is(':first-child'))
+		{
+			// Now on current frame
+			$('footer .replay').hide();
+
+			if ($('#play-pause').hasClass('throb'))	// Was/is paused
+				$('footer .paused').show();
+			else
+				$('footer .recording').show();		// Was/is recording
+		}
+		else
+		{
+			$('footer .recording, footer .replay').hide();
+			$('footer .replay').show();
+		}
+		return suppress(event);
+	});
+
+	$('footer').on('click', '.replay', function()
+	{
+		// Clicking "REPLAY" in the corner should bring them back to the current frame
+		// and hide, if visible, the history panel for convenience
+		$('.history .item:first-child').click();
+		if ($('#show-history').hasClass('sel'))
+			$('#show-history').click();
 	});
 }
 
@@ -440,7 +485,7 @@ function process(data, status, jqxhr)
 		return;
 	}
 
-	if (data.Revision == current().results.Revision)
+	if (current() && data.Revision == current().results.Revision)
 	{
 		log("No changes");
 		changeStatus(current().overall.status);	// re-assures that status is unchanged
@@ -448,13 +493,10 @@ function process(data, status, jqxhr)
 	}
 
 
-
+	// Put the new frame in the queue so we can use current() to get to it
 	convey.history.push(newFrame());
 
-
-
-
-
+	// Store the raw results in our frame
 	current().results = data;
 
 	log("Updating watch path");
@@ -648,9 +690,7 @@ function process(data, status, jqxhr)
 	log("      Coverage: " + current().overall.coverage + "%");
 
 	// Save timestamp when this test was executed
-	// and show it immediately rather than waiting for interval
 	convey.moments['last-test'] = moment();
-	convey.intervalFuncs.momentjs();
 
 
 
@@ -662,6 +702,7 @@ function process(data, status, jqxhr)
 	// Add this frame to the history pane
 	var framePiece = render('tpl-history', current());
 	$('.history .container').prepend(framePiece);
+	$('.history .item:first-child').addClass('selected');
 	convey.moments['frame-'+current().id] = moment();
 	if (convey.history.length > convey.maxHistory)
 	{
@@ -669,6 +710,9 @@ function process(data, status, jqxhr)
 		convey.history.splice(0, 1);
 		$('.history .container .item').last().remove();
 	}
+
+	// Now add the momentjs time to the new frame in the history
+	convey.intervalFuncs.momentjs();
 
 	// TODO: An homage to Star Wars?
 	//if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
@@ -714,14 +758,12 @@ function process(data, status, jqxhr)
 // Updates the entire UI given a frame from the history
 function renderFrame(frame)
 {
-	log("Rendering side panel");
+	log("Rendering frame (id: " + frame.id + ")");
 
 	$('#coverage').html(render('tpl-coverage', frame.packages.tested.sort(sortPackages)));
 	$('#nogofiles').html(render('tpl-nogofiles', frame.packages.nogofiles.sort(sortPackages)));
 	$('#notestfiles').html(render('tpl-notestfiles', frame.packages.notestfiles.sort(sortPackages)));
 	$('#notestfn').html(render('tpl-notestfn', frame.packages.notestfn.sort(sortPackages)));
-
-	log("Rendering failures and panics");
 
 	if (frame.overall.failedBuilds)
 	{
@@ -751,8 +793,6 @@ function renderFrame(frame)
 	else
 		$('.failures').hide();
 
-	log("Rendering stories");
-
 	$('#stories').html(render('tpl-stories', frame.packages.tested.sort(sortPackages)));
 
 	var pkgDefaultView = get('pkg-expand-collapse');
@@ -763,8 +803,6 @@ function renderFrame(frame)
 	});
 
 	redrawCoverageBars();
-
-	log("Rendering footer");
 
 	$('#assert-count').html("<b>"+frame.overall.assertions+"</b> assertion"
 							+ (frame.overall.assertions != 1 ? "s" : ""));
@@ -777,6 +815,8 @@ function renderFrame(frame)
 	$('#narrow-skip-count').html("<b>"+frame.assertions.skipped.length + "</b>");
 	$('#narrow-fail-count').html("<b>"+frame.assertions.failed.length + "</b>");
 	$('#narrow-panic-count').html("<b>"+frame.assertions.panicked.length + "</b>");
+
+	$('.history .item').removeClass('selected');
 
 	log("Rendering finished");
 }
@@ -1103,6 +1143,13 @@ function colorizeCoverageBars()
 	});
 }
 
+function getFrame(id)
+{
+	for (var i in convey.history)
+		if (convey.history[i].id == id)
+			return convey.history[i];
+}
+
 function render(templateID, context)
 {
 	var tpl = $('#' + templateID).text();
@@ -1267,7 +1314,7 @@ function makeContext(obj)
 
 function current()
 {
-	return convey.history[convey.history.length - 1] || newFrame();
+	return convey.history[convey.history.length - 1];
 }
 
 function assignStatus(obj)
