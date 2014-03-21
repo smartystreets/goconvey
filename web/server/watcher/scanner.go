@@ -8,7 +8,7 @@ import (
 )
 
 type Scanner struct {
-	fs                 contract.FileSystem
+	fileSystem         contract.FileSystem
 	watcher            contract.Watcher
 	root               string
 	previous           int64
@@ -39,7 +39,7 @@ func (self *Scanner) recordCurrentRoot() (changed bool) {
 func (self *Scanner) analyzeCurrentFileSystemState() (checksum int64, folders map[string]bool) {
 	folders = make(map[string]bool)
 
-	self.fs.Walk(self.root, func(path string, info os.FileInfo, err error) error {
+	self.fileSystem.Walk(self.root, func(path string, info os.FileInfo, err error) error {
 		step := newWalkStep(self.root, path, info, self.watcher)
 		step.IncludeIn(folders)
 		checksum += step.Sum()
@@ -72,9 +72,9 @@ func (self *Scanner) latestTestResultsAreStale(checksum int64) bool {
 	return self.previous != checksum
 }
 
-func NewScanner(fs contract.FileSystem, watcher contract.Watcher) *Scanner {
+func NewScanner(fileSystem contract.FileSystem, watcher contract.Watcher) *Scanner {
 	self := new(Scanner)
-	self.fs = fs
+	self.fileSystem = fileSystem
 	self.watcher = watcher
 	self.latestFolders = make(map[string]bool)
 	self.preExistingFolders = make(map[string]bool)
