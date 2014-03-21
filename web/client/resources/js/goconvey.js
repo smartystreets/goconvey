@@ -1347,7 +1347,6 @@ function customMarkupPipes()
 	};
 	Mark.pipes.htmlSafe = function(str)
 	{
-		// NOTE: The line below turns literal "$$" into "$" because of how regex are evaluated (see issue 157)
 		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	};
 	Mark.pipes.nothing = function(str)
