@@ -41,9 +41,6 @@ func ShouldImplement(actual interface{}, expectedList ...interface{}) string {
 	if fail := need(1, expectedList); fail != success {
 		return fail
 	}
-	if fail := ShouldNotBeNil(expectedList); fail != success {
-		return fail
-	}
 	expected := expectedList[0]
 	if fail := ShouldBeNil(expected); fail != success {
 		return shouldCompareWithInterfacePointer
@@ -72,9 +69,6 @@ func ShouldImplement(actual interface{}, expectedList ...interface{}) string {
 // that the first does NOT implement the interface type of the second.
 func ShouldNotImplement(actual interface{}, expectedList ...interface{}) string {
 	if fail := need(1, expectedList); fail != success {
-		return fail
-	}
-	if fail := ShouldNotBeNil(expectedList); fail != success {
 		return fail
 	}
 	expected := expectedList[0]
