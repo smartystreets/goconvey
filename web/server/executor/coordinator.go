@@ -1,7 +1,6 @@
 package executor
 
 import (
-	"fmt"
 	"log"
 	"sync"
 
@@ -54,11 +53,14 @@ func (self *concurrentCoordinator) awaitCompletion() {
 
 func (self *concurrentCoordinator) checkForErrors() {
 	for _, folder := range self.folders {
-		if folder.Error != nil && folder.Output == "" {
-			fmt.Println(folder.Path, folder.Error)
-			panic(folder.Error)
+		if hasUnexpectedError(folder) {
+			log.Println("Unexpected error at", folder.Path)
+			log.Fatal(folder.Error)
 		}
 	}
+}
+func hasUnexpectedError(folder *contract.Package) bool {
+	return folder.Error != nil && folder.Output == ""
 }
 
 func newCuncurrentCoordinator(folders []*contract.Package, batchSize int, shell contract.Shell) *concurrentCoordinator {
