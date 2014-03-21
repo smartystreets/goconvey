@@ -65,6 +65,10 @@ const ( // panics
 const ( // type checking
 	shouldHaveBeenA    = "Expected '%v' to be: '%v' (but was: '%v')!"
 	shouldNotHaveBeenA = "Expected '%v' to NOT be: '%v' (but it was)!"
+
+	shouldHaveImplemented             = "Expected: '%v'\nActual:   '%v'"
+	shouldNotHaveImplemented          = "Expected         '%v'\nto NOT implement '%v'\n(but it did)!"
+	shouldCompareWithInterfacePointer = "The expected value must be a pointer to an interface type (eg. *fmt.Stringer)"
 )
 
 const ( // time comparisons
@@ -78,8 +82,4 @@ const ( // time comparisons
 
 	// format params: incorrect-index, previous-index, previous-time, incorrect-index, incorrect-time
 	shouldHaveBeenChronological = "The 'Time' at index [%d] should have happened after the previous one (but it didn't!):\n  [%d]: %s\n  [%d]: %s (see, it happened before!)"
-)
-
-const ( // implements
-	shouldImplement = "Expected '%v' implement '%v' (but was: '%v')!"
 )

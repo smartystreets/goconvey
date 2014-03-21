@@ -36,7 +36,7 @@ func flags() {
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Warning: this will obfuscate line number reporting on panics and build failures! Requires Go 1.2+ and the go cover tool. (default: true)")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
-	flag.StringVar(&testflags, "testflags", "", "Any extra flags to be passed to go test tool (default: '')`")
+	flag.StringVar(&testflags, "testflags", "", `Any extra flags to be passed to go test tool (default: '') (example: '-testflags="-test.short=true")`)
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -50,6 +50,8 @@ func folders() {
 
 func main() {
 	flag.Parse()
+	ensureProperGoTestFlags()
+
 	log.Printf("Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [testflags: %v]\n", host, port, nap, cover, testflags)
 
 	monitor, server := wireup()
@@ -57,6 +59,15 @@ func main() {
 	go monitor.ScanForever()
 
 	serveHTTP(server)
+}
+
+func ensureProperGoTestFlags() {
+	testflags = strings.TrimSpace(testflags)
+	for _, a := range strings.Fields(testflags) {
+		if a == "-test.parallel" || a == "-parallel" {
+			log.Fatal("GoConvey does not support the parallel test flag")
+		}
+	}
 }
 
 func serveHTTP(server contract.Server) {
@@ -91,14 +102,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	log.Println("Constructing components...")
 	working, err := os.Getwd()
 	if err != nil {
-		panic(err)
-	}
-
-	// Ensure testflags does not contain any disallowed flags
-	for _, a := range strings.Fields(testflags) {
-		if a == "-test.parallel" || a == "-parallel" {
-			log.Fatal("GoConvey does not support the parallel test flag")
-		}
+		log.Fatal(err)
 	}
 
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)

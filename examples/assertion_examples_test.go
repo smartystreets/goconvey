@@ -1,6 +1,8 @@
 package examples
 
 import (
+	"bytes"
+	"io"
 	"testing"
 	"time"
 
@@ -67,6 +69,10 @@ func TestAssertions(t *testing.T) {
 	Convey("Type-checking assertions should be accessible", t, func() {
 		So(1, ShouldHaveSameTypeAs, 0)
 		So(1, ShouldNotHaveSameTypeAs, "1")
+
+		var reader *io.Reader = nil
+		So(bytes.NewBufferString(""), ShouldImplement, reader)
+		So("string", ShouldNotImplement, reader)
 	})
 
 	Convey("Time assertions should be accessible", t, func() {
