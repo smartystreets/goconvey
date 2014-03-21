@@ -28,6 +28,7 @@ func NewPackage(path string) *Package {
 type CompleteOutput struct {
 	Packages []*PackageResult
 	Revision string
+	Paused   bool
 }
 
 var ( // PackageResult.Outcome values:

@@ -241,12 +241,24 @@ function wireup()
 
 	$('#play-pause').click(function()
 	{
-		if ($(this).hasClass("throb"))
-			log("Resuming auto-execution of tests");
-		else
-			log("Pausing auto-execution of tests");
+		$.get('/pause');
 
-		$('footer .recording, footer .paused').toggle();
+		if ($(this).hasClass(convey.layout.selClass))
+		{
+			// Un-pausing
+			if (!$('footer .replay').is(':visible'))
+				$('footer .recording').show();
+			$('footer .paused').hide();
+			log("Resuming auto-execution of tests");
+		}
+		else
+		{
+			// Pausing
+			$('footer .recording').hide();
+			$('footer .paused').show();
+			log("Pausing auto-execution of tests");
+		}
+
 		$(this).toggleClass("throb " + convey.layout.selClass);
 	});
 
@@ -368,7 +380,7 @@ function wireup()
 			// Now on current frame
 			$('footer .replay').hide();
 
-			if ($('#play-pause').hasClass('throb'))	// Was/is paused
+			if ($('#play-pause').hasClass(convey.layout.selClass))	// Was/is paused
 				$('footer .paused').show();
 			else
 				$('footer .recording').show();		// Was/is recording
@@ -486,6 +498,13 @@ function process(data, status, jqxhr)
 	{
 		log("No data received or revision timestamp was missing");
 		return;
+	}
+
+	if (data.Paused && !$('#play-pause').hasClass(convey.layout.selClass))
+	{
+		$('footer .recording').hide();
+		$('footer .paused').show();
+		$('#play-pause').toggleClass("throb " + convey.layout.selClass);
 	}
 
 	if (current() && data.Revision == current().results.Revision)

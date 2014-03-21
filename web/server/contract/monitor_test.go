@@ -28,6 +28,45 @@ func TestMonitor(t *testing.T) {
 					})
 				})
 			})
+
+			Convey("But the server is paused", func() {
+				select {
+				case fixture.pauseUpdate <- true:
+				default:
+				}
+
+				Convey("As a result of scanning", func() {
+					fixture.Scan()
+
+					Convey("The process should take a nap", func() {
+						So(fixture.nap, ShouldBeTrue)
+					})
+
+					Convey("The server should not receive any update", func() {
+						So(fixture.server.latest, ShouldBeNil)
+					})
+
+					Convey("And when the server is unpaused", func() {
+						select {
+						case fixture.pauseUpdate <- true:
+						default:
+						}
+
+						Convey("As a result of scanning again", func() {
+							fixture.Scan()
+
+							Convey("The watched packages should be executed and the results should be passed to the server", func() {
+								So(fixture.server.latest, ShouldResemble, &CompleteOutput{
+									Packages: []*PackageResult{
+										NewPackageResult("1"),
+										NewPackageResult("2"),
+									},
+								})
+							})
+						})
+					})
+				})
+			})
 		})
 
 		Convey("When the file system has remained stagnant", func() {
@@ -51,16 +90,21 @@ func TestMonitor(t *testing.T) {
 /******** MonitorFixture ********/
 
 type MonitorFixture struct {
-	monitor  *Monitor
-	server   *FakeServer
-	watcher  *FakeWatcher
-	scanner  *FakeScanner
-	executor *FakeExecutor
-	nap      bool
+	monitor     *Monitor
+	server      *FakeServer
+	watcher     *FakeWatcher
+	scanner     *FakeScanner
+	executor    *FakeExecutor
+	pauseUpdate chan bool
+	nap         bool
 }
 
 func (self *MonitorFixture) Scan() {
 	self.monitor.Scan()
+}
+
+func (self *MonitorFixture) TogglePause() {
+
 }
 
 func (self *MonitorFixture) sleep() {
@@ -73,7 +117,8 @@ func newMonitorFixture() *MonitorFixture {
 	self.watcher = newFakeWatcher()
 	self.scanner = newFakeScanner()
 	self.executor = newFakeExecutor()
-	self.monitor = NewMonitor(self.scanner, self.watcher, self.executor, self.server, self.sleep)
+	self.pauseUpdate = make(chan bool, 1)
+	self.monitor = NewMonitor(self.scanner, self.watcher, self.executor, self.server, self.pauseUpdate, self.sleep)
 	return self
 }
 
@@ -93,6 +138,7 @@ func (self *FakeServer) Status(http.ResponseWriter, *http.Request)         { pan
 func (self *FakeServer) LongPollStatus(http.ResponseWriter, *http.Request) { panic("NOT SUPPORTED") }
 func (self *FakeServer) Results(http.ResponseWriter, *http.Request)        { panic("NOT SUPPORTED") }
 func (self *FakeServer) Execute(http.ResponseWriter, *http.Request)        { panic("NOT SUPPORTED") }
+func (self *FakeServer) TogglePause(http.ResponseWriter, *http.Request)    { panic("NOT SUPPORTED") }
 
 func newFakeServer() *FakeServer {
 	return new(FakeServer)
