@@ -1,5 +1,5 @@
 .DS_Store
+Thumbs.db
 examples/output.json
-webserver/webserver
-web/server/server
+web/client/reports/
 web/client/_old/
