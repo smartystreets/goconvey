@@ -538,8 +538,6 @@ function latest()
 
 function process(data, status, jqxhr)
 {
-	console.log("Latest", data, status, jqxhr);	// TODO: temp
-
 	if (!data || !data.Revision)
 	{
 		log("No data received or revision timestamp was missing");
@@ -781,10 +779,6 @@ function process(data, status, jqxhr)
 
 	// Now add the momentjs time to the new frame in the history
 	convey.intervalFuncs.momentjs();
-
-	// TODO: An homage to Star Wars?
-	//if (convey.overall.status == convey.statuses.pass && window.location.hash == "#anakin")
-	//	$('body').append(render('tpl-ok-audio'));
 	
 	// Show notification, if enabled
 	if (notif())
@@ -814,7 +808,6 @@ function process(data, status, jqxhr)
 
 	// All done!
 	log("Processing complete");
-	$(convey).trigger('loaded');	// TODO: Not currently used
 }
 
 
@@ -1405,9 +1398,7 @@ function assignStatus(obj)
 
 function customMarkupPipes()
 {
-	// MARKUP.JS
-	// Custom pipes
-	// TODO: Are all of these being used?
+	// MARKUP.JS custom pipes
 	Mark.pipes.relativePath = function(str)
 	{
 		basePath = new RegExp($('#path').val()+'[\\/]', 'gi');
@@ -1417,20 +1408,12 @@ function customMarkupPipes()
 	{
 		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	};
-	Mark.pipes.nothing = function(str)
-	{
-		return str == "no test files" || str == "no test functions" || str == "no go code"
-	};
 	Mark.pipes.boldPkgName = function(str)
 	{
 		var pkg = splitPathName(str);
 		pkg.parts[0] = '<span class="not-pkg-name">' + pkg.parts[0];
 		pkg.parts[pkg.parts.length - 1] = "</span><b>" + pkg.parts[pkg.parts.length - 1] + "</b>";
 		return pkg.parts.join(pkg.delim);
-	};
-	Mark.pipes.chopEnd = function(str, n)
-	{
-		return str.length > n ? "..." + str.substr(str.length - n) : str;
 	};
 	Mark.pipes.needsDiff = function(test)
 	{
