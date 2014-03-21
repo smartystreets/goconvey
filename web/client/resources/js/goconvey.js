@@ -371,6 +371,9 @@ function wireup()
 			case 87:		// w
 				$('#path').focus();
 				break;
+			case 80:		// p
+				$('#play-pause').click();
+				break;
 		}
 
 		return suppress(e);
