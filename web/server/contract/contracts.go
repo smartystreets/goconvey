@@ -16,6 +16,7 @@ type (
 		LongPollStatus(writer http.ResponseWriter, request *http.Request)
 		Results(writer http.ResponseWriter, request *http.Request)
 		Execute(writer http.ResponseWriter, request *http.Request)
+		TogglePause(writer http.ResponseWriter, request *http.Request)
 	}
 
 	Executor interface {

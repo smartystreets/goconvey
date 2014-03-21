@@ -3,11 +3,13 @@ package contract
 import "log"
 
 type Monitor struct {
-	scanner  Scanner
-	watcher  Watcher
-	executor Executor
-	server   Server
-	sleep    func()
+	scanner     Scanner
+	watcher     Watcher
+	executor    Executor
+	server      Server
+	paused      bool
+	pauseUpdate chan bool
+	sleep       func()
 }
 
 func (self *Monitor) ScanForever() {
@@ -18,10 +20,21 @@ func (self *Monitor) ScanForever() {
 }
 
 func (self *Monitor) Scan() {
-	if self.scanner.Scan() {
+	self.updatePausedStatus()
+
+	if !self.paused && self.scanner.Scan() {
 		self.executeTests()
 	} else {
 		self.sleep()
+	}
+}
+
+func (self *Monitor) updatePausedStatus() {
+	select {
+	case <-self.pauseUpdate:
+		log.Println("Server is now paused:", !self.paused)
+		self.paused = !self.paused
+	default:
 	}
 }
 
@@ -37,12 +50,20 @@ func (self *Monitor) executeTests() {
 	log.Printf("Server updated with %d tested packages (revision: '%v').\n", len(output.Packages), output.Revision)
 }
 
-func NewMonitor(scanner Scanner, watcher Watcher, executor Executor, server Server, sleep func()) *Monitor {
+func NewMonitor(
+	scanner Scanner,
+	watcher Watcher,
+	executor Executor,
+	server Server,
+	pauseUpdate chan bool,
+	sleep func()) *Monitor {
+
 	self := new(Monitor)
 	self.scanner = scanner
 	self.watcher = watcher
 	self.executor = executor
 	self.server = server
+	self.pauseUpdate = pauseUpdate
 	self.sleep = sleep
 	return self
 }

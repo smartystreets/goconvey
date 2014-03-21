@@ -14,6 +14,8 @@ type HTTPServer struct {
 	executor     contract.Executor
 	latest       *contract.CompleteOutput
 	statusUpdate chan bool
+	pauseUpdate  chan bool
+	paused       bool
 }
 
 func (self *HTTPServer) ReceiveUpdate(update *contract.CompleteOutput) {
@@ -99,6 +101,7 @@ func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Requ
 	response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	response.Header().Set("Pragma", "no-cache")
 	response.Header().Set("Expires", "0")
+	self.latest.Paused = self.paused
 	stuff, _ := json.Marshal(self.latest)
 	response.Write(stuff)
 }
@@ -111,12 +114,21 @@ func (self *HTTPServer) execute() {
 	self.latest = self.executor.ExecuteTests(self.watcher.WatchedFolders())
 }
 
-func NewHTTPServer(watcher contract.Watcher, executor contract.Executor, status chan bool) *HTTPServer {
+func (self *HTTPServer) TogglePause(response http.ResponseWriter, request *http.Request) {
+	select {
+	case self.pauseUpdate <- true:
+		self.paused = !self.paused
+	default:
+	}
+
+	fmt.Fprint(response, self.paused) // we could write out whatever helps keep the UI honest...
+}
+
+func NewHTTPServer(watcher contract.Watcher, executor contract.Executor, status chan bool, pause chan bool) *HTTPServer {
 	self := new(HTTPServer)
 	self.watcher = watcher
 	self.executor = executor
 	self.statusUpdate = status
+	self.pauseUpdate = pause
 	return self
 }
-
-var _ = fmt.Sprintf("Hi")

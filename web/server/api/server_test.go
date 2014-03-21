@@ -104,12 +104,13 @@ func TestHTTPServer(t *testing.T) {
 			fixture.QueryRootWatch(true)
 
 			Convey("The status channel buffer should have a true value", func() {
+				var value bool
 				select {
-				case val := <-fixture.server.statusUpdate:
-					So(val, ShouldBeTrue)
+				case value = <-fixture.statusUpdate:
 				default:
-					So(false, ShouldBeTrue)
 				}
+
+				So(value, ShouldBeTrue)
 			})
 		})
 
@@ -292,6 +293,30 @@ func TestHTTPServer(t *testing.T) {
 				So(status, ShouldEqual, http.StatusOK)
 			})
 		})
+
+		Convey("When the pause setting is toggled via the server", func() {
+			paused := fixture.TogglePause()
+
+			Convey("The pause channel buffer should have a true value", func() {
+				var value bool
+				select {
+				case value = <-fixture.pauseUpdate:
+				default:
+				}
+				So(value, ShouldBeTrue)
+			})
+
+			Convey("The latest results should show that the server is paused", func() {
+				fixture.ReceiveUpdate(&contract.CompleteOutput{Revision: "asdf"})
+				update, _ := fixture.RequestLatest()
+
+				So(update.Paused, ShouldBeTrue)
+			})
+
+			Convey("The toggle handler should return its new status", func() {
+				So(paused, ShouldEqual, "true")
+			})
+		})
 	})
 }
 
@@ -309,9 +334,11 @@ func statusRotation(i, total int) string {
 /********* Server Fixture *********/
 
 type ServerFixture struct {
-	server   *HTTPServer
-	watcher  *FakeWatcher
-	executor *FakeExecutor
+	server       *HTTPServer
+	watcher      *FakeWatcher
+	executor     *FakeExecutor
+	statusUpdate chan bool
+	pauseUpdate  chan bool
 }
 
 func (self *ServerFixture) ReceiveUpdate(update *contract.CompleteOutput) {
@@ -434,13 +461,23 @@ func (self *ServerFixture) ManualExecution() int {
 	return response.Code
 }
 
+func (self *ServerFixture) TogglePause() string {
+	request, _ := http.NewRequest("POST", "http://localhost:8080/pause", nil)
+	response := httptest.NewRecorder()
+
+	self.server.TogglePause(response, request)
+
+	return response.Body.String()
+}
+
 func newServerFixture() *ServerFixture {
 	self := new(ServerFixture)
 	self.watcher = newFakeWatcher()
 	self.watcher.SetRootWatch(initialRoot)
-	statusUpdate := make(chan bool, 1)
-	self.executor = newFakeExecutor("", statusUpdate)
-	self.server = NewHTTPServer(self.watcher, self.executor, statusUpdate)
+	self.statusUpdate = make(chan bool, 1)
+	self.executor = newFakeExecutor("", self.statusUpdate)
+	self.pauseUpdate = make(chan bool, 1)
+	self.server = NewHTTPServer(self.watcher, self.executor, self.statusUpdate, self.pauseUpdate)
 	return self
 }
 
