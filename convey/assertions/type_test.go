@@ -50,3 +50,22 @@ func TestShouldImplement(t *testing.T) {
 	fail(t, so(writer, ShouldImplement, ioReader), "Expected: 'io.Reader'\nActual:   '*http.ResponseWriter'")
 	pass(t, so(reader, ShouldImplement, ioReader))
 }
+
+func TestShouldNotImplement(t *testing.T) {
+	var ioReader *io.Reader = nil
+	var writer *http.ResponseWriter = nil
+	var reader io.Reader = bytes.NewBufferString("")
+
+	fail(t, so(reader, ShouldNotImplement), "This assertion requires exactly 1 comparison values (you provided 0).")
+	fail(t, so(reader, ShouldNotImplement, ioReader, ioReader), "This assertion requires exactly 1 comparison values (you provided 2).")
+	fail(t, so(reader, ShouldNotImplement, ioReader, ioReader, ioReader), "This assertion requires exactly 1 comparison values (you provided 3).")
+
+	fail(t, so(reader, ShouldNotImplement, "foo"), shouldCompareWithInterfacePointer)
+	fail(t, so(reader, ShouldNotImplement, 1), shouldCompareWithInterfacePointer)
+	fail(t, so(reader, ShouldNotImplement, nil), shouldCompareWithInterfacePointer)
+
+	fail(t, so(reader, ShouldNotImplement, ioReader), "Expected         '*bytes.Buffer'\nto NOT implement   'io.Reader' (but it did)!")
+	pass(t, so(nil, ShouldNotImplement, ioReader))
+	pass(t, so(1, ShouldNotImplement, ioReader))
+	pass(t, so(writer, ShouldNotImplement, ioReader))
+}

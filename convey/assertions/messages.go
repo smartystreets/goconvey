@@ -67,6 +67,7 @@ const ( // type checking
 	shouldNotHaveBeenA = "Expected '%v' to NOT be: '%v' (but it was)!"
 
 	shouldHaveImplemented             = "Expected: '%v'\nActual:   '%v'"
+	shouldNotHaveImplemented          = "Expected         '%v'\nto NOT implement '%v'\n(but it did)!"
 	shouldCompareWithInterfacePointer = "The expected value must be a pointer to an interface type (eg. *fmt.Stringer)"
 )
 

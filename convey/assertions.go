@@ -47,6 +47,8 @@ var (
 
 	ShouldHaveSameTypeAs    = assertions.ShouldHaveSameTypeAs
 	ShouldNotHaveSameTypeAs = assertions.ShouldNotHaveSameTypeAs
+	ShouldImplement         = assertions.ShouldImplement
+	ShouldNotImplement      = assertions.ShouldNotImplement
 
 	ShouldHappenBefore         = assertions.ShouldHappenBefore
 	ShouldHappenOnOrBefore     = assertions.ShouldHappenOnOrBefore
@@ -58,6 +60,4 @@ var (
 	ShouldHappenWithin         = assertions.ShouldHappenWithin
 	ShouldNotHappenWithin      = assertions.ShouldNotHappenWithin
 	ShouldBeChronological      = assertions.ShouldBeChronological
-
-	ShouldImplement = assertions.ShouldImplement
 )
