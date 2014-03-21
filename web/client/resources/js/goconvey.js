@@ -746,7 +746,7 @@ function process(data, status, jqxhr)
 	if (current().overall.passed == current().overall.assertions && current().overall.status.class == "ok")
 		$('title').text("GoConvey (ALL PASS)");
 	else
-		$('title').text("GoConvey (" + current().overall.passed + "/" + current().overall.assertions + " pass)");
+		$('title').text("GoConvey [" + current().overall.status.text + "] " + current().overall.passed + "/" + current().overall.assertions);
 
 	// All done!
 	log("Processing complete");
