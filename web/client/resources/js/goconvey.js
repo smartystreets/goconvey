@@ -1,64 +1,3 @@
-var convey = {
-
-	// Configure the GoConvey web UI client inhere
-	config: {
-		// Install new themes by adding them here; the first one will be default
-		themes: {
-			"dark": { name: "Dark", filename: "dark.css", coverage: "hsla({{hue}}, 75%, 30%, .5)" },
-			"light": { name: "Light", filename: "light.css", coverage: "hsla({{hue}}, 62%, 75%, 1)" }
-		},
-
-		// Path to the themes (end with forward-slash)
-		themePath: "/resources/css/themes/"
-	},
-
-
-
-	//	*** Don't edit below here unless you're brave ***
-
-
-	statuses: {				// contains some constants related to overall test status
-		pass: { class: 'ok', text: "Pass" },	// class name must also be that in the favicon file name
-		fail: { class: 'fail', text: "Fail" },
-		panic: { class: 'panic', text: "Panic" },
-		buildfail: { class: 'buildfail', text: "Build Failure" }
-	},
-	frameCounter: 0,		// gives each frame a unique ID
-	maxHistory: 20,			// how many tests to keep in the history
-	notif: undefined,		// the notification currently being displayed
-	notifTimer: undefined,	// the timer that clears the notifications automatically
-	poller: new Poller(),	// the server poller
-	status: "",				// what the _server_ is currently doing (not overall test results)
-	overallClass: "",		// class name of the "overall" status banner
-	theme: "",				// theme currently being used
-	packageStates: {},		// packages manually collapsed or expanded during this page's lifetime
-	layout: {
-		selClass: "sel",	// CSS class when an element is "selected"
-		header: undefined,	// container element of the header area (overall, controls)
-		frame: undefined,	// container element of the main body area (above footer)
-		footer: undefined	// container element of the footer (stuck to bottom)
-	},
-	history: [],			// complete history of states (test results and aggregated data), including the current one
-	moments: {},			// elements that display time relative to the current time, keyed by ID, with the moment() as a value
-	intervals: {},			// ntervals that execute periodically
-	intervalFuncs: {		// Functions executed by each interval in convey.intervals
-		time: function()
-		{
-			var t = new Date();
-			var h = zerofill(t.getHours(), 2);
-			var m = zerofill(t.getMinutes(), 2);
-			var s = zerofill(t.getSeconds(), 2);
-			$('#time').text(h + ":" + m + ":" + s);
-		},
-		momentjs: function()
-		{
-			for (var id in convey.moments)
-				$('#'+id).html(convey.moments[id].fromNow());
-		}
-	}
-};
-
-
 $(init);
 
 $(window).load(function()
@@ -415,6 +354,9 @@ function wireup()
 	// Keyboard shortcuts!
 	$(document).keyup(function(e)
 	{
+		if (e.ctrlKey || e.metaKey || e.shiftKey)
+			return;
+
 		switch (e.keyCode)
 		{
 			case 67:		// c
@@ -435,7 +377,7 @@ function wireup()
 	});
 	$('body').on('keyup', 'input, textarea, select', function(e)
 	{
-		// If they're typing something, don't let the event get
+		// If user is typing something, don't let this event bubble
 		// up to the document to annoyingly fire keyboard shortcuts
 		suppress(e);
 	});
@@ -891,164 +833,6 @@ function renderFrame(frame)
 
 
 
-
-
-
-
-
-function Poller(config)
-{
-	// CONFIGURABLE
-	var endpoints = {
-		up: "/status/poll",		// url to poll when the server is up
-		down: "/status"			// url to poll at regular intervals when the server is down
-	};
-	var timeout =  60000 * 2;	// how many ms between polling attempts
-	var intervalMs = 1000;		// ms between polls when the server is down
-
-	// INTERNAL STATE
-	var up = true;				// whether or not we can connect to the server
-	var req;					// the pending ajax request
-	var downPoller;				// the setInterval for polling when the server is down
-	var self = this;
-
-	if (typeof config === 'object')
-	{
-		if (typeof config.endpoints === 'object')
-		{
-			endpoints.up = config.endpoints.up;
-			endpoints.down = config.endpoints.down;
-		}
-		if (config.timeout)
-			timeout = config.timeout;
-		if (config.interval)
-			intervalMs = config.interval;
-	}
-
-	$(self).on('pollstart', function(event, data) {
-		log("Started poller");
-	}).on('pollstop', function(event, data) {
-		log("Stopped poller");
-	});
-
-
-	this.start = function()
-	{
-		if (req)
-			return false;
-		doPoll();
-		$(self).trigger('pollstart', {url: endpoints.up, timeout: timeout});
-		return true;
-	};
-
-	this.stop = function()
-	{
-		if (!req)
-			return false;
-		req.abort();
-		req = undefined;
-		stopped = true;
-		stopDownPoller();
-		$(self).trigger('pollstop', {});
-		return true;
-	};
-
-	this.setTimeout = function(tmout)
-	{
-		timeout = tmout;	// takes effect at next poll
-	};
-
-	this.isUp = function()
-	{
-		return up;
-	};
-
-	function doPoll()
-	{
-		req = $.ajax({
-			url: endpoints.up + "?timeout=" + timeout,
-			timeout: timeout
-		}).done(pollSuccess).fail(pollFailed);
-	}
-
-	function pollSuccess(data, message, jqxhr)
-	{
-		stopDownPoller();
-		doPoll();
-		
-		var wasUp = up;
-		up = true;
-		status = data;
-
-		var arg = {
-			status: status,
-			data: data,
-			jqxhr: jqxhr
-		};
-
-		if (!wasUp)
-			$(convey.poller).trigger('serverstarting', arg);
-		else
-			$(self).trigger('pollsuccess', arg);
-	}
-
-	function pollFailed(jqxhr, message, exception)
-	{
-		if (message == "timeout")
-		{
-			log("Poller timeout; re-polling...", req);
-			doPoll();	// in our case, timeout actually means no activity; poll again
-			return;
-		}
-
-		up = false;
-
-		downPoller = setInterval(function()
-		{
-			// If the server is still down, do a ping to see
-			// if it's up; pollSuccess() will do the rest.
-			if (!up)
-				$.get(endpoints.down).done(pollSuccess);
-		}, intervalMs);
-
-		$(self).trigger('pollfail', {
-			exception: exception,
-			message: message,
-			jqxhr: jqxhr
-		});
-	}
-
-	function stopDownPoller()
-	{
-		if (!downPoller)
-			return;
-		clearInterval(downPoller);
-		downPoller = undefined;
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function enumSel(id, val)
 {
 	if (typeof id === "string" && typeof val === "string")
@@ -1207,6 +991,7 @@ function colorizeCoverageBars()
 		});
 	});
 }
+
 
 function getFrame(id)
 {
