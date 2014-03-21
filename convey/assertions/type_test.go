@@ -1,6 +1,11 @@
 package assertions
 
-import "testing"
+import (
+	"bytes"
+	"io"
+	"net/http"
+	"testing"
+)
 
 func TestShouldHaveSameTypeAs(t *testing.T) {
 	serializer = newFakeSerializer()
@@ -24,4 +29,24 @@ func TestShouldNotHaveSameTypeAs(t *testing.T) {
 
 	pass(t, so(nil, ShouldNotHaveSameTypeAs, 0))
 	pass(t, so(1, ShouldNotHaveSameTypeAs, "asdf"))
+}
+
+func TestShouldImplement(t *testing.T) {
+	var ioReader *io.Reader = nil
+	var writer *http.ResponseWriter = nil
+	var reader = bytes.NewBufferString("")
+
+	fail(t, so(reader, ShouldImplement), "This assertion requires exactly 1 comparison values (you provided 0).")
+	fail(t, so(reader, ShouldImplement, ioReader, ioReader), "This assertion requires exactly 1 comparison values (you provided 2).")
+	fail(t, so(reader, ShouldImplement, ioReader, ioReader, ioReader), "This assertion requires exactly 1 comparison values (you provided 3).")
+
+	fail(t, so(reader, ShouldImplement, "foo"), shouldCompareWithInterfacePointer)
+	fail(t, so(reader, ShouldImplement, 1), shouldCompareWithInterfacePointer)
+	fail(t, so(reader, ShouldImplement, nil), shouldCompareWithInterfacePointer)
+
+	fail(t, so(nil, ShouldImplement, ioReader), "Expected: 'io.Reader'\nActual:   '<nil>'")
+	fail(t, so(1, ShouldImplement, ioReader), "Expected: 'io.Reader'\nActual:   '1'")
+
+	fail(t, so(writer, ShouldImplement, ioReader), "Expected: 'io.Reader'\nActual:   '*http.ResponseWriter'")
+	pass(t, so(reader, ShouldImplement, ioReader))
 }
