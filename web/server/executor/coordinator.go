@@ -55,7 +55,7 @@ func (self *concurrentCoordinator) checkForErrors() {
 	for _, folder := range self.folders {
 		if hasUnexpectedError(folder) {
 			log.Println("Unexpected error at", folder.Path)
-			log.Fatal(folder.Error)
+			panic(folder.Error)
 		}
 	}
 }
