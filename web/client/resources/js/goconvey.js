@@ -1178,7 +1178,7 @@ function notif()
 
 function showServerDown(message)
 {
-	$('.server-down .message').text(message);
+	$('.server-down .notice-message').text(message);
 	$('.server-down').show();
 	$('.server-not-down').hide();
 	reframe();
@@ -1345,8 +1345,9 @@ function customMarkupPipes()
 		basePath = new RegExp($('#path').val()+'[\\/]', 'gi');
 		return str.replace(basePath, '');
 	};
-	Mark.pipes.showhtml = function(str)
+	Mark.pipes.htmlSafe = function(str)
 	{
+		// NOTE: The line below turns literal "$$" into "$" because of how regex are evaluated (see issue 157)
 		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	};
 	Mark.pipes.nothing = function(str)

@@ -48,7 +48,7 @@
 				</div>
 				<div class="server-down">
 					<span class="flash">NOTICE:</span>
-					<span class="message"><!-- Populated by Javascript --></span>
+					<span class="notice-message"><!-- Populated by Javascript --></span>
 				</div>
 
 				<hr class="clear">
@@ -78,11 +78,6 @@
 								</ol>
 							</div>
 						</div>
-						<!--<div class="setting">
-							<div class="setting-val">
-								<label><input type="checkbox">Full coverage report</label>
-							</div>
-						</div>-->
 					</div>
 				</div>
 
@@ -321,8 +316,8 @@
 
 							</td>
 							<td colspan="3" class="depth-0 story-line-desc">
-								<b>{{TestName|showhtml}}</b>
-								{{if Message}}<div class="message">{{Message|showhtml}}</div>{{/if}}
+								<b>{{TestName|htmlSafe}}</b>
+								{{if Message}}<div class="message">{{Message|htmlSafe}}</div>{{/if}}
 							</td>
 						</tr>
 
