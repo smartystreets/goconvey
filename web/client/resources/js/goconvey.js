@@ -412,6 +412,34 @@ function wireup()
 			$('#show-history').click();
 	});
 
+	// Keyboard shortcuts!
+	$(document).keyup(function(e)
+	{
+		switch (e.keyCode)
+		{
+			case 67:		// c
+				$('#show-gen').click();
+				break;
+			case 82:		// r
+				$('#run-tests').click();
+				break;
+			case 78:		// n
+				$('#toggle-notif').click();
+				break;
+			case 87:		// w
+				$('#path').focus();
+				break;
+		}
+
+		return suppress(e);
+	});
+	$('body').on('keyup', 'input, textarea, select', function(e)
+	{
+		// If they're typing something, don't let the event get
+		// up to the document to annoyingly fire keyboard shortcuts
+		suppress(e);
+	});
+
 	// Keep everything positioned and sized properly on window resize
 	reframe();
 	$(window).resize(reframe);
