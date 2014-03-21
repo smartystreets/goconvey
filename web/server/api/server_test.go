@@ -49,45 +49,6 @@ func TestHTTPServer(t *testing.T) {
 			})
 		})
 
-		lpRequests := 6 // Number of long-poll requests and status updates to try
-
-		Convey("Given a long-polling request for a status update, when initially idle", func() {
-			fixture.executor.status = "idle"
-			lpDone := make(chan string)
-
-			go func() {
-				for i := 0; i < lpRequests; i++ {
-					request, _ := http.NewRequest("GET", "http://localhost:8080/status/poll", nil)
-					response := httptest.NewRecorder()
-					fixture.server.LongPollStatus(response, request)
-					_, newStatus := response.Code, strings.TrimSpace(response.Body.String())
-					lpDone <- newStatus
-				}
-			}()
-
-			SkipConvey("When the status is changed by the executor, the response should immediately reflect that", func() {
-				for i := 0; i < lpRequests; i++ {
-					expectedStatus := statusRotation(i, lpRequests)
-					fixture.SetExecutorStatus(expectedStatus)
-
-					select {
-					case actualStatus := <-lpDone:
-						So(actualStatus, ShouldEqual, expectedStatus)
-					case <-time.After(500 * time.Millisecond):
-						So("TIMEOUT", ShouldEqual, expectedStatus)
-					}
-
-					Convey("The response should be sent immediately with the correct status", func() {
-						// TODO: When issue #81 is fixed and Conveys can be nested
-						// inside loops again, let's put the select {...} stuff
-						// from the lines just above and put it inside its own convey
-						// to actually make the assertions. Also see executor_test.go
-						// for a similar problem.
-					})
-				}
-			})
-		})
-
 		Convey("When the root watch is queried", func() {
 			root, status := fixture.QueryRootWatch(false)
 
@@ -538,5 +499,3 @@ func newFakeExecutor(status string, statusUpdate chan chan string) *FakeExecutor
 	self.statusUpdate = statusUpdate
 	return self
 }
-
-var _ = fmt.Sprintf("hi")

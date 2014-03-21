@@ -28,37 +28,12 @@ func TestExecutor(t *testing.T) {
 			})
 		})
 
-		// TODO: adjust test for new UI / long-polling
-		SkipConvey("When the status is updated, the notification channel should have a true value", func() {
-			fixture.executor.status = Idle
-			updateCount := 6
+		Convey("When the status is updated", func() {
+			fixture.executor.setStatus(Executing)
 
-			for i := 0; i < updateCount; i++ {
-				fixture.executor.setStatus(statusRotation(i, updateCount))
-
-				/*select {
-				case val := <-fixture.executor.statusUpdate:
-					So(val, ShouldBeTrue)
-				default:
-					So(false, ShouldBeTrue)
-				}
-				Convey("The status notification channel should have a true value", func() {
-
-						// TODO: When issue #81 is fixed and Conveys can be nested
-						// inside loops agian, I'd rather put the select {...} stuff
-						// in this convey instead. Also see server_test.go for
-						// a similar issue.
-
-						select {
-						case val := <-fixture.executor.statusUpdate:
-							So(val, ShouldBeTrue)
-						default:
-							fixture.executor.statusUpdate <- true
-							So(false, ShouldBeTrue)
-						}
-
-				})*/
-			}
+			Convey("The status flag should be set to true", func() {
+				So(fixture.executor.statusFlag, ShouldBeTrue)
+			})
 		})
 
 		Convey("During test execution", func() {
