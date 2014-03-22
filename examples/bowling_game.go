@@ -1,32 +1,31 @@
 package examples
 
 type Game struct {
-	rolls     []int
-	rollIndex int
+	rolls   []int
+	current int
 }
 
 func NewGame() *Game {
 	game := new(Game)
-	game.rolls = make([]int, 21)
+	game.rolls = make([]int, maxThrowsPerGame)
 	return game
 }
 
 func (self *Game) Roll(pins int) {
-	self.rolls[self.rollIndex] = pins
-	self.rollIndex++
+	self.rolls[self.current] = pins
+	self.current++
 }
 
-func (self *Game) Score() int {
-	sum, throw, frame := 0, 0, 0
-	for ; frame < 10; frame++ {
+func (self *Game) Score() (sum int) {
+	for throw, frame := 0, 0; frame < framesPerGame; frame++ {
 		if self.isStrike(throw) {
-			sum += self.strikeBonus(throw)
+			sum += self.strikeBonusFor(throw)
 			throw += 1
 		} else if self.isSpare(throw) {
-			sum += self.spareBonus(throw)
+			sum += self.spareBonusFor(throw)
 			throw += 2
 		} else {
-			sum += self.currentFrame(throw)
+			sum += self.framePointsAt(throw)
 			throw += 2
 		}
 	}
@@ -34,17 +33,25 @@ func (self *Game) Score() int {
 }
 
 func (self *Game) isStrike(throw int) bool {
-	return self.rolls[throw] == 10
+	return self.rolls[throw] == allPins
 }
+func (self *Game) strikeBonusFor(throw int) int {
+	return allPins + self.framePointsAt(throw+1)
+}
+
 func (self *Game) isSpare(throw int) bool {
-	return self.rolls[throw]+self.rolls[throw+1] == 10
+	return self.framePointsAt(throw) == allPins
 }
-func (self *Game) strikeBonus(throw int) int {
-	return 10 + self.rolls[throw+1] + self.rolls[throw+2]
+func (self *Game) spareBonusFor(throw int) int {
+	return allPins + self.rolls[throw+2]
 }
-func (self *Game) spareBonus(throw int) int {
-	return 10 + self.rolls[throw+2]
-}
-func (self *Game) currentFrame(throw int) int {
+
+func (self *Game) framePointsAt(throw int) int {
 	return self.rolls[throw] + self.rolls[throw+1]
 }
+
+const (
+	allPins          = 10
+	framesPerGame    = 10
+	maxThrowsPerGame = 21
+)
