@@ -192,7 +192,8 @@ a.link-fa.disabled {
 	float: left;
 	margin-right: .75em;
 	color: #FFF;
-	font: bold 80px 'Georgia', serif;
+	font-weight: bold;
+	font-size: 80px;
 	text-transform: uppercase;
 }
 
@@ -209,7 +210,7 @@ a.link-fa.disabled {
 
 .overall .summary {
 	float: left;
-	font: 18px/1.25em monospace;
+	font: 18px/1.25em "Lucida Console", Monaco, monospace;;
 	color: rgba(255, 255, 255, .85);
 	margin-top: .5em;
 }
