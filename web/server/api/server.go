@@ -107,7 +107,9 @@ func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Requ
 	response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	response.Header().Set("Pragma", "no-cache")
 	response.Header().Set("Expires", "0")
-	self.latest.Paused = self.paused
+	if self.latest != nil {
+		self.latest.Paused = self.paused
+	}
 	stuff, _ := json.Marshal(self.latest)
 	response.Write(stuff)
 }
