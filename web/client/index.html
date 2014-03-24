@@ -323,7 +323,7 @@
 							<td class="story-line-status"></td>
 							<td class="story-line-summary-container">
 								
-									{{if Stories|empty}}
+									{{if Stories|empty}} <!-- Not apparently a GoConvey test -->
 										{{if _passed}}<span class="statusicon ok">&#10003;</span><br>{{/if}}
 										{{if _failed}}<span class="statusicon fail">&#10007;</span><br>{{/if}}
 										{{if _panicked}}<span class="statusicon panic"><i class="fa fa-bolt"></i></span><br>{{/if}}

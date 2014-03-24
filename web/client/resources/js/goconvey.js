@@ -666,6 +666,18 @@ function process(data, status, jqxhr)
 				assignStatus(story);
 				uniqueID++;
 			}
+
+			if (!test.Passed && !test._failed && !test._panicked)
+			{
+				// Edge case: Developer is using the GoConvey DSL, but maybe
+				// in some cases is using t.Error() instead of So() assertions.
+				// This can be detected, assuming all child stories with
+				// assertions (in this test) are passing.
+				test._status = convey.statuses.fail;
+				pkg._failed++;
+				test._failed++;
+				current().assertions.failed.push(test);
+			}
 		}
 	}
 
