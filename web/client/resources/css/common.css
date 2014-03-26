@@ -499,6 +499,7 @@ footer .server-down {
 
 .story-line-desc .message {
 	font-family: 'Menlo', 'Share Tech Mono', monospace;
+	white-space: pre-wrap;
 }
 
 .statusicon {
