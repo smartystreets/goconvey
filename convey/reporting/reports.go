@@ -139,17 +139,16 @@ func caller() (file string, line int) {
 	file, line, _ = gotest.ResolveExternalCaller()
 	return
 }
+
 func stackTrace() string {
 	buffer := make([]byte, 1024*64)
-	runtime.Stack(buffer, false)
-	formatted := strings.Trim(string(buffer), string([]byte{0}))
-	return removeInternalEntries(formatted)
+	n := runtime.Stack(buffer, false)
+	return removeInternalEntries(string(buffer[:n]))
 }
 func fullStackTrace() string {
 	buffer := make([]byte, 1024*64)
-	runtime.Stack(buffer, true)
-	formatted := strings.Trim(string(buffer), string([]byte{0}))
-	return removeInternalEntries(formatted)
+	n := runtime.Stack(buffer, true)
+	return removeInternalEntries(string(buffer[:n]))
 }
 func removeInternalEntries(stack string) string {
 	lines := strings.Split(stack, newline)
