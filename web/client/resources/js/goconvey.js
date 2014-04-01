@@ -1029,7 +1029,6 @@ function reframe()
 
 	var pathWidth = $(window).width() - $('#logo').outerWidth() - $('#control-buttons').outerWidth() - 10;
 	$('#path-container').width(pathWidth);
-
 }
 
 function notif()
