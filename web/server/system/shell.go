@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -80,9 +81,7 @@ func NewShell(gobin string, extraFlags string, cover bool, reports string) *Shel
 	self.gobin = gobin
 	self.extraFlags = strings.Split(extraFlags, " ")
 	self.reports = reports
-	if cover && goVersion_1_2_orGreater() {
-		self.coverage = true
-	}
+	self.coverage = cover && goVersion_1_2_orGreater() && ensureReportDirectoryExists(self.reports)
 	return self
 }
 
@@ -91,3 +90,29 @@ func goVersion_1_2_orGreater() bool {
 	major, minor := version[2], version[4]
 	return major >= byte('1') && minor >= byte('2')
 }
+
+func ensureReportDirectoryExists(reports string) bool {
+	if exists(reports) {
+		return true
+	}
+
+	if err := os.Mkdir(reports, 0755); err == nil {
+		return true
+	}
+
+	log.Printf(ReportDirectoryUnavailable, reports)
+	return false
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
+}
+
+const ReportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
