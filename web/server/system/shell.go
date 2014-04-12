@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -10,10 +11,10 @@ import (
 )
 
 type Shell struct {
-	coverage   bool
-	gobin      string
-	reports    string
-	extraFlags []string // -short
+	coverage bool
+	gobin    string
+	reports  string
+	short    bool
 }
 
 func (self *Shell) GoTest(directory, packageName string) (output string, err error) {
@@ -47,13 +48,14 @@ func (self *Shell) goTest(directory, packageName string) (output string, err err
 }
 
 func (self *Shell) runWithCoverage(directory, profile string) (string, error) {
-	arguments := []string{"test", "-v", "-timeout=-42s", "-covermode=set", "-coverprofile=" + profile}
-	arguments = append(arguments, self.extraFlags...)
+	arguments := []string{
+		"test", "-v", fmt.Sprintf("-short=%t", self.short),
+		"-timeout=-42s", "-covermode=set", "-coverprofile=" + profile,
+	}
 	return self.execute(directory, self.gobin, arguments...)
 }
 func (self *Shell) runWithoutCoverage(directory string) (string, error) {
-	arguments := []string{"test", "-v", "-timeout=-42s"}
-	arguments = append(arguments, self.extraFlags...)
+	arguments := []string{"test", "-v", fmt.Sprintf("-short=%t", self.short), "-timeout=-42s"}
 	return self.execute(directory, self.gobin, arguments...)
 }
 
@@ -80,10 +82,10 @@ func (self *Shell) Setenv(key, value string) error {
 	return nil
 }
 
-func NewShell(gobin string, extraFlags string, cover bool, reports string) *Shell {
+func NewShell(gobin string, short bool, cover bool, reports string) *Shell {
 	self := new(Shell)
 	self.gobin = gobin
-	self.extraFlags = strings.Split(extraFlags, " ")
+	self.short = short
 	self.coverage = self.coverageEnabled(cover, reports)
 	self.reports = reports
 	return self
