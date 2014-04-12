@@ -13,7 +13,7 @@ type Shell struct {
 	coverage   bool
 	gobin      string
 	reports    string
-	extraFlags []string
+	extraFlags []string // -short
 }
 
 func (self *Shell) GoTest(directory, packageName string) (output string, err error) {
@@ -29,6 +29,10 @@ func (self *Shell) compileDependencies(directory string) (output string, err err
 }
 
 func (self *Shell) goTest(directory, packageName string) (output string, err error) {
+	if !self.coverage {
+		return self.runWithoutCoverage(directory)
+	}
+
 	reportFilename := strings.Replace(packageName, string(os.PathSeparator), "-", -1)
 	reportPath := filepath.Join(self.reports, reportFilename)
 	profile := reportPath + ".txt"
@@ -80,15 +84,41 @@ func NewShell(gobin string, extraFlags string, cover bool, reports string) *Shel
 	self := new(Shell)
 	self.gobin = gobin
 	self.extraFlags = strings.Split(extraFlags, " ")
+	self.coverage = self.coverageEnabled(cover, reports)
 	self.reports = reports
-	self.coverage = cover && goVersion_1_2_orGreater() && ensureReportDirectoryExists(self.reports)
 	return self
+}
+
+func (self *Shell) coverageEnabled(cover bool, reports string) bool {
+	return (cover &&
+		goVersion_1_2_orGreater() &&
+		self.coverToolInstalled() &&
+		ensureReportDirectoryExists(reports))
 }
 
 func goVersion_1_2_orGreater() bool {
 	version := runtime.Version() // 'go1.2....'
 	major, minor := version[2], version[4]
-	return major >= byte('1') && minor >= byte('2')
+	version_1_2 := major >= byte('1') && minor >= byte('2')
+	if !version_1_2 {
+		log.Printf(pleaseUpgradeGoVersion, version)
+		return false
+	}
+	return true
+}
+
+func (self *Shell) coverToolInstalled() bool {
+	working, err := os.Getwd()
+	if err != nil {
+		working = "."
+	}
+	output, _ := self.execute(working, "go", "tool", "cover")
+	installed := strings.Contains(output, "Usage of 'go tool cover':")
+	if !installed {
+		log.Print(coverToolMissing)
+		return false
+	}
+	return true
 }
 
 func ensureReportDirectoryExists(reports string) bool {
@@ -100,7 +130,7 @@ func ensureReportDirectoryExists(reports string) bool {
 		return true
 	}
 
-	log.Printf(ReportDirectoryUnavailable, reports)
+	log.Printf(reportDirectoryUnavailable, reports)
 	return false
 }
 
@@ -115,4 +145,8 @@ func exists(path string) bool {
 	return false
 }
 
-const ReportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
+const (
+	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
+	coverToolMissing           = "Go cover tool is not installed or not accessible: `go get code.google.com/p/go.tools/cmd/cover`\n"
+	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
+)
