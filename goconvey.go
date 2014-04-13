@@ -21,7 +21,7 @@ import (
 	executor "github.com/smartystreets/goconvey/web/server/executor"
 	parser "github.com/smartystreets/goconvey/web/server/parser"
 	"github.com/smartystreets/goconvey/web/server/system"
-	watcher "github.com/smartystreets/goconvey/web/server/watcher"
+	watch "github.com/smartystreets/goconvey/web/server/watcher"
 )
 
 func init() {
@@ -101,7 +101,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
 	shell := system.NewShell(gobin, short, cover, reports)
 
-	watcher := watcher.NewWatcher(depthLimit, shell)
+	watcher := watch.NewWatcher(depthLimit, shell)
 	watcher.Adjust(working)
 
 	parser := parser.NewParser(parser.ParsePackageResults)
@@ -111,7 +111,7 @@ func wireup() (*contract.Monitor, contract.Server) {
 	longpollChan, pauseUpdate := make(chan chan string), make(chan bool, 1)
 	executor := executor.NewExecutor(tester, parser, longpollChan)
 	server := api.NewHTTPServer(watcher, executor, longpollChan, pauseUpdate)
-	scanner := watcher.NewScanner(depthLimit, watcher)
+	scanner := watch.NewScanner(depthLimit, watcher)
 	monitor := contract.NewMonitor(scanner, watcher, executor, server, pauseUpdate, sleeper)
 
 	return monitor, server
