@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -97,10 +96,10 @@ func wireup() (*contract.Monitor, contract.Server) {
 		log.Fatal(err)
 	}
 
-	cover = coverageEnabled(cover, reports)
+	shellExecutor := system.NewCommandExecutor()
+	cover = coverageEnabled(cover, reports, shellExecutor)
 
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
-	shellExecutor := system.NewCommandExecutor()
 	shell := system.NewShell(shellExecutor, gobin, short, cover, reports)
 
 	watcher := watch.NewWatcher(depthLimit, shell)
@@ -119,10 +118,10 @@ func wireup() (*contract.Monitor, contract.Server) {
 	return monitor, server
 }
 
-func coverageEnabled(cover bool, reports string) bool {
+func coverageEnabled(cover bool, reports string, shell system.Executor) bool {
 	return (cover &&
 		goVersion_1_2_orGreater() &&
-		coverToolInstalled() &&
+		coverToolInstalled(shell) &&
 		ensureReportDirectoryExists(reports))
 }
 func goVersion_1_2_orGreater() bool {
@@ -135,24 +134,18 @@ func goVersion_1_2_orGreater() bool {
 	}
 	return true
 }
-func coverToolInstalled() bool {
+func coverToolInstalled(shell system.Executor) bool {
 	working, err := os.Getwd()
 	if err != nil {
 		working = "."
 	}
-	output := execute(working, "go", "tool", "cover")
+	output, _ := shell.Execute(working, "go", "tool", "cover")
 	installed := strings.Contains(output, "Usage of 'go tool cover':")
 	if !installed {
 		log.Print(coverToolMissing)
 		return false
 	}
 	return true
-}
-func execute(directory, name string, arguments ...string) string {
-	command := exec.Command(name, arguments...)
-	command.Dir = directory
-	rawOutput, _ := command.CombinedOutput()
-	return string(rawOutput)
 }
 func ensureReportDirectoryExists(reports string) bool {
 	if exists(reports) {

@@ -15,7 +15,7 @@ func TestShell(t *testing.T) {
 
 	for i, test := range cases {
 		Convey(fmt.Sprintf("%d - %s", i, test.String()), t, func() {
-			output, err = InvokeShell(test)
+			output, err = invokeShell(test)
 
 			So(output, ShouldEqual, test.output)
 			So(err, ShouldResemble, test.err)
@@ -23,7 +23,7 @@ func TestShell(t *testing.T) {
 	}
 }
 
-func InvokeShell(test TestCase) (string, error) {
+func invokeShell(test TestCase) (string, error) {
 	executor := NewCommandRecorder(test)
 	shell := NewShell(executor, "go", test.short, test.coverage, "reports")
 	return shell.GoTest("directory", "pack/age")
