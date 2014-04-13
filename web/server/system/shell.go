@@ -3,12 +3,12 @@ package system
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
 type Shell struct {
+	executor      Executor
 	coverage      bool
 	gobin         string
 	reportsPath   string
@@ -24,7 +24,7 @@ func (self *Shell) GoTest(directory, packageName string) (output string, err err
 }
 
 func (self *Shell) compilePackageDependencies(directory string) (output string, err error) {
-	return execute(directory, self.gobin, "test", "-i")
+	return self.executor.Execute(directory, self.gobin, "test", "-i")
 }
 
 func (self *Shell) goTest(directory, packageName string) (output string, err error) {
@@ -56,17 +56,17 @@ func (self *Shell) composeProfileName(packageName string) string {
 func (self *Shell) runWithCoverage(directory, packageName, profile string) (string, error) {
 	arguments := []string{"test", "-v", self.shortArgument, "-covermode=set", "-coverprofile=" + profile}
 	arguments = append(arguments, self.jsonOrNot(directory, packageName)...)
-	return execute(directory, self.gobin, arguments...)
+	return self.executor.Execute(directory, self.gobin, arguments...)
 }
 
 func (self *Shell) runWithoutCoverage(directory, packageName string) (string, error) {
 	arguments := []string{"test", "-v", self.shortArgument}
 	arguments = append(arguments, self.jsonOrNot(directory, packageName)...)
-	return execute(directory, self.gobin, arguments...)
+	return self.executor.Execute(directory, self.gobin, arguments...)
 }
 
 func (self *Shell) jsonOrNot(directory, packageName string) []string {
-	imports, err := execute(directory, self.gobin, "list", "-f", "'{{.TestImports}}'", packageName)
+	imports, err := self.executor.Execute(directory, self.gobin, "list", "-f", "'{{.TestImports}}'", packageName)
 	if !strings.Contains(imports, goconveyDSLImport) && err == nil {
 		return []string{}
 	}
@@ -74,7 +74,7 @@ func (self *Shell) jsonOrNot(directory, packageName string) []string {
 }
 
 func (self *Shell) generateCoverageReports(directory, profile, html string) {
-	execute(directory, self.gobin, "tool", "cover", "-html="+profile, "-o", html)
+	self.executor.Execute(directory, self.gobin, "tool", "cover", "-html="+profile, "-o", html)
 }
 
 func (self *Shell) Getenv(key string) string {
@@ -88,8 +88,9 @@ func (self *Shell) Setenv(key, value string) error {
 	return nil
 }
 
-func NewShell(gobin string, short bool, cover bool, reports string) *Shell {
+func NewShell(executor Executor, gobin string, short bool, cover bool, reports string) *Shell {
 	self := new(Shell)
+	self.executor = executor
 	self.gobin = gobin
 	self.shortArgument = fmt.Sprintf("-short=%t", short)
 	self.coverage = cover
@@ -97,17 +98,6 @@ func NewShell(gobin string, short bool, cover bool, reports string) *Shell {
 	return self
 }
 
-func execute(directory, name string, args ...string) (output string, err error) {
-	command := exec.Command(name, args...)
-	command.Dir = directory
-	rawOutput, err := command.CombinedOutput()
-	output = string(rawOutput)
-	return
-}
-
 const (
-	goconveyDSLImport          = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
-	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
-	coverToolMissing           = "Go cover tool is not installed or not accessible: `go get code.google.com/p/go.tools/cmd/cover`\n"
-	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
+	goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
 )

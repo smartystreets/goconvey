@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -99,7 +100,8 @@ func wireup() (*contract.Monitor, contract.Server) {
 	cover = coverageEnabled(cover, reports)
 
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
-	shell := system.NewShell(gobin, short, cover, reports)
+	shellExecutor := system.NewCommandExecutor()
+	shell := system.NewShell(shellExecutor, gobin, short, cover, reports)
 
 	watcher := watch.NewWatcher(depthLimit, shell)
 	watcher.Adjust(working)
@@ -138,13 +140,19 @@ func coverToolInstalled() bool {
 	if err != nil {
 		working = "."
 	}
-	output, _ := execute(working, "go", "tool", "cover")
+	output := execute(working, "go", "tool", "cover")
 	installed := strings.Contains(output, "Usage of 'go tool cover':")
 	if !installed {
 		log.Print(coverToolMissing)
 		return false
 	}
 	return true
+}
+func execute(directory, name string, arguments ...string) string {
+	command := exec.Command(name, arguments...)
+	command.Dir = directory
+	rawOutput, _ := command.CombinedOutput()
+	return string(rawOutput)
 }
 func ensureReportDirectoryExists(reports string) bool {
 	if exists(reports) {
@@ -190,5 +198,8 @@ var (
 )
 
 const (
-	initialConfiguration = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [short: %v]\n"
+	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [short: %v]\n"
+	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
+	coverToolMissing           = "Go cover tool is not installed or not accessible: `go get code.google.com/p/go.tools/cmd/cover`\n"
+	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
 )
