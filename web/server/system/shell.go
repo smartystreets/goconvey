@@ -2,11 +2,9 @@ package system
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 )
 
@@ -94,65 +92,9 @@ func NewShell(gobin string, short bool, cover bool, reports string) *Shell {
 	self := new(Shell)
 	self.gobin = gobin
 	self.shortArgument = fmt.Sprintf("-short=%t", short)
-	self.coverage = coverageEnabled(cover, reports)
+	self.coverage = cover
 	self.reportsPath = reports
 	return self
-}
-
-func coverageEnabled(cover bool, reports string) bool {
-	return (cover &&
-		goVersion_1_2_orGreater() &&
-		coverToolInstalled() &&
-		ensureReportDirectoryExists(reports))
-}
-
-func goVersion_1_2_orGreater() bool {
-	version := runtime.Version() // 'go1.2....'
-	major, minor := version[2], version[4]
-	version_1_2 := major >= byte('1') && minor >= byte('2')
-	if !version_1_2 {
-		log.Printf(pleaseUpgradeGoVersion, version)
-		return false
-	}
-	return true
-}
-
-func coverToolInstalled() bool {
-	working, err := os.Getwd()
-	if err != nil {
-		working = "."
-	}
-	output, _ := execute(working, "go", "tool", "cover")
-	installed := strings.Contains(output, "Usage of 'go tool cover':")
-	if !installed {
-		log.Print(coverToolMissing)
-		return false
-	}
-	return true
-}
-
-func ensureReportDirectoryExists(reports string) bool {
-	if exists(reports) {
-		return true
-	}
-
-	if err := os.Mkdir(reports, 0755); err == nil {
-		return true
-	}
-
-	log.Printf(reportDirectoryUnavailable, reports)
-	return false
-}
-
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return false
 }
 
 func execute(directory, name string, args ...string) (output string, err error) {

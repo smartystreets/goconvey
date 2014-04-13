@@ -13,14 +13,15 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	exec "github.com/smartystreets/goconvey/web/server/executor"
-	parse "github.com/smartystreets/goconvey/web/server/parser"
+	executor "github.com/smartystreets/goconvey/web/server/executor"
+	parser "github.com/smartystreets/goconvey/web/server/parser"
 	"github.com/smartystreets/goconvey/web/server/system"
-	watch "github.com/smartystreets/goconvey/web/server/watcher"
+	watcher "github.com/smartystreets/goconvey/web/server/watcher"
 )
 
 func init() {
@@ -50,9 +51,7 @@ func folders() {
 func main() {
 	flag.Parse()
 
-	log.Printf(
-		"Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [short: %v]\n",
-		host, port, nap, cover, short)
+	log.Printf(initialConfiguration, host, port, nap, cover, short)
 
 	monitor, server := wireup()
 
@@ -97,23 +96,77 @@ func wireup() (*contract.Monitor, contract.Server) {
 		log.Fatal(err)
 	}
 
+	cover = coverageEnabled(cover, reports)
+
 	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
 	shell := system.NewShell(gobin, short, cover, reports)
 
-	watcher := watch.NewWatcher(depthLimit, shell)
+	watcher := watcher.NewWatcher(depthLimit, shell)
 	watcher.Adjust(working)
 
-	parser := parse.NewParser(parse.ParsePackageResults)
-	tester := exec.NewConcurrentTester(shell)
+	parser := parser.NewParser(parser.ParsePackageResults)
+	tester := executor.NewConcurrentTester(shell)
 	tester.SetBatchSize(packages)
 
 	longpollChan, pauseUpdate := make(chan chan string), make(chan bool, 1)
-	executor := exec.NewExecutor(tester, parser, longpollChan)
+	executor := executor.NewExecutor(tester, parser, longpollChan)
 	server := api.NewHTTPServer(watcher, executor, longpollChan, pauseUpdate)
-	scanner := watch.NewScanner(depthLimit, watcher)
+	scanner := watcher.NewScanner(depthLimit, watcher)
 	monitor := contract.NewMonitor(scanner, watcher, executor, server, pauseUpdate, sleeper)
 
 	return monitor, server
+}
+
+func coverageEnabled(cover bool, reports string) bool {
+	return (cover &&
+		goVersion_1_2_orGreater() &&
+		coverToolInstalled() &&
+		ensureReportDirectoryExists(reports))
+}
+func goVersion_1_2_orGreater() bool {
+	version := runtime.Version() // 'go1.2....'
+	major, minor := version[2], version[4]
+	version_1_2 := major >= byte('1') && minor >= byte('2')
+	if !version_1_2 {
+		log.Printf(pleaseUpgradeGoVersion, version)
+		return false
+	}
+	return true
+}
+func coverToolInstalled() bool {
+	working, err := os.Getwd()
+	if err != nil {
+		working = "."
+	}
+	output, _ := execute(working, "go", "tool", "cover")
+	installed := strings.Contains(output, "Usage of 'go tool cover':")
+	if !installed {
+		log.Print(coverToolMissing)
+		return false
+	}
+	return true
+}
+func ensureReportDirectoryExists(reports string) bool {
+	if exists(reports) {
+		return true
+	}
+
+	if err := os.Mkdir(reports, 0755); err == nil {
+		return true
+	}
+
+	log.Printf(reportDirectoryUnavailable, reports)
+	return false
+}
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
 }
 
 func sleeper() {
@@ -134,4 +187,8 @@ var (
 	reports string
 
 	quarterSecond = time.Millisecond * 250
+)
+
+const (
+	initialConfiguration = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [short: %v]\n"
 )
