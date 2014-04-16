@@ -918,9 +918,9 @@ function changeStatus(newStatus, isHistoricalFrame)
 
 		if (newStatus != convey.statuses.pass)	// only flicker extra when not currently passing
 		{
-			$(this).effect("pulsate", {times: 2}, 300, function()
+			$(this).effect("pulsate", {times: 1}, 300, function()
 			{
-				$(this).effect("pulsate", {times: 3}, 500, function()
+				$(this).effect("pulsate", {times: 1}, 500, function()
 				{
 					if (newStatus == convey.statuses.panic
 							|| newStatus == convey.statuses.buildfail)
