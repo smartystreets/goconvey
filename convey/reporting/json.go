@@ -5,6 +5,7 @@ package reporting
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 )
 
@@ -44,7 +45,6 @@ func (self *JsonReporter) EndStory() {
 	self.reset()
 }
 func (self *JsonReporter) report() {
-	self.out.Print(OpenJson + "\n")
 	scopes := []string{}
 	for _, scope := range self.scopes {
 		serialized, err := json.Marshal(scope)
@@ -56,8 +56,7 @@ func (self *JsonReporter) report() {
 		json.Indent(&buffer, serialized, "", "  ")
 		scopes = append(scopes, buffer.String())
 	}
-	self.out.Print(strings.Join(scopes, ",") + ",\n")
-	self.out.Print(CloseJson + "\n")
+	self.out.Print(fmt.Sprintf("%s\n%s,\n%s\n", OpenJson, strings.Join(scopes, ","), CloseJson))
 }
 func (self *JsonReporter) reset() {
 	self.scopes = []*ScopeResult{}
