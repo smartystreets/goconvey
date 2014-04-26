@@ -13,9 +13,9 @@ type CommandRecorder struct {
 func (self *CommandRecorder) Execute(directory, name string, arguments ...string) (output string, err error) {
 	concatenated := fmt.Sprintf("%s|%s %s", directory, name, strings.Join(arguments, " "))
 	concatenated = strings.TrimSpace(concatenated)
-	fmt.Println(concatenated)
 	output = self.Output(concatenated)
 	err = self.Error(concatenated)
+	fmt.Println("$ ", concatenated, output, "<error>", err, "</error>", "\n")
 	return
 }
 
@@ -50,6 +50,18 @@ func (self *CommandRecorder) Error(invocation string) error {
 		return errors.New(executeGoConvey)
 	}
 
+	if invocation == coverTests && self.test.passes {
+		return nil
+	} else if invocation == coverTests {
+		return errors.New(coverTests)
+	}
+
+	if invocation == coverGoConvey && self.test.passes {
+		return nil
+	} else if invocation == coverGoConvey {
+		return errors.New(coverTests)
+	}
+
 	return nil
 }
 
@@ -65,6 +77,9 @@ const (
 	goConveyNotFound = "Don't let this look like a GoConvey test suite!"
 	executeTests     = "directory|go test -v -short=false"
 	executeGoConvey  = "directory|go test -v -short=false -json"
+	coverTests       = "directory|go test -v -short=false -covermode=set -coverprofile=reports/pack-age.txt"
+	coverGoConvey    = "directory|go test -v -short=false -covermode=set -coverprofile=reports/pack-age.txt -json"
+	profileTests     = "directory|go tool cover -html=reports/pack-age.txt -o reports/pack-age.html"
 )
 
 var outputs = map[string]string{
@@ -72,4 +87,6 @@ var outputs = map[string]string{
 	detectGoConvey:  goconveyDSLImport,
 	executeTests:    "test execution",
 	executeGoConvey: "goconvey test execution",
+	coverTests:      "test coverage execution",
+	coverGoConvey:   "goconvey coverage execution",
 }
