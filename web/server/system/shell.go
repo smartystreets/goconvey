@@ -36,7 +36,7 @@ func (self *Shell) goTest(directory, packageName string) (output string, err err
 }
 
 func (self *Shell) tryRunWithCoverage(directory, packageName string) (output string, err error) {
-	profileName := self.composeProfileName(packageName)
+	profileName := self.composeCoverageProfileName(packageName)
 	output, err = self.runWithCoverage(directory, packageName, profileName+".txt")
 
 	if err != nil && self.coverage {
@@ -47,25 +47,25 @@ func (self *Shell) tryRunWithCoverage(directory, packageName string) (output str
 	return
 }
 
-func (self *Shell) composeProfileName(packageName string) string {
-	reportFilename := strings.Replace(packageName, string(os.PathSeparator), "-", -1)
+func (self *Shell) composeCoverageProfileName(packageName string) string {
+	reportFilename := strings.Replace(packageName, "/", "-", -1)
 	reportPath := filepath.Join(self.reportsPath, reportFilename)
 	return reportPath
 }
 
 func (self *Shell) runWithCoverage(directory, packageName, profile string) (string, error) {
 	arguments := []string{"test", "-v", self.shortArgument, "-covermode=set", "-coverprofile=" + profile}
-	arguments = append(arguments, self.jsonOrNot(directory, packageName)...)
+	arguments = append(arguments, self.jsonFlag(directory, packageName)...)
 	return self.executor.Execute(directory, self.gobin, arguments...)
 }
 
 func (self *Shell) runWithoutCoverage(directory, packageName string) (string, error) {
 	arguments := []string{"test", "-v", self.shortArgument}
-	arguments = append(arguments, self.jsonOrNot(directory, packageName)...)
+	arguments = append(arguments, self.jsonFlag(directory, packageName)...)
 	return self.executor.Execute(directory, self.gobin, arguments...)
 }
 
-func (self *Shell) jsonOrNot(directory, packageName string) []string {
+func (self *Shell) jsonFlag(directory, packageName string) []string {
 	imports, err := self.executor.Execute(directory, self.gobin, "list", "-f", "'{{.TestImports}}'", packageName)
 	if !strings.Contains(imports, goconveyDSLImport) && err == nil {
 		return []string{}
