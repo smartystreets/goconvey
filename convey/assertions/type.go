@@ -45,20 +45,25 @@ func ShouldImplement(actual interface{}, expectedList ...interface{}) string {
 	if fail := ShouldBeNil(expected); fail != success {
 		return shouldCompareWithInterfacePointer
 	}
+
+	var actualType reflect.Type
+	if reflect.TypeOf(actual).Kind() != reflect.Ptr {
+		actualType = reflect.PtrTo(reflect.TypeOf(actual))
+	} else {
+		actualType = reflect.TypeOf(actual)
+	}
+
 	expectedType := reflect.TypeOf(expected)
 	if fail := ShouldNotBeNil(expectedType); fail != success {
 		return shouldCompareWithInterfacePointer
 	}
 
 	expectedInterface := expectedType.Elem()
-	actualType := reflect.TypeOf(actual)
 
 	if actualType == nil {
 		return fmt.Sprintf(shouldHaveImplemented, expectedInterface, actual)
 	}
-	if fail := ShouldEqual(actualType.Kind(), reflect.Ptr); fail != success {
-		return fmt.Sprintf(shouldHaveImplemented, expectedInterface, actual)
-	}
+
 	if !actualType.Implements(expectedInterface) {
 		return fmt.Sprintf(shouldHaveImplemented, expectedInterface, actualType)
 	}
