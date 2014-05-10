@@ -41,9 +41,14 @@ func ShouldImplement(actual interface{}, expectedList ...interface{}) string {
 	if fail := need(1, expectedList); fail != success {
 		return fail
 	}
+
 	expected := expectedList[0]
 	if fail := ShouldBeNil(expected); fail != success {
 		return shouldCompareWithInterfacePointer
+	}
+
+	if fail := ShouldNotBeNil(actual); fail != success {
+		return shouldNotBeNilActual
 	}
 
 	var actualType reflect.Type
@@ -76,10 +81,16 @@ func ShouldNotImplement(actual interface{}, expectedList ...interface{}) string 
 	if fail := need(1, expectedList); fail != success {
 		return fail
 	}
+
 	expected := expectedList[0]
 	if fail := ShouldBeNil(expected); fail != success {
 		return shouldCompareWithInterfacePointer
 	}
+
+	if fail := ShouldNotBeNil(actual); fail != success {
+		return shouldNotBeNilActual
+	}
+
 	expectedType := reflect.TypeOf(expected)
 	if fail := ShouldNotBeNil(expectedType); fail != success {
 		return shouldCompareWithInterfacePointer
@@ -88,9 +99,6 @@ func ShouldNotImplement(actual interface{}, expectedList ...interface{}) string 
 	expectedInterface := expectedType.Elem()
 	actualType := reflect.TypeOf(actual)
 
-	if actualType == nil {
-		return success
-	}
 	if actualType.Implements(expectedInterface) {
 		return fmt.Sprintf(shouldNotHaveImplemented, actualType, expectedInterface)
 	}
