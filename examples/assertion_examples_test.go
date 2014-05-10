@@ -82,7 +82,7 @@ func TestAssertions(t *testing.T) {
 		So(1, ShouldNotHaveSameTypeAs, "1")
 
 		So(bytes.NewBufferString(""), ShouldImplement, (*io.Reader)(nil))
-		So("string", ShouldNotImplement, reader)
+		So("string", ShouldNotImplement, (*io.Reader)(nil))
 	})
 
 	Convey("Time assertions should be accessible", t, func() {
