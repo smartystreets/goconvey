@@ -66,9 +66,10 @@ const ( // type checking
 	shouldHaveBeenA    = "Expected '%v' to be: '%v' (but was: '%v')!"
 	shouldNotHaveBeenA = "Expected '%v' to NOT be: '%v' (but it was)!"
 
-	shouldHaveImplemented             = "Expected: '%v'\nActual:   '%v'"
+	shouldHaveImplemented             = "Expected: '%v interface support'\nActual:   '%v' does not implement the interface!"
 	shouldNotHaveImplemented          = "Expected         '%v'\nto NOT implement '%v'\n(but it did)!"
 	shouldCompareWithInterfacePointer = "The expected value must be a pointer to an interface type (eg. *fmt.Stringer)"
+	shouldNotBeNilActual              = "The actual value was 'nil' and should be a value or a pointer to a value!"
 )
 
 const ( // time comparisons

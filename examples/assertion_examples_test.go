@@ -67,12 +67,22 @@ func TestAssertions(t *testing.T) {
 	})
 
 	Convey("Type-checking assertions should be accessible", t, func() {
+
+		// NOTE: Values or pointers may be checked.  If a value is passed,
+		// it will be cast as a pointer to the value to avoid cases where
+		// the struct being tested takes pointer receivers. Go allows values
+		// or pointers to be passed as receivers on methods with a value
+		// receiver, but only pointers on methods with pointer receivers.
+		// See:
+		// http://golang.org/doc/effective_go.html#pointers_vs_values
+		// http://golang.org/doc/effective_go.html#blank_implements
+		// http://blog.golang.org/laws-of-reflection
+
 		So(1, ShouldHaveSameTypeAs, 0)
 		So(1, ShouldNotHaveSameTypeAs, "1")
 
-		var reader *io.Reader = nil
-		So(bytes.NewBufferString(""), ShouldImplement, reader)
-		So("string", ShouldNotImplement, reader)
+		So(bytes.NewBufferString(""), ShouldImplement, (*io.Reader)(nil))
+		So("string", ShouldNotImplement, (*io.Reader)(nil))
 	})
 
 	Convey("Time assertions should be accessible", t, func() {
