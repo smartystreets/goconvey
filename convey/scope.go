@@ -79,9 +79,9 @@ func (parent *scope) exit() {
 			panic(problem)
 		}
 		if problem != failureHalt {
-			parent.panicked = true
 			parent.reporter.Report(reporting.NewErrorReport(problem))
 		}
+		parent.panicked = true
 	}
 	parent.reporter.Exit()
 }
