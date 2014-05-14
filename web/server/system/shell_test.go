@@ -10,13 +10,10 @@ import (
 )
 
 func TestShell(t *testing.T) {
-	var output string
-	var err error
-
 	for i, test := range cases {
 		Convey(fmt.Sprintf("%d - %s", i, test.String()), t, func() {
 			fmt.Printf("\n%s\n\n", test.String())
-			output, err = invokeShell(test)
+			output, err := invokeShell(test)
 
 			So(output, ShouldEqual, test.output)
 			So(err, ShouldResemble, test.err)

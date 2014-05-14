@@ -11,10 +11,8 @@ import (
 )
 
 func TestConcurrentTester(t *testing.T) {
-	var fixture *TesterFixture
-
 	Convey("Subject: Controlled execution of test packages", t, func() {
-		fixture = NewTesterFixture()
+		fixture := NewTesterFixture()
 
 		Convey("Whenever tests for each package are executed", func() {
 			fixture.InBatchesOf(1).RunTests()

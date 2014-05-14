@@ -20,10 +20,8 @@ const nonexistentRoot = "I don't exist"
 const unreadableContent = "!!error!!"
 
 func TestHTTPServer(t *testing.T) {
-	var fixture *ServerFixture
-
 	Convey("Subject: HttpServer responds to requests appropriately", t, func() {
-		fixture = newServerFixture()
+		fixture := newServerFixture()
 
 		Convey("Before any update is recived", func() {
 			Convey("When the update is requested", func() {

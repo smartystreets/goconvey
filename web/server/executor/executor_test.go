@@ -10,10 +10,8 @@ import (
 )
 
 func TestExecutor(t *testing.T) {
-	var fixture *ExecutorFixture
-
 	Convey("Subject: Execution of test packages and aggregation of parsed results", t, func() {
-		fixture = newExecutorFixture()
+		fixture := newExecutorFixture()
 
 		Convey("When tests packages are executed", func() {
 			fixture.ExecuteTests()
