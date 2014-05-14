@@ -305,6 +305,71 @@ func TestIterativeConveys(t *testing.T) {
 	expectEqual(t, "0123456789", output)
 }
 
+func TestClosureVariables(t *testing.T) {
+	output := prepare()
+
+	i := 0
+
+	Convey("A", t, func() {
+		i = i + 1
+		j := i
+
+		output += "A" + strconv.Itoa(i) + " "
+
+		Convey("B", func() {
+			k := j
+			j = j + 1
+
+			output += "B" + strconv.Itoa(k) + " "
+
+			Convey("C", func() {
+				output += "C" + strconv.Itoa(k) + strconv.Itoa(j) + " "
+			})
+
+			Convey("D", func() {
+				output += "D" + strconv.Itoa(k) + strconv.Itoa(j) + " "
+			})
+		})
+
+		Convey("C", func() {
+			output += "C" + strconv.Itoa(j) + " "
+		})
+	})
+
+	output += "D" + strconv.Itoa(i) + " "
+
+	expectEqual(t, "A1 B1 C12 A2 B2 D23 A3 C3 D3 ", output)
+}
+
+func TestClosureVariablesWithReset(t *testing.T) {
+	output := prepare()
+
+	i := 0
+
+	Convey("A", t, func() {
+		i = i + 1
+		j := i
+
+		output += "A" + strconv.Itoa(i) + " "
+
+		Reset(func() {
+			output += "R" + strconv.Itoa(i) + strconv.Itoa(j) + " "
+		})
+
+		Convey("B", func() {
+			output += "B" + strconv.Itoa(j) + " "
+		})
+
+		Convey("C", func() {
+			output += "C" + strconv.Itoa(j) + " "
+		})
+	})
+
+	output += "D" + strconv.Itoa(i) + " "
+
+	expectEqual(t, "A1 B1 R11 A2 C2 R22 D2 ", output)
+}
+
 func prepare() string {
 	testReporter = newNilReporter()
 	return ""
