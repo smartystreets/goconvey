@@ -381,13 +381,13 @@ func TestWrappedSimple(t *testing.T) {
 			Convey("B", func() {
 				output.output += "B "
 
-				Convey("D", func() {
+				Convey("C", func() {
 					output.output += "C "
 				})
 
 			})
 
-			Convey("C", func() {
+			Convey("D", func() {
 				output.output += "D "
 			})
 		}()
