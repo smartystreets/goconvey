@@ -9,10 +9,8 @@ import (
 )
 
 func TestFakeFileSystem(t *testing.T) {
-	var fs *FakeFileSystem
-
 	Convey("Subject: FakeFileSystem", t, func() {
-		fs = NewFakeFileSystem()
+		fs := NewFakeFileSystem()
 
 		Convey("When walking a barren file system", func() {
 			step := func(path string, info os.FileInfo, err error) error { panic("Should NOT happen!") }

@@ -8,10 +8,8 @@ import (
 )
 
 func TestMonitor(t *testing.T) {
-	var fixture *MonitorFixture
-
 	Convey("Subject: Monitor", t, func() {
-		fixture = newMonitorFixture()
+		fixture := newMonitorFixture()
 
 		Convey("When the file system has changed", func() {
 			fixture.scanner.Modify("/root")

@@ -10,16 +10,11 @@ import (
 )
 
 func TestDepthLimitingFileSystem(t *testing.T) {
-	var (
-		inner *MockFileSystem
-		files *DepthLimit
-	)
-
 	Convey("Subject: Depth-limited file system", t, func() {
-		inner = NewMockFileSystem()
+		inner := NewMockFileSystem()
 
 		Convey("When the depth limit is set to -1", func() {
-			files = NewDepthLimit(inner, -1)
+			files := NewDepthLimit(inner, -1)
 			files.Walk("/", inner.step)
 
 			Convey("No depth limiting should be enforced", func() {
@@ -32,7 +27,7 @@ func TestDepthLimitingFileSystem(t *testing.T) {
 		})
 
 		Convey("When the depth limit is not negative", func() {
-			files = NewDepthLimit(inner, 1)
+			files := NewDepthLimit(inner, 1)
 			files.Walk("/", inner.step)
 
 			Convey("Directories outside the depth should be skipped", func() {
@@ -44,7 +39,7 @@ func TestDepthLimitingFileSystem(t *testing.T) {
 		})
 
 		Convey("When requesting a listing", func() {
-			files = NewDepthLimit(inner, -1)
+			files := NewDepthLimit(inner, -1)
 			listing, indicator := files.Listing("hi")
 
 			Convey("The request should be forwarded to the inner file system", func() {
@@ -58,7 +53,7 @@ func TestDepthLimitingFileSystem(t *testing.T) {
 		})
 
 		Convey("When checking the existence of a directory", func() {
-			files = NewDepthLimit(inner, -1)
+			files := NewDepthLimit(inner, -1)
 			exists := files.Exists("hi")
 
 			Convey("The request should be forwarded to the inner file system", func() {

@@ -9,7 +9,6 @@ import (
 
 func TestParser(t *testing.T) {
 	var (
-		parser   *Parser
 		packages = []*contract.Package{
 			&contract.Package{Active: true, Output: "Active!", Result: contract.NewPackageResult("asdf")},
 			&contract.Package{Active: false, Output: "Inactive!", Result: contract.NewPackageResult("qwer")},
@@ -17,7 +16,7 @@ func TestParser(t *testing.T) {
 	)
 
 	Convey("Subject: Parser parses test output for active packages", t, func() {
-		parser = NewParser(fakeParserImplementation)
+		parser := NewParser(fakeParserImplementation)
 
 		Convey("When given a collection of packages", func() {
 			parser.Parse(packages)

@@ -21,19 +21,27 @@ type scope struct {
 }
 
 func (parent *scope) adopt(child *scope) {
-	if parent.hasChild(child) {
-		return
+	i := parent.getChildIndex(child)
+
+	if i == -1 {
+		parent.children[child.name] = child
+		parent.birthOrder = append(parent.birthOrder, child)
+	} else {
+		/* We need to replace the action to retain the closed over variables from
+		   the specific invocation of the parent scope, enabling the enclosing
+		   parent scope to serve as a set-up for the child scope */
+		parent.birthOrder[i].action = child.action
 	}
-	parent.birthOrder = append(parent.birthOrder, child)
-	parent.children[child.name] = child
 }
-func (parent *scope) hasChild(child *scope) bool {
-	for _, ordered := range parent.birthOrder {
+
+func (parent *scope) getChildIndex(child *scope) int {
+	for i, ordered := range parent.birthOrder {
 		if ordered.name == child.name && ordered.title == child.title {
-			return true
+			return i
 		}
 	}
-	return false
+
+	return -1
 }
 
 func (self *scope) registerReset(action *action) {

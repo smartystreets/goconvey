@@ -16,11 +16,8 @@ import (
 )
 
 func TestBowlingGameScoring(t *testing.T) {
-	var game *Game // Whatever you do, don't do this: game := NewGame()
-	// Otherwise nested closures won't reference the correct instance
-
 	Convey("Given a fresh score card", t, func() {
-		game = NewGame()
+		game := NewGame()
 
 		Convey("When all gutter balls are thrown", func() {
 			game.rollMany(20, 0)

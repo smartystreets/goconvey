@@ -7,12 +7,11 @@ import (
 )
 
 func TestFakeShell(t *testing.T) {
-	var shell *FakeShell
 	var output string
 	var err error
 
 	Convey("Subject: FakeShell", t, func() {
-		shell = NewFakeShell()
+		shell := NewFakeShell()
 
 		Convey("When executing go test", func() {
 			output, err = shell.GoTest("/hi", "-there")
