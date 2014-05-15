@@ -9,7 +9,7 @@ import (
 
 type runner struct {
 	top      *scope
-	chain    map[string]string
+	active   *scope
 	reporter reporting.Reporter
 
 	awaitingNewStory bool
@@ -17,7 +17,9 @@ type runner struct {
 }
 
 func (self *runner) Begin(entry *registration) {
+	self.active = self.top
 	self.focus = entry.Focus
+
 	self.ensureStoryCanBegin()
 	self.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
 	self.Register(entry)
@@ -34,77 +36,42 @@ func (self *runner) Register(entry *registration) {
 	if self.focus && !entry.Focus {
 		return
 	}
+
 	self.ensureStoryAlreadyStarted()
-	parentAction := self.link(entry.action)
-	parent := self.accessScope(parentAction)
+
 	child := newScope(entry, self.reporter)
-	parent.adopt(child)
+	self.active.adopt(child)
 }
+
 func (self *runner) ensureStoryAlreadyStarted() {
 	if self.awaitingNewStory {
 		panic(missingGoTest)
 	}
 }
-func (self *runner) link(action *action) string {
-	_, _, parentAction := gotest.ResolveExternalCaller()
-	childAction := action.name
-	self.linkTo(topLevel, parentAction)
-	self.linkTo(parentAction, childAction)
-	return parentAction
-}
-func (self *runner) linkTo(value, name string) {
-	if self.chain[name] == "" {
-		self.chain[name] = value
-	}
-}
-func (self *runner) accessScope(current string) *scope {
-	if self.chain[current] == topLevel {
-		return self.top
-	}
-	breadCrumbs := self.trail(current)
-	return self.follow(breadCrumbs)
-}
-func (self *runner) trail(start string) []string {
-	breadCrumbs := []string{start, self.chain[start]}
-	for {
-		next := self.chain[last(breadCrumbs)]
-		if next == topLevel {
-			break
-		} else {
-			breadCrumbs = append(breadCrumbs, next)
-		}
-	}
-	return breadCrumbs[:len(breadCrumbs)-1]
-}
-func (self *runner) follow(trail []string) *scope {
-	var accessed = self.top
-
-	for x := len(trail) - 1; x >= 0; x-- {
-		accessed = accessed.children[trail[x]]
-	}
-	return accessed
-}
 
 func (self *runner) RegisterReset(action *action) {
-	parentAction := self.link(action)
-	parent := self.accessScope(parentAction)
-	parent.registerReset(action)
+	self.active.registerReset(action)
 }
 
 func (self *runner) Run() {
+	self.active = self.top
+
 	for !self.top.visited() {
-		self.top.visit()
+		self.top.visit(self)
 	}
+
 	self.reporter.EndStory()
 	self.awaitingNewStory = true
 }
 
 func newRunner() *runner {
 	self := new(runner)
+
 	self.reporter = newNilReporter()
 	self.top = newScope(newRegistration(topLevel, newAction(func() {}), nil), self.reporter)
-	self.chain = make(map[string]string)
+	self.active = self.top
 	self.awaitingNewStory = true
+
 	return self
 }
 
