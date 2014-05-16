@@ -1,6 +1,7 @@
 package convey
 
 import (
+	"time"
 	"strconv"
 	"testing"
 )
@@ -456,6 +457,30 @@ func TestWrappedReset2(t *testing.T) {
 	})
 
 	expectEqual(t, "A B C R A D R ", output.output)
+}
+
+func TestInfiniteLoopWithTrailingFail(t *testing.T) {
+	done := make(chan int)
+
+	go func() {
+		Convey("This fails", t, func() {
+			Convey("and this is run", func() {
+				So(true, ShouldEqual, true)
+			})
+
+			/* And this prevents the whole block to be marked as run */
+			So(false, ShouldEqual, true)
+		})
+
+		done <- 1
+	}()
+
+	select {
+	case <-done:
+		return
+	case <-time.After(1 * time.Millisecond):
+		t.Fail()
+	}
 }
 
 func prepare() string {
