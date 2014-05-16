@@ -370,6 +370,94 @@ func TestClosureVariablesWithReset(t *testing.T) {
 	expectEqual(t, "A1 B1 R11 A2 C2 R22 D2 ", output)
 }
 
+func TestWrappedSimple(t *testing.T) {
+	prepare()
+	output := resetTestString{""}
+
+	Convey("A", t, func() {
+		func() {
+			output.output += "A "
+
+			Convey("B", func() {
+				output.output += "B "
+
+				Convey("C", func() {
+					output.output += "C "
+				})
+
+			})
+
+			Convey("D", func() {
+				output.output += "D "
+			})
+		}()
+	})
+
+	expectEqual(t, "A B C A D ", output.output)
+}
+
+type resetTestString struct {
+	output string
+}
+
+func addReset(o *resetTestString, f func()) func() {
+	return func() {
+		Reset(func() {
+			o.output += "R "
+		})
+
+		f()
+	}
+}
+
+func TestWrappedReset(t *testing.T) {
+	prepare()
+	output := resetTestString{""}
+
+	Convey("A", t, addReset(&output, func() {
+		output.output += "A "
+
+		Convey("B", func() {
+			output.output += "B "
+		})
+
+		Convey("C", func() {
+			output.output += "C "
+		})
+	}))
+
+	expectEqual(t, "A B R A C R ", output.output)
+}
+
+func TestWrappedReset2(t *testing.T) {
+	prepare()
+	output := resetTestString{""}
+
+	Convey("A", t, func() {
+		Reset(func() {
+			output.output += "R "
+		})
+
+		func() {
+			output.output += "A "
+
+			Convey("B", func() {
+				output.output += "B "
+
+				Convey("C", func() {
+					output.output += "C "
+				})
+			})
+
+			Convey("D", func() {
+				output.output += "D "
+			})
+		}()
+	})
+
+	expectEqual(t, "A B C R A D R ", output.output)
+}
+
 func prepare() string {
 	testReporter = newNilReporter()
 	return ""

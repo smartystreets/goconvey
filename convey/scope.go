@@ -52,25 +52,28 @@ func (self *scope) visited() bool {
 	return self.panicked || self.child >= len(self.birthOrder)
 }
 
-func (parent *scope) visit() {
+func (parent *scope) visit(runner *runner) {
+	runner.active = parent
 	defer parent.exit()
+
 	parent.enter()
 	parent.action.Invoke()
-	parent.visitChildren()
+	parent.visitChildren(runner)
 }
 func (parent *scope) enter() {
 	parent.reporter.Enter(parent.report)
 }
-func (parent *scope) visitChildren() {
+func (parent *scope) visitChildren(runner *runner) {
 	if len(parent.birthOrder) == 0 {
 		parent.cleanup()
 	} else {
-		parent.visitChild()
+		parent.visitChild(runner)
 	}
 }
-func (parent *scope) visitChild() {
+func (parent *scope) visitChild(runner *runner) {
 	child := parent.birthOrder[parent.child]
-	child.visit()
+	child.visit(runner)
+
 	if child.visited() {
 		parent.cleanup()
 		parent.child++
