@@ -3,7 +3,11 @@
 // packages from this project as they serve internal purposes.
 package convey
 
-import "github.com/smartystreets/goconvey/convey/reporting"
+import (
+	"fmt"
+
+	"github.com/smartystreets/goconvey/convey/reporting"
+)
 
 // Convey is the method intended for use when declaring the scopes
 // of a specification. Each scope has a description and a func()
@@ -86,6 +90,27 @@ func So(actual interface{}, assert assertion, expected ...interface{}) {
 // to So is not executed and the reporter is notified that the assertion was skipped.
 func SkipSo(stuff ...interface{}) {
 	skipReport()
+}
+
+// Print is analogous to fmt.Print (and it even calls fmt.Print). It ensures that
+// output is aligned with the corresponding scopes in the web UI.
+func Print(items ...interface{}) (written int, err error) {
+	fmt.Fprint(suites.Current(), items...)
+	return fmt.Print(items...)
+}
+
+// Print is analogous to fmt.Println (and it even calls fmt.Println). It ensures that
+// output is aligned with the corresponding scopes in the web UI.
+func Println(items ...interface{}) (written int, err error) {
+	fmt.Fprintln(suites.Current(), items...)
+	return fmt.Println(items...)
+}
+
+// Print is analogous to fmt.Printf (and it even calls fmt.Printf). It ensures that
+// output is aligned with the corresponding scopes in the web UI.
+func Printf(format string, items ...interface{}) (written int, err error) {
+	fmt.Fprintf(suites.Current(), format, items...)
+	return fmt.Printf(format, items...)
 }
 
 // assertion is an alias for a function with a signature that the convey.So()

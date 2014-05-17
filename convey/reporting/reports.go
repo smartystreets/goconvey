@@ -36,6 +36,7 @@ type ScopeResult struct {
 	Line       int
 	Depth      int
 	Assertions []*AssertionResult
+	Output     string
 }
 
 func newScopeResult(title string, depth int, file string, line int) *ScopeResult {

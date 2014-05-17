@@ -23,8 +23,8 @@ func (self *JsonReporter) Enter(scope *ScopeReport) {
 	if _, found := self.index[scope.ID]; !found {
 		self.registerScope(scope)
 	}
-	self.current = self.index[scope.ID]
 	self.depth++
+	self.current = self.index[scope.ID]
 }
 func (self *JsonReporter) registerScope(scope *ScopeReport) {
 	next := newScopeResult(scope.Title, self.depth, scope.File, scope.Line)
@@ -62,6 +62,11 @@ func (self *JsonReporter) reset() {
 	self.scopes = []*ScopeResult{}
 	self.index = map[string]*ScopeResult{}
 	self.depth = 0
+}
+
+func (self *JsonReporter) Write(content []byte) (written int, err error) {
+	self.current.Output += string(content)
+	return len(content), nil
 }
 
 func NewJsonReporter(out *Printer) *JsonReporter {

@@ -352,6 +352,7 @@
 								</td>
 								<td colspan="3" class="depth-{{Depth}} story-line-desc">
 									{{Title|showhtml}}
+									{{if Output}}<div class="message">{{Output|htmlSafe}}</div>{{/if}}
 									{{if _failed}}
 										{{Assertions}}
 											<div class="failure">

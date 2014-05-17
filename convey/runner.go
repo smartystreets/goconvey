@@ -86,6 +86,10 @@ func (self *runner) Report(result *reporting.AssertionResult) {
 	}
 }
 
+func (self *runner) Write(content []byte) (written int, err error) {
+	return self.reporter.Write(content)
+}
+
 func last(group []string) string {
 	return group[len(group)-1]
 }
@@ -105,4 +109,5 @@ func (self *nilReporter) Enter(scope *reporting.ScopeReport)       {}
 func (self *nilReporter) Report(report *reporting.AssertionResult) {}
 func (self *nilReporter) Exit()                                    {}
 func (self *nilReporter) EndStory()                                {}
+func (self *nilReporter) Write(p []byte) (int, error)              { return len(p), nil }
 func newNilReporter() *nilReporter                                 { return new(nilReporter) }
