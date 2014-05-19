@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>GoConvey - Go testing in the browser</title>
+		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Orbitron|Oswald|Lato:100,300,300italic,400,700">
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+		<link rel="stylesheet" href="resources/css/unsemantic.css">
+		<link rel="stylesheet" href="resources/css/tipsy.css">
+		<link rel="stylesheet" href="resources/css/common.css">
+		<link rel="stylesheet" id="theme" href="resources/css/dark.css">
+		<link rel="icon" class="favicon" href="favicon.ico" type="image/vnd.microsoft.icon">
+		<script src="resources/js/jquery2-1-0.min.js"></script>
+		<script src="resources/js/jquery.tipsy.min.js"></script>
+		<script src="resources/js/jquery.waypoints.min.js"></script>
+		<script src="resources/js/main.js"></script>
+		<meta name="viewport" content="width=device-width, maximum-scale=1.0">
+		<meta name="description" content="GoConvey is better testing for Go. Write behavioral tests and watch live results in your browser.">
+	</head>
+	<body>
+		<header>
+			<div class="overall buildfail">
+				<div class="status">Loading...</div>
+			</div>
+			<nav>
+				<a href="https://www.youtube.com/watch?v=vL_UD1oAF0E" id="link-video"><i class="fa fa-video-camera"></i><span class="label">Quick Intro Video</span></a>
+				<a href="javascript:" id="link-theme" class="toggle-theme"><i class="fa fa-adjust"></i><span class="label">Toggle Theme</span></a>
+				<a href="#" id="link-top"><i class="fa fa-arrow-up"><span class="label">Top</i></a>
+			</nav>
+		</header>
+
+		<div class="intro grid-container">
+			<div class="grid-60">
+				<h1>GoConvey</h1>
+			</div>
+			<div class="grid-40">
+				<h2>
+					Write <b>behavioral tests</b> in your editor.
+					Get live results <b>in your browser</b>.
+				</h2>
+			</div>
+		</div>
+
+
+
+		<div class="grid-container">
+			<div class="grid-45">
+				<h4><i class="fa fa-thumbs-up"></i>&nbsp;&nbsp; Uses <code>go test</code></h4>
+				<p>
+					GoConvey supports Go's native <a href="http://golang.org/pkg/testing/" target="_blank"><code>testing</code></a> package. Neither the web UI nor the DSL are required; you can use either one independently.
+				</p>
+
+				<h4><i class="fa fa-terminal"></i>&nbsp;&nbsp; Terminal or browser</h4>
+				<p>
+					Since GoConvey integrates with <code><b>go test</b></code>, you can keep running tests <a href="https://github.com/smartystreets/goconvey/wiki/Execution">in the terminal</a> or use the auto-updating web UI for test results.
+				</p>
+			</div>
+
+			<div class="prefix-15 grid-40">
+				<h4><i class="fa fa-book"></i>&nbsp;&nbsp; Tell your program's story</h4>
+				<p>
+					Though <a href="https://github.com/smartystreets/goconvey/wiki/Composition">writing tests</a> with <code>Convey()</code> and <code>So()</code> is optional, it's more expressive than <code>t.Errorf()</code>.
+				</p>
+
+				<h4><i class="fa fa-download"></i>&nbsp;&nbsp; Get started</h4>
+
+				<p>
+					<code class="block"><span class="code-prompt">$</span> go <span class="code-args">get -t github.com/smartystreets/goconvey</span>
+<span class="code-prompt">$</span> <span class="code-var">$GOPATH</span>/bin/goconvey</code>
+				</p>
+
+				<p>
+					Then open your browser to <a href="http://localhost:8080" target="_blank">localhost:8080</a>. Tests will be run from the working directory on down.
+				</p>
+			</div>
+		</div>
+	
+
+
+		<h2 class="section">Feature Tour</h2>
+
+
+
+
+
+		<div class="grid-container">
+			<div class="grid-100">
+				<h3 id="web-ui">Brilliant Web UI</h3>
+			</div>
+		</div>
+		<div class="carousel">
+			<div class="carousel-images">
+				<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-1-dark.png" alt="Tests passing" class="shadow screenshot">
+				<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-2-dark.png" alt="Tests failing" class="shadow screenshot">
+				<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-3-dark.png" alt="Tests panicking" class="shadow screenshot">
+				<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-4-dark.png" alt="Build failure" class="shadow screenshot">
+			</div>
+			<div class="carousel-switch">
+				<i class="fa fa-circle" title="Pass"></i>
+				<i class="fa fa-circle-o" title="Fail"></i>
+				<i class="fa fa-circle-o" title="Panic"></i>
+				<i class="fa fa-circle-o" title="Build Failure"></i>
+			</div>
+		</div>
+		<div class="grid-container">
+			<div class="grid-50">
+				<h4>Tests run automatically</h4>
+				<p>
+					Simply save a <code>.go</code> file or click the &nbsp; <i class="fa fa-refresh"></i> &nbsp; icon to execute tests. Your browser page will update automatically.
+				</p>
+
+				<h4>Coverage report</h4>
+				<p>
+					You can click a package name in the top-left corner to view <a href="http://blog.golang.org/cover#TOC_5." target="_blank">Go's detailed HTML coverage report</a>.
+				</p>
+			</div>
+
+			<div class="grid-50">
+				<h4>Dark, light, and custom themes</h4>
+				<p>
+					GoConvey comes with two themes built-in. (<a href="javascript:" class="toggle-theme">Toggle the theme</a> on this page to try it!) You can also use third-party themes or roll your own.
+				</p>
+
+				<h4>Pause, resume, and review</h4>
+				<p>
+					You can pause auto-test execution and go through recent test history to see where, when, and why your code is breaking.
+				</p>
+			</div>
+		</div>
+
+
+		<hr>
+
+
+
+
+
+
+		<div class="grid-container">
+			<div class="grid-100">
+				<h3 id="web-ui">Expressive DSL</h3>
+			</div>
+		</div>
+		<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-10-dark.png" class="screenshot">
+		<div class="grid-container">
+			<div class="grid-50">
+				<h4>Implicit setup and optional teardown</h4>
+				<p>
+					All higher-level <code>Convey</code> scopes are run for <i>each</i> nested <code>Convey</code> call.
+					Use <code>Reset</code> to clean up when you're done.
+				</p>
+
+				<h4>Describe tests with your own words</h4>
+				<p>
+					Write tests your own way. There is no enforced vocabulary for defining tests: <code>Convey("What your application should do", ...)</code>
+				</p>
+			</div>
+
+			<div class="grid-50">
+				<h4>Lots of yummy assertions</h4>
+				<p>
+					Here's a few to whet your appetite:
+				</p>
+				<ul>
+					<li><code>ShouldEqual</code></li>
+					<li><code>ShouldResemble</code></li>
+					<li><code>ShouldBeTrue</code></li>
+					<li><code>ShouldBeZeroValue</code></li>
+					<li><code>ShouldNotContainSubstring</code></li>
+					<li><code>ShouldPanic</code></li>
+					<li><code>ShouldNotHappenBefore</code></li>
+					<li><code>ShouldHappenWithin</code></li>
+				</ul>
+				<p>
+					<a href="https://github.com/smartystreets/goconvey/wiki/Assertions">Even more</a> or <a href="https://github.com/smartystreets/goconvey/wiki/Custom-Assertions">make your own</a>...
+				</p>
+			</div>
+		</div>
+
+
+		<hr>
+
+
+
+
+
+
+		<div class="grid-container">
+			<div class="grid-100">
+				<h3 id="web-ui">HTML5 Desktop Notifications</h3>
+			</div>
+		</div>
+		<div style="overflow: hidden; max-height: 550px;">
+			<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-7-dark.png" class="shadow screenshot">
+		</div>
+		<div class="grid-container">
+
+			<div class="grid-50">
+				<h4>Never leave your editor</h4>
+				<p>
+					Turn notifications on with the web UI to get live feedback when you save your file. Know immediately if you just broke something.
+				</p>
+			</div>
+
+			<div class="grid-50">
+				<h4>Not annoying: we promise.</h4>
+				<p>
+					Notifications automatically disappear after a few seconds and display only relevant information. They're off by default.
+				</p>
+			</div>
+		</div>
+
+
+		<hr>
+
+
+
+
+
+
+
+
+
+
+		<div class="grid-container">
+			<div class="grid-100">
+				<h3 id="web-ui">Terminal Output</h3>
+			</div>
+		</div>
+		<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/terminal.png" class="screenshot">
+		<div class="grid-container">
+			<div class="grid-50">
+				<h4>Execute with <code>go test</code></h4>
+				<p>
+					Remember, the web UI and DSL are independent of each other, so it can still
+					be everything you're used to: test results in the terminal.
+				</p>
+			</div>
+
+			<div class="grid-50">
+				<h4>Colored &amp; human-readable</h4>
+				<p>
+					You tell your program's story. The console output of <code>go test</code> is easily readable by humans where the GoConvey DSL is used.
+				</p>
+			</div>
+		</div>
+
+
+		<hr>
+
+
+
+
+
+
+
+		<div class="grid-container">
+			<div class="grid-100">
+				<h3 id="web-ui">Code Composer</h3>
+			</div>
+		</div>
+		<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-9.png" class="screenshot shadow">
+		<div class="grid-container">
+			<div class="grid-50">
+				<h4>Focus on behavior</h4>
+				<p>
+					In the GoConvey Composer, don't worry about Go syntax. This tool helps you describe your program's behavior in a focused, distraction-free way.
+				</p>
+			</div>
+
+			<div class="grid-50">
+				<h4>Write tests with natural language</h4>
+				<p>
+					Your test file is stubbed out for you as you type your program's story. The smart input box preserves your tabs and feels like a real text editor.
+				</p>
+			</div>
+		</div>
+
+
+		<hr>
+
+
+
+
+
+
+
+
+		<div class="grid-container">
+			<div class="grid-100">
+				<h3 id="web-ui">Responsive Layout</h3>
+			</div>
+		</div>
+
+		<img src="http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-5-dark.png" class="screenshot shadow">
+
+		<div class="grid-container">
+			<div class="prefix-25 grid-50 suffix-25">
+				<h4>Snuggle up next to your editor</h4>
+				<p>
+					As you can see, the GoConvey UI is responsive, so feel free to squish it beside your editor to maximize your available screen space.
+				</p>
+			</div>
+		</div>
+
+
+		<hr>
+
+
+
+
+
+
+
+		<div class="grid-container">
+			<h3 id="bottom" style="margin-bottom: 1em; margin-top: -1em;">That's not all, folks!</h3>
+
+			<p class="text-center" style="font-size: 20px;">
+				Get started with GoConvey and see if you'll ever go back
+				to writing code that's <i>not</i> under test.
+				<br><br>
+			</p>
+
+			<div class="prefix-10 grid-40">
+				<p>
+					<code class="block"><span class="code-prompt">$</span> go <span class="code-args">get -t github.com/smartystreets/goconvey</span>
+<span class="code-prompt">$</span> <span class="code-var">$GOPATH</span>/bin/goconvey</code>
+				</p>
+
+				<p>
+					Then open your browser to <a href="http://localhost:8080" target="_blank">localhost:8080</a>. Tests will be run from the working directory on down.
+				</p>
+			</div>
+
+			<div class="prefix-15 grid-25 suffix-10">
+				<a class="button btn-orange" href="https://github.com/smartystreets/goconvey/wiki"><i class="fa fa-github fa-lg"></i>&nbsp;&nbsp; Documentation</a>
+			</div>
+		</div>
+
+
+
+		<footer>
+			<a href="https://github.com/smartystreets/goconvey">GoConvey</a>
+			is a gift from <a href="http://smartystreets.com">SmartyStreets</a>.
+			<br>
+			Made by <a href="https://twitter.com/mdwhatcott">Mike Whatcott</a> and <a href="https://twitter.com/mholt6">Matt Holt</a>.
+			<br>
+			&copy; 2013-2014. All rights reserved.
+		</footer>
+
+
+<!--
+		<a href="https://github.com/smartystreets/goconvey" id="fork">
+			<img src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork GoConvey on GitHub">
+		</a>
+-->
+	</body>
+</html>

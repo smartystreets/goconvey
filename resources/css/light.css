@@ -1,0 +1,151 @@
+body {
+	color: #555;
+	background: #F4F4F4;
+}
+
+h1 {
+	color: #4B5464;
+}
+
+h2,
+h3,
+h4 {
+	color: #000;
+}
+
+h2.section {
+	background: #33B5E5;
+	color: #FFF;
+}
+
+hr {
+	background: #33B5E5;
+}
+
+a {
+	color: #32BCF0;
+}
+
+a:hover {
+	color: #FAA765;
+}
+
+a.button {
+	border: 1px solid #33B5E5;
+	background: #FFF;
+}
+
+input[type=text] {
+	border-bottom-color: #33B5E5;
+	color: #333;
+}
+
+::-webkit-input-placeholder {
+	color: #CCC;
+}
+:-moz-placeholder {
+	color: #CCC;
+}
+::-moz-placeholder {
+	color: #CCC;
+}
+:-ms-input-placeholder {
+	color: #CCC;
+}
+
+.overall .status {
+	color: #EEE;
+}
+
+.overall.ok,
+.history .item.ok {
+	background: #8CB700; /* Can't decide: #5AA02C */
+}
+
+.overall.fail,
+.history .item.fail {
+	background: #E79C07;
+}
+
+.overall.panic,
+.history .item.panic {
+	background: #BB0000;
+}
+
+.overall.buildfail,
+.history .item.buildfail {
+	background: #828c95;
+}
+
+nav {
+	background: rgba(255, 255, 255, .9);
+}
+
+nav a {
+	color: #6887A3;
+}
+
+nav a:hover {
+	background: #CFE6F9;
+	color: #465B6D;
+}
+
+.sel {
+	background: #33B5E5 !important;
+	color: #FFF !important;
+}
+
+img.shadow {
+	box-shadow: 0 5px 25px rgba(0, 0, 0, .4);
+}
+
+code.block {
+	background: #EAEAEA;
+	color: #333;
+}
+
+code .code-prompt {
+	color: #777;
+}
+
+code .code-args {
+	color: #888;
+}
+
+code .code-var {
+	color: #83C258;
+}
+
+.carousel-switch .fa:hover {
+	color: #32BCF0;
+}
+
+footer {
+	color: #AAA;
+}
+
+footer a {
+	color: #555;
+}
+
+.clr-red {
+	color: #FF2222;
+}
+
+
+.tipsy-inner {
+	background-color: #333;
+	color: #EEE;
+}
+
+.tipsy-arrow {
+	border: 8px dashed #333;
+}
+
+.tipsy-arrow-n,
+.tipsy-arrow-s,
+.tipsy-arrow-e,
+.tipsy-arrow-w,
+{
+	border-color: #333;
+}

@@ -1,0 +1,435 @@
+/* Eric Meyer's Reset CSS v2.0 */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+
+::selection {
+	background: #87AFBC;
+	color: #FFF;
+	text-shadow: none;
+}
+
+::-moz-selection {
+	background: #87AFBC;
+	color: #FFF;
+	text-shadow: none;
+}
+
+html,
+body {
+	font-family: 'Lato', sans-serif;
+}
+
+b {
+	font-weight: bold;
+}
+
+i {
+	font-style: italic;
+}
+
+small {
+	font-size: 12px;
+	line-height: 1.25em;
+}
+
+hr {
+	border: 0;
+	height: 1px;
+	margin: 10em 0;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+code {
+	font-family: 'Consolas', 'Liberation Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
+	white-space: pre-wrap;
+	display: inline-block;
+	padding: 0 .25em;
+}
+
+code.block {
+	display: block;
+	font-size: 12px;
+	padding: 5px;
+	line-height: 2em;
+	border-radius: 5px;
+}
+
+.intro {
+	padding: 50px 0;
+}
+
+h4 code {
+	display: inline-block;
+	padding: 0 .25em;
+}
+
+code a:hover,
+a:hover code {
+	text-decoration: underline;
+}
+
+table {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+
+	width: 100%;
+	border-collapse: collapse;
+}
+
+h1 {
+	font: 120px 'Oswald', sans-serif;
+	text-align: center;
+}
+
+h2 {
+	font-size: 26px;
+	font-weight: 100;
+	line-height: 1.5em;
+	margin-top: 2em;
+}
+
+h2.section {
+	font-size: 82px;
+	font-weight: 100;
+	padding: 1.5em 0;
+	margin: 1.5em 0;
+	text-align: center;
+}
+
+.side-img {
+	max-height: 800px;
+	position: relative;
+	opacity: .5;
+}
+
+.side-img.right {
+	right: -75%;
+}
+
+.side-img.left {
+	left: -150%;
+}
+
+input, textarea {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+
+	outline: none;
+	font: 14px 'Lato', 'Helvetica Neue', sans-serif;
+	padding: 6px 10px;
+}
+
+textarea {
+	padding: 10px;
+	font: 300 18px/1.5em 'Lato', sans-serif;
+	width: 100%;
+}
+
+ul, ol {
+	margin: .75em 0;
+}
+
+ul li {
+	list-style: disc;
+	margin-left: 1.5em;
+	margin-bottom: .5em;
+}
+
+.overall {
+	position: relative;
+}
+
+.overall.ok {
+	background: #5AA02C;
+}
+
+.overall.fail {
+	background: #E79C07;
+}
+
+.overall.panic {
+	background: #AA0000;
+}
+
+.overall.buildfail {
+	background: #AAA;
+}
+
+.overall .status {
+	font: 46px/1.5em 'Orbitron', monospace;
+	padding: .75em 0 .5em;
+	text-align: center;
+	letter-spacing: 3px;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.overall .summary {
+	float: left;
+	font: 18px/1.25em monospace;
+	color: rgba(255, 255, 255, .85);
+	margin-top: .5em;
+}
+
+nav {
+	z-index: 10;
+	width: 100%;
+	text-align: right;
+}
+
+nav a {
+	display: inline-block;
+	padding: 12px 2em;
+	font-size: 12px;
+	font-family: Monaco, Menlo, 'Lucida Console', 'Courier New', monospace;
+}
+
+nav a:hover {
+	text-decoration: none;
+}
+
+nav a .label {
+	padding-left: 10px;
+}
+
+#link-top {
+	display: none;
+}
+
+.stuck {
+	position: fixed;
+	top: 0;
+}
+
+.stuck #link-top {
+	display: inline;
+}
+
+h3 {
+	font: 800 54px/1em 'Lato', sans-serif;
+	text-align: center;
+	margin-bottom: 50px;
+}
+
+h4 {
+	font: 300 28px/1em 'Lato', sans-serif;
+	margin: 2em 0 1em;
+}
+
+p {
+	font: 300 18px/1.75em 'Lato', sans-serif;
+	margin-bottom: .5em;
+}
+
+img {
+	max-width: 85%;
+}
+
+img.shadow {
+	margin-top: 2em;
+	margin-bottom: 4em;
+}
+
+.screenshot {
+	margin: 0px auto -2em;
+	display: block;
+	width: 85%;
+	max-width: 1400px;
+}
+
+.grid-container .screenshot {
+	max-width: 100%;
+}
+
+.carousel-images {
+	position: relative;
+}
+
+.carousel-images img {
+	display: none;
+}
+
+.carousel-images img:first-child {
+	display: block;
+}
+
+.carousel-switch {
+	margin-top: -1em;
+	text-align: center;
+	font-size: 24px;
+}
+
+.carousel-switch .fa {
+	cursor: pointer;
+}
+
+a.button {
+	font-size: 18px;
+	text-transform: uppercase;
+	padding: 1em;
+	font-weight: 300;
+	text-align: center;
+	border-radius: 5px;
+	display: block;
+	text-decoration: none;
+}
+
+a.button:hover {
+	background: #33B5E5;
+	color: #FFF;
+}
+
+.btn-green { background: #5AA02C; }
+.btn-green:hover { background: #3B681D; }
+
+.btn-orange { background: #E79C07; }
+.btn-orange:hover { background: #BA7B07; }
+
+.btn-red { background: #AA0000; }
+.btn-red:hover { background: #7F0000; }
+
+
+
+.text-center {
+	text-align: center;
+}
+
+#fork img {
+	position: fixed;
+	top: 0;
+	right: 0;
+	border: 0;
+}
+
+
+footer {
+	padding: 100px 0 50px;
+	text-align: center;
+	line-height: 1.5em;
+	font-size: 14px;
+	font-family: sans-serif;
+}
+
+
+
+
+@media (max-width: 1024px) {
+	h1 {
+		font-size: 110px;
+		margin-top: 20px;
+	}
+
+	h2.section {
+		padding: 1em;
+		font-size: 62px;
+	}
+
+	.screenshot {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	hr {
+		margin: 5em 0;
+	}
+}
+
+@media (max-width: 600px) {
+	nav {
+		text-align: center;
+	}
+
+	nav a {
+		padding: 12px 1em;
+		font-size: 20px;
+	}
+
+	nav a .label {
+		display: none;
+	}
+
+	h1 {
+		font-size: 60px;
+	}
+
+	h2.section {
+		font-size: 52px;
+	}
+
+	h3 {
+		font-size: 32px;
+	}
+
+	h4 {
+		font-size: 20px;
+		margin-top: 1em;
+	}
+
+	p {
+		font-size: 14px;
+	}
+
+	.overall .status {
+		font-size: 26px;
+	}
+
+	.screenshot.shadow {
+		margin: 1em 0;
+	}
+
+	.carousel-switch {
+		margin-top: 0;
+	}
+
+	.carousel-switch .fa {
+		padding: 0 5px;
+	}
+}
+
+
+
+
+
+
+
+.flash {
+	-webkit-animation: flash 4s linear infinite;
+	-moz-animation: flash 4s linear infinite;
+	-o-animation: flash 4s linear infinite;
+	animation: flash 4s linear infinite;
+}
+
+
+
+
+@-webkit-keyframes flash {
+	70% { opacity: 1; }
+	90% { opacity: 0; }
+	98% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@-moz-keyframes flash {
+	70% { opacity: 1; }
+	90% { opacity: 0; }
+	98% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@-o-keyframes flash {
+	70% { opacity: 1; }
+	90% { opacity: 0; }
+	98% { opacity: 0; }
+	100% { opacity: 1; }
+}
+@keyframes flash {
+	70% { opacity: 1; }
+	90% { opacity: 0; }
+	98% { opacity: 0; }
+	100% 

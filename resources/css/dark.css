@@ -1,0 +1,164 @@
+body {
+	/*-webkit-transform: translate3d(0, 0, 0);*/	/* fixes Chrome glitch when changing themes (breaks fixed positioning) */
+	color: #D0D0D0;
+	background: fixed #11191e;
+	background: fixed -moz-linear-gradient(top,  hsla(203,28%,9%,1) 0%, hsla(201,27%,35%,1) 100%);
+	background: fixed -webkit-gradient(linear, left top, left bottom, color-stop(0%,hsla(203,28%,9%,1)), color-stop(100%,hsla(201,27%,35%,1)));
+	background: fixed -webkit-linear-gradient(top,  hsla(203,28%,9%,1) 0%,hsla(201,27%,35%,1) 100%);
+	background: fixed -o-linear-gradient(top,  hsla(203,28%,9%,1) 0%,hsla(201,27%,35%,1) 100%);
+	background: fixed -ms-linear-gradient(top,  hsla(203,28%,9%,1) 0%,hsla(201,27%,35%,1) 100%);
+	background: fixed linear-gradient(to bottom,  hsla(203,28%,9%,1) 0%,hsla(201,27%,35%,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#11191e', endColorstr='#416172',GradientType=0 );
+
+}
+
+h1,
+h2,
+h3,
+h4 {
+	color: #FFF;
+}
+
+h2.section {
+	background: #33B5E5;
+	color: #FFF;
+	box-shadow: inset 0 150px 200px -50px rgba(0, 0, 0, .5);
+}
+
+hr {
+	background: #33B5E5;
+}
+
+a {
+	color: #247D9E;
+}
+
+a:hover {
+	color: #33B5E5;
+}
+
+a.button {
+	border: 1px solid #33B5E5;
+	background: rgba(0, 0, 0, .4);
+}
+
+input[type=text] {
+	border-bottom-color: #33B5E5;
+	color: #BBB;
+}
+
+::-webkit-input-placeholder {
+	color: #555;
+}
+:-moz-placeholder {
+	color: #555;
+}
+::-moz-placeholder {
+	color: #555;
+}
+:-ms-input-placeholder {
+	color: #555;
+}
+
+.overall {
+	/*
+		Using box-shadow here is not very performant but allows us
+		to animate the change of the background color much more easily.
+		This box-shadow is an ALTERNATIVE, not supplement, to using gradients
+		in this case.
+	*/
+	box-shadow: inset 0 150px 100px -110px rgba(0, 0, 0, .5);
+}
+
+.overall.ok {
+	background: #688E00;
+}
+
+.overall.fail {
+	background: #DB8700;
+}
+
+.overall.panic {
+	background: #A80000;
+}
+
+.overall.buildfail {
+	background: #A4A8AA;
+}
+
+.overall .status {
+	color: #EEE;
+}
+
+nav {
+	background: rgba(0, 0, 0, .8);
+}
+
+nav a {
+	color: #2A5A84;
+}
+
+nav a:hover {
+	background: #132535;
+	color: #33B5E5;
+}
+
+.sel {
+	background: #33B5E5 !important;
+	color: #FFF !important;
+}
+
+img.shadow {
+	box-shadow: 0 0 25px rgba(0, 0, 0, .5);
+}
+
+code.block {
+	background: #222;
+	color: #DDD;
+}
+
+code .code-prompt {
+	color: #777;
+}
+
+code .code-args {
+	color: #BBB;
+}
+
+code .code-var {
+	color: #83C258;
+}
+
+.carousel-switch .fa:hover {
+	color: #33B5E5;
+}
+
+footer {
+	color: #999;
+}
+
+footer a {
+	color: #DDD;
+}
+
+.clr-red {
+	color: #FF2222;
+}
+
+
+.tipsy-inner {
+	background-color: #FAFAFA;
+	color: #222;
+}
+
+.tipsy-arrow {
+	border: 8px dashed #FAFAFA;
+}
+
+.tipsy-arrow-n,
+.tipsy-arrow-s,
+.tipsy-arrow-e,
+.tipsy-arrow-w,
+{
+	border-color: #FAFAFA;
+}
