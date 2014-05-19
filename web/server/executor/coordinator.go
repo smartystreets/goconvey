@@ -2,6 +2,7 @@ package executor
 
 import (
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/smartystreets/goconvey/web/server/contract"
@@ -30,12 +31,13 @@ func (self *concurrentCoordinator) enlistWorkers() {
 }
 func (self *concurrentCoordinator) worker(id int) {
 	for folder := range self.queue {
+		packageName := strings.Replace(folder.Name, "\\", "/", -1)
 		if !folder.Active {
-			log.Printf("Skipping concurrent execution: %s\n", folder.Name)
+			log.Printf("Skipping concurrent execution: %s\n", packageName)
 			continue
 		}
-		log.Printf("Executing concurrent tests: %s\n", folder.Name)
-		folder.Output, folder.Error = self.shell.GoTest(folder.Path, folder.Name)
+		log.Printf("Executing concurrent tests: %s\n", packageName)
+		folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName)
 	}
 	self.waiter.Done()
 }
