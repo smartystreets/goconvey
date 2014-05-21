@@ -17,6 +17,7 @@ var convey = {
 	overallClass: "",		// class name of the "overall" status banner
 	theme: "",				// theme currently being used
 	packageStates: {},		// packages manually collapsed or expanded during this page's lifetime
+	framesOnSamePath: 0,	// number of consecutive frames on this same watch path
 	layout: {
 		selClass: "sel",	// CSS class when an element is "selected"
 		header: undefined,	// container element of the header area (overall, controls)

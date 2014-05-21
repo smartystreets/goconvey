@@ -177,6 +177,7 @@ function wireup()
 		$.post('/watch?root='+newpath)
 			.done(function() { tb.removeClass('error'); })
 			.fail(function() { tb.addClass('error'); });
+		convey.framesOnSamePath = 1;
 	});
 
 	$('#run-tests').click(function()
@@ -506,6 +507,7 @@ function process(data, status, jqxhr)
 
 	// Put the new frame in the queue so we can use current() to get to it
 	convey.history.push(newFrame());
+	convey.framesOnSamePath++;
 
 	// Store the raw results in our frame
 	current().results = data;
@@ -686,8 +688,16 @@ function process(data, status, jqxhr)
 	current().overall.failures = current().assertions.failed.length;
 	current().overall.skipped = current().assertions.skipped.length;
 	
-	current().overall.coverage = Math.round((coverageAvgHelper.coverageSum / coverageAvgHelper.countedPackages) * 100) / 100;
+	current().overall.coverage = Math.round((coverageAvgHelper.coverageSum / (coverageAvgHelper.countedPackages || 1)) * 100) / 100;
 	current().overall.duration = Math.round(current().overall.duration * 1000) / 1000;
+
+	// Compute the coverage delta (difference in overall coverage between now and last frame)
+	// Only compare coverage on the same watch path
+	var coverDelta = current().overall.coverage;
+	if (convey.framesOnSamePath > 2)
+		coverDelta = current().overall.coverage - convey.history[convey.history.length - 2].overall.coverage;
+	current().coverDelta = Math.round(coverDelta * 100) / 100;
+
 
 	// Build failures trump panics,
 	// Panics trump failures,
@@ -710,7 +720,7 @@ function process(data, status, jqxhr)
 	log("      Failures: " + current().overall.failures);
 	log("        Panics: " + current().overall.panics);
 	log("Build Failures: " + current().overall.failedBuilds);
-	log("      Coverage: " + current().overall.coverage + "%");
+	log("      Coverage: " + current().overall.coverage + "% (" + showCoverDelta(current().coverDelta) + ")");
 
 	// Save timestamp when this test was executed
 	convey.moments['last-test'] = moment();
@@ -747,7 +757,7 @@ function process(data, status, jqxhr)
 			convey.notif.close();
 		}
 
-		var notifText = notifSummary(current().overall)
+		var notifText = notifSummary(current())
 
 		convey.notif = new Notification(notifText.title, {
 			body: notifText.body,
@@ -945,27 +955,34 @@ function updateWatchPath()
 {
 	$.get("/watch", function(data)
 	{
-		$('#path').val($.trim(data));
+		var newPath = $.trim(data);
+		if (newPath != $('#path').val())
+			convey.framesOnSamePath = 1;
+		$('#path').val(newPath);
 	});
 }
 
-function notifSummary(overall)
+function notifSummary(frame)
 {
-	var body = "(" + overall.duration + "s)\r\n";
+	var body = frame.overall.passed + " passed, ";
 
-	body += overall.passed + " passed, ";
+	if (frame.overall.failedBuilds)
+		body += frame.overall.failedBuilds + " build" + (frame.overall.failedBuilds != 1 ? "s" : "") + " failed, ";
+	if (frame.overall.failures)
+		body += frame.overall.failures + " failed, ";
+	if (frame.overall.panics)
+		body += frame.overall.panics + " panicked, ";
+	body += frame.overall.skipped + " skipped";
 
-	if (overall.failedBuilds)
-		body += overall.failedBuilds + " build" + (overall.failedBuilds != 1 ? "s" : "") + " failed, ";
-	if (overall.failures)
-		body += overall.failures + " failed, ";
-	if (overall.panics)
-		body += overall.panics + " panicked, ";
+	body += "\r\n" + frame.overall.duration + "s";
 
-	body += overall.skipped + " skipped";
+	if (frame.coverDelta > 0)
+		body += "\r\n↑ coverage (" + showCoverDelta(frame.coverDelta) + ")";
+	else if (frame.coverDelta < 0)
+		body += "\r\n↓ coverage (" + showCoverDelta(frame.coverDelta) + ")";
 
 	return {
-		title: overall.status.text.toUpperCase(),
+		title: frame.overall.status.text.toUpperCase(),
 		body: body
 	};
 }
@@ -1137,7 +1154,8 @@ function newFrame()
 		assertions: emptyAssertions(),	// lists of assertions, compiled from server's response
 		failedBuilds: [],				// list of packages that failed to build
 		timestamp: moment(),			// the timestamp of this "freeze-state"
-		id: convey.frameCounter++		// unique ID for this frame
+		id: convey.frameCounter++,		// unique ID for this frame
+		coverDelta: 0					// difference in total coverage from the last frame to this one
 	};
 }
 
@@ -1193,6 +1211,16 @@ function assignStatus(obj)
 		obj._status = convey.statuses.fail;
 	else
 		obj._status = convey.statuses.pass;
+}
+
+function showCoverDelta(delta)
+{
+	if (delta > 0)
+		return "+" + delta + "%";
+	else if (delta == 0)
+		return "±" + delta + "%";
+	else
+		return delta + "%";
 }
 
 function customMarkupPipes()
