@@ -74,8 +74,9 @@ func (parent *scope) visitChild(runner *runner) {
 	child := parent.birthOrder[parent.child]
 	child.visit(runner)
 
+	parent.cleanup()
+
 	if child.visited() {
-		parent.cleanup()
 		parent.child++
 	}
 }

@@ -483,6 +483,44 @@ func TestInfiniteLoopWithTrailingFail(t *testing.T) {
 	}
 }
 
+func TestOutermostResetInvokedForGrandchildren(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, func() {
+		output += "A "
+
+		Reset(func() {
+			output += "rA "
+		})
+
+		Convey("B", func() {
+			output += "B "
+
+			Reset(func() {
+				output += "rB "
+			})
+
+			Convey("C", func() {
+				output += "C "
+
+				Reset(func() {
+					output += "rC "
+				})
+			})
+
+			Convey("D", func() {
+				output += "D "
+
+				Reset(func() {
+					output += "rD "
+				})
+			})
+		})
+	})
+
+	expectEqual(t, "A B C rC rB rA A B D rD rB rA ", output)
+}
+
 func prepare() string {
 	testReporter = newNilReporter()
 	return ""
