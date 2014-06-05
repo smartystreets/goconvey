@@ -521,6 +521,206 @@ func TestOutermostResetInvokedForGrandchildren(t *testing.T) {
 	expectEqual(t, "A B C rC rB rA A B D rD rB rA ", output)
 }
 
+func TestFailureOption(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureHalts, func() {
+		output += "A "
+		So(true, ShouldEqual, true)
+		output += "B "
+		So(false, ShouldEqual, true)
+		output += "C "
+	})
+
+	expectEqual(t, "A B ", output)
+}
+
+func TestFailureOption2(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, func() {
+		output += "A "
+		So(true, ShouldEqual, true)
+		output += "B "
+		So(false, ShouldEqual, true)
+		output += "C "
+	})
+
+	expectEqual(t, "A B ", output)
+}
+
+func TestFailureOption3(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureContinues, func() {
+		output += "A "
+		So(true, ShouldEqual, true)
+		output += "B "
+		So(false, ShouldEqual, true)
+		output += "C "
+	})
+
+	expectEqual(t, "A B C ", output)
+}
+
+func TestFailureOptionInherit(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureContinues, func() {
+		output += "A1 "
+		So(false, ShouldEqual, true)
+		output += "A2 "
+
+		Convey("B", func() {
+			output += "B1 "
+			So(true, ShouldEqual, true)
+			output += "B2 "
+			So(false, ShouldEqual, true)
+			output += "B3 "
+		})
+	})
+
+	expectEqual(t, "A1 A2 B1 B2 B3 ", output)
+}
+
+func TestFailureOptionInherit2(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureHalts, func() {
+		output += "A1 "
+		So(false, ShouldEqual, true)
+		output += "A2 "
+
+		Convey("B", func() {
+			output += "A1 "
+			So(true, ShouldEqual, true)
+			output += "A2 "
+			So(false, ShouldEqual, true)
+			output += "A3 "
+		})
+	})
+
+	expectEqual(t, "A1 ", output)
+}
+
+func TestFailureOptionInherit3(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureHalts, func() {
+		output += "A1 "
+		So(true, ShouldEqual, true)
+		output += "A2 "
+
+		Convey("B", func() {
+			output += "B1 "
+			So(true, ShouldEqual, true)
+			output += "B2 "
+			So(false, ShouldEqual, true)
+			output += "B3 "
+		})
+	})
+
+	expectEqual(t, "A1 A2 B1 B2 ", output)
+}
+
+func TestFailureOptionNestedOverride(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureContinues, func() {
+		output += "A "
+		So(false, ShouldEqual, true)
+		output += "B "
+
+		Convey("C", FailureHalts, func() {
+			output += "C "
+			So(true, ShouldEqual, true)
+			output += "D "
+			So(false, ShouldEqual, true)
+			output += "E "
+		})
+	})
+
+	expectEqual(t, "A B C D ", output)
+}
+
+func TestFailureOptionNestedOverride2(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureHalts, func() {
+		output += "A "
+		So(true, ShouldEqual, true)
+		output += "B "
+
+		Convey("C", FailureContinues, func() {
+			output += "C "
+			So(true, ShouldEqual, true)
+			output += "D "
+			So(false, ShouldEqual, true)
+			output += "E "
+		})
+	})
+
+	expectEqual(t, "A B C D E ", output)
+}
+
+func TestMultipleInvocationInheritance(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureHalts, func() {
+		output += "A1 "
+		So(true, ShouldEqual, true)
+		output += "A2 "
+
+		Convey("B", FailureContinues, func() {
+			output += "B1 "
+			So(true, ShouldEqual, true)
+			output += "B2 "
+			So(false, ShouldEqual, true)
+			output += "B3 "
+		})
+
+		Convey("C", func() {
+			output += "C1 "
+			So(true, ShouldEqual, true)
+			output += "C2 "
+			So(false, ShouldEqual, true)
+			output += "C3 "
+		})
+	})
+
+	expectEqual(t, "A1 A2 B1 B2 B3 A1 A2 C1 C2 ", output)
+}
+
+func TestMultipleInvocationInheritance2(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, FailureContinues, func() {
+		output += "A1 "
+		So(true, ShouldEqual, true)
+		output += "A2 "
+		So(false, ShouldEqual, true)
+		output += "A3 "
+
+		Convey("B", FailureHalts, func() {
+			output += "B1 "
+			So(true, ShouldEqual, true)
+			output += "B2 "
+			So(false, ShouldEqual, true)
+			output += "B3 "
+		})
+
+		Convey("C", func() {
+			output += "C1 "
+			So(true, ShouldEqual, true)
+			output += "C2 "
+			So(false, ShouldEqual, true)
+			output += "C3 "
+		})
+	})
+
+	expectEqual(t, "A1 A2 A3 B1 B2 A1 A2 A3 C1 C2 C3 ", output)
+}
+
 func prepare() string {
 	testReporter = newNilReporter()
 	return ""

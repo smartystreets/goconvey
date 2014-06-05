@@ -34,22 +34,24 @@ func newRegistration(situation string, action *action, test t) *registration {
 ////////////////////////// action ///////////////////////
 
 type action struct {
-	wrapped func()
-	name    string
+	wrapped     func()
+	name        string
+	failureMode FailureMode
 }
 
 func (self *action) Invoke() {
 	self.wrapped()
 }
 
-func newAction(wrapped func()) *action {
+func newAction(wrapped func(), mode FailureMode) *action {
 	self := new(action)
 	self.name = functionName(wrapped)
 	self.wrapped = wrapped
+	self.failureMode = mode
 	return self
 }
 
-func newSkippedAction(wrapped func()) *action {
+func newSkippedAction(wrapped func(), mode FailureMode) *action {
 	self := new(action)
 
 	// The choice to use the filename and line number as the action name
@@ -57,6 +59,7 @@ func newSkippedAction(wrapped func()) *action {
 	// in a determinist way to the action itself.
 	self.name = gotest.FormatExternalFileAndLine()
 	self.wrapped = wrapped
+	self.failureMode = mode
 	return self
 }
 

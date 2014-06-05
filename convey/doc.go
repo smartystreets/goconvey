@@ -9,6 +9,25 @@ import (
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
+// FailureMode is a type which determines how the So() blocks should fail
+// if their assertion fails. See constants further down for acceptable values
+type FailureMode string
+
+const (
+	// FailureContinues is a failure mode which prevents failing
+	// So()-assertions from halting Convey-block execution, instead
+	// allowing the test to continue past failing So()-assertions.
+	FailureContinues FailureMode = "continue"
+	// FailureInherits is the default setting for failure-mode, it will
+	// default to the failure-mode of the parent block.
+	// The top-level Convey()-block has the default of FailureHalts.
+	FailureInherits FailureMode = "inherits"
+	// FailureHalts is the default setting for a top-level Convey()-block
+	// and will cause all failing So()-assertions to halt further execution
+	// in that test-arm and continue on to the next arm.
+	FailureHalts FailureMode = "halt"
+)
+
 // Convey is the method intended for use when declaring the scopes
 // of a specification. Each scope has a description and a func()
 // which may contain other calls to Convey(), Reset() or Should-style
@@ -25,6 +44,18 @@ import (
 //
 // Don't worry, the goconvey will panic if you get it wrong so you can fix it.
 //
+// All Convey()-blocks also take an optional parameter of FailureMode which
+// sets how goconvey should treat failures for So()-assertions in the block and
+// nested blocks. See the constants in this file for the available options.
+//
+// By default it will inherit from its parent block and the top-level blocks
+// start with setting of FailureHalts.
+//
+// This parameter is inserted before the block itself:
+//
+//     Convey(description string, t *testing.T, mode FailureMode, action func())
+//     Convey(description string, mode FailureMode, action func())
+//
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
 	entry := discover(items)
@@ -36,7 +67,7 @@ func Convey(items ...interface{}) {
 // The reporter will be notified that this step was skipped.
 func SkipConvey(items ...interface{}) {
 	entry := discover(items)
-	entry.action = newSkippedAction(skipReport)
+	entry.action = newSkippedAction(skipReport, entry.action.failureMode)
 	register(entry)
 }
 
@@ -68,7 +99,8 @@ func skipReport() {
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
-	suites.Current().RegisterReset(newAction(action))
+	/* TODO: Failure mode configuration */
+	suites.Current().RegisterReset(newAction(action, FailureInherits))
 }
 
 // So is the means by which assertions are made against the system under test.
