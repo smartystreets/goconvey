@@ -1,9 +1,6 @@
 package convey
 
 import (
-	"fmt"
-
-	"github.com/smartystreets/goconvey/convey/gotest"
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
@@ -13,24 +10,7 @@ type runner struct {
 	reporter    reporting.Reporter
 	failureMode FailureMode
 
-	awaitingNewStory bool
 	focus            bool
-}
-
-func (self *runner) Begin(entry *registration) {
-	self.active = self.top
-	self.focus = entry.Focus
-
-	self.ensureStoryCanBegin()
-	self.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
-	self.Register(entry)
-}
-func (self *runner) ensureStoryCanBegin() {
-	if self.awaitingNewStory {
-		self.awaitingNewStory = false
-	} else {
-		panic(fmt.Sprintf("%s (See %s)", extraGoTest, gotest.FormatExternalFileAndLine()))
-	}
 }
 
 func (self *runner) Register(entry *registration) {
@@ -38,32 +18,27 @@ func (self *runner) Register(entry *registration) {
 		return
 	}
 
-	self.ensureStoryAlreadyStarted()
-
 	child := newScope(entry, self.reporter)
 	self.active.adopt(child)
-}
-
-func (self *runner) ensureStoryAlreadyStarted() {
-	if self.awaitingNewStory {
-		panic(missingGoTest)
-	}
 }
 
 func (self *runner) RegisterReset(action *action) {
 	self.active.registerReset(action)
 }
 
-func (self *runner) Run() {
+func (self *runner) Run(entry *registration) {
 	self.active = self.top
+	self.focus = entry.Focus
 	self.failureMode = defaultFailureMode
+
+	self.Register(entry)
+	self.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
 
 	for !self.top.visited() {
 		self.top.visit(self)
 	}
 
 	self.reporter.EndStory()
-	self.awaitingNewStory = true
 }
 
 func newRunner() *runner {
@@ -97,9 +72,6 @@ func last(group []string) string {
 }
 
 const topLevel = "TOP"
-const missingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T. 
-    Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
-const extraGoTest = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
 const failureHalt = "___FAILURE_HALT___"
 
 //////////////////////// nilReporter /////////////////////////////

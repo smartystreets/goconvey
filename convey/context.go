@@ -40,8 +40,7 @@ func (self *suiteContext) Run(entry *registration) {
 	self.runners[testName] = runner
 	self.lock.Unlock()
 
-	runner.Begin(entry)
-	runner.Run()
+	runner.Run(entry)
 
 	self.lock.Lock()
 	delete(self.locations, location)
