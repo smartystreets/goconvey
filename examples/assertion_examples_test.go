@@ -10,7 +10,7 @@ import (
 )
 
 func TestAssertions(t *testing.T) {
-	Convey("Equality assertions should be accessible", t, func() {
+	Convey("Equality assertions should be accessible", t, FailureContinues, func() {
 		thing1a := thing{a: "asdf"}
 		thing1b := thing{a: "asdf"}
 		thing2 := thing{a: "qwer"}
@@ -30,7 +30,7 @@ func TestAssertions(t *testing.T) {
 		So(0, ShouldBeZeroValue)
 	})
 
-	Convey("Numeric comparison assertions should be accessible", t, func() {
+	Convey("Numeric comparison assertions should be accessible", t, FailureContinues, func() {
 		So(1, ShouldBeGreaterThan, 0)
 		So(1, ShouldBeGreaterThanOrEqualTo, 1)
 		So(1, ShouldBeLessThan, 2)
@@ -39,7 +39,7 @@ func TestAssertions(t *testing.T) {
 		So(1, ShouldNotBeBetween, 2, 4)
 	})
 
-	Convey("Container assertions should be accessible", t, func() {
+	Convey("Container assertions should be accessible", t, FailureContinues, func() {
 		So([]int{1, 2, 3}, ShouldContain, 2)
 		So([]int{1, 2, 3}, ShouldNotContain, 4)
 		So(1, ShouldBeIn, []int{1, 2, 3})
@@ -48,7 +48,7 @@ func TestAssertions(t *testing.T) {
 		So([]int{1}, ShouldNotBeEmpty)
 	})
 
-	Convey("String assertions should be accessible", t, func() {
+	Convey("String assertions should be accessible", t, FailureContinues, func() {
 		So("asdf", ShouldStartWith, "a")
 		So("asdf", ShouldNotStartWith, "z")
 		So("asdf", ShouldEndWith, "df")
@@ -59,14 +59,14 @@ func TestAssertions(t *testing.T) {
 		So("asdf", ShouldNotContainSubstring, "af")
 	})
 
-	Convey("Panic recovery assertions should be accessible", t, func() {
+	Convey("Panic recovery assertions should be accessible", t, FailureContinues, func() {
 		So(panics, ShouldPanic)
 		So(func() {}, ShouldNotPanic)
 		So(panics, ShouldPanicWith, "Goofy Gophers!")
 		So(panics, ShouldNotPanicWith, "Guileless Gophers!")
 	})
 
-	Convey("Type-checking assertions should be accessible", t, func() {
+	Convey("Type-checking assertions should be accessible", t, FailureContinues, func() {
 
 		// NOTE: Values or pointers may be checked.  If a value is passed,
 		// it will be cast as a pointer to the value to avoid cases where
@@ -85,7 +85,7 @@ func TestAssertions(t *testing.T) {
 		So("string", ShouldNotImplement, (*io.Reader)(nil))
 	})
 
-	Convey("Time assertions should be accessible", t, func() {
+	Convey("Time assertions should be accessible", t, FailureContinues, func() {
 		january1, _ := time.Parse(timeLayout, "2013-01-01 00:00")
 		january2, _ := time.Parse(timeLayout, "2013-01-02 00:00")
 		january3, _ := time.Parse(timeLayout, "2013-01-03 00:00")
