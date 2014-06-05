@@ -67,6 +67,16 @@ func (self *runner) Write(content []byte) (written int, err error) {
 	return self.reporter.Write(content)
 }
 
+func (self *runner) setFailureMode(mode FailureMode) FailureMode {
+	old := self.failureMode;
+
+	if mode != FailureInherits {
+		self.failureMode = mode
+	}
+
+	return old
+}
+
 func last(group []string) string {
 	return group[len(group)-1]
 }

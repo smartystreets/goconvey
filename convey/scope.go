@@ -56,37 +56,23 @@ func (parent *scope) visit(runner *runner) {
 	runner.active = parent
 	defer parent.exit()
 
-	// Set and reset failure mode
-	oldFailure := runner.failureMode
-	if parent.action.failureMode != FailureInherits {
-		runner.failureMode = parent.action.failureMode
-	}
-	defer func() {
-		runner.failureMode = oldFailure
-	}()
+	oldMode := runner.setFailureMode(parent.action.failureMode)
+	defer runner.setFailureMode(oldMode)
 
-	parent.enter()
-	parent.action.Invoke()
-	parent.visitChildren(runner)
-}
-func (parent *scope) enter() {
 	parent.reporter.Enter(parent.report)
-}
-func (parent *scope) visitChildren(runner *runner) {
-	if len(parent.birthOrder) == 0 {
-		parent.cleanup()
-	} else {
-		parent.visitChild(runner)
-	}
-}
-func (parent *scope) visitChild(runner *runner) {
-	child := parent.birthOrder[parent.child]
-	child.visit(runner)
-
+	parent.action.Invoke()
+	parent.visitNextChild(runner)
 	parent.cleanup()
+}
+func (parent *scope) visitNextChild(runner *runner) {
+	if len(parent.birthOrder) > parent.child {
+		child := parent.birthOrder[parent.child]
 
-	if child.visited() {
-		parent.child++
+		child.visit(runner)
+
+		if child.visited() {
+			parent.child++
+		}
 	}
 }
 func (parent *scope) cleanup() {
