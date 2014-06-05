@@ -3,9 +3,9 @@ package convey
 func discover(items []interface{}) *registration {
 	ensureEnough(items)
 
-	name := parseName(items)
-	test := parseGoTest(items)
-	action := parseAction(items, test)
+	name, items := parseName(items)
+	test, items := parseGoTest(items)
+	action := parseAction(items)
 
 	return newRegistration(name, action, test)
 }
@@ -14,34 +14,30 @@ func ensureEnough(items []interface{}) {
 		panic(parseError)
 	}
 }
-func parseName(items []interface{}) string {
+func parseName(items []interface{}) (string, []interface{}) {
 	if name, parsed := items[0].(string); parsed {
-		return name
+		return name, items[1:]
 	}
 	panic(parseError)
 }
-func parseGoTest(items []interface{}) t {
-	if test, parsed := items[1].(t); parsed {
-		return test
+func parseGoTest(items []interface{}) (t, []interface{}) {
+	if test, parsed := items[0].(t); parsed {
+		return test, items[1:]
 	}
-	return nil
+	return nil, items
 }
-func parseAction(items []interface{}, test t) *action {
-	var index = 1
-	var failure = FailureInherits
-	if test != nil {
-		index = 2
-	}
+func parseAction(items []interface{}) *action {
+	failure := FailureInherits
 
-	if mode, parsed := items[index].(FailureMode); parsed {
+	if mode, parsed := items[0].(FailureMode); parsed {
 		failure = mode
-		index += 1
+		items = items[1:]
 	}
 
-	if action, parsed := items[index].(func()); parsed {
+	if action, parsed := items[0].(func()); parsed {
 		return newAction(action, failure)
 	}
-	if items[index] == nil {
+	if items[0] == nil {
 		return newSkippedAction(skipReport, failure)
 	}
 	panic(parseError)
