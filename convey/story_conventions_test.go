@@ -69,7 +69,7 @@ func TestExtraReferencePanics(t *testing.T) {
 func TestParseRegistrationMissingRequiredElements(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
-			if r != "You must provide a name (string), then a *testing.T (if in outermost scope), and then an action (func())." {
+			if r != "You must provide a name (string), then a *testing.T (if in outermost scope), an optional FailureMode, and then an action (func())." {
 				t.Errorf("Incorrect panic message.")
 			}
 		}

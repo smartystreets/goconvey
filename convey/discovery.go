@@ -28,15 +28,21 @@ func parseGoTest(items []interface{}) t {
 }
 func parseAction(items []interface{}, test t) *action {
 	var index = 1
+	var failure = FailureInherits
 	if test != nil {
 		index = 2
 	}
 
+	if mode, parsed := items[index].(FailureMode); parsed {
+		failure = mode
+		index += 1
+	}
+
 	if action, parsed := items[index].(func()); parsed {
-		return newAction(action)
+		return newAction(action, failure)
 	}
 	if items[index] == nil {
-		return newSkippedAction(skipReport)
+		return newSkippedAction(skipReport, failure)
 	}
 	panic(parseError)
 }
@@ -48,4 +54,4 @@ type t interface {
 	Fail()
 }
 
-const parseError = "You must provide a name (string), then a *testing.T (if in outermost scope), and then an action (func())."
+const parseError = "You must provide a name (string), then a *testing.T (if in outermost scope), an optional FailureMode, and then an action (func())."

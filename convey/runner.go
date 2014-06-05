@@ -8,9 +8,10 @@ import (
 )
 
 type runner struct {
-	top      *scope
-	active   *scope
-	reporter reporting.Reporter
+	top         *scope
+	active      *scope
+	reporter    reporting.Reporter
+	failureMode FailureMode
 
 	awaitingNewStory bool
 	focus            bool
@@ -55,6 +56,7 @@ func (self *runner) RegisterReset(action *action) {
 
 func (self *runner) Run() {
 	self.active = self.top
+	self.failureMode = FailureHalts
 
 	for !self.top.visited() {
 		self.top.visit(self)
@@ -68,7 +70,7 @@ func newRunner() *runner {
 	self := new(runner)
 
 	self.reporter = newNilReporter()
-	self.top = newScope(newRegistration(topLevel, newAction(func() {}), nil), self.reporter)
+	self.top = newScope(newRegistration(topLevel, newAction(func() {}, FailureInherits), nil), self.reporter)
 	self.active = self.top
 	self.awaitingNewStory = true
 
@@ -81,7 +83,7 @@ func (self *runner) UpgradeReporter(reporter reporting.Reporter) {
 
 func (self *runner) Report(result *reporting.AssertionResult) {
 	self.reporter.Report(result)
-	if result.Failure != "" {
+	if result.Failure != "" && self.failureMode == FailureHalts {
 		panic(failureHalt)
 	}
 }

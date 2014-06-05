@@ -56,6 +56,15 @@ func (parent *scope) visit(runner *runner) {
 	runner.active = parent
 	defer parent.exit()
 
+	// Set and reset failure mode
+	oldFailure := runner.failureMode
+	if parent.action.failureMode != FailureInherits {
+		runner.failureMode = parent.action.failureMode
+	}
+	defer func() {
+		runner.failureMode = oldFailure
+	}()
+
 	parent.enter()
 	parent.action.Invoke()
 	parent.visitChildren(runner)
