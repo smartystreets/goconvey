@@ -16,6 +16,8 @@ import (
 )
 
 func TestBowlingGameScoring(t *testing.T) {
+	t.Parallel()
+
 	Convey("Given a fresh score card", t, func() {
 		game := NewGame()
 
