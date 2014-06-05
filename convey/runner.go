@@ -67,14 +67,14 @@ func (self *runner) Run() {
 }
 
 func newRunner() *runner {
-	self := new(runner)
+	reporter := newNilReporter()
+	scope := newScope(newRegistration(topLevel, newAction(func() {}, FailureInherits), nil), reporter)
 
-	self.reporter = newNilReporter()
-	self.top = newScope(newRegistration(topLevel, newAction(func() {}, FailureInherits), nil), self.reporter)
-	self.active = self.top
-	self.awaitingNewStory = true
-
-	return self
+	return &runner{
+		reporter: reporter,
+		top:      scope,
+		active:   scope,
+	}
 }
 
 func (self *runner) UpgradeReporter(reporter reporting.Reporter) {
