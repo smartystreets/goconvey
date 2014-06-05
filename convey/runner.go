@@ -56,7 +56,7 @@ func (self *runner) RegisterReset(action *action) {
 
 func (self *runner) Run() {
 	self.active = self.top
-	self.failureMode = FailureHalts
+	self.failureMode = defaultFailureMode
 
 	for !self.top.visited() {
 		self.top.visit(self)

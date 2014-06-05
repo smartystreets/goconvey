@@ -1,9 +1,9 @@
 package convey
 
 import (
-	"time"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func TestSingleScope(t *testing.T) {
@@ -719,6 +719,21 @@ func TestMultipleInvocationInheritance2(t *testing.T) {
 	})
 
 	expectEqual(t, "A1 A2 A3 B1 B2 A1 A2 A3 C1 C2 C3 ", output)
+}
+
+func TestSetDefaultFailureMode(t *testing.T) {
+	output := prepare()
+
+	SetDefaultFailureMode(FailureContinues) // the default is normally FailureHalts
+	defer SetDefaultFailureMode(FailureHalts)
+
+	Convey("A", t, func() {
+		output += "A1 "
+		So(true, ShouldBeFalse)
+		output += "A2 "
+	})
+
+	expectEqual(t, "A1 A2 ", output)
 }
 
 func prepare() string {
