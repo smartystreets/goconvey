@@ -26,13 +26,14 @@ func parseGoTest(items []interface{}) (t, []interface{}) {
 	}
 	return nil, items
 }
-func parseAction(items []interface{}) *action {
-	failure := FailureInherits
-
+func parseFailureMode(items []interface{}) (FailureMode, []interface{}) {
 	if mode, parsed := items[0].(FailureMode); parsed {
-		failure = mode
-		items = items[1:]
+		return mode, items[1:]
 	}
+	return FailureInherits, items
+}
+func parseAction(items []interface{}) *action {
+	failure, items := parseFailureMode(items)
 
 	if action, parsed := items[0].(func()); parsed {
 		return newAction(action, failure)
