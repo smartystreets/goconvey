@@ -35,9 +35,7 @@ func (self *suiteContext) Run(entry *registration) {
 		panic(extraGoTest)
 	}
 
-	reporter := buildReporter()
-	runner := newRunner()
-	runner.UpgradeReporter(reporter)
+	runner := newRunner(buildReporter())
 
 	testName, location, _ := suiteAnchor()
 

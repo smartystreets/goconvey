@@ -39,19 +39,15 @@ func (self *runner) Run(entry *registration) {
 	self.reporter.EndStory()
 }
 
-func newRunner() *runner {
-	reporter := newNilReporter()
-	scope := newScope(newRegistration(topLevel, newAction(func() {}, FailureInherits), nil), reporter)
+func newRunner(reporter reporting.Reporter) *runner {
+	// Top-level is always using a nilReporter
+	scope := newScope(newRegistration(topLevel, newAction(func() {}, FailureInherits), nil), newNilReporter())
 
 	return &runner{
 		reporter: reporter,
 		top:      scope,
 		active:   scope,
 	}
-}
-
-func (self *runner) UpgradeReporter(reporter reporting.Reporter) {
-	self.reporter = reporter
 }
 
 func (self *runner) Report(result *reporting.AssertionResult) {
@@ -93,4 +89,4 @@ func (self *nilReporter) Report(report *reporting.AssertionResult) {}
 func (self *nilReporter) Exit()                                    {}
 func (self *nilReporter) EndStory()                                {}
 func (self *nilReporter) Write(p []byte) (int, error)              { return len(p), nil }
-func newNilReporter() *nilReporter                                 { return new(nilReporter) }
+func newNilReporter() *nilReporter                                 { return &nilReporter{} }
