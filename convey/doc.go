@@ -11,12 +11,6 @@ import (
 
 ////////////////////////////////// Registration //////////////////////////////////
 
-const (
-	missingGoTest string = `Top-level calls to Convey(...) need a reference to the *testing.T. 
-		Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
-	extraGoTest string = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
-)
-
 // Convey is the method intended for use when declaring the scopes
 // of a specification. Each scope has a description and a func()
 // which may contain other calls to Convey(), Reset() or Should-style

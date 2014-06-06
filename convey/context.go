@@ -12,6 +12,12 @@ import (
 	"sync"
 )
 
+const (
+	missingGoTest string = `Top-level calls to Convey(...) need a reference to the *testing.T. 
+		Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
+	extraGoTest string = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+)
+
 // suiteContext magically handles all coordination of reporter, runners as they handle calls
 // to Convey, So, and the like. It does this via runtime call stack inspection, making sure
 // that each test function has its own runner, and routes all live registrations
