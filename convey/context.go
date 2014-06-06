@@ -12,6 +12,12 @@ import (
 	"sync"
 )
 
+const (
+	missingGoTest string = `Top-level calls to Convey(...) need a reference to the *testing.T. 
+		Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
+	extraGoTest string = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+)
+
 // suiteContext magically handles all coordination of reporter, runners as they handle calls
 // to Convey, So, and the like. It does this via runtime call stack inspection, making sure
 // that each test function has its own runner, and routes all live registrations
@@ -29,24 +35,15 @@ func (self *suiteContext) Run(entry *registration) {
 		panic(extraGoTest)
 	}
 
-	reporter := buildReporter()
-	runner := newRunner()
-	runner.UpgradeReporter(reporter)
+	runner := newRunner(buildReporter())
 
 	testName, location, _ := suiteAnchor()
 
-	self.lock.Lock()
-	self.locations[location] = testName
-	self.runners[testName] = runner
-	self.lock.Unlock()
+	self.setRunner(location, testName, runner)
 
-	runner.Begin(entry)
-	runner.Run()
+	runner.Run(entry)
 
-	self.lock.Lock()
-	delete(self.locations, location)
-	delete(self.runners, testName)
-	self.lock.Unlock()
+	self.unsetRunner(location, testName)
 }
 
 func (self *suiteContext) Current() *runner {
@@ -58,20 +55,33 @@ func (self *suiteContext) Current() *runner {
 func (self *suiteContext) current() *runner {
 	self.lock.Lock()
 	defer self.lock.Unlock()
-	testName, _, err := suiteAnchor()
 
-	if err != nil {
-		testName = correlate(self.locations)
+	if testName, _, err := suiteAnchor(); err == nil {
+		return self.runners[testName]
 	}
 
-	return self.runners[testName]
+	return self.runners[correlate(self.locations)]
+}
+func (self *suiteContext) setRunner(location string, testName string, runner *runner) {
+	self.lock.Lock()
+	defer self.lock.Unlock()
+
+	self.locations[location] = testName
+	self.runners[testName] = runner
+}
+func (self *suiteContext) unsetRunner(location string, testName string) {
+	self.lock.Lock()
+	defer self.lock.Unlock()
+
+	delete(self.locations, location)
+	delete(self.runners, testName)
 }
 
 func newSuiteContext() *suiteContext {
-	self := new(suiteContext)
-	self.locations = make(map[string]string)
-	self.runners = make(map[string]*runner)
-	return self
+	return &suiteContext{
+		locations: map[string]string{},
+		runners:   map[string]*runner{},
+	}
 }
 
 //////////////////// Helper Functions ///////////////////////

@@ -1,9 +1,6 @@
 package convey
 
 import (
-	"fmt"
-
-	"github.com/smartystreets/goconvey/convey/gotest"
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
@@ -12,25 +9,7 @@ type runner struct {
 	active      *scope
 	reporter    reporting.Reporter
 	failureMode FailureMode
-
-	awaitingNewStory bool
-	focus            bool
-}
-
-func (self *runner) Begin(entry *registration) {
-	self.active = self.top
-	self.focus = entry.Focus
-
-	self.ensureStoryCanBegin()
-	self.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
-	self.Register(entry)
-}
-func (self *runner) ensureStoryCanBegin() {
-	if self.awaitingNewStory {
-		self.awaitingNewStory = false
-	} else {
-		panic(fmt.Sprintf("%s (See %s)", extraGoTest, gotest.FormatExternalFileAndLine()))
-	}
+	focus       bool
 }
 
 func (self *runner) Register(entry *registration) {
@@ -38,51 +17,42 @@ func (self *runner) Register(entry *registration) {
 		return
 	}
 
-	self.ensureStoryAlreadyStarted()
-
-	child := newScope(entry, self.reporter)
-	self.active.adopt(child)
-}
-
-func (self *runner) ensureStoryAlreadyStarted() {
-	if self.awaitingNewStory {
-		panic(missingGoTest)
-	}
+	self.active.adopt(newScope(entry, self.reporter))
 }
 
 func (self *runner) RegisterReset(action *action) {
 	self.active.registerReset(action)
 }
 
-func (self *runner) Run() {
+func (self *runner) Run(entry *registration) {
 	self.active = self.top
+	self.focus = entry.Focus
 	self.failureMode = defaultFailureMode
+
+	self.Register(entry)
+	self.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
 
 	for !self.top.visited() {
 		self.top.visit(self)
 	}
 
 	self.reporter.EndStory()
-	self.awaitingNewStory = true
 }
 
-func newRunner() *runner {
-	self := new(runner)
+func newRunner(reporter reporting.Reporter) *runner {
+	// Top-level is always using a nilReporter
+	scope := newScope(newRegistration(topLevel, newAction(func() {}, FailureInherits), nil), newNilReporter())
 
-	self.reporter = newNilReporter()
-	self.top = newScope(newRegistration(topLevel, newAction(func() {}, FailureInherits), nil), self.reporter)
-	self.active = self.top
-	self.awaitingNewStory = true
-
-	return self
-}
-
-func (self *runner) UpgradeReporter(reporter reporting.Reporter) {
-	self.reporter = reporter
+	return &runner{
+		reporter: reporter,
+		top:      scope,
+		active:   scope,
+	}
 }
 
 func (self *runner) Report(result *reporting.AssertionResult) {
 	self.reporter.Report(result)
+
 	if result.Failure != "" && self.failureMode == FailureHalts {
 		panic(failureHalt)
 	}
@@ -92,14 +62,21 @@ func (self *runner) Write(content []byte) (written int, err error) {
 	return self.reporter.Write(content)
 }
 
+func (self *runner) setFailureMode(mode FailureMode) FailureMode {
+	old := self.failureMode
+
+	if mode != FailureInherits {
+		self.failureMode = mode
+	}
+
+	return old
+}
+
 func last(group []string) string {
 	return group[len(group)-1]
 }
 
 const topLevel = "TOP"
-const missingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T. 
-    Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
-const extraGoTest = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
 const failureHalt = "___FAILURE_HALT___"
 
 //////////////////////// nilReporter /////////////////////////////
@@ -112,4 +89,4 @@ func (self *nilReporter) Report(report *reporting.AssertionResult) {}
 func (self *nilReporter) Exit()                                    {}
 func (self *nilReporter) EndStory()                                {}
 func (self *nilReporter) Write(p []byte) (int, error)              { return len(p), nil }
-func newNilReporter() *nilReporter                                 { return new(nilReporter) }
+func newNilReporter() *nilReporter                                 { return &nilReporter{} }

@@ -16,19 +16,20 @@ type registration struct {
 	Focus     bool
 }
 
-func (self *registration) IsTopLevel() bool {
+func (self *registration) ShouldBeTopLevel() bool {
 	return self.Test != nil
 }
 
 func newRegistration(situation string, action *action, test t) *registration {
 	file, line, _ := gotest.ResolveExternalCaller()
-	self := new(registration)
-	self.Situation = situation
-	self.action = action
-	self.Test = test
-	self.File = file
-	self.Line = line
-	return self
+
+	return &registration{
+		Situation: situation,
+		action:    action,
+		Test:      test,
+		File:      file,
+		Line:      line,
+	}
 }
 
 ////////////////////////// action ///////////////////////
@@ -44,23 +45,22 @@ func (self *action) Invoke() {
 }
 
 func newAction(wrapped func(), mode FailureMode) *action {
-	self := new(action)
-	self.name = functionName(wrapped)
-	self.wrapped = wrapped
-	self.failureMode = mode
-	return self
+	return &action{
+		name:        functionName(wrapped),
+		wrapped:     wrapped,
+		failureMode: mode,
+	}
 }
 
 func newSkippedAction(wrapped func(), mode FailureMode) *action {
-	self := new(action)
-
 	// The choice to use the filename and line number as the action name
 	// reflects the need for something unique but also that corresponds
 	// in a determinist way to the action itself.
-	self.name = gotest.FormatExternalFileAndLine()
-	self.wrapped = wrapped
-	self.failureMode = mode
-	return self
+	return &action{
+		name:        gotest.FormatExternalFileAndLine(),
+		wrapped:     wrapped,
+		failureMode: mode,
+	}
 }
 
 ///////////////////////// helpers //////////////////////////////

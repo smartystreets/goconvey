@@ -56,37 +56,23 @@ func (parent *scope) visit(runner *runner) {
 	runner.active = parent
 	defer parent.exit()
 
-	// Set and reset failure mode
-	oldFailure := runner.failureMode
-	if parent.action.failureMode != FailureInherits {
-		runner.failureMode = parent.action.failureMode
-	}
-	defer func() {
-		runner.failureMode = oldFailure
-	}()
+	oldMode := runner.setFailureMode(parent.action.failureMode)
+	defer runner.setFailureMode(oldMode)
 
-	parent.enter()
-	parent.action.Invoke()
-	parent.visitChildren(runner)
-}
-func (parent *scope) enter() {
 	parent.reporter.Enter(parent.report)
-}
-func (parent *scope) visitChildren(runner *runner) {
-	if len(parent.birthOrder) == 0 {
-		parent.cleanup()
-	} else {
-		parent.visitChild(runner)
-	}
-}
-func (parent *scope) visitChild(runner *runner) {
-	child := parent.birthOrder[parent.child]
-	child.visit(runner)
-
+	parent.action.Invoke()
+	parent.visitNextChild(runner)
 	parent.cleanup()
+}
+func (parent *scope) visitNextChild(runner *runner) {
+	if len(parent.birthOrder) > parent.child {
+		child := parent.birthOrder[parent.child]
 
-	if child.visited() {
-		parent.child++
+		child.visit(runner)
+
+		if child.visited() {
+			parent.child++
+		}
 	}
 }
 func (parent *scope) cleanup() {
@@ -108,14 +94,14 @@ func (parent *scope) exit() {
 }
 
 func newScope(entry *registration, reporter reporting.Reporter) *scope {
-	self := new(scope)
-	self.reporter = reporter
-	self.name = entry.action.name
-	self.title = entry.Situation
-	self.action = entry.action
-	self.children = make(map[string]*scope)
-	self.birthOrder = []*scope{}
-	self.resets = make(map[string]*action)
-	self.report = reporting.NewScopeReport(self.title, self.name)
-	return self
+	return &scope{
+		reporter:   reporter,
+		name:       entry.action.name,
+		title:      entry.Situation,
+		action:     entry.action,
+		children:   make(map[string]*scope),
+		birthOrder: []*scope{},
+		resets:     make(map[string]*action),
+		report:     reporting.NewScopeReport(entry.Situation, entry.action.name),
+	}
 }

@@ -41,8 +41,7 @@ import (
 //
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
-	entry := discover(items)
-	register(entry)
+	register(discover(items))
 }
 
 // SkipConvey is analagous to Convey except that the scope is not executed
@@ -51,6 +50,7 @@ func Convey(items ...interface{}) {
 func SkipConvey(items ...interface{}) {
 	entry := discover(items)
 	entry.action = newSkippedAction(skipReport, entry.action.failureMode)
+
 	register(entry)
 }
 
@@ -64,11 +64,12 @@ func SkipConvey(items ...interface{}) {
 func FocusConvey(items ...interface{}) {
 	entry := discover(items)
 	entry.Focus = true
+
 	register(entry)
 }
 
 func register(entry *registration) {
-	if entry.IsTopLevel() {
+	if entry.ShouldBeTopLevel() {
 		suites.Run(entry)
 	} else {
 		suites.Current().Register(entry)

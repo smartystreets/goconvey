@@ -1,48 +1,48 @@
 package convey
 
 func discover(items []interface{}) *registration {
-	ensureEnough(items)
+	name, items := parseName(items)
+	test, items := parseGoTest(items)
+	action, items := parseAction(items)
 
-	name := parseName(items)
-	test := parseGoTest(items)
-	action := parseAction(items, test)
+	if len(items) != 0 {
+		panic(parseError)
+	}
 
 	return newRegistration(name, action, test)
 }
-func ensureEnough(items []interface{}) {
-	if len(items) < 2 {
+func item(items []interface{}) interface{} {
+	if len(items) == 0 {
 		panic(parseError)
 	}
+	return items[0]
 }
-func parseName(items []interface{}) string {
-	if name, parsed := items[0].(string); parsed {
-		return name
+func parseName(items []interface{}) (string, []interface{}) {
+	if name, parsed := item(items).(string); parsed {
+		return name, items[1:]
 	}
 	panic(parseError)
 }
-func parseGoTest(items []interface{}) t {
-	if test, parsed := items[1].(t); parsed {
-		return test
+func parseGoTest(items []interface{}) (t, []interface{}) {
+	if test, parsed := item(items).(t); parsed {
+		return test, items[1:]
 	}
-	return nil
+	return nil, items
 }
-func parseAction(items []interface{}, test t) *action {
-	var index = 1
-	var failure = FailureInherits
-	if test != nil {
-		index = 2
+func parseFailureMode(items []interface{}) (FailureMode, []interface{}) {
+	if mode, parsed := item(items).(FailureMode); parsed {
+		return mode, items[1:]
 	}
+	return FailureInherits, items
+}
+func parseAction(items []interface{}) (*action, []interface{}) {
+	failure, items := parseFailureMode(items)
 
-	if mode, parsed := items[index].(FailureMode); parsed {
-		failure = mode
-		index += 1
+	if action, parsed := item(items).(func()); parsed {
+		return newAction(action, failure), items[1:]
 	}
-
-	if action, parsed := items[index].(func()); parsed {
-		return newAction(action, failure)
-	}
-	if items[index] == nil {
-		return newSkippedAction(skipReport, failure)
+	if item(items) == nil {
+		return newSkippedAction(skipReport, failure), items[1:]
 	}
 	panic(parseError)
 }
