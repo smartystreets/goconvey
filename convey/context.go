@@ -39,17 +39,11 @@ func (self *suiteContext) Run(entry *registration) {
 
 	testName, location, _ := suiteAnchor()
 
-	self.lock.Lock()
-	self.locations[location] = testName
-	self.runners[testName] = runner
-	self.lock.Unlock()
+	self.setRunner(location, testName, runner)
 
 	runner.Run(entry)
 
-	self.lock.Lock()
-	delete(self.locations, location)
-	delete(self.runners, testName)
-	self.lock.Unlock()
+	self.unsetRunner(location, testName)
 }
 
 func (self *suiteContext) Current() *runner {
@@ -61,20 +55,33 @@ func (self *suiteContext) Current() *runner {
 func (self *suiteContext) current() *runner {
 	self.lock.Lock()
 	defer self.lock.Unlock()
-	testName, _, err := suiteAnchor()
 
-	if err != nil {
-		testName = correlate(self.locations)
+	if testName, _, err := suiteAnchor(); err == nil {
+		return self.runners[testName]
 	}
 
-	return self.runners[testName]
+	return self.runners[correlate(self.locations)]
+}
+func (self *suiteContext) setRunner(location string, testName string, runner *runner) {
+	self.lock.Lock()
+	defer self.lock.Unlock()
+
+	self.locations[location] = testName
+	self.runners[testName] = runner
+}
+func (self *suiteContext) unsetRunner(location string, testName string) {
+	self.lock.Lock()
+	defer self.lock.Unlock()
+
+	delete(self.locations, location)
+	delete(self.runners, testName)
 }
 
 func newSuiteContext() *suiteContext {
-	self := new(suiteContext)
-	self.locations = make(map[string]string)
-	self.runners = make(map[string]*runner)
-	return self
+	return &suiteContext{
+		locations: map[string]string{},
+		runners:   map[string]*runner{},
+	}
 }
 
 //////////////////// Helper Functions ///////////////////////
