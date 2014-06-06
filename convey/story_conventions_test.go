@@ -109,3 +109,31 @@ func TestParseRegistration_MissingActionFunc(t *testing.T) {
 
 	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
 }
+
+func TestFailureModeParameterButMissing(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != parseError {
+				t.Errorf("Incorrect panic message.")
+			}
+		} else {
+			t.Errorf("Expected panic")
+		}
+	}()
+
+	prepare()
+
+	Convey("Foobar", t, FailureHalts)
+}
+
+func TestFailureModeParameterWithAction(t *testing.T) {
+	prepare()
+
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("Unexpected panic")
+		}
+	}()
+
+	Convey("Foobar", t, FailureHalts, func() {})
+}
