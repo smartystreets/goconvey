@@ -137,3 +137,49 @@ func TestFailureModeParameterWithAction(t *testing.T) {
 
 	Convey("Foobar", t, FailureHalts, func() {})
 }
+
+func TestExtraConveyParameters(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != parseError {
+				t.Errorf("Incorrect panic message.")
+			}
+		} else {
+			t.Errorf("Expected panic")
+		}
+	}()
+
+	prepare()
+
+	Convey("Foobar", t, FailureHalts, func() {}, "This is not supposed to be here")
+}
+
+func TestExtraConveyParameters2(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			if r != parseError {
+				t.Errorf("Incorrect panic message.")
+			}
+		} else {
+			t.Errorf("Expected panic")
+		}
+	}()
+
+	prepare()
+
+	Convey("Foobar", t, func() {}, "This is not supposed to be here")
+}
+
+func TestExtraConveyParameters3(t *testing.T) {
+	output := prepare()
+
+	Convey("A", t, func() {
+		output += "A "
+
+		Convey("B", func() {
+			output += "B "
+		}, "This is not supposed to be here")
+	})
+
+	expectEqual(t, "A ", output)
+}
