@@ -74,18 +74,10 @@ func FocusConvey(items ...interface{}) {
 }
 
 func register(entry *registration) {
-	if entry.IsTopLevel() {
-		if entry.Test == nil {
-			panic(missingGoTest)
-		} else {
-			suites.Run(entry)
-		}
+	if entry.ShouldBeTopLevel() {
+		suites.Run(entry)
 	} else {
-		if entry.Test != nil {
-			panic(extraGoTest)
-		} else {
-			suites.Current().Register(entry)
-		}
+		suites.Current().Register(entry)
 	}
 }
 

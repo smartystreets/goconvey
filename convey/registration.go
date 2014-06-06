@@ -16,7 +16,7 @@ type registration struct {
 	Focus     bool
 }
 
-func (self *registration) IsTopLevel() bool {
+func (self *registration) ShouldBeTopLevel() bool {
 	return self.Test != nil
 }
 
