@@ -9,8 +9,7 @@ type runner struct {
 	active      *scope
 	reporter    reporting.Reporter
 	failureMode FailureMode
-
-	focus            bool
+	focus       bool
 }
 
 func (self *runner) Register(entry *registration) {
@@ -18,8 +17,7 @@ func (self *runner) Register(entry *registration) {
 		return
 	}
 
-	child := newScope(entry, self.reporter)
-	self.active.adopt(child)
+	self.active.adopt(newScope(entry, self.reporter))
 }
 
 func (self *runner) RegisterReset(action *action) {
@@ -58,6 +56,7 @@ func (self *runner) UpgradeReporter(reporter reporting.Reporter) {
 
 func (self *runner) Report(result *reporting.AssertionResult) {
 	self.reporter.Report(result)
+
 	if result.Failure != "" && self.failureMode == FailureHalts {
 		panic(failureHalt)
 	}
@@ -68,7 +67,7 @@ func (self *runner) Write(content []byte) (written int, err error) {
 }
 
 func (self *runner) setFailureMode(mode FailureMode) FailureMode {
-	old := self.failureMode;
+	old := self.failureMode
 
 	if mode != FailureInherits {
 		self.failureMode = mode

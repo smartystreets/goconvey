@@ -14,7 +14,7 @@ import (
 const (
 	missingGoTest string = `Top-level calls to Convey(...) need a reference to the *testing.T. 
 		Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
-	extraGoTest  string = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+	extraGoTest string = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
 )
 
 // Convey is the method intended for use when declaring the scopes
@@ -47,8 +47,7 @@ const (
 //
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
-	entry := discover(items)
-	register(entry)
+	register(discover(items))
 }
 
 // SkipConvey is analagous to Convey except that the scope is not executed
@@ -57,6 +56,7 @@ func Convey(items ...interface{}) {
 func SkipConvey(items ...interface{}) {
 	entry := discover(items)
 	entry.action = newSkippedAction(skipReport, entry.action.failureMode)
+
 	register(entry)
 }
 
@@ -70,6 +70,7 @@ func SkipConvey(items ...interface{}) {
 func FocusConvey(items ...interface{}) {
 	entry := discover(items)
 	entry.Focus = true
+
 	register(entry)
 }
 
