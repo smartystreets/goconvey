@@ -10,8 +10,6 @@ import (
 )
 
 func TestAssertionsAreAvailableFromConveyPackage(t *testing.T) {
-	t.Parallel()
-
 	SetDefaultFailureMode(FailureContinues)
 	defer SetDefaultFailureMode(FailureHalts)
 
