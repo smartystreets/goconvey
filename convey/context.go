@@ -117,14 +117,15 @@ func suiteAnchor() (testName, location string, err error) {
 func correlate(locations map[string]string) (testName string) {
 	file, line := resolveTestFileAndLine()
 	closest := -1
+
 	for location, registeredTestName := range locations {
-		parts := strings.Split(location, ":")
-		locationFile := parts[0]
+		locationFile, rawLocationLine := splitFileAndLine(location)
+
 		if locationFile != file {
 			continue
 		}
 
-		locationLine, err := strconv.Atoi(parts[1])
+		locationLine, err := strconv.Atoi(rawLocationLine)
 		if err != nil || locationLine < line {
 			continue
 		}
@@ -133,6 +134,22 @@ func correlate(locations map[string]string) (testName string) {
 			closest = locationLine
 			testName = registeredTestName
 		}
+	}
+	return
+}
+
+// splitFileAndLine receives a path and a line number in a single string,
+// separated by a colon and splits them.
+func splitFileAndLine(value string) (file, line string) {
+	parts := strings.Split(value, ":")
+	if len(parts) == 2 {
+		file = parts[0]
+		line = parts[1]
+	} else if len(parts) > 2 {
+		// 'C:/blah.go:123' (windows drive letter has two colons
+		// '-:--------:---'  instead of just one to separate file and line)
+		file = strings.Join(parts[:2], ":")
+		line = parts[2]
 	}
 	return
 }
