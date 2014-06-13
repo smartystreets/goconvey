@@ -12,7 +12,7 @@ import (
 func TestShell(t *testing.T) {
 	for i, test := range cases {
 		Convey(fmt.Sprintf("%d - %s", i, test.String()), t, func() {
-			fmt.Printf("\n%s\n\n", test.String())
+			Printf("\n%s\n\n", test.String())
 			output, err := invokeShell(test)
 
 			So(output, ShouldEqual, test.output)
