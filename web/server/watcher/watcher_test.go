@@ -2,8 +2,7 @@ package watcher
 
 import (
 	"errors"
-	"io/ioutil"
-	"log"
+
 	"testing"
 	"time"
 
@@ -22,8 +21,6 @@ func TestWatcher(t *testing.T) {
 	)
 
 	Convey("Subject: Watcher", t, func() {
-		log.SetOutput(ioutil.Discard)
-		log.SetFlags(log.LstdFlags | log.Lshortfile)
 		fixture = newWatcherFixture()
 
 		Convey("When initialized there should be ZERO watched folders", func() {
@@ -44,7 +41,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When pointing to a root folder that does not exist", func() {
-			actualError, expectedError = fixture.pointToImaginaryRoot("/not/there")
+			actualError, expectedError = fixture.pointToImaginaryRoot(slash + "not" + slash + "there")
 
 			Convey("An appropriate error should be returned", func() {
 				So(actualError, ShouldResemble, expectedError)
@@ -188,39 +185,39 @@ func (self *watcherFixture) pointToExistingRoot(folder string) (actual, expected
 
 func (self *watcherFixture) pointToImaginaryRoot(folder string) (actual, expected interface{}) {
 	actual = self.watcher.Adjust(folder)
-	expected = errors.New("Directory does not exist: '/not/there'")
+	expected = errors.New("Directory does not exist: '" + slash + "not" + slash + "there'")
 	return
 }
 
 func (self *watcherFixture) pointToExistingRootWithNestedFolders() (actual, expected interface{}) {
 	self.files.Create(goProject, 1, time.Now())
-	self.files.Create(goProject+"/sub", 2, time.Now())
-	self.files.Create(goProject+"/sub2", 3, time.Now())
-	self.files.Create(goProject+"/sub/subsub", 4, time.Now())
+	self.files.Create(goProject+slash+"sub", 2, time.Now())
+	self.files.Create(goProject+slash+"sub2", 3, time.Now())
+	self.files.Create(goProject+slash+"sub"+slash+"subsub", 4, time.Now())
 
 	self.watcher.Adjust(goProject)
 
 	actual = self.watched()
 	expected = []*contract.Package{
 		&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)},
-		&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub", Result: contract.NewPackageResult(goPackagePrefix + "/sub")},
-		&contract.Package{Active: true, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")},
-		&contract.Package{Active: true, Path: goProject + "/sub/subsub", Name: goPackagePrefix + "/sub/subsub", Result: contract.NewPackageResult(goPackagePrefix + "/sub/subsub")},
+		&contract.Package{Active: true, Path: goProject + "" + slash + "sub", Name: goPackagePrefix + "" + slash + "sub", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub")},
+		&contract.Package{Active: true, Path: goProject + "" + slash + "sub2", Name: goPackagePrefix + "" + slash + "sub2", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub2")},
+		&contract.Package{Active: true, Path: goProject + "" + slash + "sub" + slash + "subsub", Name: goPackagePrefix + "" + slash + "sub" + slash + "subsub", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub" + slash + "subsub")},
 	}
 	return
 }
 
 func (self *watcherFixture) pointToRootOfGoPath() {
-	self.files.Create("/root/gopath", 5, time.Now())
+	self.files.Create(slash+"root"+slash+"gopath", 5, time.Now())
 
-	self.watcher.Adjust("/root/gopath")
+	self.watcher.Adjust("" + slash + "root" + slash + "gopath")
 }
 
 func (self *watcherFixture) pointToNestedPartOfGoPath() {
-	self.files.Create("/root/gopath", 5, time.Now())
-	self.files.Create("/root/gopath/src/github.com/smartystreets/project", 6, time.Now())
+	self.files.Create(slash+"root"+slash+"gopath", 5, time.Now())
+	self.files.Create(slash+"root"+slash+"gopath"+slash+"src"+slash+"github.com"+slash+"smartystreets"+slash+"project", 6, time.Now())
 
-	self.watcher.Adjust("/root/gopath/src/github.com/smartystreets/project")
+	self.watcher.Adjust("" + slash + "root" + slash + "gopath" + slash + "src" + slash + "github.com" + slash + "smartystreets" + slash + "project")
 }
 
 func (self *watcherFixture) pointTo(path string) {
@@ -235,56 +232,56 @@ func (self *watcherFixture) setAmbientGoPath(path string) {
 }
 
 func (self *watcherFixture) receiveNotificationOfNewFolder() (actual, expected interface{}) {
-	self.watcher.Creation(goProject + "/sub")
+	self.watcher.Creation(goProject + "" + slash + "sub")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub", Result: contract.NewPackageResult(goPackagePrefix + "/sub")}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "" + slash + "sub", Name: goPackagePrefix + "" + slash + "sub", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub")}}
 	return
 }
 
 func (self *watcherFixture) receiveNotificationOfDeletedFolder() (actual, expected interface{}) {
-	self.watcher.Creation(goProject + "/sub2")
-	self.watcher.Creation(goProject + "/sub")
+	self.watcher.Creation(goProject + "" + slash + "sub2")
+	self.watcher.Creation(goProject + "" + slash + "sub")
 
-	self.watcher.Deletion(goProject + "/sub")
+	self.watcher.Deletion(goProject + "" + slash + "sub")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")}}
+	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject + "" + slash + "sub2", Name: goPackagePrefix + "" + slash + "sub2", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub2")}}
 	return
 }
 
 func (self *watcherFixture) ignoreWatchedFolder() (actual, expected interface{}) {
-	self.watcher.Creation(goProject + "/sub2")
+	self.watcher.Creation(goProject + "" + slash + "sub2")
 
-	self.watcher.Ignore(goPackagePrefix + "/sub2")
+	self.watcher.Ignore(goPackagePrefix + "" + slash + "sub2")
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: false, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")}}
+	expected = []*contract.Package{&contract.Package{Active: false, Path: goProject + "" + slash + "sub2", Name: goPackagePrefix + "" + slash + "sub2", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub2")}}
 	return
 }
 
 func (self *watcherFixture) ignoreWatchedFolders() (actual, expected interface{}) {
-	self.watcher.Creation(goProject + "/sub2")
-	self.watcher.Creation(goProject + "/sub3")
-	self.watcher.Creation(goProject + "/sub4")
+	self.watcher.Creation(goProject + "" + slash + "sub2")
+	self.watcher.Creation(goProject + "" + slash + "sub3")
+	self.watcher.Creation(goProject + "" + slash + "sub4")
 
-	self.watcher.Ignore(goPackagePrefix + "/sub2;" + goPackagePrefix + "/sub4")
+	self.watcher.Ignore(goPackagePrefix + "" + slash + "sub2;" + goPackagePrefix + "" + slash + "sub4")
 
 	actual = self.watched()
 	expected = []*contract.Package{
-		&contract.Package{Active: false, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")},
-		&contract.Package{Active: true, Path: goProject + "/sub3", Name: goPackagePrefix + "/sub3", Result: contract.NewPackageResult(goPackagePrefix + "/sub3")},
-		&contract.Package{Active: false, Path: goProject + "/sub4", Name: goPackagePrefix + "/sub4", Result: contract.NewPackageResult(goPackagePrefix + "/sub4")},
+		&contract.Package{Active: false, Path: goProject + "" + slash + "sub2", Name: goPackagePrefix + "" + slash + "sub2", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub2")},
+		&contract.Package{Active: true, Path: goProject + "" + slash + "sub3", Name: goPackagePrefix + "" + slash + "sub3", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub3")},
+		&contract.Package{Active: false, Path: goProject + "" + slash + "sub4", Name: goPackagePrefix + "" + slash + "sub4", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub4")},
 	}
 	return
 }
 
 func (self *watcherFixture) ignoreIrrelevantFolder() (actual, expected interface{}) {
 	self.files.Create(goProject, 1, time.Now())
-	self.files.Create("/something", 1, time.Now())
+	self.files.Create(slash+"something", 1, time.Now())
 	self.watcher.Adjust(goProject)
 
-	self.watcher.Ignore("/something")
+	self.watcher.Ignore("" + slash + "something")
 
 	actual = self.watched()
 	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
@@ -295,7 +292,7 @@ func (self *watcherFixture) ignoreImaginaryFolder() (actual, expected interface{
 	self.files.Create(goProject, 1, time.Now())
 	self.watcher.Adjust(goProject)
 
-	self.watcher.Ignore("/not/there")
+	self.watcher.Ignore("" + slash + "not" + slash + "there")
 
 	actual = self.watched()
 	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
@@ -304,48 +301,48 @@ func (self *watcherFixture) ignoreImaginaryFolder() (actual, expected interface{
 
 func (self *watcherFixture) reinstateIgnoredFolder() (actual, expected interface{}) {
 	self.files.Create(goProject, 1, time.Now())
-	self.files.Create(goProject+"/sub", 2, time.Now())
+	self.files.Create(goProject+slash+"sub", 2, time.Now())
 	self.watcher.Adjust(goProject)
-	self.watcher.Ignore(goPackagePrefix + "/sub")
+	self.watcher.Ignore(goPackagePrefix + "" + slash + "sub")
 
-	self.watcher.Reinstate(goProject + "/sub")
+	self.watcher.Reinstate(goProject + "" + slash + "sub")
 
 	actual = self.watched()
 	expected = []*contract.Package{
 		&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)},
-		&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub", Result: contract.NewPackageResult(goPackagePrefix + "/sub")},
+		&contract.Package{Active: true, Path: goProject + "" + slash + "sub", Name: goPackagePrefix + "" + slash + "sub", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub")},
 	}
 	return
 }
 
 func (self *watcherFixture) reinstateIgnoredFolders() (actual, expected interface{}) {
 	self.files.Create(goProject, 1, time.Now())
-	self.files.Create(goProject+"/sub", 2, time.Now())
-	self.files.Create(goProject+"/sub2", 3, time.Now())
-	self.files.Create(goProject+"/sub3", 4, time.Now())
+	self.files.Create(goProject+slash+"sub", 2, time.Now())
+	self.files.Create(goProject+slash+"sub2", 3, time.Now())
+	self.files.Create(goProject+slash+"sub3", 4, time.Now())
 	self.watcher.Adjust(goProject)
-	self.watcher.Ignore(goPackagePrefix + "/sub;" + goPackagePrefix + "/sub2;" + goPackagePrefix + "/sub3")
+	self.watcher.Ignore(goPackagePrefix + "" + slash + "sub;" + goPackagePrefix + "" + slash + "sub2;" + goPackagePrefix + "" + slash + "sub3")
 
-	self.watcher.Reinstate(goProject + "/sub;" + goPackagePrefix + "/sub3")
+	self.watcher.Reinstate(goProject + "" + slash + "sub;" + goPackagePrefix + "" + slash + "sub3")
 
 	actual = self.watched()
 	expected = []*contract.Package{
 		&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)},
-		&contract.Package{Active: true, Path: goProject + "/sub", Name: goPackagePrefix + "/sub", Result: contract.NewPackageResult(goPackagePrefix + "/sub")},
-		&contract.Package{Active: false, Path: goProject + "/sub2", Name: goPackagePrefix + "/sub2", Result: contract.NewPackageResult(goPackagePrefix + "/sub2")},
-		&contract.Package{Active: true, Path: goProject + "/sub3", Name: goPackagePrefix + "/sub3", Result: contract.NewPackageResult(goPackagePrefix + "/sub3")},
+		&contract.Package{Active: true, Path: goProject + "" + slash + "sub", Name: goPackagePrefix + "" + slash + "sub", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub")},
+		&contract.Package{Active: false, Path: goProject + "" + slash + "sub2", Name: goPackagePrefix + "" + slash + "sub2", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub2")},
+		&contract.Package{Active: true, Path: goProject + "" + slash + "sub3", Name: goPackagePrefix + "" + slash + "sub3", Result: contract.NewPackageResult(goPackagePrefix + "" + slash + "sub3")},
 	}
 	return
 }
 
 func (self *watcherFixture) reinstateDeletedFolder() (actual, expected interface{}) {
 	self.files.Create(goProject, 1, time.Now())
-	self.files.Create(goProject+"/sub", 2, time.Now())
+	self.files.Create(goProject+slash+"sub", 2, time.Now())
 	self.watcher.Adjust(goProject)
-	self.watcher.Ignore(goPackagePrefix + "/sub")
-	self.watcher.Deletion(goProject + "/sub")
+	self.watcher.Ignore(goPackagePrefix + "" + slash + "sub")
+	self.watcher.Deletion(goProject + "" + slash + "sub")
 
-	self.watcher.Reinstate(goPackagePrefix + "/sub")
+	self.watcher.Reinstate(goPackagePrefix + "" + slash + "sub")
 
 	actual = self.watched()
 	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
@@ -354,10 +351,10 @@ func (self *watcherFixture) reinstateDeletedFolder() (actual, expected interface
 
 func (self *watcherFixture) reinstateIrrelevantFolder() (actual, expected interface{}) {
 	self.files.Create(goProject, 1, time.Now())
-	self.files.Create("/irrelevant", 2, time.Now())
+	self.files.Create(slash+"irrelevant", 2, time.Now())
 	self.watcher.Adjust(goProject)
 
-	self.watcher.Reinstate("/irrelevant")
+	self.watcher.Reinstate("" + slash + "irrelevant")
 
 	actual = self.watched()
 	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
@@ -366,25 +363,25 @@ func (self *watcherFixture) reinstateIrrelevantFolder() (actual, expected interf
 
 func (self *watcherFixture) setupSeveralFoldersWithWatcher() map[string]string {
 	self.files.Create(goProject, 0, time.Now())
-	self.files.Create(goProject+"/active", 1, time.Now())
-	self.files.Create(goProject+"/reinstated", 2, time.Now())
-	self.files.Create(goProject+"/ignored", 3, time.Now())
-	self.files.Create(goProject+"/deleted", 4, time.Now())
-	self.files.Create("/irrelevant", 5, time.Now())
+	self.files.Create(goProject+slash+"active", 1, time.Now())
+	self.files.Create(goProject+slash+"reinstated", 2, time.Now())
+	self.files.Create(goProject+slash+"ignored", 3, time.Now())
+	self.files.Create(goProject+slash+"deleted", 4, time.Now())
+	self.files.Create(slash+"irrelevant", 5, time.Now())
 
 	self.watcher.Adjust(goProject)
-	self.watcher.Ignore(goPackagePrefix + "/ignored")
-	self.watcher.Ignore(goPackagePrefix + "/reinstated")
-	self.watcher.Reinstate(goPackagePrefix + "/reinstated")
-	self.watcher.Deletion(goProject + "/deleted")
-	self.files.Delete(goProject + "/deleted")
+	self.watcher.Ignore(goPackagePrefix + "" + slash + "ignored")
+	self.watcher.Ignore(goPackagePrefix + "" + slash + "reinstated")
+	self.watcher.Reinstate(goPackagePrefix + "" + slash + "reinstated")
+	self.watcher.Deletion(goProject + "" + slash + "deleted")
+	self.files.Delete(goProject + "" + slash + "deleted")
 
 	return map[string]string{
-		"active":     goProject + "/active",
-		"reinstated": goProject + "/reinstated",
-		"ignored":    goProject + "/ignored",
-		"deleted":    goProject + "/deleted",
-		"irrelevant": "/irrelevant",
+		"active":     goProject + "" + slash + "active",
+		"reinstated": goProject + "" + slash + "reinstated",
+		"ignored":    goProject + "" + slash + "ignored",
+		"deleted":    goProject + "" + slash + "deleted",
+		"irrelevant": "" + slash + "irrelevant",
 	}
 }
 
@@ -397,6 +394,6 @@ func newWatcherFixture() *watcherFixture {
 	return self
 }
 
-const gopath = "/root/gopath"
-const goPackagePrefix = "github.com/smartystreets/project"
-const goProject = gopath + "/src/" + goPackagePrefix
+const gopath = "" + slash + "root" + slash + "gopath"
+const goPackagePrefix = "github.com" + slash + "smartystreets" + slash + "project"
+const goProject = gopath + "" + slash + "src" + slash + "" + goPackagePrefix
