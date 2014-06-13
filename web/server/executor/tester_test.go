@@ -212,7 +212,8 @@ func (self *TimedShell) MaxConcurrentCommands() int {
 }
 
 func concurrentWith(current, comparison *ShellCommand) bool {
-	return comparison.Started.After(current.Started) && comparison.Started.Before(current.Ended)
+	return ((comparison.Started == current.Started || comparison.Started.After(current.Started)) &&
+		(comparison.Started.Before(current.Ended)))
 }
 
 func (self *TimedShell) setTripWire(message string) {
