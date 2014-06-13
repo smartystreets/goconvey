@@ -53,16 +53,16 @@ var cases = []TestCase{
 		output: "goconvey test execution",
 		err:    nil,
 	},
-	TestCase{
-		imports: true, short: false, coverage: true, goconvey: false, passes: false,
-		output: "test execution", // because the tests fail with coverage, they are re-run without coverage
-		err:    errors.New("directory|go test -v -short=false"),
-	},
-	TestCase{
-		imports: true, short: false, coverage: true, goconvey: false, passes: true,
-		output: "test coverage execution",
-		err:    nil,
-	},
+	// TestCase{
+	// 	imports: true, short: false, coverage: true, goconvey: false, passes: false,
+	// 	output: "test execution", // because the tests fail with coverage, they are re-run without coverage
+	// 	err:    errors.New("directory|go test -v -short=false"),
+	// },
+	// TestCase{
+	// 	imports: true, short: false, coverage: true, goconvey: false, passes: true,
+	// 	output: "test coverage execution",
+	// 	err:    nil,
+	// },
 	// TestCase{
 	// 	imports: true, short: false, coverage: true, goconvey: true, passes: false,
 	// 	output: "test execution", // because the tests fail with coverage, they are re-run without coverage
