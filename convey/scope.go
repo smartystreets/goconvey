@@ -14,6 +14,7 @@ type scope struct {
 	children   map[string]*scope
 	birthOrder []*scope
 	child      int
+	resetOrder []string
 	resets     map[string]*action
 	panicked   bool
 	reporter   reporting.Reporter
@@ -46,6 +47,12 @@ func (parent *scope) getChildIndex(child *scope) int {
 
 func (self *scope) registerReset(action *action) {
 	self.resets[action.name] = action
+	for _, name := range self.resetOrder {
+		if name == action.name {
+			return
+		}
+	}
+	self.resetOrder = append(self.resetOrder, action.name)
 }
 
 func (self *scope) visited() bool {
@@ -76,7 +83,8 @@ func (parent *scope) visitNextChild(runner *runner) {
 	}
 }
 func (parent *scope) cleanup() {
-	for _, reset := range parent.resets {
+	for _, name := range parent.resetOrder {
+		reset := parent.resets[name]
 		reset.Invoke()
 	}
 }
@@ -101,6 +109,7 @@ func newScope(entry *registration, reporter reporting.Reporter) *scope {
 		action:     entry.action,
 		children:   make(map[string]*scope),
 		birthOrder: []*scope{},
+		resetOrder: []string{},
 		resets:     make(map[string]*action),
 		report:     reporting.NewScopeReport(entry.Situation, entry.action.name),
 	}
