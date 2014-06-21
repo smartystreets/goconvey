@@ -2,8 +2,7 @@ package watcher
 
 import (
 	"errors"
-	"io/ioutil"
-	"log"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -13,18 +12,9 @@ import (
 )
 
 func TestWatcher(t *testing.T) {
-	var (
-		fixture         *watcherFixture
-		expectedWatches interface{}
-		actualWatches   interface{}
-		expectedError   interface{}
-		actualError     interface{}
-	)
 
 	Convey("Subject: Watcher", t, func() {
-		log.SetOutput(ioutil.Discard)
-		log.SetFlags(log.LstdFlags | log.Lshortfile)
-		fixture = newWatcherFixture()
+		fixture := newWatcherFixture()
 
 		Convey("When initialized there should be ZERO watched folders", func() {
 			So(len(fixture.watched()), ShouldEqual, 0)
@@ -32,7 +22,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When pointing to a root folder", func() {
-			actualWatches, expectedWatches = fixture.pointToExistingRoot(goProject)
+			actualWatches, expectedWatches := fixture.pointToExistingRoot(goProject)
 
 			Convey("That folder should be included as the first watched folder", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -44,7 +34,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When pointing to a root folder that does not exist", func() {
-			actualError, expectedError = fixture.pointToImaginaryRoot(normalize("/not/there"))
+			actualError, expectedError := fixture.pointToImaginaryRoot(normalize("/not/there"))
 
 			Convey("An appropriate error should be returned", func() {
 				So(actualError, ShouldResemble, expectedError)
@@ -56,7 +46,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When pointing to a root folder with nested folders", func() {
-			actualWatches, expectedWatches = fixture.pointToExistingRootWithNestedFolders()
+			actualWatches, expectedWatches := fixture.pointToExistingRootWithNestedFolders()
 
 			Convey("All nested folders should be added recursively to the watched folders", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -64,7 +54,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When the watcher is notified of a newly created folder", func() {
-			actualWatches, expectedWatches = fixture.receiveNotificationOfNewFolder()
+			actualWatches, expectedWatches := fixture.receiveNotificationOfNewFolder()
 
 			Convey("The folder should be included in the watched folders", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -72,7 +62,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When the watcher is notified of a recently deleted folder", func() {
-			actualWatches, expectedWatches = fixture.receiveNotificationOfDeletedFolder()
+			actualWatches, expectedWatches := fixture.receiveNotificationOfDeletedFolder()
 
 			Convey("The folder should no longer be included in the watched folders", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -80,7 +70,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When a watched folder is ignored", func() {
-			actualWatches, expectedWatches = fixture.ignoreWatchedFolder()
+			actualWatches, expectedWatches := fixture.ignoreWatchedFolder()
 
 			Convey("The folder should be marked as inactive in the watched folders listing", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -88,14 +78,14 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When multiple watched folders are ignored", func() {
-			actualWatches, expectedWatches = fixture.ignoreWatchedFolders()
+			actualWatches, expectedWatches := fixture.ignoreWatchedFolders()
 			Convey("The folders should be marked as inactive in the watched folders listing", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
 			})
 		})
 
 		Convey("When a folder that is not being watched is ignored", func() {
-			actualWatches, expectedWatches = fixture.ignoreIrrelevantFolder()
+			actualWatches, expectedWatches := fixture.ignoreIrrelevantFolder()
 
 			Convey("The request should be ignored", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -103,7 +93,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When a folder that does not exist is ignored", func() {
-			actualWatches, expectedWatches = fixture.ignoreImaginaryFolder()
+			actualWatches, expectedWatches := fixture.ignoreImaginaryFolder()
 
 			Convey("There should be no change to the watched folders", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -111,7 +101,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When an ignored folder is reinstated", func() {
-			actualWatches, expectedWatches = fixture.reinstateIgnoredFolder()
+			actualWatches, expectedWatches := fixture.reinstateIgnoredFolder()
 
 			Convey("The folder should be included once more in the watched folders", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -119,7 +109,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When multiple ignored folders are reinstated", func() {
-			actualWatches, expectedWatches = fixture.reinstateIgnoredFolders()
+			actualWatches, expectedWatches := fixture.reinstateIgnoredFolders()
 
 			Convey("The folders should be included once more in the watched folders", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -127,7 +117,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When an ignored folder is deleted and then reinstated", func() {
-			actualWatches, expectedWatches = fixture.reinstateDeletedFolder()
+			actualWatches, expectedWatches := fixture.reinstateDeletedFolder()
 
 			Convey("The reinstatement request should be ignored", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -135,7 +125,7 @@ func TestWatcher(t *testing.T) {
 		})
 
 		Convey("When a folder that is not being watched is reinstated", func() {
-			actualWatches, expectedWatches = fixture.reinstateIrrelevantFolder()
+			actualWatches, expectedWatches := fixture.reinstateIrrelevantFolder()
 
 			Convey("The request should be ignored", func() {
 				So(actualWatches, ShouldResemble, expectedWatches)
@@ -182,7 +172,14 @@ func (self *watcherFixture) pointToExistingRoot(folder string) (actual, expected
 	self.watcher.Adjust(folder)
 
 	actual = self.watched()
-	expected = []*contract.Package{&contract.Package{Active: true, Path: goProject, Name: goPackagePrefix, Result: contract.NewPackageResult(goPackagePrefix)}}
+	expected = []*contract.Package{
+		&contract.Package{
+			Active: true,
+			Path:   goProject,
+			Name:   goPackagePrefix,
+			Result: contract.NewPackageResult(goPackagePrefix),
+		},
+	}
 	return
 }
 
@@ -216,15 +213,15 @@ func (self *watcherFixture) pointToExistingRootWithNestedFolders() (actual, expe
 		},
 		&contract.Package{
 			Active: true,
-			Path:   goProject + normalize("/sub2"),
-			Name:   goPackagePrefix + normalize("/sub2"),
-			Result: contract.NewPackageResult(goPackagePrefix + normalize("/sub2")),
-		},
-		&contract.Package{
-			Active: true,
 			Path:   goProject + normalize("/sub/subsub"),
 			Name:   goPackagePrefix + normalize("/sub/subsub"),
 			Result: contract.NewPackageResult(goPackagePrefix + normalize("/sub/subsub")),
+		},
+		&contract.Package{
+			Active: true,
+			Path:   goProject + normalize("/sub2"),
+			Name:   goPackagePrefix + normalize("/sub2"),
+			Result: contract.NewPackageResult(goPackagePrefix + normalize("/sub2")),
 		},
 	}
 	return
@@ -426,4 +423,8 @@ func newWatcherFixture() *watcherFixture {
 
 var gopath = normalize("/root/gopath")
 var goPackagePrefix = normalize("github.com/smartystreets/project")
-var goProject = gopath + normalize("/src/") + goPackagePrefix
+var goProject = filepath.Join(gopath, normalize("/src/"), goPackagePrefix)
+
+func init() {
+	SetDefaultFailureMode(FailureContinues)
+}

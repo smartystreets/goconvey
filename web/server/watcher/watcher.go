@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/smartystreets/goconvey/web/server/contract"
@@ -76,16 +77,23 @@ func (self *Watcher) Reinstate(packageNames string) {
 	}
 }
 func (self *Watcher) WatchedFolders() []*contract.Package {
-	i, watched := 0, make([]*contract.Package, len(self.watched))
 	log.Println("Number of watched folders:", len(self.watched))
+
+	paths := []string{}
 	for _, item := range self.watched {
+		paths = append(paths, item.Path)
+	}
+	sort.Strings(paths)
+
+	watched := make([]*contract.Package, len(self.watched))
+	for i, path := range paths {
+		item := self.watched[path]
 		watched[i] = &contract.Package{
 			Active: item.Active,
 			Path:   item.Path,
 			Name:   item.Name,
 			Result: contract.NewPackageResult(item.Name),
 		}
-		i++
 	}
 	return watched
 }
