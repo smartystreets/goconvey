@@ -19,8 +19,9 @@ type outputParser struct {
 	tests  []*contract.TestResult
 
 	// place holders for loops
-	line string
-	test *contract.TestResult
+	line    string
+	test    *contract.TestResult
+	testMap map[string]*contract.TestResult
 }
 
 func newOutputParser(result *contract.PackageResult, rawOutput string) *outputParser {
@@ -29,6 +30,7 @@ func newOutputParser(result *contract.PackageResult, rawOutput string) *outputPa
 	self.lines = strings.Split(self.raw, "\n")
 	self.result = result
 	self.tests = []*contract.TestResult{}
+	self.testMap = make(map[string]*contract.TestResult)
 	return self
 }
 
@@ -88,8 +90,11 @@ func (self *outputParser) processTestOutput() {
 func (self *outputParser) registerTestFunction() {
 	self.test = contract.NewTestResult(self.line[len("=== RUN "):])
 	self.tests = append(self.tests, self.test)
+	self.testMap[self.test.TestName] = self.test
 }
 func (self *outputParser) recordTestMetadata() {
+	testName := strings.Split(self.line, " ")[2]
+	self.test = self.testMap[testName]
 	self.test.Passed = !strings.HasPrefix(self.line, "--- FAIL: ")
 	self.test.Skipped = strings.HasPrefix(self.line, "--- SKIP: ")
 	self.test.Elapsed = parseTestFunctionDuration(self.line)
