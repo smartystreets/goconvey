@@ -102,6 +102,12 @@ func TestParsePackage_OldSchoolWithSuccessAndBogusCoverage_ReturnsCompletePackag
 	assertEqual(t, expectedOldSchool_PassesButCoverageIsBogus, *actual)
 }
 
+func TestParsePackage_NestedTests_ReturnsPackageResult(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedNestedTests.PackageName}
+	ParsePackageResults(actual, inputNestedTests)
+	assertEqual(t, expectedNestedTests, *actual)
+}
+
 func assertEqual(t *testing.T, expected, actual interface{}) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
@@ -585,6 +591,91 @@ var expectedOldSchool_PassesButCoverageIsBogus = contract.PackageResult{
 			File:     "old_school_test.go",
 			Line:     10,
 			Message:  "old_school_test.go:10: I am a passing test.\nWith a newline.",
+			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
+
+const inputNestedTests = `
+=== RUN TestNestedTests
+=== RUN TestNestedTests_Passes
+--- PASS: TestNestedTests_Passes (0.02 seconds)
+=== RUN TestNestedTests_Failure
+--- FAIL: TestNestedTests_Failure (0.06 seconds)
+=== RUN TestNestedTests_FailureWithReason
+--- FAIL: TestNestedTests_FailureWithReason (0.11 seconds)
+	nested_test.go:18: I am a failing test.
+=== RUN TestNestedTests_Skipping
+--- SKIP: TestNestedTests_Skipping (0.00 seconds)
+	nested_test.go:8: blah
+=== RUN TestNestedTests_PassesWithMessage
+--- PASS: TestNestedTests_PassesWithMessage (0.05 seconds)
+	nested_test.go:10: I am a passing test.
+		With a newline.
+--- FAIL: TestNestedTests (0.25 seconds)
+FAIL
+exit status 1
+FAIL	github.com/smartystreets/goconvey/webserver/examples	0.018s
+`
+
+var expectedNestedTests = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.018,
+	Outcome:     contract.Failed,
+	TestResults: []contract.TestResult{
+		contract.TestResult{
+			TestName: "TestNestedTests",
+			Elapsed:  0.25,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestNestedTests_Passes",
+			Elapsed:  0.02,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestNestedTests_Failure",
+			Elapsed:  0.06,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestNestedTests_FailureWithReason",
+			Elapsed:  0.11,
+			Passed:   false,
+			File:     "nested_test.go",
+			Line:     18,
+			Message:  "nested_test.go:18: I am a failing test.",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestNestedTests_Skipping",
+			Elapsed:  0.00,
+			Passed:   true,
+			Skipped:  true,
+			File:     "nested_test.go",
+			Line:     8,
+			Message:  "nested_test.go:8: blah",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestNestedTests_PassesWithMessage",
+			Elapsed:  0.05,
+			Passed:   true,
+			File:     "nested_test.go",
+			Line:     10,
+			Message:  "nested_test.go:10: I am a passing test.\nWith a newline.",
 			Stories:  []reporting.ScopeResult{},
 		},
 	},
