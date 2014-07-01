@@ -186,7 +186,7 @@ const inputOldSchool_Passes = `
 === RUN TestOldSchool_Passes
 --- PASS: TestOldSchool_Passes (0.02 seconds)
 === RUN TestSkippingTests
---- SKIP: TestSkipping (0.00 seconds)
+--- SKIP: TestSkippingTests (0.00 seconds)
 	old_school_test.go:8: blah
 === RUN TestOldSchool_PassesWithMessage
 --- PASS: TestOldSchool_PassesWithMessage (0.05 seconds)
