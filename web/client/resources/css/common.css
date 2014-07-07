@@ -217,6 +217,10 @@ footer .server-down {
 	margin-right: 5%;
 }
 
+.settings .setting:first-child {
+	margin-left: 5%;
+}
+
 .settings .setting .setting-meta {
 	text-align: right;
 	padding-right: 1em;

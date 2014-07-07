@@ -3,7 +3,8 @@ $(init);
 $(window).load(function()
 {
 	// Things may shift after all the elements (images/fonts) are loaded
-	reframe();
+	// In Chrome, calling reframe() doesn't work (maybe a quirk); we need to trigger resize
+	$(window).resize();
 });
 
 function init()
@@ -160,6 +161,12 @@ function wireup()
 			$('.story-line-desc .message').show();
 		else
 			$('.story-line-desc .message').hide();
+	});
+	$('.enum#ui-effects').on('click', 'li:not(.sel)', function()
+	{
+		var newSetting = $(this).data('ui-effects');
+		convey.uiEffects = newSetting;
+		save('ui-effects', newSetting);
 	});
 	// End settings wireup
 
@@ -461,6 +468,12 @@ function loadSettingsFromStorage()
 		save("show-debug-output", showDebugOutput);
 	}
 	enumSel("show-debug-output", showDebugOutput);
+
+	var uiEffects = get("ui-effects");
+	if (uiEffects === null)
+		uiEffects = "true";
+	convey.uiEffects = uiEffects == "true";
+	enumSel("ui-effects", uiEffects);
 
 	if (notif())
 		$('#toggle-notif').toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
@@ -864,7 +877,7 @@ function enumSel(id, val)
 	{
 		$('.enum#'+id+' > li').each(function()
 		{
-			if ($(this).data(id) == val)
+			if ($(this).data(id).toString() == val)
 			{
 				$(this).addClass(convey.layout.selClass).siblings().removeClass(convey.layout.selClass);
 				return false;
@@ -919,28 +932,33 @@ function changeStatus(newStatus, isHistoricalFrame)
 	// enabling/disabling flashing in the proper order so that they don't overlap.
 	// TODO: I suppose the pulsating could also be done with just CSS, maybe...?
 
-	var times = sameStatus ? 3 : 2;
-	var duration = sameStatus ? 500 : 300;
-
-	$('.overall .status').removeClass('flash').effect("pulsate", {times: times}, duration, function()
+	if (convey.uiEffects)
 	{
-		$(this).text(newStatus.text);
+		var times = sameStatus ? 3 : 2;
+		var duration = sameStatus ? 500 : 300;
 
-		if (newStatus != convey.statuses.pass)	// only flicker extra when not currently passing
+		$('.overall .status').removeClass('flash').effect("pulsate", {times: times}, duration, function()
 		{
-			$(this).effect("pulsate", {times: 1}, 300, function()
+			$(this).text(newStatus.text);
+
+			if (newStatus != convey.statuses.pass)	// only flicker extra when not currently passing
 			{
-				$(this).effect("pulsate", {times: 1}, 500, function()
+				$(this).effect("pulsate", {times: 1}, 300, function()
 				{
-					if (newStatus == convey.statuses.panic
-							|| newStatus == convey.statuses.buildfail)
-						$(this).addClass('flash');
-					else
-						$(this).removeClass('flash');
+					$(this).effect("pulsate", {times: 1}, 500, function()
+					{
+						if (newStatus == convey.statuses.panic
+								|| newStatus == convey.statuses.buildfail)
+							$(this).addClass('flash');
+						else
+							$(this).removeClass('flash');
+					});
 				});
-			});
-		}
-	});
+			}
+		});
+	}
+	else
+		$('.overall .status').text(newStatus.text);
 
 	if (!sameStatus)	// change the color
 		$('.overall').switchClass(convey.overallClass, newStatus.class, 1000);
@@ -1114,7 +1132,7 @@ function sortPackages(a, b)
 		return 0;
 
 	/*
-	Use to sort by entire package name:
+	MEMO: Use to sort by entire package name:
 	if (a.PackageName < b.PackageName) return -1;
 	else if (a.PackageName > b.PackageName) return 1;
 	else return 0;
@@ -1134,8 +1152,8 @@ function save(key, val)
 {
 	if (typeof val === 'object' || typeof val === 'array')
 		val = JSON.stringify(val);
-	else if (typeof val === 'number' || typeof val === "boolean")
-		val = "" + val;
+	else if (typeof val === 'number' || typeof val === 'boolean')
+		val = val.toString();
 	localStorage.setItem(key, val);
 }
 
