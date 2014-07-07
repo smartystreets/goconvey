@@ -537,6 +537,7 @@ function process(data, status, jqxhr)
 	var coverageAvgHelper = { countedPackages: 0, coverageSum: 0 };
 	var packages = {
 		tested: [],
+		ignored: [],
 		coverage: {},
 		nogofiles: [],
 		notestfiles: [],
@@ -566,6 +567,8 @@ function process(data, status, jqxhr)
 			packages.notestfiles.push(pkg);
 		else if (pkg.Outcome == "no test functions")
 			packages.notestfn.push(pkg);
+		else if (pkg.Outcome == "ignored")
+			packages.ignored.push(pkg);
 		else
 		{
 			if (pkg.Coverage >= 0)
@@ -796,12 +799,23 @@ function process(data, status, jqxhr)
 
 
 
+
+
+
+
+
+
+
+
+
+
 // Updates the entire UI given a frame from the history
 function renderFrame(frame)
 {
 	log("Rendering frame (id: " + frame.id + ")");
 
 	$('#coverage').html(render('tpl-coverage', frame.packages.tested.sort(sortPackages)));
+	$('#ignored').html(render('tpl-ignored', frame.packages.ignored.sort(sortPackages)));
 	$('#nogofiles').html(render('tpl-nogofiles', frame.packages.nogofiles.sort(sortPackages)));
 	$('#notestfiles').html(render('tpl-notestfiles', frame.packages.notestfiles.sort(sortPackages)));
 	$('#notestfn').html(render('tpl-notestfn', frame.packages.notestfn.sort(sortPackages)));
@@ -835,6 +849,7 @@ function renderFrame(frame)
 		$('.failures').hide();
 
 	$('#stories').html(render('tpl-stories', frame.packages.tested.sort(sortPackages)));
+	$('#stories').append(render('tpl-stories', frame.packages.ignored.sort(sortPackages)));
 
 	var pkgDefaultView = get('pkg-expand-collapse');
 	$('.story-pkg.expanded').each(function()
@@ -1112,9 +1127,10 @@ function zerofill(val, count)
 	return (pad + val).slice(-pad.length);
 }
 
+// Sorts packages ascending by only the last part of their name
+// Can be passed into Array.sort()
 function sortPackages(a, b)
 {
-	// sorts packages ascending by only the last part of their name
 	var aPkg = splitPathName(a.PackageName);
 	var bPkg = splitPathName(b.PackageName);
 

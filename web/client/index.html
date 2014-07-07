@@ -150,6 +150,23 @@
 
 
 
+				<div class="toggler" data-toggle="ignored">
+					Ignored
+				</div>
+				<div class="togglable" id="ignored"><!-- Populated by Javascript --></div>
+				<script id="tpl-ignored" type="text/template">
+					<div class="templated">
+						<div class="rtl pkg-list">
+						{{.}}
+							<div>
+								<a class="fa fa-level-down" href="#pkg-{{_id}}" style="padding: 0 5px;"></a>{{PackageName|boldPkgName}}
+							</div>
+						{{/.}}
+						</div>
+					</div>
+				</script>
+
+
 				<div class="toggler" data-toggle="notestfn">
 					No Test Functions
 				</div>
