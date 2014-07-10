@@ -102,6 +102,12 @@ func TestParsePackage_NestedTests_ReturnsPackageResult(t *testing.T) {
 	assertEqual(t, expectedNestedTests, *actual)
 }
 
+func TestParsePacakge_WithExampleFunctions_ReturnsPackageResult(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedExampleFunctions.PackageName}
+	ParsePackageResults(actual, inputExampleFunctions)
+	assertEqual(t, expectedExampleFunctions, *actual)
+}
+
 func assertEqual(t *testing.T, expected, actual interface{}) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
@@ -693,6 +699,46 @@ var expectedNestedTests = contract.PackageResult{
 			File:     "nested_test.go",
 			Line:     10,
 			Message:  "nested_test.go:10: I am a passing test.\nWith a newline.",
+			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
+
+const inputExampleFunctions = `
+=== RUN Example_Failure
+--- FAIL: Example_Failure (0.11 seconds)
+got:
+actuall output
+want:
+real output
+=== RUN Example_Pass
+--- PASS: Example_Pass (0.06 seconds)
+FAIL
+exit status 1
+FAIL	github.com/smartystreets/goconvey/webserver/examples	0.18s
+`
+
+var expectedExampleFunctions = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.18,
+	Outcome:     contract.Failed,
+	TestResults: []contract.TestResult{
+		contract.TestResult{
+			TestName: "Example_Failure",
+			Elapsed:  0.11,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message:  "got:\nactuall output\nwant:\nreal output",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "Example_Pass",
+			Elapsed:  0.06,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
 			Stories:  []reporting.ScopeResult{},
 		},
 	},

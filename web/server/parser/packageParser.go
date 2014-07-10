@@ -2,10 +2,15 @@ package parser
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/smartystreets/goconvey/web/server/contract"
+)
+
+var (
+	testNamePattern = regexp.MustCompile("^=== RUN:? (.+)$")
 )
 
 func ParsePackageResults(result *contract.PackageResult, rawOutput string) {
@@ -88,7 +93,8 @@ func (self *outputParser) processTestOutput() {
 }
 
 func (self *outputParser) registerTestFunction() {
-	self.test = contract.NewTestResult(self.line[len("=== RUN "):])
+	testName := testNamePattern.FindStringSubmatch(self.line)[1]
+	self.test = contract.NewTestResult(testName)
 	self.tests = append(self.tests, self.test)
 	self.testMap[self.test.TestName] = self.test
 }
