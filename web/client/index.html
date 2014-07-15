@@ -234,7 +234,7 @@
 						{{.}}
 						<div class="buildfail">
 							<div class="buildfail-pkg"><i class="fa fa-wrench"></i>&nbsp; {{PackageName|boldPkgName}}</div>
-							<div class="buildfail-output">{{BuildOutput|showhtml}}</div>
+							<div class="buildfail-output">{{BuildOutput|htmlSafe}}</div>
 						</div>
 						{{/.}}
 					</div>
@@ -263,7 +263,7 @@
 						{{/if}}
 								{{if StackTrace|notempty}}<div class="depth-{{_maxDepth}} panic-summary">{{Error}}</div>{{/if}}
 							</div>
-							<div class="panic-output">{{if StackTrace|empty}}{{Error|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}</div>
+							<div class="panic-output">{{if StackTrace|empty}}{{Error|htmlSafe}}{{else}}{{StackTrace|htmlSafe}}{{/if}}</div>
 						</div>
 						{{/.}}
 					</div>
@@ -290,16 +290,16 @@
 								{{/_path}}
 							{{/if}}
 								</div>
-								<div class="failure-output">{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}{{/if}}</div>
+								<div class="failure-output">{{if Failure|notempty}}{{Failure|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
 								{{if .|needsDiff}}
 								<table class="diffviewer">
 									<tr>
 										<td class="exp">Expected</td>
-										<td class="original">{{Expected|showhtml}}</td>
+										<td class="original">{{Expected|htmlSafe}}</td>
 									</tr>
 									<tr>
 										<td class="act">Actual</td>
-										<td class="changed">{{Actual|showhtml}}</td>
+										<td class="changed">{{Actual|htmlSafe}}</td>
 									</tr>
 									<tr>
 										<td>Diff</td>
@@ -379,14 +379,14 @@
 
 								</td>
 								<td colspan="3" class="depth-{{Depth}} story-line-desc">
-									{{Title|showhtml}}
+									{{Title|htmlSafe}}
 									{{if Output}}<div class="message">{{Output|htmlSafe}}</div>{{/if}}
 									{{if _failed}}
 										{{Assertions}}
 											<div class="failure">
 												<div class="failure-details">
-													<div class="failure-output">{{if Failure|notempty}}{{Failure|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}
-															{{StackTrace|showhtml}}{{/if}}{{/if}}</div>
+													<div class="failure-output">{{if Failure|notempty}}{{Failure|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}
+															{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
 												</div>
 											</div>
 										{{/Assertions}}
@@ -395,7 +395,7 @@
 										{{Assertions}}
 											<div class="panic">
 												<div class="panic-details">
-													<div class="panic-output">{{if Panic|notempty}}{{Panic|showhtml}}{{else}}{{if Message|notempty}}{{Message|showhtml}}{{else}}{{StackTrace|showhtml}}{{/if}}{{/if}}</div>
+													<div class="panic-output">{{if Panic|notempty}}{{Panic|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
 												</div>
 											</div>
 										{{/Assertions}}
