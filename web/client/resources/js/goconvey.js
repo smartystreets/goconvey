@@ -648,6 +648,9 @@ function process(data, status, jqxhr)
 					var assertion = story.Assertions[l];
 					assertion._id = uniqueID;
 					assertion._pkg = pkg.PackageName;
+					assertion._pkgId = pkg._id;
+					assertion._failed = !!assertion.Failure;
+					assertion._panicked = !!assertion.Error;
 					assertion._maxDepth = storyPath[storyPath.length - 1].Depth;
 					$.extend(assertion._path = [], storyPath);
 

@@ -283,7 +283,7 @@
 							<div class="failure-pkg"><i class="fa fa-chain-broken"></i>&nbsp; {{_pkg|boldPkgName}}</div>
 							<div class="failure-details">
 								<div class="failure-story">
-									<div class="failure-file"><a href="javascript:">{{if File|notempty}}{{File|relativePath|boldPkgName}}{{else}}{{TestName}}{{/if}}</b></a>&nbsp; &nbsp; &middot; &nbsp; &nbsp;{{if Line|more>0}}<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}"><i class="fa fa-share"></i> Line {{Line}}</a>{{/if}}</div>
+									<div class="failure-file"><a href="#test-{{_id}}">{{if File|notempty}}{{File|relativePath|boldPkgName}}{{else}}{{TestName}}{{/if}}</b></a>&nbsp; &nbsp; &middot; &nbsp; &nbsp;{{if Line|more>0}}<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}"><i class="fa fa-share"></i> Line {{Line}}</a>{{/if}}</div>
 							{{if _path|notempty}}
 								{{_path}}
 									<div{{if Depth|more>-1}} class="depth-{{Depth}}"{{/if}}>{{Title}}</div>
@@ -383,21 +383,25 @@
 									{{if Output}}<div class="message">{{Output|htmlSafe}}</div>{{/if}}
 									{{if _failed}}
 										{{Assertions}}
+											{{if _failed}}
 											<div class="failure">
 												<div class="failure-details">
 													<div class="failure-output">{{if Failure|notempty}}{{Failure|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}
 															{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
 												</div>
 											</div>
+											{{/if}}
 										{{/Assertions}}
 									{{/if}}
 									{{if _panicked}}
 										{{Assertions}}
+											{{if _panicked}}
 											<div class="panic">
 												<div class="panic-details">
 													<div class="panic-output">{{if Panic|notempty}}{{Panic|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
 												</div>
 											</div>
+											{{/if}}
 										{{/Assertions}}
 									{{/if}}
 								</td>
