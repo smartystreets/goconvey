@@ -625,23 +625,23 @@ function process(data, status, jqxhr)
 			else
 				test._status = convey.statuses.pass;
 
-			var storyPath = [{ Depth: -1, Title: test.TestName }];	// Maintains the current assertion's story as we iterate
+			var storyPath = [{ Depth: -1, Title: test.TestName, _id: test._id }];	// Maintains the current assertion's story as we iterate
 
 			for (var k in test.Stories)
 			{
 				var story = makeContext(test.Stories[k]);
+
+				story._id = uniqueID;
+				story._pkgid = pkg._id;
+				current().overall.assertions += story.Assertions.length;
 
 				// Establish the current story path so we can report the context
 				// of failures and panicks more conveniently at the top of the page
 				if (storyPath.length > 0)
 					for (var x = storyPath[storyPath.length - 1].Depth; x >= test.Stories[k].Depth; x--)
 						storyPath.pop();
-				
-				storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title });
+				storyPath.push({ Depth: test.Stories[k].Depth, Title: test.Stories[k].Title, _id: test.Stories[k]._id });
 
-				story._id = uniqueID;
-				story._pkgid = pkg._id;
-				current().overall.assertions += story.Assertions.length;
 
 				for (var l in story.Assertions)
 				{
