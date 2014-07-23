@@ -249,11 +249,10 @@ footer .paused .fa {
 
 
 
-.story-links a {
+.story-links a,
+.test-name-link a {
 	color: inherit;
 }
-
-
 
 
 
