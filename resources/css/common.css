@@ -87,6 +87,7 @@ table {
 
 h1 {
 	font: 120px 'Oswald', sans-serif;
+	padding-left: 5px;
 }
 
 h2 {
@@ -329,7 +330,7 @@ footer {
 @media (max-width: 1024px) {
 	h1 {
 		font-size: 100px;
-		margin-top: 20px;
+		margin-top: 10px;
 		text-align: left;
 	}
 
@@ -351,6 +352,7 @@ footer {
 @media (max-width: 767px) {
 	h1 {
 		font-size: 90px;
+		margin-top: 0;
 		text-align: center;
 	}
 }
