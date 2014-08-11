@@ -47,6 +47,7 @@ a:hover {
 
 code {
 	font-family: 'Consolas', 'Liberation Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
+	font-size: 16px;
 	white-space: pre-wrap;
 	display: inline-block;
 	padding: 0 .25em;
@@ -67,6 +68,7 @@ code.block {
 h4 code {
 	display: inline-block;
 	padding: 0 .25em;
+	font-size: 24px;
 }
 
 code a:hover,
@@ -85,12 +87,10 @@ table {
 
 h1 {
 	font: 120px 'Oswald', sans-serif;
-	text-align: center;
 }
 
 h2 {
 	font-size: 26px;
-	font-weight: 100;
 	line-height: 1.5em;
 	margin-top: 2em;
 }
@@ -182,7 +182,7 @@ ul li {
 nav {
 	z-index: 10;
 	width: 100%;
-	text-align: right;
+	text-align: center;
 }
 
 nav a {
@@ -320,11 +320,17 @@ footer {
 
 
 
+@media(max-width: 1200px) {
+	h1 {
+		font-size: 110px;
+	}
+}
 
 @media (max-width: 1024px) {
 	h1 {
-		font-size: 110px;
+		font-size: 100px;
 		margin-top: 20px;
+		text-align: left;
 	}
 
 	h2.section {
@@ -339,6 +345,13 @@ footer {
 
 	hr {
 		margin: 5em 0;
+	}
+}
+
+@media (max-width: 767px) {
+	h1 {
+		font-size: 90px;
+		text-align: center;
 	}
 }
 
