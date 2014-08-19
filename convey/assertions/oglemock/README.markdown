@@ -25,8 +25,8 @@ First, make sure you have installed Go 1.0.2 or newer. See
 Use the following command to install `oglemock` and its dependencies, and to
 keep them up to date:
 
-    go get -u github.com/jacobsa/oglemock
-    go get -u github.com/jacobsa/oglemock/createmock
+    go get -u github.com/smartystreets/goconvey/convey/assertions/oglemock
+    go get -u github.com/smartystreets/goconvey/convey/assertions/oglemock/createmock
 
 Those commands will install the `oglemock` package itself, along with the
 `createmock` tool that is used to auto-generate mock types.
@@ -90,12 +90,12 @@ For thorough documentation, including information on how to set up expectations,
 see [here][oglemock-docs].
 
 
-[controller-ref]: http://gopkgdoc.appspot.com/pkg/github.com/jacobsa/oglemock#Controller
-[reporter-ref]: http://gopkgdoc.appspot.com/pkg/github.com/jacobsa/oglemock#ErrorReporter
+[controller-ref]: http://gopkgdoc.appspot.com/pkg/github.com/smartystreets/goconvey/convey/assertions/oglemock#Controller
+[reporter-ref]: http://gopkgdoc.appspot.com/pkg/github.com/smartystreets/goconvey/convey/assertions/oglemock#ErrorReporter
 [golang-install]: http://golang.org/doc/install.html
 [google-js-test]: http://code.google.com/p/google-js-test/
 [googlemock]: http://code.google.com/p/googlemock/
-[oglematchers]: https://github.com/jacobsa/oglematchers
-[oglemock-docs]: http://gopkgdoc.appspot.com/pkg/github.com/jacobsa/oglemock
-[ogletest]: https://github.com/jacobsa/oglematchers
-[ogletest-docs]: http://gopkgdoc.appspot.com/pkg/github.com/jacobsa/ogletest
+[oglematchers]: https://github.com/smartystreets/goconvey/convey/assertions/oglematchers
+[oglemock-docs]: http://gopkgdoc.appspot.com/pkg/github.com/smartystreets/goconvey/convey/assertions/oglemock
+[ogletest]: https://github.com/smartystreets/goconvey/convey/assertions/oglematchers
+[ogletest-docs]: http://gopkgdoc.appspot.com/pkg/github.com/smartystreets/goconvey/convey/assertions/ogletest

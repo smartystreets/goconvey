@@ -16,7 +16,7 @@
 package ogletest
 
 import (
-	"github.com/jacobsa/oglematchers"
+	"github.com/smartystreets/goconvey/convey/assertions/oglematchers"
 )
 
 // AssertThat is identical to ExpectThat, except that in the event of failure

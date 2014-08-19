@@ -16,15 +16,16 @@
 package oglematchers_test
 
 import (
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 ////////////////////////////////////////////////////////////////////////
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
-type ContainsTest struct {}
+type ContainsTest struct{}
+
 func init() { RegisterTestSuite(&ContainsTest{}) }
 
 ////////////////////////////////////////////////////////////////////////

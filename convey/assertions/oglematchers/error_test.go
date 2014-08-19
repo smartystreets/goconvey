@@ -17,8 +17,8 @@ package oglematchers_test
 
 import (
 	"errors"
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -26,9 +26,9 @@ import (
 ////////////////////////////////////////////////////////////////////////
 
 type ErrorTest struct {
-	matcherCalled bool
+	matcherCalled     bool
 	suppliedCandidate interface{}
-	wrappedError error
+	wrappedError      error
 
 	matcher Matcher
 }

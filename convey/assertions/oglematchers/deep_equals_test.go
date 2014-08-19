@@ -16,17 +16,18 @@
 package oglematchers_test
 
 import (
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
 	"bytes"
 	"testing"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 ////////////////////////////////////////////////////////////////////////
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
-type DeepEqualsTest struct {}
+type DeepEqualsTest struct{}
+
 func init() { RegisterTestSuite(&DeepEqualsTest{}) }
 
 ////////////////////////////////////////////////////////////////////////

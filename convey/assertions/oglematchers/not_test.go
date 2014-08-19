@@ -17,9 +17,9 @@ package oglematchers_test
 
 import (
 	"errors"
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
 	"testing"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,6 @@ func (m *fakeMatcher) Description() string {
 }
 
 type NotTest struct {
-
 }
 
 func init()                     { RegisterTestSuite(&NotTest{}) }

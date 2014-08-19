@@ -4,7 +4,7 @@ TearDown running.
 panicking_test.go:44:
 panic: foobar
 
-github.com/jacobsa/ogletest/somepkg_test.(*PanickingTest).PanickingTest
+github.com/smartystreets/goconvey/convey/assertions/ogletest/somepkg_test.(*PanickingTest).PanickingTest
 	some_file.txt:0
 reflect.Value.call
 	some_file.txt:0

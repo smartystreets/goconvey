@@ -17,17 +17,18 @@ package oglematchers_test
 
 import (
 	"errors"
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
 	"testing"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 ////////////////////////////////////////////////////////////////////////
 // Helpers
 ////////////////////////////////////////////////////////////////////////
 
-type PointeeTest struct {}
-func init()                     { RegisterTestSuite(&PointeeTest{}) }
+type PointeeTest struct{}
+
+func init() { RegisterTestSuite(&PointeeTest{}) }
 
 func TestPointee(t *testing.T) { RunTests(t) }
 

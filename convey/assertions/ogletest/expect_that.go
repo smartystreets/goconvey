@@ -17,10 +17,11 @@ package ogletest
 
 import (
 	"fmt"
-	"github.com/jacobsa/oglematchers"
 	"path"
 	"reflect"
 	"runtime"
+
+	"github.com/smartystreets/goconvey/convey/assertions/oglematchers"
 )
 
 // ExpectationResult is an interface returned by ExpectThat that allows callers

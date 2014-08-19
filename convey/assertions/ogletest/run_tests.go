@@ -55,7 +55,7 @@ func runTest(suite interface{}, method reflect.Method) (failures []*failureRecor
 
 	// Run the SetUp method, paying attention to whether it panics.
 	setUpPanicked := runWithProtection(
-		func () {
+		func() {
 			runMethodIfExists(suiteInstance, "SetUp", currentlyRunningTest)
 		},
 	)
@@ -64,7 +64,7 @@ func runTest(suite interface{}, method reflect.Method) (failures []*failureRecor
 	// (This includes AssertThat errors.)
 	if !setUpPanicked {
 		runWithProtection(
-			func () {
+			func() {
 				runMethodIfExists(suiteInstance, method.Name)
 			},
 		)
@@ -72,7 +72,7 @@ func runTest(suite interface{}, method reflect.Method) (failures []*failureRecor
 
 	// Run the TearDown method unconditionally.
 	runWithProtection(
-		func () {
+		func() {
 			runMethodIfExists(suiteInstance, "TearDown")
 		},
 	)
@@ -93,7 +93,7 @@ func runTest(suite interface{}, method reflect.Method) (failures []*failureRecor
 // For example:
 //
 //     import (
-//       "github.com/jacobsa/ogletest"
+//       "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 //       "testing"
 //     )
 //
@@ -289,7 +289,7 @@ func formatPanicStack() string {
 		}
 
 		// Stop if we've gotten as far as the test runner code.
-		if funcName == "github.com/jacobsa/ogletest.runMethodIfExists" {
+		if funcName == "github.com/smartystreets/goconvey/convey/assertions/ogletest.runMethodIfExists" {
 			break
 		}
 

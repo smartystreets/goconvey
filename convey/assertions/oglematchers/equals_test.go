@@ -17,10 +17,10 @@ package oglematchers_test
 
 import (
 	"fmt"
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
 	"math"
 	"unsafe"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 var someInt int = -17

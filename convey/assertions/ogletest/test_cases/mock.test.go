@@ -16,12 +16,12 @@
 package oglematchers_test
 
 import (
-	. "github.com/jacobsa/oglematchers"
-	"github.com/jacobsa/oglemock"
-	. "github.com/jacobsa/ogletest"
-	"github.com/jacobsa/ogletest/test_cases/mock_image"
 	"image/color"
 	"testing"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	"github.com/smartystreets/goconvey/convey/assertions/oglemock"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
+	"github.com/smartystreets/goconvey/convey/assertions/ogletest/test_cases/mock_image"
 )
 
 ////////////////////////////////////////////////////////////////////////

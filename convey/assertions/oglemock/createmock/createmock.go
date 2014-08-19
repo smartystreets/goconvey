@@ -32,7 +32,7 @@ import (
 
 	// Ensure that the generate package, which is used by the generated code, is
 	// installed by goinstall.
-	_ "github.com/jacobsa/oglemock/generate"
+	_ "github.com/smartystreets/goconvey/convey/assertions/oglemock/generate"
 )
 
 // A template for generated code that is used to print the result.
@@ -126,7 +126,7 @@ func run() error {
 	}
 
 	// Create a temporary directory inside of $GOPATH to hold generated code.
-	buildPkg, err := build.Import("github.com/jacobsa/oglemock", "", build.FindOnly)
+	buildPkg, err := build.Import("github.com/smartystreets/goconvey/convey/assertions/oglemock", "", build.FindOnly)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Couldn't find oglemock in $GOPATH: %v", err))
 	}
@@ -155,7 +155,7 @@ func run() error {
 
 	arg.Imports = make(importMap)
 	arg.Imports[path.Base(arg.InputPkg)] = arg.InputPkg
-	arg.Imports["generate"] = "github.com/jacobsa/oglemock/generate"
+	arg.Imports["generate"] = "github.com/smartystreets/goconvey/convey/assertions/oglemock/generate"
 	arg.Imports["log"] = "log"
 	arg.Imports["os"] = "os"
 	arg.Imports["reflect"] = "reflect"

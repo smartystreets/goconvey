@@ -16,8 +16,9 @@
 package ogletest
 
 import (
-	"github.com/jacobsa/oglemock"
 	"runtime"
+
+	"github.com/smartystreets/goconvey/convey/assertions/oglemock"
 )
 
 // ExpectCall expresses an expectation that the method of the given name

@@ -16,11 +16,11 @@
 package oglematchers_test
 
 import (
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
 	"fmt"
 	"io"
 	"unsafe"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 ////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ func (t *IdenticalToTest) Functions() {
 	err = m.Matches((func())(nil))
 	ExpectEq(nil, err)
 
-	err = m.Matches(func(){})
+	err = m.Matches(func() {})
 	ExpectThat(err, Error(Equals("which is not an identical reference")))
 
 	// Non-nil expected value

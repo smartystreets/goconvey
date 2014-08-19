@@ -24,7 +24,7 @@ First, make sure you have installed Go 1.0.2 or newer. See
 Use the following command to install `ogletest` and its dependencies, and to
 keep them up to date:
 
-    go get -u github.com/jacobsa/ogletest
+    go get -u github.com/smartystreets/goconvey/convey/assertions/ogletest
 
 
 Documentation
@@ -34,7 +34,7 @@ See [here][reference] for package documentation hosted on GoPkgDoc containing an
 exhaustive list of exported symbols. Alternatively, you can install the package
 and then use `go doc`:
 
-    go doc github.com/jacobsa/ogletest
+    go doc github.com/smartystreets/goconvey/convey/assertions/ogletest
 
 An important part of `ogletest` is its use of matchers provided by the
 [oglematchers][matcher-reference] package. See that package's documentation
@@ -62,8 +62,8 @@ for it as follows:
 package people
 
 import (
-  "github.com/jacobsa/oglematchers"
-  "github.com/jacobsa/ogletest"
+  "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+  "github.com/smartystreets/goconvey/convey/assertions/ogletest"
   "testing"
 )
 
@@ -102,8 +102,8 @@ package name:
 
 ```go
 import (
-  . "github.com/jacobsa/oglematchers"
-  . "github.com/jacobsa/ogletest"
+  . "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+  . "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 ```
 
@@ -140,10 +140,10 @@ And if the test passes:
     [----------] Finished with tests from PeopleTest
 
 
-[reference]: http://gopkgdoc.appspot.com/pkg/github.com/jacobsa/ogletest
-[matcher-reference]: http://gopkgdoc.appspot.com/pkg/github.com/jacobsa/oglematchers
+[reference]: http://gopkgdoc.appspot.com/pkg/github.com/smartystreets/goconvey/convey/assertions/ogletest
+[matcher-reference]: http://gopkgdoc.appspot.com/pkg/github.com/smartystreets/goconvey/convey/assertions/oglematchers
 [golang-install]: http://golang.org/doc/install.html
 [googletest]: http://code.google.com/p/googletest/
 [google-js-test]: http://code.google.com/p/google-js-test/
 [howtowrite]: http://golang.org/doc/code.html
-[oglemock]: https://github.com/jacobsa/oglemock
+[oglemock]: https://github.com/smartystreets/goconvey/convey/assertions/oglemock

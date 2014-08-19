@@ -16,9 +16,10 @@
 package ogletest
 
 import (
-	"github.com/jacobsa/oglematchers"
 	"path"
 	"runtime"
+
+	"github.com/smartystreets/goconvey/convey/assertions/oglematchers"
 )
 
 func getCallerForAlias() (fileName string, lineNumber int) {

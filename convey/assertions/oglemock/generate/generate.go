@@ -35,7 +35,7 @@ const tmplStr = `
 // This file was auto-generated using createmock. See the following page for
 // more information:
 //
-//     https://github.com/jacobsa/oglemock
+//     https://github.com/smartystreets/goconvey/convey/assertions/oglemock
 //
 
 package {{.Pkg}}
@@ -267,7 +267,7 @@ func getImports(interfaces []reflect.Type) importMap {
 	// Make sure there are imports for other types used by the generated code
 	// itself.
 	imports["fmt"] = "fmt"
-	imports["oglemock"] = "github.com/jacobsa/oglemock"
+	imports["oglemock"] = "github.com/smartystreets/goconvey/convey/assertions/oglemock"
 	imports["runtime"] = "runtime"
 	imports["unsafe"] = "unsafe"
 

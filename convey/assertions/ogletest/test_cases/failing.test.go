@@ -17,9 +17,9 @@ package oglematchers_test
 
 import (
 	"fmt"
-	. "github.com/jacobsa/oglematchers"
-	. "github.com/jacobsa/ogletest"
 	"testing"
+	. "github.com/smartystreets/goconvey/convey/assertions/oglematchers"
+	. "github.com/smartystreets/goconvey/convey/assertions/ogletest"
 )
 
 func TestFailingTest(t *testing.T) { RunTests(t) }

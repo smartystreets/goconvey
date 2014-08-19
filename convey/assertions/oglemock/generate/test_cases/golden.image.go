@@ -1,18 +1,19 @@
 // This file was auto-generated using createmock. See the following page for
 // more information:
 //
-//     https://github.com/jacobsa/oglemock
+//     https://github.com/smartystreets/goconvey/convey/assertions/oglemock
 //
 
 package some_pkg
 
 import (
 	fmt "fmt"
-	oglemock "github.com/jacobsa/oglemock"
 	image "image"
 	color "image/color"
 	runtime "runtime"
 	unsafe "unsafe"
+
+	oglemock "github.com/smartystreets/goconvey/convey/assertions/oglemock"
 )
 
 type MockImage interface {

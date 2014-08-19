@@ -36,7 +36,7 @@ First, make sure you have installed Go 1.0.2 or newer. See
 
 Use the following command to install `oglematchers` and keep it up to date:
 
-    go get -u github.com/jacobsa/oglematchers
+    go get -u github.com/smartystreets/goconvey/convey/assertions/oglematchers
 
 
 Documentation
@@ -45,12 +45,12 @@ Documentation
 See [here][reference] for documentation hosted on GoPkgDoc. Alternatively, you
 can install the package and then use `go doc`:
 
-    go doc github.com/jacobsa/oglematchers
+    go doc github.com/smartystreets/goconvey/convey/assertions/oglematchers
 
 
-[reference]: http://gopkgdoc.appspot.com/pkg/github.com/jacobsa/oglematchers
+[reference]: http://gopkgdoc.appspot.com/pkg/github.com/smartystreets/goconvey/convey/assertions/oglematchers
 [golang-install]: http://golang.org/doc/install.html
 [googletest]: http://code.google.com/p/googletest/
 [google-js-test]: http://code.google.com/p/google-js-test/
-[ogletest]: http://github.com/jacobsa/ogletest
-[oglemock]: http://github.com/jacobsa/oglemock
+[ogletest]: http://github.com/smartystreets/goconvey/convey/assertions/ogletest
+[oglemock]: http://github.com/smartystreets/goconvey/convey/assertions/oglemock

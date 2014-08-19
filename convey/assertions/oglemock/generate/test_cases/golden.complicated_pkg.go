@@ -1,21 +1,22 @@
 // This file was auto-generated using createmock. See the following page for
 // more information:
 //
-//     https://github.com/jacobsa/oglemock
+//     https://github.com/smartystreets/goconvey/convey/assertions/oglemock
 //
 
 package some_pkg
 
 import (
 	fmt "fmt"
-	oglemock "github.com/jacobsa/oglemock"
-	complicated_pkg "github.com/jacobsa/oglemock/generate/test_cases/complicated_pkg"
-	tony "github.com/jacobsa/oglemock/generate/test_cases/renamed_pkg"
 	image "image"
 	io "io"
 	net "net"
 	runtime "runtime"
 	unsafe "unsafe"
+
+	oglemock "github.com/smartystreets/goconvey/convey/assertions/oglemock"
+	complicated_pkg "github.com/smartystreets/goconvey/convey/assertions/oglemock/generate/test_cases/complicated_pkg"
+	tony "github.com/smartystreets/goconvey/convey/assertions/oglemock/generate/test_cases/renamed_pkg"
 )
 
 type MockComplicatedThing interface {

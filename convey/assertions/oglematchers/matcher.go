@@ -17,8 +17,8 @@
 // mocking framework. These matchers are inspired by and mostly compatible with
 // Google Test for C++ and Google JS Test.
 //
-// This package is used by github.com/jacobsa/ogletest and
-// github.com/jacobsa/oglemock, which may be more directly useful if you're not
+// This package is used by github.com/smartystreets/goconvey/convey/assertions/ogletest and
+// github.com/smartystreets/goconvey/convey/assertions/oglemock, which may be more directly useful if you're not
 // writing your own testing package or defining your own matchers.
 package oglematchers
 
