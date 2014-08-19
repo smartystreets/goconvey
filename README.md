@@ -32,8 +32,6 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 Installation
 ------------
 
-#### Go Version 1.2+
-
 	$ go get github.com/smartystreets/goconvey
 
 [Quick start](https://github.com/smartystreets/goconvey/wiki#get-going-in-25-seconds)
