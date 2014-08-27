@@ -20,7 +20,7 @@ func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
 	if self.batchSize == 1 {
 		self.executeSynchronously(folders)
 	} else {
-		newCuncurrentCoordinator(folders, self.batchSize, self.shell).ExecuteConcurrently()
+		newConcurrentCoordinator(folders, self.batchSize, self.shell).ExecuteConcurrently()
 	}
 	return
 }
