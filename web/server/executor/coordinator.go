@@ -65,7 +65,7 @@ func hasUnexpectedError(folder *contract.Package) bool {
 	return folder.Error != nil && folder.Output == ""
 }
 
-func newCuncurrentCoordinator(folders []*contract.Package, batchSize int, shell contract.Shell) *concurrentCoordinator {
+func newConcurrentCoordinator(folders []*contract.Package, batchSize int, shell contract.Shell) *concurrentCoordinator {
 	self := new(concurrentCoordinator)
 	self.queue = make(chan *contract.Package)
 	self.folders = folders
