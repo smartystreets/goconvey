@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -39,7 +40,8 @@ func (self *Shell) tryRunWithCoverage(directory, packageName string) (output str
 	profileName := self.composeCoverageProfileName(packageName)
 	output, err = self.runWithCoverage(directory, packageName, profileName+".txt")
 
-	if err != nil && self.coverage {
+	if err != nil && !coverageStatementRE.MatchString(output) {
+		self.coverage = false
 		output, err = self.runWithoutCoverage(directory, packageName)
 	} else if self.coverage {
 		self.generateCoverageReports(directory, profileName+".txt", profileName+".html")
@@ -101,3 +103,5 @@ func NewShell(executor Executor, gobin string, short bool, cover bool, reports s
 const (
 	goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
 )
+
+var coverageStatementRE = regexp.MustCompile(`coverage: \d+\.\d% of statements(.*)\n`)
