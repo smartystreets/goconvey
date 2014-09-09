@@ -41,7 +41,6 @@ func (self *Shell) tryRunWithCoverage(directory, packageName string) (output str
 	output, err = self.runWithCoverage(directory, packageName, profileName+".txt")
 
 	if err != nil && !coverageStatementRE.MatchString(output) {
-		self.coverage = false
 		output, err = self.runWithoutCoverage(directory, packageName)
 	} else if self.coverage {
 		self.generateCoverageReports(directory, profileName+".txt", profileName+".html")
