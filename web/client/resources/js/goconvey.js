@@ -102,6 +102,7 @@ function initPoller()
 	$(convey.poller).on('serverexec', function(event, data)
 	{
 		log("Server status: executing");
+		$('.favicon').attr('href', '/favicon.ico');	// indicates running tests
 	});
 
 	$(convey.poller).on('serveridle', function(event, data)
