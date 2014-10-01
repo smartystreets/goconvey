@@ -1,15 +1,9 @@
 package watcher
 
 import (
-	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
-
-func init() {
-	log.SetOutput(ioutil.Discard)
-}
 
 const slash = string(os.PathSeparator)
 
