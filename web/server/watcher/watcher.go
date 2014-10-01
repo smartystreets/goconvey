@@ -13,11 +13,10 @@ import (
 )
 
 type Watcher struct {
-	files          contract.FileSystem
-	shell          contract.Shell
-	watched        map[string]*contract.Package
-	root           string
-	ambientGoPaths []string
+	files   contract.FileSystem
+	shell   contract.Shell
+	watched map[string]*contract.Package
+	root    string
 }
 
 func (self *Watcher) Root() string {
@@ -117,8 +116,6 @@ func NewWatcher(files contract.FileSystem, shell contract.Shell) *Watcher {
 	self.files = files
 	self.shell = shell
 	self.watched = map[string]*contract.Package{}
-	goPath := self.shell.Getenv("GOPATH")
-	self.ambientGoPaths = strings.Split(goPath, entrySeparator)
 	return self
 }
 
