@@ -1,92 +1,88 @@
 package messaging
 
-import "time"
+///////////////////////////////////////////////////////////////////////////////
 
-type ( // Commands the user will send via the HTTP server:
+type ServerCommand struct {
+	Instruction int
+	Details     string
+}
 
-	AdjustRootFolderCommand struct {
-		NewRootFolder string
-	}
-
-	IgnorePackagesCommand struct {
-		Paths []string
-	}
-
-	ReinstatePackagesCommand struct {
-		Paths []string
-	}
-
-	ClearExecutionStatusCommand struct{} // not sure why we need this...
-
-	ExecuteTestsCommand struct{}
+const (
+	ServerPause = iota
+	ServerResume
+	ServerIgnore
+	ServerReinstate
+	ServerAdjustRoot
 )
 
-type ( // Events:
+///////////////////////////////////////////////////////////////////////////////
 
-	FileSystemItemFoundEvent struct {
-		Root     string
-		Path     string
-		Name     string
-		Size     int64
-		Modified int64
-		IsFolder bool
-	}
+// type ( // Commands the user will send via the HTTP server:
 
-	RootFolderAdjustedEvent struct {
-		NewRootFolder string
-	}
+// 	AdjustRootFolderCommand struct {
+// 		NewRootFolder string
+// 	}
 
-	FolderFoundEvent struct {
-		Path string
-	}
+// 	IgnorePackagesCommand struct {
+// 		Paths []string
+// 	}
 
-	GoFileFoundEvent struct {
-		Path string
-	}
+// 	ReinstatePackagesCommand struct {
+// 		Paths []string
+// 	}
 
-	NewFolderToWatchEvent struct {
-		Path      string
-		ImportDir string
-		// TODO: include other info
-	}
+// 	ClearExecutionStatusCommand struct{} // not sure why we need this...
 
-	FolderDeletedEvent struct {
-		Path      string
-		ImportDir string
-	}
+// 	ExecuteTestsCommand struct{}
+// )
 
-	FolderIgnoredViaUIEvent struct {
-		Path      string
-		ImportDir string
-	}
+// type ( // Events:
 
-	FolderReinstatedViaUIEvent struct {
-		Path      string
-		ImportDir string
-	}
+// 	RootFolderAdjustedEvent struct {
+// 		NewRootFolder string
+// 	}
 
-	FolderIgnoredViaProfileEvent struct {
-		Path      string
-		ImportDir string
-	}
+// 	FolderFoundEvent struct {
+// 		Path string
+// 	}
 
-	FolderReinstatedViaProfileEvent struct {
-		Path      string
-		ImportDir string
-	}
+// 	FolderDeletedEvent struct {
+// 		Path      string
+// 		ImportDir string
+// 	}
 
-	FolderProfileProvidedEvent struct {
-		PackagePath string
-		ImportDir   string
-		Flags       []string
-	}
+// 	FolderIgnoredViaUIEvent struct {
+// 		Path      string
+// 		ImportDir string
+// 	}
 
-	LatestTestResultsRenderedStaleEvent struct {
-		Stamp time.Time
-	}
+// 	FolderReinstatedViaUIEvent struct {
+// 		Path      string
+// 		ImportDir string
+// 	}
 
-	NewTestResultsPublishedEvent struct {
-		Stamp time.Time
-		// TODO: need a 'result' type here...
-	}
-)
+// 	FolderIgnoredViaProfileEvent struct {
+// 		Path      string
+// 		ImportDir string
+// 	}
+
+// 	FolderReinstatedViaProfileEvent struct {
+// 		Path      string
+// 		ImportDir string
+// 	}
+
+// 	FolderProfileProvidedEvent struct {
+// 		PackagePath string
+// 		ImportDir   string
+// 		Flags       []string
+// 	}
+
+// 	LatestTestResultsRenderedStaleEvent struct {
+// 		Stamp time.Time
+// 	}
+
+// 	NewTestResultsPublishedEvent struct {
+// 		Stamp time.Time
+// 		// TODO: need a 'result' type here...
+// 	}
+// )

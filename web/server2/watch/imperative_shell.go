@@ -1,14 +1,12 @@
-package imperative_shell
+package watch
 
 import (
 	"os"
 	"path/filepath"
-
-	"github.com/smartystreets/goconvey/web/server2/messaging"
 )
 
-func ScanFileSystem(root string) []messaging.FileSystemItemFoundEvent {
-	items := make(chan messaging.FileSystemItemFoundEvent)
+func ScanFileSystem(root string) []FileSystemItem {
+	items := make(chan FileSystemItem)
 
 	go func() {
 		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -16,7 +14,7 @@ func ScanFileSystem(root string) []messaging.FileSystemItemFoundEvent {
 				return err
 			}
 
-			items <- messaging.FileSystemItemFoundEvent{
+			items <- FileSystemItem{
 				Root:     root,
 				Path:     path,
 				Name:     info.Name(),
@@ -30,7 +28,7 @@ func ScanFileSystem(root string) []messaging.FileSystemItemFoundEvent {
 		close(items)
 	}()
 
-	list := []messaging.FileSystemItemFoundEvent{}
+	list := []FileSystemItem{}
 	for item := range items {
 		list = append(list, item)
 	}

@@ -1,23 +1,22 @@
-package functional_core
+package watch
 
 import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/smartystreets/goconvey/web/server2/messaging"
 )
 
 func TestDepthLimit(t *testing.T) {
-	fileSystem := []messaging.FileSystemItemFoundEvent{
-		messaging.FileSystemItemFoundEvent{
+	fileSystem := []FileSystemItem{
+		FileSystemItem{
 			Root: "/hello/world",
 			Path: "/hello/world/1/2/3",
 		},
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root: "/hello/world",
 			Path: "/hello/world/1/2/3/4",
 		},
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root: "/hello/world",
 			Path: "/hello/world/1/2/3/4/5",
 		},
@@ -41,10 +40,10 @@ func TestDepthLimit(t *testing.T) {
 }
 
 func TestChecksum(t *testing.T) {
-	fileSystem := []messaging.FileSystemItemFoundEvent{
+	fileSystem := []FileSystemItem{
 
 		// directory; only ever counts as 1 'point'
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root:     "/",
 			Path:     "/hello",
 			Name:     "hello",
@@ -54,7 +53,7 @@ func TestChecksum(t *testing.T) {
 		},
 
 		// not go file; always ignored
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root:     "/",
 			Path:     "/1/hello/world.txt",
 			Name:     "world.txt",
@@ -64,7 +63,7 @@ func TestChecksum(t *testing.T) {
 		},
 
 		// go file; will count as Size + Modified 'points'
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root:     "/",
 			Path:     "/1/2/3/4/5/hello/world.go",
 			Name:     "world.go",
@@ -74,7 +73,7 @@ func TestChecksum(t *testing.T) {
 		},
 
 		// .dot file; always ignored
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root:     "/",
 			Path:     "/hello/.world.go",
 			Name:     ".world.go",
@@ -84,7 +83,7 @@ func TestChecksum(t *testing.T) {
 		},
 
 		// .dot directory; always ignored
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root:     "/",
 			Path:     "/.hello",
 			Name:     ".hello",
@@ -94,7 +93,7 @@ func TestChecksum(t *testing.T) {
 		},
 
 		// .dot directory contents; always ignored
-		messaging.FileSystemItemFoundEvent{
+		FileSystemItem{
 			Root:     "/",
 			Path:     "/.hello/world.go",
 			Name:     "world.go",
@@ -102,9 +101,19 @@ func TestChecksum(t *testing.T) {
 			Modified: 5,
 			IsFolder: false,
 		},
+
+		// .dot directory contents; always ignored
+		FileSystemItem{
+			Root:     "/",
+			Path:     "/hello/hi.goconvey",
+			Name:     "hi.goconvey",
+			Size:     2,
+			Modified: 3,
+			IsFolder: false,
+		},
 	}
 
 	Convey("The file system should be checksummed correctly", t, func() {
-		So(Checksum(fileSystem), ShouldEqual, 9)
+		So(Checksum(fileSystem), ShouldEqual, 14)
 	})
 }

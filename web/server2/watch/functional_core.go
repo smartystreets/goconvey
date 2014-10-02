@@ -1,19 +1,26 @@
-package functional_core
+package watch
 
 import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/smartystreets/goconvey/web/server2/messaging"
 )
 
-func LimitDepth(items []messaging.FileSystemItemFoundEvent, depth int) []messaging.FileSystemItemFoundEvent {
+type FileSystemItem struct {
+	Root     string
+	Path     string
+	Name     string
+	Size     int64
+	Modified int64
+	IsFolder bool
+}
+
+func LimitDepth(items []FileSystemItem, depth int) []FileSystemItem {
 	if depth < 0 {
 		return items
 	}
 
-	filtered := []messaging.FileSystemItemFoundEvent{}
+	filtered := []FileSystemItem{}
 	for _, item := range items {
 		nested := item.Path[len(item.Root):]
 		if strings.Count(nested, slash) <= depth {
@@ -24,7 +31,7 @@ func LimitDepth(items []messaging.FileSystemItemFoundEvent, depth int) []messagi
 	return filtered
 }
 
-func Checksum(items []messaging.FileSystemItemFoundEvent) int64 {
+func Checksum(items []FileSystemItem) int64 {
 	var sum int64
 
 	for _, item := range items {
@@ -37,7 +44,9 @@ func Checksum(items []messaging.FileSystemItemFoundEvent) int64 {
 			continue
 		}
 
-		if filepath.Ext(item.Path) != ".go" {
+		extension := filepath.Ext(item.Path)
+
+		if extension != ".go" && extension != ".goconvey" {
 			continue
 		}
 
