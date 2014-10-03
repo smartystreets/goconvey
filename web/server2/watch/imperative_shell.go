@@ -1,11 +1,25 @@
 package watch
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
 
-func ScanFileSystem(root string) []FileSystemItem {
+///////////////////////////////////////////////////////////////////////////////
+
+type FileSystemItem struct {
+	Root     string
+	Path     string
+	Name     string
+	Size     int64
+	Modified int64
+	IsFolder bool
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+func YieldFileSystemItems(root string) chan FileSystemItem {
 	items := make(chan FileSystemItem)
 
 	go func() {
@@ -28,10 +42,26 @@ func ScanFileSystem(root string) []FileSystemItem {
 		close(items)
 	}()
 
-	list := []FileSystemItem{}
-	for item := range items {
-		list = append(list, item)
+	return items
+}
+
+func ReadProfiles(items []FileSystemItem) map[string]string {
+	profiles := make(map[string]string)
+
+	for _, item := range items {
+
+		file, err := os.Open(item.Path)
+		if err != nil {
+			continue
+		}
+
+		rawContent, err := ioutil.ReadAll(file)
+		if err != nil {
+			continue
+		}
+
+		profiles[item.Path] = string(rawContent)
 	}
 
-	return list
+	return profiles
 }
