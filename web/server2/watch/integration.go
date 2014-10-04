@@ -68,18 +68,19 @@ func (this *Watcher) execute(command messaging.ServerCommand) bool {
 }
 
 func (this *Watcher) scan() {
-	items := YieldFileSystemItems(this.rootFolder)               // shell
-	folderItems, profileItems, goFileItems := Categorize(items)  // core
-	rawProfiles := ReadProfiles(profileItems)                    // shell (-> map[string-path]string-contents)
-	profiles := ParseProfiles(rawProfiles)                       // core
-	folders := CreateFolders(folderItems, goFileItems, profiles) // core (checksums each folder and marks disabled folders)
-	folders = FilterDepth(folders, this.folderDepth)             // core
-	folders = FlagIgnored(folders, this.ignoredFolders)          // core
-	checksum := Checksum(folders)                                // core
+	items := YieldFileSystemItems(this.rootFolder)
+	folderItems, profileItems, goFileItems := Categorize(items)
+	rawProfiles := ReadProfiles(profileItems)
+	profiles := ParseProfiles(rawProfiles)
+	folders := CreateFolders(folderItems, goFileItems, profiles)
+	folders = FilterDepth(folders, this.folderDepth)
+	folders = FlagIgnored(folders, this.ignoredFolders)
+	checksum := Checksum(folders)
 
 	if checksum == this.fileSystemState {
 		return
 	}
+
 	defer func() { this.fileSystemState = checksum }()
 	this.output <- messaging.WatcherCommand{Folders: folders}
 }

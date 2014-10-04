@@ -45,6 +45,8 @@ func YieldFileSystemItems(root string) chan FileSystemItem {
 	return items
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 func ReadProfiles(items []FileSystemItem) map[string]string {
 	profiles := make(map[string]string)
 
@@ -65,3 +67,5 @@ func ReadProfiles(items []FileSystemItem) map[string]string {
 
 	return profiles
 }
+
+///////////////////////////////////////////////////////////////////////////////

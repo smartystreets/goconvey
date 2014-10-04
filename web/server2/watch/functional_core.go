@@ -48,7 +48,50 @@ type Profile struct {
 }
 
 func ParseProfiles(profiles map[string]string) []Profile {
-	return nil
+	parsed := []Profile{}
+
+	for path, content := range profiles {
+		isDisabled, arguments := parseProfile(content)
+		parsed = append(parsed, Profile{
+			Path:      path,
+			Disabled:  isDisabled,
+			TestFlags: arguments,
+		})
+	}
+
+	return parsed
+}
+func parseProfile(profile string) (isDisabled bool, arguments []string) {
+	lines := strings.Split(profile, "\n")
+	arguments = []string{}
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		if len(arguments) == 0 && strings.ToLower(line) == "ignore" {
+			return true, []string{}
+
+		} else if len(line) == 0 {
+			continue
+
+		} else if strings.HasPrefix(line, "#") {
+			continue
+
+		} else if strings.HasPrefix(line, "//") {
+			continue
+
+		} else if strings.HasPrefix(line, "-cover") {
+			continue // TODO: enable custom coverage flags...
+
+		} else if line == "-v" {
+			continue // Verbose mode is always enabled so there is no need to record it here.
+
+		}
+
+		arguments = append(arguments, line)
+	}
+
+	return false, arguments
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -186,41 +229,6 @@ func Checksum(folders []messaging.Folder) int64 {
 // 	}
 
 // 	return sum
-// }
-
-// ///////////////////////////////////////////////////////////////////////////////
-
-// func parseProfile(profile string) (isIgnored bool, arguments []string) {
-// 	lines := strings.Split(profile, "\n")
-// 	arguments = []string{}
-
-// 	for _, line := range lines {
-// 		line = strings.TrimSpace(line)
-
-// 		if len(arguments) == 0 && strings.ToLower(line) == "ignore" {
-// 			return true, []string{}
-
-// 		} else if len(line) == 0 {
-// 			continue
-
-// 		} else if strings.HasPrefix(line, "#") {
-// 			continue
-
-// 		} else if strings.HasPrefix(line, "//") {
-// 			continue
-
-// 		} else if strings.HasPrefix(line, "-cover") {
-// 			continue // TODO: enable custom coverage flags...
-
-// 		} else if line == "-v" {
-// 			continue // Verbose mode is always enabled so there is no need to record it here.
-
-// 		}
-
-// 		arguments = append(arguments, line)
-// 	}
-
-// 	return false, arguments
 // }
 
 // ///////////////////////////////////////////////////////////////////////////////
