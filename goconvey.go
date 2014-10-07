@@ -75,22 +75,23 @@ func main() {
 	executor := executor.NewExecutor(tester, parser, longpollChan)
 	server := api.NewHTTPServer(working, watcherInput, executor, longpollChan)
 
-	go func() {
-		for update := range watcherOutput {
-			root := ""
-			folders := []*contract.Package{}
-			for _, folder := range update {
-				root = folder.Root
-				folders = append(folders, contract.NewPackage(folder.Path))
-				// TODO: set inactive/disabled (may require a new field on the contract.Package struct).
-			}
-			output := executor.ExecuteTests(folders)
-			server.ReceiveUpdate(root, output)
-		}
-	}()
-
+	go runTestOnUpdates(watcherOutput, executor, server)
 	go watcher.Listen()
 	serveHTTP(server)
+}
+
+func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, server contract.Server) {
+	for update := range queue {
+		root := ""
+		folders := []*contract.Package{}
+		for _, folder := range update {
+			root = folder.Root
+			folders = append(folders, contract.NewPackage(folder.Path))
+			// TODO: set inactive/disabled (may require a new field on the contract.Package struct).
+		}
+		output := executor.ExecuteTests(folders)
+		server.ReceiveUpdate(root, output)
+	}
 }
 
 func serveHTTP(server contract.Server) {
