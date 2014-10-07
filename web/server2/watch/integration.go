@@ -2,6 +2,7 @@ package watch
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/smartystreets/goconvey/web/server2/messaging"
@@ -13,11 +14,15 @@ type Watcher struct {
 	ignoredFolders  map[string]struct{}
 	fileSystemState int64
 
-	input  chan messaging.ServerCommand
-	output chan messaging.WatcherCommand
+	input  chan messaging.ServerToWatcherCommand
+	output chan messaging.Folders
+
+	lock sync.RWMutex
 }
 
-func NewWatcher(rootFolder string, folderDepth int, input chan messaging.ServerCommand, output chan messaging.WatcherCommand) *Watcher {
+func NewWatcher(rootFolder string, folderDepth int,
+	input chan messaging.ServerToWatcherCommand, output chan messaging.Folders) *Watcher {
+
 	return &Watcher{
 		rootFolder:  rootFolder,
 		folderDepth: folderDepth,
@@ -40,24 +45,25 @@ func (this *Watcher) Listen() {
 		default:
 			this.scan()
 			time.Sleep(time.Millisecond * 250)
+
 		}
 	}
 }
 
-func (this *Watcher) execute(command messaging.ServerCommand) bool {
+func (this *Watcher) execute(command messaging.ServerToWatcherCommand) bool {
 	log.Println("Received command from server:", command)
 
 	switch command.Instruction {
 
-	case messaging.ServerAdjustRoot:
+	case messaging.WatcherAdjustRoot:
 		log.Println("Adjusting root...")
 		this.rootFolder = command.Details
 
-	case messaging.ServerIgnore:
-		log.Println("Ignoring specified folders")
+	case messaging.WatcherIgnore:
+		log.Println("Ignoring specified folders") // TODO: protectedWrite(...)
 
-	case messaging.ServerReinstate:
-		log.Println("Reinstating specified folders")
+	case messaging.WatcherReinstate:
+		log.Println("Reinstating specified folders") // TODO: protectedWrite(...)
 
 	default:
 		log.Println("Unrecognized command from server:", command.Instruction)
@@ -70,17 +76,38 @@ func (this *Watcher) execute(command messaging.ServerCommand) bool {
 func (this *Watcher) scan() {
 	items := YieldFileSystemItems(this.rootFolder)
 	folderItems, profileItems, goFileItems := Categorize(items)
-	rawProfiles := ReadProfiles(profileItems)
-	profiles := ParseProfiles(rawProfiles)
-	folders := CreateFolders(folderItems, goFileItems, profiles)
-	folders = FilterDepth(folders, this.folderDepth)
-	folders = FlagIgnored(folders, this.ignoredFolders)
-	checksum := Checksum(folders)
+
+	for _, item := range profileItems {
+		contents := ReadContents(item.Path)
+		item.ProfileDisabled, item.ProfileArguments = ParseProfile(contents)
+	}
+
+	folders := CreateFolders(folderItems)
+	// LimitDepth(folders, this.folderDepth)
+	AttachProfiles(folders, profileItems)
+	this.protectedRead(func() { MarkIgnored(folders, this.ignoredFolders) })
+
+	checksum := int64(len(ActiveFolders(folders)))
+	checksum += Sum(folders, profileItems)
+	checksum += Sum(folders, goFileItems)
 
 	if checksum == this.fileSystemState {
 		return
 	}
 
+	log.Println("File system state modified, publishing current folders...", this.fileSystemState, checksum)
+
 	defer func() { this.fileSystemState = checksum }()
-	this.output <- messaging.WatcherCommand{Folders: folders}
+	this.output <- folders
+}
+
+func (this *Watcher) protectedRead(protected func()) {
+	this.lock.RLock()
+	defer this.lock.RUnlock()
+	protected()
+}
+func (this *Watcher) protectedWrite(protected func()) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	protected()
 }

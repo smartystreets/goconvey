@@ -10,15 +10,28 @@ import (
 func main() {
 	started := time.Now()
 
-	items := make(map[string]*watch.FileSystemItem)
-	items["hi"] = &watch.FileSystemItem{}
-	alter(items)
+	items := watch.YieldFileSystemItems("/Users/mike/code/src/github.com/smartystreets/goconvey")
+	folderItems, profileItems, goFileItems := watch.Categorize(items)
 
-	fmt.Println("SIZE:", items["hi"].Size)
-	fmt.Println(time.Since(started))
-}
+	for _, item := range profileItems {
+		contents := watch.ReadContents(item.Path)
+		item.ProfileDisabled, item.ProfileArguments = watch.ParseProfile(contents)
+	}
 
-func alter(items map[string]*watch.FileSystemItem) {
-	item := items["hi"]
-	item.Size = 42
+	folders := watch.CreateFolders(folderItems)
+	watch.LimitDepth(folders, -1)
+	watch.AttachProfiles(folders, profileItems)
+	watch.MarkIgnored(folders, nil)
+
+	checksum := int64(len(watch.ActiveFolders(folders)))
+	checksum += watch.Sum(folders, profileItems)
+	checksum += watch.Sum(folders, goFileItems)
+
+	// defer func() { this.fileSystemState = checksum }()
+	// this.output <- messaging.WatcherCommand{Folders: folders}
+
+	fmt.Println("ELAPSED:", time.Since(started))
+	fmt.Println("CHECKSUM:", checksum)
+	fmt.Println(len(folderItems), len(goFileItems), len(profileItems))
+	fmt.Println(profileItems[0].ProfileArguments)
 }
