@@ -8,7 +8,7 @@ import (
 
 type (
 	Server interface {
-		ReceiveUpdate(*CompleteOutput)
+		ReceiveUpdate(string, *CompleteOutput)
 		Watch(writer http.ResponseWriter, request *http.Request)
 		Ignore(writer http.ResponseWriter, request *http.Request)
 		Reinstate(writer http.ResponseWriter, request *http.Request)

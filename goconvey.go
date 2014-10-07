@@ -21,7 +21,8 @@ import (
 	executor "github.com/smartystreets/goconvey/web/server/executor"
 	parser "github.com/smartystreets/goconvey/web/server/parser"
 	"github.com/smartystreets/goconvey/web/server/system"
-	watch "github.com/smartystreets/goconvey/web/server/watcher"
+	"github.com/smartystreets/goconvey/web/server2/messaging"
+	"github.com/smartystreets/goconvey/web/server2/watch"
 )
 
 func init() {
@@ -50,13 +51,45 @@ func folders() {
 
 func main() {
 	flag.Parse()
-
 	log.Printf(initialConfiguration, host, port, nap, cover, short)
 
-	monitor, server := wireup()
+	working, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	go monitor.ScanForever()
+	shellExecutor := system.NewCommandExecutor()
+	cover = coverageEnabled(cover, reports, shellExecutor)
 
+	shell := system.NewShell(shellExecutor, gobin, short, cover, reports)
+
+	watcherInput := make(chan messaging.ServerToWatcherCommand)
+	watcherOutput := make(chan messaging.Folders)
+	watcher := watch.NewWatcher(working, depth, watcherInput, watcherOutput)
+
+	parser := parser.NewParser(parser.ParsePackageResults)
+	tester := executor.NewConcurrentTester(shell)
+	tester.SetBatchSize(packages)
+
+	longpollChan := make(chan chan string)
+	executor := executor.NewExecutor(tester, parser, longpollChan)
+	server := api.NewHTTPServer(working, watcherInput, executor, longpollChan)
+
+	go func() {
+		for update := range watcherOutput {
+			root := ""
+			folders := []*contract.Package{}
+			for _, folder := range update {
+				root = folder.Root
+				folders = append(folders, contract.NewPackage(folder.Path))
+				// TODO: set inactive/disabled (may require a new field on the contract.Package struct).
+			}
+			output := executor.ExecuteTests(folders)
+			server.ReceiveUpdate(root, output)
+		}
+	}()
+
+	go watcher.Listen()
 	serveHTTP(server)
 }
 
@@ -85,37 +118,8 @@ func activateServer() {
 	log.Printf("Serving HTTP at: http://%s:%d\n", host, port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
-}
-
-func wireup() (*contract.Monitor, contract.Server) {
-	log.Println("Constructing components...")
-	working, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	shellExecutor := system.NewCommandExecutor()
-	cover = coverageEnabled(cover, reports, shellExecutor)
-
-	depthLimit := system.NewDepthLimit(system.NewFileSystem(), depth)
-	shell := system.NewShell(shellExecutor, gobin, short, cover, reports)
-
-	watcher := watch.NewWatcher(depthLimit, shell)
-	watcher.Adjust(working)
-
-	parser := parser.NewParser(parser.ParsePackageResults)
-	tester := executor.NewConcurrentTester(shell)
-	tester.SetBatchSize(packages)
-
-	longpollChan, pauseUpdate := make(chan chan string), make(chan bool, 1)
-	executor := executor.NewExecutor(tester, parser, longpollChan)
-	server := api.NewHTTPServer(watcher, executor, longpollChan, pauseUpdate)
-	scanner := watch.NewScanner(depthLimit, watcher)
-	monitor := contract.NewMonitor(scanner, watcher, executor, server, pauseUpdate, sleeper)
-
-	return monitor, server
 }
 
 func coverageEnabled(cover bool, reports string, shell system.Executor) bool {
