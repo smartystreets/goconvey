@@ -23,7 +23,7 @@ func TestShell(t *testing.T) {
 
 func invokeShell(test TestCase) (string, error) {
 	executor := NewCommandRecorder(test)
-	shell := NewShell(executor, "go", test.short, test.coverage, "reports")
+	shell := NewShell(executor, "go", test.coverage, "reports")
 	return shell.GoTest("directory", "pack/age")
 }
 
@@ -34,66 +34,42 @@ var cases = []TestCase{
 		err:     errors.New("directory|go test -i"),
 	},
 	TestCase{
-		imports: true, short: false, coverage: false, goconvey: false, passes: false,
+		imports: true, coverage: false, goconvey: false, passes: false,
 		output: "test execution",
-		err:    errors.New("directory|go test -v -short=false"),
+		err:    errors.New("directory|go test -v"),
 	},
 	TestCase{
-		imports: true, short: false, coverage: false, goconvey: false, passes: true,
+		imports: true, coverage: false, goconvey: false, passes: true,
 		output: "test execution",
 		err:    nil,
 	},
 	TestCase{
-		imports: true, short: false, coverage: false, goconvey: true, passes: false,
+		imports: true, coverage: false, goconvey: true, passes: false,
 		output: "goconvey test execution",
-		err:    errors.New("directory|go test -v -short=false -json"),
+		err:    errors.New("directory|go test -v -json"),
 	},
 	TestCase{
-		imports: true, short: false, coverage: false, goconvey: true, passes: true,
+		imports: true, coverage: false, goconvey: true, passes: true,
 		output: "goconvey test execution",
 		err:    nil,
 	},
 	// TestCase{
-	// 	imports: true, short: false, coverage: true, goconvey: false, passes: false,
+	// 	imports: true, coverage: true, goconvey: false, passes: false,
 	// 	output: "test execution", // because the tests fail with coverage, they are re-run without coverage
-	// 	err:    errors.New("directory|go test -v -short=false"),
+	// 	err:    errors.New("directory|go test -v"),
 	// },
 	// TestCase{
-	// 	imports: true, short: false, coverage: true, goconvey: false, passes: true,
+	// 	imports: true, coverage: true, goconvey: false, passes: true,
 	// 	output: "test coverage execution",
 	// 	err:    nil,
 	// },
 	// TestCase{
-	// 	imports: true, short: false, coverage: true, goconvey: true, passes: false,
+	// 	imports: true, coverage: true, goconvey: true, passes: false,
 	// 	output: "test execution", // because the tests fail with coverage, they are re-run without coverage
-	// 	err:    errors.New("directory|go test -v -short=false -json"),
+	// 	err:    errors.New("directory|go test -v -json"),
 	// },
 	// TestCase{
-	// 	imports: true, short: false, coverage: true, goconvey: true, passes: true,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: false, goconvey: false, passes: false,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: false, goconvey: false, passes: true,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: false, goconvey: true, passes: false,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: false, goconvey: true, passes: true,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: true, goconvey: false, passes: false,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: true, goconvey: false, passes: true,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: true, goconvey: true, passes: false,
-	// },
-	// TestCase{
-	// 	imports: true, short: true, coverage: true, goconvey: true, passes: true,
+	// 	imports: true, coverage: true, goconvey: true, passes: true,
 	// },
 }
 
@@ -101,7 +77,6 @@ type TestCase struct {
 
 	// input parameters
 	imports  bool // is `go test -i`  successful?
-	short    bool // is `-short` enabled?
 	coverage bool // is `-coverage` enabled?
 	goconvey bool // do the tests use the GoConvey DSL?
 	passes   bool // do the tests pass?
@@ -112,9 +87,8 @@ type TestCase struct {
 }
 
 func (self TestCase) String() string {
-	return fmt.Sprintf("Parameters: | %s | %s | %s | %s | %s |",
+	return fmt.Sprintf("Parameters: | %s | %s | %s | %s |",
 		decideCase("imports", self.imports),
-		decideCase("short", self.short),
 		decideCase("coverage", self.coverage),
 		decideCase("goconvey", self.goconvey),
 		decideCase("passes", self.passes))

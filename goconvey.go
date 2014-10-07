@@ -37,7 +37,6 @@ func flags() {
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Requires Go 1.2+ and the go cover tool. (default: true)")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
-	flag.BoolVar(&short, "short", false, "Configures the `testing.Short()` function to return `true`, allowing you to call `t.Skip()` on long-running tests.")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -51,7 +50,7 @@ func folders() {
 
 func main() {
 	flag.Parse()
-	log.Printf(initialConfiguration, host, port, nap, cover, short)
+	log.Printf(initialConfiguration, host, port, nap, cover)
 
 	working, err := os.Getwd()
 	if err != nil {
@@ -61,7 +60,7 @@ func main() {
 	shellExecutor := system.NewCommandExecutor()
 	cover = coverageEnabled(cover, reports, shellExecutor)
 
-	shell := system.NewShell(shellExecutor, gobin, short, cover, reports)
+	shell := system.NewShell(shellExecutor, gobin, cover, reports)
 
 	watcherInput := make(chan messaging.ServerToWatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
@@ -187,7 +186,6 @@ var (
 	packages int
 	cover    bool
 	depth    int
-	short    bool
 
 	static  string
 	reports string
@@ -196,7 +194,7 @@ var (
 )
 
 const (
-	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [short: %v]\n"
+	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n"
 	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
 	coverToolMissing           = "Go cover tool is not installed or not accessible: `go get code.google.com/p/go.tools/cmd/cover`\n"
 	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"

@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -9,11 +8,10 @@ import (
 )
 
 type Shell struct {
-	executor      Executor
-	coverage      bool
-	gobin         string
-	reportsPath   string
-	shortArgument string
+	executor    Executor
+	coverage    bool
+	gobin       string
+	reportsPath string
 }
 
 func (self *Shell) GoTest(directory, packageName string) (output string, err error) {
@@ -55,13 +53,13 @@ func (self *Shell) composeCoverageProfileName(packageName string) string {
 }
 
 func (self *Shell) runWithCoverage(directory, packageName, profile string) (string, error) {
-	arguments := []string{"test", "-v", self.shortArgument, "-covermode=set", "-coverprofile=" + profile}
+	arguments := []string{"test", "-v", "-covermode=set", "-coverprofile=" + profile}
 	arguments = append(arguments, self.jsonFlag(directory, packageName)...)
 	return self.executor.Execute(directory, self.gobin, arguments...)
 }
 
 func (self *Shell) runWithoutCoverage(directory, packageName string) (string, error) {
-	arguments := []string{"test", "-v", self.shortArgument}
+	arguments := []string{"test", "-v"}
 	arguments = append(arguments, self.jsonFlag(directory, packageName)...)
 	return self.executor.Execute(directory, self.gobin, arguments...)
 }
@@ -89,11 +87,10 @@ func (self *Shell) Setenv(key, value string) error {
 	return nil
 }
 
-func NewShell(executor Executor, gobin string, short bool, cover bool, reports string) *Shell {
+func NewShell(executor Executor, gobin string, cover bool, reports string) *Shell {
 	self := new(Shell)
 	self.executor = executor
 	self.gobin = gobin
-	self.shortArgument = fmt.Sprintf("-short=%t", short)
 	self.coverage = cover
 	self.reportsPath = reports
 	return self

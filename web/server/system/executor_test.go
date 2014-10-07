@@ -75,10 +75,10 @@ const (
 	compileImports   = "directory|go test -i"
 	detectGoConvey   = "directory|go list -f '{{.TestImports}}' pack/age"
 	goConveyNotFound = "Don't let this look like a GoConvey test suite!"
-	executeTests     = "directory|go test -v -short=false"
-	executeGoConvey  = "directory|go test -v -short=false -json"
-	coverTests       = "directory|go test -v -short=false -covermode=set -coverprofile=reports/pack-age.txt"
-	coverGoConvey    = "directory|go test -v -short=false -covermode=set -coverprofile=reports/pack-age.txt -json"
+	executeTests     = "directory|go test -v"
+	executeGoConvey  = "directory|go test -v -json"
+	coverTests       = "directory|go test -v -covermode=set -coverprofile=reports/pack-age.txt"
+	coverGoConvey    = "directory|go test -v -covermode=set -coverprofile=reports/pack-age.txt -json"
 	profileTests     = "directory|go tool cover -html=reports/pack-age.txt -o reports/pack-age.html"
 )
 
