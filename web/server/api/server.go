@@ -143,11 +143,8 @@ func (self *HTTPServer) TogglePause(response http.ResponseWriter, request *http.
 		instruction = messaging.WatcherResume
 	}
 
-	select {
-	case self.watcher <- messaging.ServerToWatcherCommand{Instruction: instruction}:
-		self.paused = !self.paused
-	default:
-	}
+	self.watcher <- messaging.ServerToWatcherCommand{Instruction: instruction}
+	self.paused = !self.paused
 
 	fmt.Fprint(response, self.paused) // we could write out whatever helps keep the UI honest...
 }
