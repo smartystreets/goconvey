@@ -37,6 +37,7 @@ type CompleteOutput struct {
 
 var ( // PackageResult.Outcome values:
 	Ignored         = "ignored"
+	Disabled        = "disabled"
 	Passed          = "passed"
 	Failed          = "failed"
 	Panicked        = "panicked"

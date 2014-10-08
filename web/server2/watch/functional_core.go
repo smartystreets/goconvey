@@ -116,8 +116,10 @@ func MarkIgnored(folders messaging.Folders, ignored map[string]struct{}) {
 	}
 
 	for _, folder := range folders {
-		if _, exists := ignored[folder.Path]; exists {
-			folder.Ignored = true
+		for ignored, _ := range ignored {
+			if !folder.Ignored && strings.HasSuffix(folder.Path, ignored) {
+				folder.Ignored = true
+			}
 		}
 	}
 }

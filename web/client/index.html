@@ -354,7 +354,11 @@
 								{{if _skipped|more>0}}<span class="story-pkg-skip-count">&nbsp; <span class="statusicon skip"><b>S</b></span> {{_skipped}}</span>{{/if}}
 							</td>
 							<td class="story-pkg-watch-td">
+								{{if Outcome|equals>disabled}}
+								<span class="fa fa-lg fa-eye-slash disabled" title="Disabled"></span>
+								{{else}}
 								<a class="fa fa-lg ignore {{if Outcome|notequals>ignored}}fa-eye unwatch{{else}}fa-eye-slash watch clr-red{{/if}}" href="javascript:" title="Toggle ignore" data-pkg="{{PackageName}}"></a>
+								{{/if}}
 							</td>
 						</tr>
 						{{TestResults}}

@@ -81,6 +81,7 @@ func main() {
 
 func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, server contract.Server) {
 	for update := range queue {
+		log.Println("Received request from watcher to execute tests...")
 		root := ""
 		packages := []*contract.Package{}
 		for _, folder := range update {

@@ -262,6 +262,7 @@ function wireup()
 	$('footer .replay').tipsy({ live: true, gravity: 'e' });
 	$('#path').tipsy({ delayIn: 500 });
 	$('.ignore').tipsy({ live: true, gravity: $.fn.tipsy.autoNS });
+	$('.disabled').tipsy({ live: true, gravity: $.fn.tipsy.autoNS });
 	$('#logo').tipsy({ gravity: 'w' });
 
 

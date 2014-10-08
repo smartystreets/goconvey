@@ -326,7 +326,7 @@ func TestMarkIgnored(t *testing.T) {
 			})
 		})
 		Convey("When there are ignored folders", func() {
-			ignored := map[string]struct{}{"/root/1/2": struct{}{}}
+			ignored := map[string]struct{}{"1/2": struct{}{}}
 			MarkIgnored(folders, ignored)
 
 			Convey("The ignored folders should be marked as ignored", func() {

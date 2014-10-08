@@ -153,6 +153,7 @@ func (this *Watcher) ignore(paths string) {
 	this.protectedWrite(func() {
 		for _, folder := range strings.Split(paths, string(os.PathListSeparator)) {
 			this.ignoredFolders[folder] = struct{}{}
+			log.Println("Currently ignored folders:", this.ignoredFolders)
 		}
 	})
 }
