@@ -122,9 +122,9 @@ func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	}
 
 	folders = CreateFolders(folderItems)
-	// LimitDepth(folders, this.folderDepth) // TODO: test drive
-	AttachProfiles(folders, profileItems) // TODO: test drive
-	this.protectedRead(func() { MarkIgnored(folders, this.ignoredFolders) })
+	LimitDepth(folders, this.folderDepth)
+	AttachProfiles(folders, profileItems)                                    // TODO: test drive
+	this.protectedRead(func() { MarkIgnored(folders, this.ignoredFolders) }) // TODO: test drive
 
 	checksum = int64(len(ActiveFolders(folders)))
 	checksum += Sum(folders, profileItems)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/smartystreets/goconvey/web/server2/messaging"
 )
 
 func TestCategorize(t *testing.T) {
@@ -130,33 +131,25 @@ func TestParseProfile(t *testing.T) {
 			resultTestArgs: []string{},
 		},
 		{
-			SKIP:          false,
-			description:   "Ignore directive is commented, all args are included",
-			input:         "#IGNORE\n-timeout=4s\n-parallel=5",
-			resultIgnored: false,
-			resultTestArgs: []string{
-				"-timeout=4s",
-				"-parallel=5",
-			},
+			SKIP:           false,
+			description:    "Ignore directive is commented, all args are included",
+			input:          "#IGNORE\n-timeout=4s\n-parallel=5",
+			resultIgnored:  false,
+			resultTestArgs: []string{"-timeout=4s", "-parallel=5"},
 		},
 		{
-			SKIP:          false,
-			description:   "No ignore directive, all args are included",
-			input:         "-run=TestBlah\n-timeout=42s",
-			resultIgnored: false,
-			resultTestArgs: []string{
-				"-run=TestBlah",
-				"-timeout=42s",
-			},
+			SKIP:           false,
+			description:    "No ignore directive, all args are included",
+			input:          "-run=TestBlah\n-timeout=42s",
+			resultIgnored:  false,
+			resultTestArgs: []string{"-run=TestBlah", "-timeout=42s"},
 		},
 		{
-			SKIP:          false,
-			description:   "Some args are commented, therefore ignored",
-			input:         "-run=TestBlah\n #-timeout=42s",
-			resultIgnored: false,
-			resultTestArgs: []string{
-				"-run=TestBlah",
-			},
+			SKIP:           false,
+			description:    "Some args are commented, therefore ignored",
+			input:          "-run=TestBlah\n #-timeout=42s",
+			resultIgnored:  false,
+			resultTestArgs: []string{"-run=TestBlah"},
 		},
 		{
 			SKIP:           false,
@@ -186,4 +179,42 @@ func TestParseProfile(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestLimitDepth(t *testing.T) {
+	Convey("Subject: Limiting folders based on relative depth from a common root", t, func() {
+
+		folders := map[string]*messaging.Folder{
+			"/root/1": &messaging.Folder{
+				Path: "/root/1",
+				Root: "/root",
+			},
+			"/root/1/2": &messaging.Folder{
+				Path: "/root/1/2",
+				Root: "/root",
+			},
+			"/root/1/2/3": &messaging.Folder{
+				Path: "/root/1/2/3",
+				Root: "/root",
+			},
+		}
+
+		Convey("When there is no depth limit", func() {
+			LimitDepth(folders, -1)
+
+			Convey("No folders should be excluded", func() {
+				So(len(folders), ShouldEqual, 3)
+			})
+		})
+
+		Convey("When there is a limit", func() {
+			LimitDepth(folders, 2)
+
+			Convey("The deepest folder (in this case) should be excluded", func() {
+				So(len(folders), ShouldEqual, 2)
+				_, exists := folders["/root/1/2/3"]
+				So(exists, ShouldBeFalse)
+			})
+		})
+	})
 }
