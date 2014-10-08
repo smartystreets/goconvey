@@ -125,7 +125,7 @@ func MarkIgnored(folders messaging.Folders, ignored map[string]struct{}) {
 ///////////////////////////////////////////////////////////////////////////////
 
 func ActiveFolders(folders messaging.Folders) messaging.Folders {
-	var active messaging.Folders
+	var active messaging.Folders = map[string]*messaging.Folder{}
 
 	for path, folder := range folders {
 		if folder.Ignored || folder.Disabled {

@@ -336,3 +336,44 @@ func TestMarkIgnored(t *testing.T) {
 		})
 	})
 }
+
+func TestActiveFolders(t *testing.T) {
+	Convey("Subject: Folders that are not ignored or disabled are active", t, func() {
+		folders := map[string]*messaging.Folder{
+			"/root/1": &messaging.Folder{
+				Path:    "/root/1",
+				Root:    "/root",
+				Ignored: true,
+			},
+			"/root/1/2": &messaging.Folder{
+				Path: "/root/1/2",
+				Root: "/root",
+			},
+			"/root/1/2/3": &messaging.Folder{
+				Path:     "/root/1/2/3",
+				Root:     "/root",
+				Disabled: true,
+			},
+		}
+
+		active := ActiveFolders(folders)
+
+		So(len(active), ShouldEqual, 1)
+		So(active["/root/1/2"], ShouldResemble, folders["/root/1/2"])
+	})
+}
+
+func TestSum(t *testing.T) {
+	Convey("Subject: file system items within specified directores should be counted and summed", t, func() {
+		folders := map[string]*messaging.Folder{
+			"/root/1": &messaging.Folder{Path: "/root/1", Root: "/root", Ignored: true},
+		}
+		items := []*FileSystemItem{
+			&FileSystemItem{Size: 1, Modified: 3, Path: "/root/1/hi.go"},
+			&FileSystemItem{Size: 7, Modified: 13, Path: "/root/1/bye.go"},
+			&FileSystemItem{Size: 33, Modified: 45, Path: "/root/1/2/salutations.go"}, // not counted
+		}
+
+		So(Sum(folders, items), ShouldEqual, 1+3+7+13)
+	})
+}
