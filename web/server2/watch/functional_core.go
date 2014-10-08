@@ -78,7 +78,7 @@ func CreateFolders(items []*FileSystemItem) messaging.Folders {
 	folders := map[string]*messaging.Folder{}
 
 	for _, item := range items {
-		folders[item.Path] = &messaging.Folder{Path: item.Path}
+		folders[item.Path] = &messaging.Folder{Path: item.Path, Root: item.Root}
 	}
 
 	return folders
@@ -124,14 +124,15 @@ func MarkIgnored(folders messaging.Folders, ignored map[string]struct{}) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-func ActiveFolders(folders messaging.Folders) []string {
-	active := []string{}
+func ActiveFolders(folders messaging.Folders) messaging.Folders {
+	var active messaging.Folders
+
 	for path, folder := range folders {
 		if folder.Ignored || folder.Disabled {
 			continue
 		}
 
-		active = append(active, path)
+		active[path] = folder
 	}
 	return active
 }

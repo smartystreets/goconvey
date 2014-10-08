@@ -181,6 +181,28 @@ func TestParseProfile(t *testing.T) {
 	}
 }
 
+func TestCreateFolders(t *testing.T) {
+	Convey("File system items that represent folders should be converted to folder structs correctly", t, func() {
+		expected := map[string]*messaging.Folder{
+			"/root/1":     &messaging.Folder{Path: "/root/1", Root: "/root"},
+			"/root/1/2":   &messaging.Folder{Path: "/root/1/2", Root: "/root"},
+			"/root/1/2/3": &messaging.Folder{Path: "/root/1/2/3", Root: "/root"},
+		}
+
+		inputs := []*FileSystemItem{
+			&FileSystemItem{Path: "/root/1", Root: "/root", IsFolder: true},
+			&FileSystemItem{Path: "/root/1/2", Root: "/root", IsFolder: true},
+			&FileSystemItem{Path: "/root/1/2/3", Root: "/root", IsFolder: true},
+		}
+
+		actual := CreateFolders(inputs)
+
+		for key, actualValue := range actual {
+			So(actualValue, ShouldResemble, expected[key])
+		}
+	})
+}
+
 func TestLimitDepth(t *testing.T) {
 	Convey("Subject: Limiting folders based on relative depth from a common root", t, func() {
 
@@ -214,6 +236,102 @@ func TestLimitDepth(t *testing.T) {
 				So(len(folders), ShouldEqual, 2)
 				_, exists := folders["/root/1/2/3"]
 				So(exists, ShouldBeFalse)
+			})
+		})
+	})
+}
+
+func TestAttachProfiles(t *testing.T) {
+	Convey("Subject: Attaching profile information to a folder", t, func() {
+		folders := map[string]*messaging.Folder{
+			"/root/1": &messaging.Folder{
+				Path: "/root/1",
+				Root: "/root",
+			},
+			"/root/1/2": &messaging.Folder{
+				Path: "/root/1/2",
+				Root: "/root",
+			},
+			"/root/1/2/3": &messaging.Folder{
+				Path: "/root/1/2/3",
+				Root: "/root",
+			},
+		}
+
+		profiles := []*FileSystemItem{
+			&FileSystemItem{
+				Path:             "/root/too-shallow.goconvey",
+				ProfileDisabled:  true,
+				ProfileArguments: []string{"1", "2"},
+			},
+			&FileSystemItem{
+				Path:             "/root/1/2/hi.goconvey",
+				ProfileDisabled:  true,
+				ProfileArguments: []string{"1", "2"},
+			},
+			&FileSystemItem{
+				Path:             "/root/1/2/3/4/does-not-exist",
+				ProfileDisabled:  true,
+				ProfileArguments: []string{"1", "2", "3", "4"},
+			},
+		}
+
+		Convey("Profiles that match folders should be merged with those folders", func() {
+			AttachProfiles(folders, profiles)
+
+			Convey("No profiles matched the first folder, so no assignments should occur", func() {
+				So(folders["/root/1"].Disabled, ShouldBeFalse)
+				So(folders["/root/1"].TestArguments, ShouldBeEmpty)
+			})
+
+			Convey("The second folder should match the first profile", func() {
+				So(folders["/root/1/2"].Disabled, ShouldBeTrue)
+				So(folders["/root/1/2"].TestArguments, ShouldResemble, []string{"1", "2"})
+			})
+
+			Convey("No profiles match the third folder so no assignments should occur", func() {
+				So(folders["/root/1/2/3"].Disabled, ShouldBeFalse)
+				So(folders["/root/1/2/3"].TestArguments, ShouldBeEmpty)
+			})
+		})
+	})
+}
+
+func TestMarkIgnored(t *testing.T) {
+	Convey("Subject: folders that have been ignored should be marked as such", t, func() {
+		folders := map[string]*messaging.Folder{
+			"/root/1": &messaging.Folder{
+				Path: "/root/1",
+				Root: "/root",
+			},
+			"/root/1/2": &messaging.Folder{
+				Path: "/root/1/2",
+				Root: "/root",
+			},
+			"/root/1/2/3": &messaging.Folder{
+				Path: "/root/1/2/3",
+				Root: "/root",
+			},
+		}
+
+		Convey("When there are no ignored folders", func() {
+			ignored := map[string]struct{}{}
+			MarkIgnored(folders, ignored)
+
+			Convey("No folders should be marked as ignored", func() {
+				So(folders["/root/1"].Ignored, ShouldBeFalse)
+				So(folders["/root/1/2"].Ignored, ShouldBeFalse)
+				So(folders["/root/1/2/3"].Ignored, ShouldBeFalse)
+			})
+		})
+		Convey("When there are ignored folders", func() {
+			ignored := map[string]struct{}{"/root/1/2": struct{}{}}
+			MarkIgnored(folders, ignored)
+
+			Convey("The ignored folders should be marked as ignored", func() {
+				So(folders["/root/1"].Ignored, ShouldBeFalse)
+				So(folders["/root/1/2"].Ignored, ShouldBeTrue)
+				So(folders["/root/1/2/3"].Ignored, ShouldBeFalse)
 			})
 		})
 	})
