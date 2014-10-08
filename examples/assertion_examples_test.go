@@ -40,6 +40,8 @@ func TestAssertionsAreAvailableFromConveyPackage(t *testing.T) {
 		So(1, ShouldBeLessThanOrEqualTo, 1)
 		So(1, ShouldBeBetween, 0, 2)
 		So(1, ShouldNotBeBetween, 2, 4)
+		So(1, ShouldBeBetweenOrEqual, 1, 2)
+		So(1, ShouldNotBeBetweenOrEqual, 2, 4)
 	})
 
 	Convey("Container assertions should be accessible", t, func() {

@@ -23,6 +23,8 @@ var (
 	ShouldBeLessThanOrEqualTo    = assertions.ShouldBeLessThanOrEqualTo
 	ShouldBeBetween              = assertions.ShouldBeBetween
 	ShouldNotBeBetween           = assertions.ShouldNotBeBetween
+	ShouldBeBetweenOrEqual       = assertions.ShouldBeBetweenOrEqual
+	ShouldNotBeBetweenOrEqual    = assertions.ShouldNotBeBetweenOrEqual
 
 	ShouldContain    = assertions.ShouldContain
 	ShouldNotContain = assertions.ShouldNotContain
