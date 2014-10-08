@@ -294,7 +294,7 @@ func statusRotation(i, total int) string {
 
 type ServerFixture struct {
 	server       *HTTPServer
-	watcher      chan messaging.ServerToWatcherCommand
+	watcher      chan messaging.WatcherCommand
 	executor     *FakeExecutor
 	statusUpdate chan bool
 }
@@ -430,7 +430,7 @@ func (self *ServerFixture) TogglePause() string {
 
 func newServerFixture() *ServerFixture {
 	self := new(ServerFixture)
-	self.watcher = make(chan messaging.ServerToWatcherCommand)
+	self.watcher = make(chan messaging.WatcherCommand)
 	// self.watcher.SetRootWatch(initialRoot)
 	statusUpdate := make(chan chan string)
 	self.executor = newFakeExecutor("", statusUpdate)

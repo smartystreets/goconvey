@@ -13,7 +13,7 @@ import (
 )
 
 type HTTPServer struct {
-	watcher     chan messaging.ServerToWatcherCommand
+	watcher     chan messaging.WatcherCommand
 	executor    contract.Executor
 	latest      *contract.CompleteOutput
 	currentRoot string
@@ -45,7 +45,7 @@ func (self *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.R
 		return
 	}
 
-	self.watcher <- messaging.ServerToWatcherCommand{
+	self.watcher <- messaging.WatcherCommand{
 		Instruction: messaging.WatcherAdjustRoot,
 		Details:     newRoot,
 	}
@@ -54,7 +54,7 @@ func (self *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.R
 func (self *HTTPServer) Ignore(response http.ResponseWriter, request *http.Request) {
 	paths := self.parseQueryString("paths", response, request)
 	if paths != "" {
-		self.watcher <- messaging.ServerToWatcherCommand{
+		self.watcher <- messaging.WatcherCommand{
 			Instruction: messaging.WatcherIgnore,
 			Details:     paths,
 		}
@@ -64,7 +64,7 @@ func (self *HTTPServer) Ignore(response http.ResponseWriter, request *http.Reque
 func (self *HTTPServer) Reinstate(response http.ResponseWriter, request *http.Request) {
 	paths := self.parseQueryString("paths", response, request)
 	if paths != "" {
-		self.watcher <- messaging.ServerToWatcherCommand{
+		self.watcher <- messaging.WatcherCommand{
 			Instruction: messaging.WatcherReinstate,
 			Details:     paths,
 		}
@@ -134,7 +134,7 @@ func (self *HTTPServer) Execute(response http.ResponseWriter, request *http.Requ
 }
 
 func (self *HTTPServer) execute() {
-	self.watcher <- messaging.ServerToWatcherCommand{Instruction: messaging.WatcherExecute}
+	self.watcher <- messaging.WatcherCommand{Instruction: messaging.WatcherExecute}
 }
 
 func (self *HTTPServer) TogglePause(response http.ResponseWriter, request *http.Request) {
@@ -143,7 +143,7 @@ func (self *HTTPServer) TogglePause(response http.ResponseWriter, request *http.
 		instruction = messaging.WatcherResume
 	}
 
-	self.watcher <- messaging.ServerToWatcherCommand{Instruction: instruction}
+	self.watcher <- messaging.WatcherCommand{Instruction: instruction}
 	self.paused = !self.paused
 
 	fmt.Fprint(response, self.paused) // we could write out whatever helps keep the UI honest...
@@ -151,7 +151,7 @@ func (self *HTTPServer) TogglePause(response http.ResponseWriter, request *http.
 
 func NewHTTPServer(
 	root string,
-	watcher chan messaging.ServerToWatcherCommand,
+	watcher chan messaging.WatcherCommand,
 	executor contract.Executor,
 	status chan chan string) *HTTPServer {
 

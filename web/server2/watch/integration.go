@@ -11,22 +11,25 @@ import (
 )
 
 type Watcher struct {
+	nap             time.Duration
 	rootFolder      string
 	folderDepth     int
 	ignoredFolders  map[string]struct{}
 	fileSystemState int64
 	paused          bool
+	stopped         bool
 
-	input  chan messaging.ServerToWatcherCommand
+	input  chan messaging.WatcherCommand
 	output chan messaging.Folders
 
 	lock sync.RWMutex
 }
 
-func NewWatcher(rootFolder string, folderDepth int,
-	input chan messaging.ServerToWatcherCommand, output chan messaging.Folders) *Watcher {
+func NewWatcher(rootFolder string, folderDepth int, nap time.Duration,
+	input chan messaging.WatcherCommand, output chan messaging.Folders) *Watcher {
 
 	return &Watcher{
+		nap:         nap,
 		rootFolder:  rootFolder,
 		folderDepth: folderDepth,
 		input:       input,
@@ -38,6 +41,10 @@ func NewWatcher(rootFolder string, folderDepth int,
 
 func (this *Watcher) Listen() {
 	for {
+		if this.stopped {
+			return
+		}
+
 		select {
 
 		case command := <-this.input:
@@ -52,51 +59,50 @@ func (this *Watcher) Listen() {
 	}
 }
 
-func (this *Watcher) respond(command messaging.ServerToWatcherCommand) {
-	log.Println("Received command from server:", command)
-
+func (this *Watcher) respond(command messaging.WatcherCommand) {
 	switch command.Instruction {
 
 	case messaging.WatcherAdjustRoot:
 		log.Println("Adjusting root...")
 		this.rootFolder = command.Details
-		this.set(0)
+		this.execute()
 
 	case messaging.WatcherIgnore:
-		this.protectedWrite(func() {
-			log.Println("Ignoring specified folders")
-			for _, folder := range strings.Split(command.Details, string(os.PathListSeparator)) {
-				this.ignoredFolders[folder] = struct{}{}
-			}
-		})
-		this.set(0)
+		log.Println("Ignoring specified folders")
+		this.ignore(command.Details)
+		this.execute()
 
 	case messaging.WatcherReinstate:
-		this.protectedWrite(func() {
-			log.Println("Reinstating specified folders")
-			for _, folder := range strings.Split(command.Details, string(os.PathListSeparator)) {
-				delete(this.ignoredFolders, folder)
-			}
-		})
-		this.set(0)
+		log.Println("Reinstating specified folders")
+		this.reinstate(command.Details)
+		this.execute()
 
 	case messaging.WatcherPause:
 		log.Println("Pausing watcher...")
 		this.paused = true
-		this.set(0)
 
 	case messaging.WatcherResume:
 		log.Println("Resuming watcher...")
 		this.paused = false
+		this.execute()
 
 	case messaging.WatcherExecute:
 		log.Println("Gathering folders for immediate execution...")
-		folders, _ := this.gather()
-		this.sendToExecutor(folders)
+		this.execute()
+
+	case messaging.WatcherStop:
+		log.Println("Stopping the watcher...")
+		close(this.output)
+		this.stopped = true
 
 	default:
 		log.Println("Unrecognized command from server:", command.Instruction)
 	}
+}
+
+func (this *Watcher) execute() {
+	folders, _ := this.gather()
+	this.sendToExecutor(folders)
 }
 
 func (this *Watcher) scan() {
@@ -117,6 +123,7 @@ func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	folderItems, profileItems, goFileItems := Categorize(items)
 
 	for _, item := range profileItems {
+		// TODO: don't even bother if the item's size is over a few hundred bytes...
 		contents := ReadContents(item.Path)
 		item.ProfileDisabled, item.ProfileArguments = ParseProfile(contents)
 	}
@@ -134,22 +141,36 @@ func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	return folders, checksum
 }
 
-func (this *Watcher) sendToExecutor(folders messaging.Folders) {
-	this.output <- folders
-}
-
 func (this *Watcher) set(state int64) {
 	this.fileSystemState = state
 }
 
-func (this *Watcher) protectedRead(protected func()) {
-	this.lock.RLock()
-	defer this.lock.RUnlock()
-	protected()
+func (this *Watcher) sendToExecutor(folders messaging.Folders) {
+	this.output <- folders
+}
+
+func (this *Watcher) ignore(paths string) {
+	this.protectedWrite(func() {
+		for _, folder := range strings.Split(paths, string(os.PathListSeparator)) {
+			this.ignoredFolders[folder] = struct{}{}
+		}
+	})
+}
+func (this *Watcher) reinstate(paths string) {
+	this.protectedWrite(func() {
+		for _, folder := range strings.Split(paths, string(os.PathListSeparator)) {
+			delete(this.ignoredFolders, folder)
+		}
+	})
 }
 func (this *Watcher) protectedWrite(protected func()) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
+	protected()
+}
+func (this *Watcher) protectedRead(protected func()) {
+	this.lock.RLock()
+	defer this.lock.RUnlock()
 	protected()
 }
 

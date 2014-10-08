@@ -62,9 +62,9 @@ func main() {
 
 	shell := system.NewShell(shellExecutor, gobin, cover, reports)
 
-	watcherInput := make(chan messaging.ServerToWatcherCommand)
+	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
-	watcher := watch.NewWatcher(working, depth, watcherInput, watcherOutput)
+	watcher := watch.NewWatcher(working, depth, nap, watcherInput, watcherOutput)
 
 	parser := parser.NewParser(parser.ParsePackageResults)
 	tester := executor.NewConcurrentTester(shell)
@@ -172,10 +172,6 @@ func exists(path string) bool {
 		return false
 	}
 	return false
-}
-
-func sleeper() {
-	time.Sleep(nap)
 }
 
 var (

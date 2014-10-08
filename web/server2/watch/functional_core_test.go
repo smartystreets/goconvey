@@ -3,6 +3,7 @@ package watch
 import (
 	"fmt"
 	"testing"
+
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server2/messaging"
 )
