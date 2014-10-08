@@ -50,18 +50,15 @@ func YieldFileSystemItems(root string) chan *FileSystemItem {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// ReadContents reads files wholesale. This function is only called on files
+// that end in '.goconvey'. These files files should be very small, probably
+// not ever more than a few hundred bytes. The ignored errors are ok because
+// in the event of an IO error all that need be returned is an empty string.
+// Wouldn't it be cool if every comment line was the same length? Hey, cool!
 func ReadContents(path string) string {
-	file, err := os.Open(path)
-	if err != nil {
-		return ""
-	}
+	file, _ := os.Open(path)
 	defer file.Close()
-
-	content, err := ioutil.ReadAll(file)
-	if err != nil {
-		return ""
-	}
-
+	content, _ := ioutil.ReadAll(file)
 	return string(content)
 }
 
