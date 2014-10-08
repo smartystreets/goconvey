@@ -97,8 +97,8 @@ func newExecutorFixture() *ExecutorFixture {
 	self.parser = newFakeParser()
 	self.executor = NewExecutor(self.tester, self.parser, make(chan chan string))
 	self.folders = []*contract.Package{
-		&contract.Package{Active: true, Path: prefix + packageA, Name: packageA},
-		&contract.Package{Active: true, Path: prefix + packageB, Name: packageB},
+		&contract.Package{Path: prefix + packageA, Name: packageA},
+		&contract.Package{Path: prefix + packageB, Name: packageB},
 	}
 	self.stamp = time.Now()
 	now = func() time.Time { return self.stamp }

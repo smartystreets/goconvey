@@ -27,7 +27,7 @@ func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
 
 func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) {
 	for _, folder := range folders {
-		if !folder.Active {
+		if !folder.Active() {
 			log.Printf("Skipping execution: %s\n", folder.Name)
 			continue
 		}

@@ -10,8 +10,8 @@ import (
 func TestParser(t *testing.T) {
 	var (
 		packages = []*contract.Package{
-			&contract.Package{Active: true, Output: "Active!", Result: contract.NewPackageResult("asdf")},
-			&contract.Package{Active: false, Output: "Inactive!", Result: contract.NewPackageResult("qwer")},
+			&contract.Package{Ignored: false, Output: "Active!", Result: contract.NewPackageResult("asdf")},
+			&contract.Package{Ignored: true, Output: "Inactive!", Result: contract.NewPackageResult("qwer")},
 		}
 	)
 

@@ -32,7 +32,7 @@ func (self *concurrentCoordinator) enlistWorkers() {
 func (self *concurrentCoordinator) worker(id int) {
 	for folder := range self.queue {
 		packageName := strings.Replace(folder.Name, "\\", "/", -1)
-		if !folder.Active {
+		if !folder.Active() {
 			log.Printf("Skipping concurrent execution: %s\n", packageName)
 			continue
 		}

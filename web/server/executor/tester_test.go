@@ -92,12 +92,12 @@ func NewTesterFixture() *TesterFixture {
 	self.shell = NewTimedShell()
 	self.tester = NewConcurrentTester(self.shell)
 	self.packages = []*contract.Package{
-		&contract.Package{Active: true, Path: "a"},
-		&contract.Package{Active: true, Path: "b"},
-		&contract.Package{Active: true, Path: "c"},
-		&contract.Package{Active: true, Path: "d"},
-		&contract.Package{Active: false, Path: "e"},
-		&contract.Package{Active: true, Path: "f"},
+		&contract.Package{Path: "a"},
+		&contract.Package{Path: "b"},
+		&contract.Package{Path: "c"},
+		&contract.Package{Path: "d"},
+		&contract.Package{Path: "e", Ignored: true},
+		&contract.Package{Path: "f"},
 	}
 	return self
 }
@@ -146,7 +146,7 @@ func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
 
 func (self *TesterFixture) OutputShouldBeAsExpected() {
 	for _, p := range self.packages {
-		if p.Active {
+		if p.Active() {
 			So(p.Output, ShouldEndWith, p.Path)
 		} else {
 			So(p.Output, ShouldBeBlank)

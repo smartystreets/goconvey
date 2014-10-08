@@ -82,13 +82,14 @@ func main() {
 func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, server contract.Server) {
 	for update := range queue {
 		root := ""
-		folders := []*contract.Package{}
+		packages := []*contract.Package{}
 		for _, folder := range update {
 			root = folder.Root
-			folders = append(folders, contract.NewPackage(folder.Path))
-			// TODO: set inactive/disabled (may require a new field on the contract.Package struct).
+			thePackage := contract.NewPackage(folder.Path)
+			thePackage.Disabled, thePackage.Ignored = folder.Disabled, folder.Ignored
+			packages = append(packages, thePackage)
 		}
-		output := executor.ExecuteTests(folders)
+		output := executor.ExecuteTests(packages)
 		server.ReceiveUpdate(root, output)
 	}
 }

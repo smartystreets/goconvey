@@ -8,21 +8,25 @@ import (
 )
 
 type Package struct {
-	Active bool
-	Path   string
-	Name   string
-	Error  error
-	Output string
-	Result *PackageResult
+	Ignored  bool
+	Disabled bool
+	Path     string
+	Name     string
+	Error    error
+	Output   string
+	Result   *PackageResult
 }
 
 func NewPackage(path string) *Package {
 	self := new(Package)
-	self.Active = true
 	self.Path = path
 	self.Name = resolvePackageName(path)
 	self.Result = NewPackageResult(self.Name)
 	return self
+}
+
+func (self *Package) Active() bool {
+	return !self.Disabled && !self.Ignored
 }
 
 type CompleteOutput struct {
