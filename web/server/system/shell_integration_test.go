@@ -18,8 +18,8 @@ func TestShellIntegration(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmicroseconds)
 
 	_, filename, _, _ := runtime.Caller(0)
-	directory := filepath.Join(filepath.Dir(filename), "..", "..", "server2", "watch", "integration_testing", "sub")
-	packageName := "github.com/smartystreets/goconvey/web/server2/integration_testing/sub"
+	directory := filepath.Join(filepath.Dir(filename), "..", "watch", "integration_testing", "sub")
+	packageName := "github.com/smartystreets/goconvey/web/server/integration_testing/sub"
 
 	shell := NewShell("go", "", true)
 	output, err := shell.GoTest(directory, packageName, []string{"-short"})

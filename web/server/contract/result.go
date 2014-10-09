@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/smartystreets/goconvey/convey/reporting"
-	"github.com/smartystreets/goconvey/web/server2/messaging"
+	"github.com/smartystreets/goconvey/web/server/messaging"
 )
 
 type Package struct {

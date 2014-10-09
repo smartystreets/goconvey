@@ -12,7 +12,7 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"github.com/smartystreets/goconvey/web/server2/messaging"
+	"github.com/smartystreets/goconvey/web/server/messaging"
 )
 
 const initialRoot = "/root/gopath/src/github.com/smartystreets/project"

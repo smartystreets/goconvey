@@ -2,7 +2,6 @@
 // to .go files within the working directory (and all nested go packages).
 // Navigating to the configured host and port in a web browser will display the
 // latest results of running `go test` in each go package.
-
 package main
 
 import (
@@ -18,11 +17,11 @@ import (
 
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
-	executor "github.com/smartystreets/goconvey/web/server/executor"
-	parser "github.com/smartystreets/goconvey/web/server/parser"
+	"github.com/smartystreets/goconvey/web/server/executor"
+	"github.com/smartystreets/goconvey/web/server/messaging"
+	"github.com/smartystreets/goconvey/web/server/parser"
 	"github.com/smartystreets/goconvey/web/server/system"
-	"github.com/smartystreets/goconvey/web/server2/messaging"
-	"github.com/smartystreets/goconvey/web/server2/watch"
+	"github.com/smartystreets/goconvey/web/server/watch"
 )
 
 func init() {

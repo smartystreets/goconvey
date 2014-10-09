@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/smartystreets/goconvey/web/server/contract"
-	"github.com/smartystreets/goconvey/web/server2/messaging"
+	"github.com/smartystreets/goconvey/web/server/messaging"
 )
 
 type HTTPServer struct {

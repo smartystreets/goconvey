@@ -11,7 +11,7 @@ import (
 	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/smartystreets/goconvey/web/server2/messaging"
+	"github.com/smartystreets/goconvey/web/server/messaging"
 )
 
 func TestWatcher(t *testing.T) {
