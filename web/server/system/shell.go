@@ -34,7 +34,7 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 	goconvey := findGoConvey(directory, self.gobin, packageName).Execute()
 	compilation := compile(directory, self.gobin).Execute()
 	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, arguments).Execute()
-	final := runWithoutCoverage(withCoverage, goconvey, directory, self.gobin, arguments).Execute()
+	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, arguments).Execute()
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
 	return final.Output, final.Error
@@ -69,11 +69,12 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 	return NewCommand(directory, gobin, arguments...)
 }
 
-func runWithoutCoverage(withCoverage, goconvey Command, directory, gobin string, customArguments []string) Command {
-	if coverageStatementRE.MatchString(withCoverage.Output) {
-		return withCoverage
+func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin string, customArguments []string) Command {
+	if compile.Error != nil {
+		return compile
 	}
-	if withCoverage.Error != nil {
+
+	if coverageStatementRE.MatchString(withCoverage.Output) {
 		return withCoverage
 	}
 

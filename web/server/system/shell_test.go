@@ -68,9 +68,9 @@ func TestShellCommandComposition(t *testing.T) {
 		})
 	})
 
-	Convey("When attempting to run tests without coverage flags", t, func() {
+	Convey("When attempting to run tests without the coverage flags", t, func() {
 		Convey("And tests already succeeded with coverage", func() {
-			result := runWithoutCoverage(coveragePassed, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
+			result := runWithoutCoverage(buildSucceeded, coveragePassed, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then no action should be taken", func() {
 				So(result, ShouldResemble, coveragePassed)
@@ -78,7 +78,7 @@ func TestShellCommandComposition(t *testing.T) {
 		})
 
 		Convey("And tests already failed (legitimately) with coverage", func() {
-			result := runWithoutCoverage(coverageFailed, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
+			result := runWithoutCoverage(buildSucceeded, coverageFailed, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then no action should be taken", func() {
 				So(result, ShouldResemble, coverageFailed)
@@ -86,7 +86,7 @@ func TestShellCommandComposition(t *testing.T) {
 		})
 
 		Convey("And the build failed earlier", func() {
-			result := runWithoutCoverage(buildFailed, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
+			result := runWithoutCoverage(buildFailed, Command{}, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then no action should be taken", func() {
 				So(result, ShouldResemble, buildFailed)
@@ -94,7 +94,7 @@ func TestShellCommandComposition(t *testing.T) {
 		})
 
 		Convey("And the package being tested uses the GoConvey DSL (`convey` package)", func() {
-			result := runWithoutCoverage(buildSucceeded, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
+			result := runWithoutCoverage(buildSucceeded, buildSucceeded, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then the returned command should be well formed (and include the -json flag)", func() {
 				So(result, ShouldResemble, Command{
@@ -106,7 +106,7 @@ func TestShellCommandComposition(t *testing.T) {
 		})
 
 		Convey("And the package being tested does NOT use the GoConvey DSL", func() {
-			result := runWithoutCoverage(buildSucceeded, noGoConvey, "/directory", "go", []string{"-arg1", "-arg2"})
+			result := runWithoutCoverage(buildSucceeded, noCoveragePassed, noGoConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then the returned command should be well formed (and NOT include the -json flag)", func() {
 				So(result, ShouldResemble, Command{
