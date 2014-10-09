@@ -57,10 +57,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	shellExecutor := system.NewCommandExecutor()
-	cover = coverageEnabled(cover, reports, shellExecutor)
-
-	shell := system.NewShell(shellExecutor, gobin, cover, reports)
+	cover = coverageEnabled(cover, reports)
+	shell := system.NewShell(gobin, reports, cover)
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
@@ -86,9 +84,7 @@ func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, 
 		packages := []*contract.Package{}
 		for _, folder := range update {
 			root = folder.Root
-			thePackage := contract.NewPackage(folder.Path)
-			thePackage.Disabled, thePackage.Ignored = folder.Disabled, folder.Ignored
-			packages = append(packages, thePackage)
+			packages = append(packages, contract.NewPackage(folder))
 		}
 		output := executor.ExecuteTests(packages)
 		server.ReceiveUpdate(root, output)
@@ -124,10 +120,10 @@ func activateServer() {
 	}
 }
 
-func coverageEnabled(cover bool, reports string, shell system.Executor) bool {
+func coverageEnabled(cover bool, reports string) bool {
 	return (cover &&
 		goVersion_1_2_orGreater() &&
-		coverToolInstalled(shell) &&
+		coverToolInstalled() &&
 		ensureReportDirectoryExists(reports))
 }
 func goVersion_1_2_orGreater() bool {
@@ -140,13 +136,13 @@ func goVersion_1_2_orGreater() bool {
 	}
 	return true
 }
-func coverToolInstalled(shell system.Executor) bool {
+func coverToolInstalled() bool {
 	working, err := os.Getwd()
 	if err != nil {
 		working = "."
 	}
-	output, _ := shell.Execute(working, "go", "tool", "cover")
-	installed := strings.Contains(output, "Usage of 'go tool cover':")
+	command := system.NewCommand(working, "go", "tool", "cover").Execute()
+	installed := strings.Contains(command.Output, "Usage of 'go tool cover':")
 	if !installed {
 		log.Print(coverToolMissing)
 		return false

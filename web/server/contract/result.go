@@ -5,23 +5,28 @@ import (
 	"strings"
 
 	"github.com/smartystreets/goconvey/convey/reporting"
+	"github.com/smartystreets/goconvey/web/server2/messaging"
 )
 
 type Package struct {
-	Ignored  bool
-	Disabled bool
-	Path     string
-	Name     string
-	Error    error
-	Output   string
-	Result   *PackageResult
+	Path          string
+	Name          string
+	Ignored       bool
+	Disabled      bool
+	TestArguments []string
+	Error         error
+	Output        string
+	Result        *PackageResult
 }
 
-func NewPackage(path string) *Package {
+func NewPackage(folder *messaging.Folder) *Package {
 	self := new(Package)
-	self.Path = path
-	self.Name = resolvePackageName(path)
+	self.Path = folder.Path
+	self.Name = resolvePackageName(self.Path)
 	self.Result = NewPackageResult(self.Name)
+	self.Ignored = folder.Ignored
+	self.Disabled = folder.Disabled
+	self.TestArguments = folder.TestArguments
 	return self
 }
 
