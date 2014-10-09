@@ -20,7 +20,9 @@ const nonexistentRoot = "I don't exist"
 const unreadableContent = "!!error!!"
 
 func TestHTTPServer(t *testing.T) {
-	SkipConvey("Subject: HttpServer responds to requests appropriately", t, func() {
+	// TODO: fix the skipped tests...
+
+	Convey("Subject: HttpServer responds to requests appropriately", t, func() {
 		fixture := newServerFixture()
 
 		Convey("Before any update is recived", func() {
@@ -64,7 +66,7 @@ func TestHTTPServer(t *testing.T) {
 		Convey("When the root watch is queried", func() {
 			root, status := fixture.QueryRootWatch(false)
 
-			Convey("The server returns it", func() {
+			SkipConvey("The server returns it", func() {
 				So(root, ShouldEqual, initialRoot)
 			})
 
@@ -73,7 +75,7 @@ func TestHTTPServer(t *testing.T) {
 			})
 		})
 
-		Convey("When the root watch is adjusted", func() {
+		SkipConvey("When the root watch is adjusted", func() {
 
 			Convey("But the request has no root parameter", func() {
 				status, body := fixture.AdjustRootWatchMalformed()
@@ -144,7 +146,7 @@ func TestHTTPServer(t *testing.T) {
 			})
 		})
 
-		Convey("When a packge is ignored", func() {
+		SkipConvey("When a packge is ignored", func() {
 
 			Convey("But the request has no path parameter", func() {
 				status, body := fixture.IgnoreMalformed()
@@ -186,7 +188,7 @@ func TestHTTPServer(t *testing.T) {
 			})
 		})
 
-		Convey("When a package is reinstated", func() {
+		SkipConvey("When a package is reinstated", func() {
 			Convey("But the request has no path parameter", func() {
 				status, body := fixture.ReinstateMalformed()
 
@@ -244,7 +246,7 @@ func TestHTTPServer(t *testing.T) {
 			status := fixture.ManualExecution()
 			update, _ := fixture.RequestLatest()
 
-			Convey("The server invokes the executor using the watcher's listing and save the result", func() {
+			SkipConvey("The server invokes the executor using the watcher's listing and save the result", func() {
 				So(update, ShouldResemble, &contract.CompleteOutput{Revision: initialRoot})
 			})
 
@@ -253,7 +255,7 @@ func TestHTTPServer(t *testing.T) {
 			})
 		})
 
-		Convey("When the pause setting is toggled via the server", func() {
+		SkipConvey("When the pause setting is toggled via the server", func() {
 			paused := fixture.TogglePause()
 
 			SkipConvey("The pause channel buffer should have a true value", func() {
@@ -438,7 +440,7 @@ func newServerFixture() *ServerFixture {
 	return self
 }
 
-/********* Fake Watcher *********/
+/********* Fake Executor *********/
 
 type FakeExecutor struct {
 	status       string
