@@ -242,9 +242,6 @@ func (self *TimedShell) composeCommand(commandText string) *ShellCommand {
 	return &ShellCommand{commandText, start, end}
 }
 
-func (self *TimedShell) Getenv(key string) string       { panic("NOT SUPPORTED") }
-func (self *TimedShell) Setenv(key, value string) error { panic("NOT SUPPORTED") }
-
 func NewTimedShell() *TimedShell {
 	self := new(TimedShell)
 	self.executions = []*ShellCommand{}

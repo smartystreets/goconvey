@@ -1,7 +1,6 @@
 package system
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -14,6 +13,7 @@ type Shell struct {
 	reportsPath string
 }
 
+// TODO: pass in the custom test args (from the profile)
 func (self *Shell) GoTest(directory, packageName string) (output string, err error) {
 	output, err = self.compilePackageDependencies(directory)
 	if err == nil {
@@ -76,17 +76,6 @@ func (self *Shell) generateCoverageReports(directory, profile, html string) {
 	self.executor.Execute(directory, self.gobin, "tool", "cover", "-html="+profile, "-o", html)
 }
 
-func (self *Shell) Getenv(key string) string {
-	return os.Getenv(key)
-}
-
-func (self *Shell) Setenv(key, value string) error {
-	if self.Getenv(key) != value {
-		return os.Setenv(key, value)
-	}
-	return nil
-}
-
 func NewShell(executor Executor, gobin string, cover bool, reports string) *Shell {
 	self := new(Shell)
 	self.executor = executor
@@ -96,8 +85,5 @@ func NewShell(executor Executor, gobin string, cover bool, reports string) *Shel
 	return self
 }
 
-const (
-	goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
-)
-
+const goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
 var coverageStatementRE = regexp.MustCompile(`coverage: \d+\.\d% of statements(.*)\n`)
