@@ -208,7 +208,7 @@ const inputOldSchool_Passes = `
 	old_school_test.go:10: I am a passing test.
 		With a newline.
 PASS
-coverage: 100.0%% of statements
+coverage: 100.0%% of statements in github.com/smartystreets/goconvey/convey, github.com/smartystreets/goconvey/convey/gotest, github.com/smartystreets/goconvey/convey/reporting
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.018s
 `
 

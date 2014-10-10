@@ -40,5 +40,5 @@ func packagePassed(line string) bool {
 	return strings.HasPrefix(line, "ok  \t")
 }
 func isCoverageSummary(line string) bool {
-	return strings.HasPrefix(line, "coverage: ") && strings.HasSuffix(line, "% of statements")
+	return strings.HasPrefix(line, "coverage: ") && strings.Contains(line, "% of statements")
 }

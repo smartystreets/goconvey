@@ -161,10 +161,17 @@ func TestParseProfile(t *testing.T) {
 		},
 		{
 			SKIP:           false,
-			description:    "We ignore certain flags like -v and -cover* because they are specified by the shell",
+			description:    "We ignore certain flags like -v and -cover and -coverprofile because they are specified by the shell",
 			input:          "-v\n-cover\n-coverprofile=blah.out",
 			resultIgnored:  false,
 			resultTestArgs: []string{},
+		},
+		{
+			SKIP:           false,
+			description:    "We allow certain coverage flags like -coverpkg and -covermode",
+			input:          "-coverpkg=blah\n-covermode=atomic",
+			resultIgnored:  false,
+			resultTestArgs: []string{"-coverpkg=blah", "-covermode=atomic"},
 		},
 	}
 

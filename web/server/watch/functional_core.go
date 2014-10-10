@@ -58,8 +58,8 @@ func ParseProfile(profile string) (isDisabled bool, arguments []string) {
 		} else if strings.HasPrefix(line, "//") {
 			continue
 
-		} else if strings.HasPrefix(line, "-cover") {
-			continue // TODO: enable custom coverage flags...
+		} else if line == "-cover" || strings.HasPrefix(line, "-coverprofile") {
+			continue
 
 		} else if line == "-v" {
 			continue // Verbose mode is always enabled so there is no need to record it here.
