@@ -8,3 +8,5 @@
 //-short
 
 // include any additional `go test` flags or application-specific flags below:
+
+-timeout=1s
