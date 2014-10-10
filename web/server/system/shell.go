@@ -62,13 +62,17 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 	}
 
 	arguments := []string{"test", "-v", "-coverprofile=" + reportPath}
-	if strings.Contains(goconvey.Output, goconveyDSLImport) {
-		arguments = append(arguments, "-json")
-	}
-	arguments = append(arguments, customArguments...)
+
 	if !strings.Contains(strings.Join(customArguments, "\t"), "-covermode=") {
 		arguments = append(arguments, "-covermode=set")
 	}
+
+	if strings.Contains(goconvey.Output, goconveyDSLImport) {
+		arguments = append(arguments, "-json")
+	}
+
+	arguments = append(arguments, customArguments...)
+
 	return NewCommand(directory, gobin, arguments...)
 }
 

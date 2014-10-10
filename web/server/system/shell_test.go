@@ -50,7 +50,7 @@ func TestShellCommandComposition(t *testing.T) {
 				So(result, ShouldResemble, Command{
 					directory:  "/directory",
 					executable: "go",
-					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-json", "-arg1", "-arg2", "-covermode=set"},
+					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-covermode=set", "-json", "-arg1", "-arg2"},
 				})
 			})
 		})
@@ -62,7 +62,7 @@ func TestShellCommandComposition(t *testing.T) {
 				So(result, ShouldResemble, Command{
 					directory:  "/directory",
 					executable: "go",
-					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-arg1", "-arg2", "-covermode=set"},
+					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-covermode=set", "-arg1", "-arg2"},
 				})
 			})
 		})
