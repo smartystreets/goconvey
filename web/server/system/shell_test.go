@@ -50,7 +50,7 @@ func TestShellCommandComposition(t *testing.T) {
 				So(result, ShouldResemble, Command{
 					directory:  "/directory",
 					executable: "go",
-					arguments:  []string{"test", "-v", "-covermode=set", "-coverprofile=reportsPath", "-json", "-arg1", "-arg2"},
+					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-json", "-arg1", "-arg2", "-covermode=set"},
 				})
 			})
 		})
@@ -62,7 +62,19 @@ func TestShellCommandComposition(t *testing.T) {
 				So(result, ShouldResemble, Command{
 					directory:  "/directory",
 					executable: "go",
-					arguments:  []string{"test", "-v", "-covermode=set", "-coverprofile=reportsPath", "-arg1", "-arg2"},
+					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-arg1", "-arg2", "-covermode=set"},
+				})
+			})
+		})
+
+		Convey("And the package being tested specifies an alternate covermode", func() {
+			result := runWithCoverage(buildSucceeded, noGoConvey, yesCoverage, "reportsPath", "/directory", "go", []string{"-covermode=atomic"})
+
+			Convey("The returned command should allow the alternate value", func() {
+				So(result, ShouldResemble, Command{
+					directory:  "/directory",
+					executable: "go",
+					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-covermode=atomic"},
 				})
 			})
 		})
