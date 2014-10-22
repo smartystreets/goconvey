@@ -109,6 +109,7 @@ func serveAjaxMethods(server contract.Server) {
 	http.HandleFunc("/status", server.Status)
 	http.HandleFunc("/status/poll", server.LongPollStatus)
 	http.HandleFunc("/pause", server.TogglePause)
+	http.HandleFunc("/kill", server.Kill)
 }
 
 func activateServer() {

@@ -9,4 +9,5 @@ type Parser interface {
 type Tester interface {
 	SetBatchSize(batchSize int)
 	TestAll(folders []*contract.Package)
+	KillRunningTests()
 }

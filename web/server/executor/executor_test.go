@@ -130,6 +130,10 @@ func (self *FakeTester) addDelay(nap time.Duration) {
 	self.nap = nap
 }
 
+func (self *FakeTester) KillRunningTests() {
+	//noop
+}
+
 func newFakeTester() *FakeTester {
 	self := new(FakeTester)
 	zero, _ := time.ParseDuration("0")

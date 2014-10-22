@@ -465,6 +465,10 @@ func (self *FakeExecutor) ExecuteTests(watched []*contract.Package) *contract.Co
 	return output
 }
 
+func (self *FakeExecutor) KillRunningTests() {
+	//noop
+}
+
 func newFakeExecutor(status string, statusUpdate chan chan string) *FakeExecutor {
 	self := new(FakeExecutor)
 	self.status = status

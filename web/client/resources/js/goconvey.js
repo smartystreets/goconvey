@@ -62,6 +62,7 @@ function initPoller()
 		convey.status = "starting";
 		showServerDown("Server starting");
 		$('#run-tests').addClass('spin-slowly disabled');
+		$('#stop-tests').removeClass('disabled');
 	});
 
 	$(convey.poller).on('pollsuccess', function(event, data)
@@ -72,11 +73,15 @@ function initPoller()
 		// These two if statements determine if the server is now busy
 		// (and wasn't before) or is not busy (regardless of whether it was before)
 		if ((!convey.status || convey.status == "idle")
-				&& data.status && data.status != "idle")
+				&& data.status && data.status != "idle") 
+		{
 			$('#run-tests').addClass('spin-slowly disabled');
+			$('#stop-tests').removeClass('disabled');
+		}
 		else if (convey.status != "idle" && data.status == "idle")
 		{
 			$('#run-tests').removeClass('spin-slowly disabled');
+			$('#stop-tests').addClass('disabled');
 		}
 
 		switch (data.status)
@@ -195,6 +200,15 @@ function wireup()
 			return;
 		log("Test run invoked from web UI");
 		$.get("/execute");
+	});
+
+	$('#stop-tests').click(function()
+	{
+		var self = $(this);
+		if (self.hasClass('disabled'))
+			return;
+		log("Test run killed from web UI")
+		$.get("/kill")
 	});
 
 	$('#play-pause').click(function()
@@ -374,6 +388,9 @@ function wireup()
 				break;
 			case 82:		// r
 				$('#run-tests').click();
+				break;
+			case 83:
+				$('#stop-tests').click();
 				break;
 			case 78:		// n
 				$('#toggle-notif').click();
