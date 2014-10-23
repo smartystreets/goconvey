@@ -20,7 +20,6 @@ func (self *concurrentCoordinator) ExecuteConcurrently() {
 	self.enlistWorkers()
 	self.scheduleTasks()
 	self.awaitCompletion()
-	self.checkForErrors()
 }
 
 func (self *concurrentCoordinator) enlistWorkers() {
@@ -51,18 +50,6 @@ func (self *concurrentCoordinator) scheduleTasks() {
 func (self *concurrentCoordinator) awaitCompletion() {
 	close(self.queue)
 	self.waiter.Wait()
-}
-
-func (self *concurrentCoordinator) checkForErrors() {
-	for _, folder := range self.folders {
-		if hasUnexpectedError(folder) {
-			log.Println("Unexpected error at", folder.Path)
-			panic(folder.Error)
-		}
-	}
-}
-func hasUnexpectedError(folder *contract.Package) bool {
-	return folder.Error != nil && folder.Output == ""
 }
 
 func newConcurrentCoordinator(folders []*contract.Package, batchSize int, shell contract.Shell) *concurrentCoordinator {

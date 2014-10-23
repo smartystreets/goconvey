@@ -34,6 +34,10 @@ func (self *Package) Active() bool {
 	return !self.Disabled && !self.Ignored
 }
 
+func (self *Package) HasUsableResult() bool {
+	return self.Active() && (self.Error == nil || (self.Output != ""))
+}
+
 type CompleteOutput struct {
 	Packages []*PackageResult
 	Revision string
@@ -50,6 +54,8 @@ var ( // PackageResult.Outcome values:
 	NoTestFiles     = "no test files"
 	NoTestFunctions = "no test functions"
 	NoGoFiles       = "no go code"
+
+	TestRunAbortedUnexpectedly = "test run aborted unexpectedly"
 )
 
 type PackageResult struct {

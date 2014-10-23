@@ -56,22 +56,6 @@ func TestConcurrentTester(t *testing.T) {
 				So(fixture.recovered, ShouldBeNil)
 			})
 		})
-
-		Convey("When running a test package produces no output and exits with an error", func() {
-			fixture.InBatchesOf(1).SetupAbnormalError("This really shouldn't happen...").RunTests()
-
-			Convey("Panic should ensue", func() {
-				So(fixture.recovered.Error(), ShouldEqual, "This really shouldn't happen...")
-			})
-		})
-
-		Convey("When running test packages concurrently and a test package produces no output and exits with an error", func() {
-			fixture.InBatchesOf(concurrentBatchSize).SetupAbnormalError("This really shouldn't happen...").RunTests()
-
-			Convey("Panic should ensue", func() {
-				So(fixture.recovered.Error(), ShouldEqual, "This really shouldn't happen...")
-			})
-		})
 	})
 }
 
