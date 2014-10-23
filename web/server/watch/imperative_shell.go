@@ -28,7 +28,7 @@ func YieldFileSystemItems(root string) chan *FileSystemItem {
 	go func() {
 		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return filepath.SkipDir
 			}
 
 			items <- &FileSystemItem{
