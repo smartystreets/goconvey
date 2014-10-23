@@ -12,7 +12,7 @@ type Parser struct {
 
 func (self *Parser) Parse(packages []*contract.Package) {
 	for _, p := range packages {
-		if p.Active && p.HasUsableResult() {
+		if p.Active() && p.HasUsableResult() {
 			self.parser(p.Result, p.Output)
 		} else if p.Ignored {
 			p.Result.Outcome = contract.Ignored
