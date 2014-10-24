@@ -387,7 +387,7 @@ footer .server-down {
 	line-height: 1.25em;
 	max-height: 150px;
 	overflow-y: auto;
-	white-space: pre-wrap;
+	white-space: pre;
 	font-family: 'Menlo', 'Share Tech Mono', monospace;
 }
 
