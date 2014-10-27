@@ -134,7 +134,7 @@ func (self *outputParser) recordCoverageSummary(summary string) {
 	}
 }
 func (self *outputParser) saveLineForParsingLater() {
-	self.line = strings.TrimSpace(self.line)
+	self.line = strings.TrimLeft(self.line, "\t")
 	if self.test == nil {
 		fmt.Println("Potential error parsing output of", self.result.PackageName, "; couldn't handle this stray line:", self.line)
 		return
