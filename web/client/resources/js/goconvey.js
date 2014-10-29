@@ -569,7 +569,7 @@ function process(data, status, jqxhr)
 			packages.notestfiles.push(pkg);
 		else if (pkg.Outcome == "no test functions")
 			packages.notestfn.push(pkg);
-		else if (pkg.Outcome == "ignored")
+		else if (pkg.Outcome == "ignored" || pkg.Outcome == "disabled")
 			packages.ignored.push(pkg);
 		else
 		{
