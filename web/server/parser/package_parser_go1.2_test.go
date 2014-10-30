@@ -114,6 +114,8 @@ func TestParsePacakge_WithExampleFunctions_ReturnsPackageResult(t *testing.T) {
 	assertEqual(t, expectedExampleFunctions, *actual)
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func assertEqual(t *testing.T, expected, actual interface{}) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
@@ -121,6 +123,8 @@ func assertEqual(t *testing.T, expected, actual interface{}) {
 		t.Errorf(failureTemplate, string(a), string(b))
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const failureTemplate = "Comparison failed:\n  Expected: %v\n    Actual: %v\n"
 
