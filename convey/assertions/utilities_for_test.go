@@ -70,6 +70,10 @@ func (self *fakeSerializer) serialize(expected, actual interface{}, message stri
 	return fmt.Sprintf("%v|%v|%s", expected, actual, message)
 }
 
+func (self *fakeSerializer) serializeDetailed(expected, actual interface{}, message string) string {
+	return fmt.Sprintf("%v|%v|%s", expected, actual, message)
+}
+
 func newFakeSerializer() *fakeSerializer {
 	return new(fakeSerializer)
 }

@@ -150,7 +150,7 @@ func ShouldResemble(actual interface{}, expected ...interface{}) string {
 		} else {
 			message = fmt.Sprintf(shouldHaveResembled, expected[0], actual)
 		}
-		return serializer.serialize(expected[0], actual, message)
+		return serializer.serializeDetailed(expected[0], actual, message)
 	}
 
 	return success
