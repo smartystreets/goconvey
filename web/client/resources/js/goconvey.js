@@ -543,7 +543,8 @@ function process(data, status, jqxhr)
 		coverage: {},
 		nogofiles: [],
 		notestfiles: [],
-		notestfn: []
+		notestfn: [],
+		panicked: []
 	};
 
 	log("Compiling package statistics");
@@ -569,6 +570,8 @@ function process(data, status, jqxhr)
 			packages.notestfiles.push(pkg);
 		else if (pkg.Outcome == "no test functions")
 			packages.notestfn.push(pkg);
+		else if (pkg.Outcome == "panicked")
+			packages.panicked.push(pkg);
 		else if (pkg.Outcome == "ignored" || pkg.Outcome == "disabled")
 			packages.ignored.push(pkg);
 		else
@@ -705,7 +708,7 @@ function process(data, status, jqxhr)
 	}
 
 	current().overall.passed = current().assertions.passed.length;
-	current().overall.panics = current().assertions.panicked.length;
+	current().overall.panics = current().assertions.panicked.length + packages.panicked.length;
 	current().overall.failures = current().assertions.failed.length;
 	current().overall.skipped = current().assertions.skipped.length;
 	
