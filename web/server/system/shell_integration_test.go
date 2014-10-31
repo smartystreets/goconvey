@@ -21,7 +21,7 @@ func TestShellIntegration(t *testing.T) {
 	directory := filepath.Join(filepath.Dir(filename), "..", "watch", "integration_testing", "sub")
 	packageName := "github.com/smartystreets/goconvey/web/server/integration_testing/sub"
 
-	shell := NewShell("go", "", true)
+	shell := NewShell("go", "", true, "5s")
 	output, err := shell.GoTest(directory, packageName, []string{"-short"})
 
 	if !strings.Contains(output, "PASS\n") || !strings.Contains(output, "ok") {

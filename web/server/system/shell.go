@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -12,16 +13,18 @@ import (
 ///////////////////////////////////////////////////////////////////////////////
 
 type Shell struct {
-	coverage    bool
-	gobin       string
-	reportsPath string
+	coverage       bool
+	gobin          string
+	reportsPath    string
+	defaultTimeout string
 }
 
-func NewShell(gobin, reportsPath string, coverage bool) *Shell {
+func NewShell(gobin, reportsPath string, coverage bool, defaultTimeout string) *Shell {
 	return &Shell{
-		coverage:    coverage,
-		gobin:       gobin,
-		reportsPath: reportsPath,
+		coverage:       coverage,
+		gobin:          gobin,
+		reportsPath:    reportsPath,
+		defaultTimeout: defaultTimeout,
 	}
 }
 
@@ -33,8 +36,8 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 
 	goconvey := findGoConvey(directory, self.gobin, packageName).Execute()
 	compilation := compile(directory, self.gobin).Execute()
-	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, arguments).Execute()
-	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, arguments).Execute()
+	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, arguments).Execute()
+	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, arguments).Execute()
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
 	return final.Output, final.Error
@@ -52,7 +55,7 @@ func compile(directory, gobin string) Command {
 	return NewCommand(directory, gobin, "test", "-i")
 }
 
-func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin string, customArguments []string) Command {
+func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout string, customArguments []string) Command {
 	if compile.Error != nil {
 		return compile
 	}
@@ -63,8 +66,13 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 
 	arguments := []string{"test", "-v", "-coverprofile=" + reportPath}
 
-	if !strings.Contains(strings.Join(customArguments, "\t"), "-covermode=") {
+	customArgsText := strings.Join(customArguments, "\t")
+	if !strings.Contains(customArgsText, "-covermode=") {
 		arguments = append(arguments, "-covermode=set")
+	}
+
+	if !strings.Contains(customArgsText, "-timeout=") {
+		arguments = append(arguments, "-timeout="+defaultTimeout)
 	}
 
 	if strings.Contains(goconvey.Output, goconveyDSLImport) {
@@ -76,7 +84,7 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 	return NewCommand(directory, gobin, arguments...)
 }
 
-func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin string, customArguments []string) Command {
+func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin, defaultTimeout string, customArguments []string) Command {
 	if compile.Error != nil {
 		return compile
 	}
@@ -85,7 +93,16 @@ func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobi
 		return withCoverage
 	}
 
+	log.Printf("Coverage output: %v", withCoverage.Output)
+
+	log.Print("Run without coverage")
+
 	arguments := []string{"test", "-v"}
+	customArgsText := strings.Join(customArguments, "\t")
+	if !strings.Contains(customArgsText, "-timeout=") {
+		arguments = append(arguments, "-timeout="+defaultTimeout)
+	}
+
 	if strings.Contains(goconvey.Output, goconveyDSLImport) {
 		arguments = append(arguments, "-json")
 	}
@@ -146,4 +163,4 @@ func (this Command) Execute() Command {
 ///////////////////////////////////////////////////////////////////////////////
 
 const goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
-var coverageStatementRE = regexp.MustCompile(`coverage: \d+\.\d% of statements(.*)\n`)
+var coverageStatementRE = regexp.MustCompile(`(?m)^coverage: \d+\.\d% of statements(.*)$|^panic: test timed out after `)
