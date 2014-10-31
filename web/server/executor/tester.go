@@ -1,6 +1,8 @@
 package executor
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"strings"
 
@@ -33,8 +35,14 @@ func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) 
 			log.Printf("Skipping execution: %s\n", packageName)
 			continue
 		}
-		log.Printf("Executing tests: %s\n", packageName)
-		folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName, folder.TestArguments)
+		if folder.HasImportCycle {
+			message := fmt.Sprintf("can't load package: import cycle not allowed\npackage %s\n\timports %s", packageName, packageName)
+			log.Println(message)
+			folder.Output, folder.Error = message, errors.New(message)
+		} else {
+			log.Printf("Executing tests: %s\n", packageName)
+			folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName, folder.TestArguments)
+		}
 	}
 }
 

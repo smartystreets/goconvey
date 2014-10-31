@@ -3,6 +3,8 @@ package executor
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"testing"
 	"time"
 
@@ -10,7 +12,12 @@ import (
 	"github.com/smartystreets/goconvey/web/server/contract"
 )
 
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
+
 func TestConcurrentTester(t *testing.T) {
+
 	Convey("Subject: Controlled execution of test packages", t, func() {
 		fixture := NewTesterFixture()
 
@@ -82,6 +89,7 @@ func NewTesterFixture() *TesterFixture {
 		&contract.Package{Path: "d"},
 		&contract.Package{Path: "e", Ignored: true},
 		&contract.Package{Path: "f"},
+		&contract.Package{Path: "g", HasImportCycle: true},
 	}
 	return self
 }
@@ -116,12 +124,16 @@ func (self *TesterFixture) RunTests() {
 }
 
 func (self *TesterFixture) ShouldHaveRecordOfExecutionCommands() {
-	expected := []string{"a", "b", "c", "d", "f"}
+	executed := []string{"a", "b", "c", "d", "f"}
+	ignored := "e"
+	importCycle := "g"
 	actual := []string{}
 	for _, pkg := range self.executions {
 		actual = append(actual, pkg.Command)
 	}
-	So(actual, ShouldResemble, expected)
+	So(actual, ShouldResemble, executed)
+	So(actual, ShouldNotContain, ignored)
+	So(actual, ShouldNotContain, importCycle)
 }
 
 func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
@@ -130,12 +142,17 @@ func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
 
 func (self *TesterFixture) OutputShouldBeAsExpected() {
 	for _, p := range self.packages {
-		if p.Active() {
-			So(p.Output, ShouldEndWith, p.Path)
+		if p.HasImportCycle {
+			So(p.Output, ShouldContainSubstring, "can't load package: import cycle not allowed")
+			So(p.Error.Error(), ShouldContainSubstring, "can't load package: import cycle not allowed")
 		} else {
-			So(p.Output, ShouldBeBlank)
+			if p.Active() {
+				So(p.Output, ShouldEndWith, p.Path)
+			} else {
+				So(p.Output, ShouldBeBlank)
+			}
+			So(p.Error, ShouldBeNil)
 		}
-		So(p.Error, ShouldBeNil)
 	}
 }
 

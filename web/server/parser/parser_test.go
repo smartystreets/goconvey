@@ -12,8 +12,8 @@ func TestParser(t *testing.T) {
 
 	Convey("Subject: Parser parses test output for active packages", t, func() {
 		packages := []*contract.Package{
-			&contract.Package{Ignored: false, Output: "Active!", Result: contract.NewPackageResult("asdf")},
-			&contract.Package{Ignored: true, Output: "Inactive!", Result: contract.NewPackageResult("qwer")},
+			&contract.Package{Ignored: false, Output: "Active", Result: contract.NewPackageResult("asdf")},
+			&contract.Package{Ignored: true, Output: "Inactive", Result: contract.NewPackageResult("qwer")},
 		}
 		parser := NewParser(fakeParserImplementation)
 

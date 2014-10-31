@@ -17,9 +17,11 @@ type Package struct {
 	Error         error
 	Output        string
 	Result        *PackageResult
+
+	HasImportCycle bool
 }
 
-func NewPackage(folder *messaging.Folder) *Package {
+func NewPackage(folder *messaging.Folder, hasImportCycle bool) *Package {
 	self := new(Package)
 	self.Path = folder.Path
 	self.Name = resolvePackageName(self.Path)
@@ -27,6 +29,7 @@ func NewPackage(folder *messaging.Folder) *Package {
 	self.Ignored = folder.Ignored
 	self.Disabled = folder.Disabled
 	self.TestArguments = folder.TestArguments
+	self.HasImportCycle = hasImportCycle
 	return self
 }
 

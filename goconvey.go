@@ -15,6 +15,8 @@ import (
 	"strings"
 	"time"
 
+	"go/build"
+
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/executor"
@@ -83,11 +85,30 @@ func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, 
 		packages := []*contract.Package{}
 		for _, folder := range update {
 			root = folder.Root
-			packages = append(packages, contract.NewPackage(folder))
+			hasImportCycle := testFilesImportTheirOwnPackage(folder.Path)
+			packages = append(packages, contract.NewPackage(folder, hasImportCycle))
 		}
 		output := executor.ExecuteTests(packages)
 		server.ReceiveUpdate(root, output)
 	}
+}
+
+// This method exists because of a bug in the go cover tool that
+// causes an infinite loop when you try to run `go test -cover`
+// on a package that has an import cycle defined in one of it's
+// test files. Yuck.
+func testFilesImportTheirOwnPackage(packagePath string) bool {
+	meta, err := build.ImportDir(packagePath, build.AllowBinary)
+	if err != nil {
+		return false
+	}
+
+	for _, dependency := range meta.TestImports {
+		if dependency == meta.ImportPath {
+			return true
+		}
+	}
+	return false
 }
 
 func serveHTTP(server contract.Server) {
