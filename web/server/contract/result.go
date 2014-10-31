@@ -67,6 +67,7 @@ type PackageResult struct {
 	Coverage    float64
 	Outcome     string
 	BuildOutput string
+	Error       string // from init function or TestMain function (go 1.4+)
 	TestResults []TestResult
 }
 

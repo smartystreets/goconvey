@@ -54,6 +54,12 @@ func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
 	assertEqual(t, expected_BuildFailed_CantFindPackage, *actual)
 }
 
+func TestPanicFromInitFunction_ReturnsPackageResult(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expected_InitPanic.PackageName}
+	ParsePackageResults(actual, input_InitPanic)
+	assertEqual(t, expected_InitPanic, *actual)
+}
+
 func TestParsePackage_OldSchoolWithFailureOutput_ReturnsCompletePackageResult(t *testing.T) {
 	actual := &contract.PackageResult{PackageName: expectedOldSchool_Fails.PackageName}
 	ParsePackageResults(actual, inputOldSchool_Fails)
@@ -217,6 +223,59 @@ var expected_BuildFailed_ImportCycle = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/t",
 	Outcome:     contract.BuildFailure,
 	BuildOutput: strings.TrimSpace(input_BuildFailed_ImportCycle),
+}
+
+const input_InitPanic = `
+panic: crazy gophers!
+
+goroutine 16 [running]:
+runtime.panic(0xed6e0, 0x208248360)
+	/usr/local/go/src/pkg/runtime/panic.c:279 +0xf5
+github.com/smartystreets/goconvey/t.init·1()
+	/Users/mike/code/src/github.com/smartystreets/goconvey/t/t_test.go:35 +0x61
+github.com/smartystreets/goconvey/t.init()
+	/Users/mike/code/src/github.com/smartystreets/goconvey/t/t_test.go:36 +0x4b
+main.init()
+	github.com/smartystreets/goconvey/t/_test/_testmain.go:48 +0x46
+
+goroutine 19 [finalizer wait]:
+runtime.park(0x14510, 0x204410, 0x203789)
+	/usr/local/go/src/pkg/runtime/proc.c:1369 +0x89
+runtime.parkunlock(0x204410, 0x203789)
+	/usr/local/go/src/pkg/runtime/proc.c:1385 +0x3b
+runfinq()
+	/usr/local/go/src/pkg/runtime/mgc0.c:2644 +0xcf
+runtime.goexit()
+	/usr/local/go/src/pkg/runtime/proc.c:1445
+exit status 2
+FAIL	github.com/smartystreets/goconvey/t	0.008s
+`
+
+var expected_InitPanic = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/t",
+	Elapsed:     0.008,
+	Outcome:     contract.Panicked,
+	Error: strings.Replace(`panic: crazy gophers!
+
+goroutine 16 [running]:
+runtime.panic(0xed6e0, 0x208248360)
+	/usr/local/go/src/pkg/runtime/panic.c:279 +0xf5
+github.com/smartystreets/goconvey/t.init·1()
+	/Users/mike/code/src/github.com/smartystreets/goconvey/t/t_test.go:35 +0x61
+github.com/smartystreets/goconvey/t.init()
+	/Users/mike/code/src/github.com/smartystreets/goconvey/t/t_test.go:36 +0x4b
+main.init()
+	github.com/smartystreets/goconvey/t/_test/_testmain.go:48 +0x46
+
+goroutine 19 [finalizer wait]:
+runtime.park(0x14510, 0x204410, 0x203789)
+	/usr/local/go/src/pkg/runtime/proc.c:1369 +0x89
+runtime.parkunlock(0x204410, 0x203789)
+	/usr/local/go/src/pkg/runtime/proc.c:1385 +0x3b
+runfinq()
+	/usr/local/go/src/pkg/runtime/mgc0.c:2644 +0xcf
+runtime.goexit()
+	/usr/local/go/src/pkg/runtime/proc.c:1445`, "\u0009", "", -1),
 }
 
 const inputOldSchool_Passes = `

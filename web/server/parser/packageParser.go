@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,6 +22,8 @@ type outputParser struct {
 	result *contract.PackageResult
 	tests  []*contract.TestResult
 
+	packageLines []string // Output generated outside the call stack of test functions (like stuff from init()).
+
 	// place holders for loops
 	line    string
 	test    *contract.TestResult
@@ -42,6 +43,7 @@ func newOutputParser(result *contract.PackageResult, rawOutput string) *outputPa
 func (self *outputParser) parse() {
 	self.separateTestFunctionsAndMetadata()
 	self.parseEachTestFunction()
+	self.recoverFromInitPanic()
 }
 
 func (self *outputParser) separateTestFunctionsAndMetadata() {
@@ -136,10 +138,10 @@ func (self *outputParser) recordCoverageSummary(summary string) {
 func (self *outputParser) saveLineForParsingLater() {
 	self.line = strings.TrimLeft(self.line, "\t")
 	if self.test == nil {
-		fmt.Println("Potential error parsing output of", self.result.PackageName, "; couldn't handle this stray line:", self.line)
-		return
+		self.packageLines = append(self.packageLines, self.line)
+	} else {
+		self.test.RawLines = append(self.test.RawLines, self.line)
 	}
-	self.test.RawLines = append(self.test.RawLines, self.line)
 }
 
 func (self *outputParser) parseEachTestFunction() {
@@ -150,5 +152,21 @@ func (self *outputParser) parseEachTestFunction() {
 		}
 		self.test.RawLines = []string{}
 		self.result.TestResults = append(self.result.TestResults, *self.test)
+	}
+}
+
+func (self *outputParser) recoverFromInitPanic() {
+	panicked := false
+	if len(self.tests) == 0 && len(self.packageLines) > 0 {
+		for _, line := range self.packageLines {
+			if strings.HasPrefix(line, "panic: ") {
+				panicked = true
+				break
+			}
+		}
+	}
+	if panicked {
+		self.result.Outcome = contract.Panicked
+		self.result.Error = strings.Join(self.packageLines, "\n")
 	}
 }
