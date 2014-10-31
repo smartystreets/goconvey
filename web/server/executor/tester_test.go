@@ -236,6 +236,10 @@ func (self *TimedShell) GoTest(directory, packageName string, arguments []string
 	return
 }
 
+func (self *TimedShell) AbortGoTest() error {
+	return self.err
+}
+
 func (self *TimedShell) composeCommand(commandText string) *ShellCommand {
 	start := time.Now()
 	time.Sleep(nap)

@@ -37,6 +37,11 @@ func (self *Executor) ExecuteTests(folders []*contract.Package) *contract.Comple
 	return result
 }
 
+func (self *Executor) KillRunningTests() {
+	log.Print("Kill running tests")
+	self.tester.KillRunningTests()
+}
+
 func (self *Executor) execute(folders []*contract.Package) {
 	self.setStatus(Executing)
 	self.tester.TestAll(folders)

@@ -28,6 +28,11 @@ func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
 	return
 }
 
+func (self *ConcurrentTester) KillRunningTests() {
+	log.Print("Killing executing tests")
+	self.shell.AbortGoTest()
+}
+
 func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) {
 	for _, folder := range folders {
 		packageName := strings.Replace(folder.Name, "\\", "/", -1)

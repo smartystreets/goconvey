@@ -149,6 +149,14 @@ func (self *HTTPServer) TogglePause(response http.ResponseWriter, request *http.
 	fmt.Fprint(response, self.paused) // we could write out whatever helps keep the UI honest...
 }
 
+func (self *HTTPServer) Kill(response http.ResponseWriter, request *http.Request) {
+	go self.kill()
+}
+
+func (self *HTTPServer) kill() {
+	self.executor.KillRunningTests()
+}
+
 func NewHTTPServer(
 	root string,
 	watcher chan messaging.WatcherCommand,

@@ -13,15 +13,18 @@ type (
 		Results(writer http.ResponseWriter, request *http.Request)
 		Execute(writer http.ResponseWriter, request *http.Request)
 		TogglePause(writer http.ResponseWriter, request *http.Request)
+		Kill(writer http.ResponseWriter, request *http.Request)
 	}
 
 	Executor interface {
 		ExecuteTests([]*Package) *CompleteOutput
 		Status() string
 		ClearStatusFlag() bool
+		KillRunningTests()
 	}
 
 	Shell interface {
 		GoTest(directory, packageName string, arguments []string) (output string, err error)
+		AbortGoTest() error
 	}
 )

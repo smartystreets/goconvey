@@ -9,13 +9,13 @@ import (
 
 func TestShellCommandComposition(t *testing.T) {
 	var (
-		buildFailed      = Command{Error: errors.New("BUILD FAILURE!")}
-		buildSucceeded   = Command{Output: "ok"}
-		goConvey         = Command{Output: "[fmt github.com/smartystreets/goconvey/convey net/http net/http/httptest path runtime strconv strings testing time]"}
-		noGoConvey       = Command{Output: "[fmt net/http net/http/httptest path runtime strconv strings testing time]"}
-		noCoveragePassed = Command{Output: "PASS\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
-		coveragePassed   = Command{Output: "PASS\ncoverage: 100.0% of statements\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
-		coverageFailed   = Command{
+		buildFailed      = &Command{Error: errors.New("BUILD FAILURE!")}
+		buildSucceeded   = &Command{Output: "ok"}
+		goConvey         = &Command{Output: "[fmt github.com/smartystreets/goconvey/convey net/http net/http/httptest path runtime strconv strings testing time]"}
+		noGoConvey       = &Command{Output: "[fmt net/http net/http/httptest path runtime strconv strings testing time]"}
+		noCoveragePassed = &Command{Output: "PASS\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
+		coveragePassed   = &Command{Output: "PASS\ncoverage: 100.0% of statements\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
+		coverageFailed   = &Command{
 			Error: errors.New("Tests bombed!"),
 			Output: "--- FAIL: TestIntegerManipulation (0.00 seconds)\nFAIL\ncoverage: 100.0% of statements\nexit status 1\nFAIL	github.com/smartystreets/goconvey/examples	0.013s",
 		}
@@ -47,7 +47,7 @@ func TestShellCommandComposition(t *testing.T) {
 			result := runWithCoverage(buildSucceeded, goConvey, yesCoverage, "reportsPath", "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("The returned command should be well formed (and include the -json flag)", func() {
-				So(result, ShouldResemble, Command{
+				So(result, ShouldResemble, &Command{
 					directory:  "/directory",
 					executable: "go",
 					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-covermode=set", "-json", "-arg1", "-arg2"},
@@ -59,7 +59,7 @@ func TestShellCommandComposition(t *testing.T) {
 			result := runWithCoverage(buildSucceeded, noGoConvey, yesCoverage, "reportsPath", "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("The returned command should be well formed (and NOT include the -json flag)", func() {
-				So(result, ShouldResemble, Command{
+				So(result, ShouldResemble, &Command{
 					directory:  "/directory",
 					executable: "go",
 					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-covermode=set", "-arg1", "-arg2"},
@@ -71,7 +71,7 @@ func TestShellCommandComposition(t *testing.T) {
 			result := runWithCoverage(buildSucceeded, noGoConvey, yesCoverage, "reportsPath", "/directory", "go", []string{"-covermode=atomic"})
 
 			Convey("The returned command should allow the alternate value", func() {
-				So(result, ShouldResemble, Command{
+				So(result, ShouldResemble, &Command{
 					directory:  "/directory",
 					executable: "go",
 					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-covermode=atomic"},
@@ -98,7 +98,7 @@ func TestShellCommandComposition(t *testing.T) {
 		})
 
 		Convey("And the build failed earlier", func() {
-			result := runWithoutCoverage(buildFailed, Command{}, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
+			result := runWithoutCoverage(buildFailed, &Command{}, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then no action should be taken", func() {
 				So(result, ShouldResemble, buildFailed)
@@ -109,7 +109,7 @@ func TestShellCommandComposition(t *testing.T) {
 			result := runWithoutCoverage(buildSucceeded, buildSucceeded, goConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then the returned command should be well formed (and include the -json flag)", func() {
-				So(result, ShouldResemble, Command{
+				So(result, ShouldResemble, &Command{
 					directory:  "/directory",
 					executable: "go",
 					arguments:  []string{"test", "-v", "-json", "-arg1", "-arg2"},
@@ -121,7 +121,7 @@ func TestShellCommandComposition(t *testing.T) {
 			result := runWithoutCoverage(buildSucceeded, noCoveragePassed, noGoConvey, "/directory", "go", []string{"-arg1", "-arg2"})
 
 			Convey("Then the returned command should be well formed (and NOT include the -json flag)", func() {
-				So(result, ShouldResemble, Command{
+				So(result, ShouldResemble, &Command{
 					directory:  "/directory",
 					executable: "go",
 					arguments:  []string{"test", "-v", "-arg1", "-arg2"},
@@ -151,7 +151,7 @@ func TestShellCommandComposition(t *testing.T) {
 			result := generateReports(coveragePassed, yesCoverage, "/directory", "go", "reportData", "reportHTML")
 
 			Convey("Then the resulting command should be well-formed", func() {
-				So(result, ShouldResemble, Command{
+				So(result, ShouldResemble, &Command{
 					directory:  "/directory",
 					executable: "go",
 					arguments:  []string{"tool", "cover", "-html=reportData", "-o", "reportHTML"},
