@@ -5,12 +5,18 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"strings"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey/reporting"
 	"github.com/smartystreets/goconvey/web/server/contract"
 )
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
 
 func TestParsePackage_NoGoFiles_ReturnsPackageResult(t *testing.T) {
 	actual := &contract.PackageResult{PackageName: expected_NoGoFiles.PackageName}
@@ -38,6 +44,10 @@ func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
 	actual = &contract.PackageResult{PackageName: expected_BuildFailed_OtherErrors.PackageName}
 	ParsePackageResults(actual, input_BuildFailed_OtherErrors)
 	assertEqual(t, expected_BuildFailed_OtherErrors, *actual)
+
+	actual = &contract.PackageResult{PackageName: expected_BuildFailed_ImportCycle.PackageName}
+	ParsePackageResults(actual, input_BuildFailed_ImportCycle)
+	assertEqual(t, expected_BuildFailed_ImportCycle, *actual)
 
 	actual = &contract.PackageResult{PackageName: expected_BuildFailed_CantFindPackage.PackageName}
 	ParsePackageResults(actual, input_BuildFailed_CantFindPackage)
@@ -195,6 +205,18 @@ var expected_BuildFailed_OtherErrors = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/examples",
 	Outcome:     contract.BuildFailure,
 	BuildOutput: strings.TrimSpace(input_BuildFailed_OtherErrors),
+}
+
+const input_BuildFailed_ImportCycle = `
+# github.com/smartystreets/goconvey/t
+./t_test.go:23: import "github.com/smartystreets/goconvey/t" while compiling that package (import cycle)
+FAIL	github.com/smartystreets/goconvey/t [build failed]
+`
+
+var expected_BuildFailed_ImportCycle = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/t",
+	Outcome:     contract.BuildFailure,
+	BuildOutput: strings.TrimSpace(input_BuildFailed_ImportCycle),
 }
 
 const inputOldSchool_Passes = `
