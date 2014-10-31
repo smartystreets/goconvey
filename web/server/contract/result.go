@@ -38,7 +38,7 @@ func (self *Package) Active() bool {
 }
 
 func (self *Package) HasUsableResult() bool {
-	return self.Active() && (self.Error == nil || (self.Output != ""))
+	return self.Active() && (self.Error == nil || self.Output != "")
 }
 
 type CompleteOutput struct {
