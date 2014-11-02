@@ -4,176 +4,247 @@
 package convey
 
 import (
-	"errors"
 	"fmt"
+	"github.com/jtolds/gls"
+	"reflect"
 	"runtime"
-	"strconv"
 	"strings"
-	"sync"
+
+	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
 const (
-	missingGoTest string = `Top-level calls to Convey(...) need a reference to the *testing.T. 
+	missingGoTest string = `Top-level calls to Convey(...) need a reference to the *testing.T.
 		Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
 	extraGoTest string = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+
+	failureHalt = "___FAILURE_HALT___"
+
+	nodeKey string = "node"
 )
 
 // suiteContext magically handles all coordination of reporter, runners as they handle calls
 // to Convey, So, and the like. It does this via runtime call stack inspection, making sure
 // that each test function has its own runner, and routes all live registrations
 // to the appropriate runner.
-type suiteContext struct {
-	lock    sync.Mutex
-	runners map[string]*runner // key: testName;
+type suiteContextNode struct {
+	name string
 
-	// stores a correlation to the actual runner for outside-of-stack scenaios
-	locations map[string]string // key: file:line; value: testName (key to runners)
+	reporter reporting.Reporter
+	test     t
+
+	parent   *suiteContextNode
+	curIdx   int
+	children []*suiteContextNode
+
+	resets []func()
+
+	executedOnce   bool
+	expectChildRun bool
+	result         VisitResult
+
+	focus       bool
+	failureMode FailureMode
 }
 
-func (self *suiteContext) Run(entry *registration) {
-	if self.current() != nil {
-		panic(extraGoTest)
+func (c *suiteContextNode) Write(p []byte) (int, error) {
+	return c.reporter.Write(p)
+}
+
+type VisitResult uint8
+
+const (
+	VisitedIncomplete VisitResult = iota
+	VisitedOK
+	VisitedPanic
+)
+
+func (c *suiteContextNode) shouldVisit() bool {
+	return c.result == VisitedIncomplete && (c.parent == nil || c.parent.expectChildRun)
+}
+
+func getCurrentContext() *suiteContextNode {
+	ctx, ok := ctxMgr.GetValue(nodeKey)
+	if ok {
+		return ctx.(*suiteContextNode)
 	}
-
-	runner := newRunner(buildReporter())
-
-	testName, location, _ := suiteAnchor()
-
-	self.setRunner(location, testName, runner)
-
-	runner.Run(entry)
-
-	self.unsetRunner(location, testName)
+	return nil
 }
 
-func (self *suiteContext) Current() *runner {
-	if runner := self.current(); runner != nil {
-		return runner
+func mustGetCurrentContext() *suiteContextNode {
+	ctx := getCurrentContext()
+	if ctx == nil {
+		panic("cannot perform operation outside of a convey context")
 	}
-	panic(missingGoTest)
-}
-func (self *suiteContext) current() *runner {
-	self.lock.Lock()
-	defer self.lock.Unlock()
-
-	if testName, _, err := suiteAnchor(); err == nil {
-		return self.runners[testName]
-	}
-
-	return self.runners[correlate(self.locations)]
-}
-func (self *suiteContext) setRunner(location string, testName string, runner *runner) {
-	self.lock.Lock()
-	defer self.lock.Unlock()
-
-	self.locations[location] = testName
-	self.runners[testName] = runner
-}
-func (self *suiteContext) unsetRunner(location string, testName string) {
-	self.lock.Lock()
-	defer self.lock.Unlock()
-
-	delete(self.locations, location)
-	delete(self.runners, testName)
+	return ctx
 }
 
-func newSuiteContext() *suiteContext {
-	return &suiteContext{
-		locations: map[string]string{},
-		runners:   map[string]*runner{},
-	}
-}
-
-//////////////////// Helper Functions ///////////////////////
-
-// suiteAnchor returns the enclosing test function name (including package) and the
-// file:line combination of the top-level Convey. It does this by traversing the
-// call stack in reverse, looking for the go testing harnass call ("testing.tRunner")
-// and then grabs the very next entry.
-func suiteAnchor() (testName, location string, err error) {
-	callers := runtime.Callers(0, callStack)
-
-	for y := callers; y > 0; y-- {
-		callerId, file, conveyLine, found := runtime.Caller(y)
-		if !found {
-			continue
+func conveyanceInner(situation string, f func(), ctx *suiteContextNode) {
+	ctx.expectChildRun = true
+	defer func() {
+		ctx.executedOnce = true
+		ctx.curIdx = 0
+		tmp := ctx
+		for tmp != nil {
+			tmp.expectChildRun = false
+			tmp = tmp.parent
 		}
+	}()
 
-		if name := runtime.FuncForPC(callerId).Name(); name != goTestHarness {
-			continue
+	fname := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
+	ctx.reporter.Enter(reporting.NewScopeReport(situation, fname))
+	defer ctx.reporter.Exit()
+
+	ctx.resets = []func(){}
+	defer func() {
+		for _, r := range ctx.resets {
+			// TODO(riannucci): handle panics?
+			r()
 		}
+	}()
 
-		callerId, file, conveyLine, _ = runtime.Caller(y - 1)
-		testName = runtime.FuncForPC(callerId).Name()
-		location = fmt.Sprintf("%s:%d", file, conveyLine)
-		return
+	defer func() {
+		if problem := recover(); problem != nil {
+			if strings.HasPrefix(fmt.Sprintf("%v", problem), extraGoTest) {
+				panic(problem)
+			}
+			if problem != failureHalt {
+				ctx.reporter.Report(reporting.NewErrorReport(problem))
+			}
+			fmt.Println(situation, "marked as panic")
+			ctx.result = VisitedPanic
+		} else {
+			ctx.result = VisitedOK
+			for _, child := range ctx.children {
+				if child.result == VisitedIncomplete {
+					ctx.result = VisitedIncomplete
+					return
+				}
+			}
+		}
+	}()
+
+	if f == nil {
+		// skipped
+		ctx.reporter.Report(reporting.NewSkipReport())
+	} else {
+		f()
 	}
-	return "", "", errors.New("Can't resolve test method name! Are you calling Convey() from a `*_test.go` file and a `Test*` method (because you should be)?")
 }
 
-// correlate links the current stack with the appropriate
-// top-level Convey by comparing line numbers in its own stack trace
-// with the registered file:line combo. It's come to this.
-func correlate(locations map[string]string) (testName string) {
-	file, line := resolveTestFileAndLine()
-	closest := -1
-
-	for location, registeredTestName := range locations {
-		locationFile, rawLocationLine := splitFileAndLine(location)
-
-		if locationFile != file {
-			continue
+func computeNewFailureMode(parent, cur FailureMode) FailureMode {
+	if cur == FailureInherits {
+		if parent == "" {
+			return defaultFailureMode
 		}
-
-		locationLine, err := strconv.Atoi(rawLocationLine)
-		if err != nil || locationLine < line {
-			continue
-		}
-
-		if closest == -1 || locationLine < closest {
-			closest = locationLine
-			testName = registeredTestName
-		}
+		return parent
 	}
-	return
+	return cur
 }
 
-// splitFileAndLine receives a path and a line number in a single string,
-// separated by a colon and splits them.
-func splitFileAndLine(value string) (file, line string) {
-	parts := strings.Split(value, ":")
-	if len(parts) == 2 {
-		file = parts[0]
-		line = parts[1]
-	} else if len(parts) > 2 {
-		// 'C:/blah.go:123' (windows drive letter has two colons
-		// '-:--------:---'  instead of just one to separate file and line)
-		file = strings.Join(parts[:2], ":")
-		line = parts[2]
-	}
-	return
-}
-
-// resolveTestFileAndLine is used as a last-ditch effort to correlate an
-// assertion with the right executor and runner.
-func resolveTestFileAndLine() (file string, line int) {
-	callers := runtime.Callers(0, callStack)
-	var found bool
-
-	for y := callers; y > 0; y-- {
-		_, file, line, found = runtime.Caller(y)
-		if !found {
-			continue
+func Conveyance(entry *suite) {
+	ctx := getCurrentContext()
+	if ctx == nil {
+		// we're the root
+		if entry.Test == nil {
+			panic(missingGoTest)
 		}
+		ctx = &suiteContextNode{
+			name: entry.Situation,
 
-		if strings.HasSuffix(file, "_test.go") {
+			test:     entry.Test,
+			reporter: buildReporter(),
+
+			focus:       entry.Focus,
+			failureMode: computeNewFailureMode("", entry.FailMode),
+		}
+		ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
+			ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
+			defer ctx.reporter.EndStory()
+
+			rootRun := func() {
+				fmt.Println("root", entry.Situation)
+				defer func() {
+					el := recover()
+					fmt.Println("done", entry.Situation, el)
+					ctx.expectChildRun = true
+					if el != nil {
+						panic(el)
+					}
+				}()
+				conveyanceInner(entry.Situation, entry.Func, ctx)
+			}
+
+		keepRunning:
+			rootRun()
+			if ctx.shouldVisit() {
+				for _, c := range ctx.children {
+					if c.shouldVisit() {
+						goto keepRunning
+					}
+				}
+			}
+		})
+	} else {
+		// we're a branch, or leaf (on the wind)
+		if entry.Test != nil {
+			panic(extraGoTest)
+		}
+		if ctx.focus && !entry.Focus {
 			return
 		}
+
+		var inner_ctx *suiteContextNode
+		if ctx.executedOnce {
+			if ctx.curIdx >= len(ctx.children) {
+				panic("different set of Convey statements on subsequent pass!")
+			}
+			inner_ctx = ctx.children[ctx.curIdx]
+			if inner_ctx.name != entry.Situation {
+				panic("different set of Convey statements on subsequent pass!")
+			}
+			ctx.curIdx++
+		} else {
+			inner_ctx = &suiteContextNode{
+				name:     entry.Situation,
+				test:     ctx.test,
+				reporter: ctx.reporter,
+
+				parent: ctx,
+
+				focus:       entry.Focus,
+				failureMode: computeNewFailureMode(ctx.failureMode, entry.FailMode),
+			}
+			ctx.children = append(ctx.children, inner_ctx)
+		}
+
+		if inner_ctx.shouldVisit() {
+			fmt.Println("visiting", entry.Situation)
+			defer func() {
+				el := recover()
+				fmt.Println("done_visit", entry.Situation, el)
+				if el != nil {
+					panic(el)
+				}
+			}()
+			ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
+				conveyanceInner(entry.Situation, entry.Func, inner_ctx)
+			})
+		} else {
+			fmt.Println("deferring", entry.Situation)
+		}
 	}
-	return "", 0
 }
 
-const maxStackDepth = 100               // This had better be enough...
-const goTestHarness = "testing.tRunner" // I hope this doesn't change...
+func assertionReport(r *reporting.AssertionResult) {
+	ctx := mustGetCurrentContext()
+	ctx.reporter.Report(r)
+	if r.Failure != "" && ctx.failureMode == FailureHalts {
+		panic(failureHalt)
+	}
+}
 
-var callStack []uintptr = make([]uintptr, maxStackDepth, maxStackDepth)
+func registerReset(action func()) {
+	ctx := mustGetCurrentContext()
+	ctx.resets = append(ctx.resets, action)
+}
