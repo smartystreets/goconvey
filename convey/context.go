@@ -129,16 +129,6 @@ func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
 	}
 }
 
-func computeNewFailureMode(parent, cur FailureMode) FailureMode {
-	if cur == FailureInherits {
-		if parent == "" {
-			return defaultFailureMode
-		}
-		return parent
-	}
-	return cur
-}
-
 func RootConvey(items ...interface{}) {
 	entry := discover(items)
 
@@ -155,7 +145,7 @@ func RootConvey(items ...interface{}) {
 		expectChildRun: &expectChildRun,
 
 		focus:       entry.Focus,
-		failureMode: computeNewFailureMode("", entry.FailMode),
+		failureMode: defaultFailureMode.combine(entry.FailMode),
 	}
 	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
 		ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
@@ -206,7 +196,7 @@ func (ctx *suiteContextNode) Convey(items ...interface{}) {
 			expectChildRun: ctx.expectChildRun,
 
 			focus:       entry.Focus,
-			failureMode: computeNewFailureMode(ctx.failureMode, entry.FailMode),
+			failureMode: ctx.failureMode.combine(entry.FailMode),
 		}
 		ctx.children = append(ctx.children, inner_ctx)
 	}

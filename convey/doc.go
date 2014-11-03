@@ -130,6 +130,13 @@ const (
 	FailureInherits FailureMode = "inherits"
 )
 
+func (f FailureMode) combine(other FailureMode) FailureMode {
+	if other == FailureInherits {
+		return f
+	}
+	return other
+}
+
 var defaultFailureMode FailureMode = FailureHalts
 
 // SetDefaultFailureMode allows you to specify the default failure mode
