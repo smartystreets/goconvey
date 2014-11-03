@@ -179,14 +179,8 @@ func RootConvey(items ...interface{}) {
 			ctx.conveyanceInner(entry.Situation, entry.Func)
 		}
 
-	keepRunning:
-		rootRun()
-		if ctx.shouldVisit() {
-			for _, c := range ctx.children {
-				if c.shouldVisit() {
-					goto keepRunning
-				}
-			}
+		for ctx.shouldVisit() {
+			rootRun()
 		}
 	})
 }
