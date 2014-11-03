@@ -23,18 +23,42 @@ const (
 	nodeKey = "node"
 )
 
-// suiteContext magically handles all coordination of reporter, runners as they handle calls
-// to Convey, So, and the like. It does this via runtime call stack inspection, making sure
-// that each test function has its own runner, and routes all live registrations
-// to the appropriate runner.
-type suiteContextNode struct {
-	name string
+///////////////////////////////// Stack Context /////////////////////////////////
 
+func getCurrentContext() *context {
+	ctx, ok := ctxMgr.GetValue(nodeKey)
+	if ok {
+		return ctx.(*context)
+	}
+	return nil
+}
+
+func mustGetCurrentContext() *context {
+	ctx := getCurrentContext()
+	if ctx == nil {
+		panic("cannot perform operation outside of a convey context")
+	}
+	return ctx
+}
+
+//////////////////////////////////// Context ////////////////////////////////////
+
+// context magically handles all coordination of Convey's and So assertions.
+//
+// It is tracked on the stack as goroutine-local-storage with the gls package,
+// or explicitly if the user decides to call convey like:
+//
+//   Convey(..., func(c C) {
+//     c.So(...)
+//   })
+type context struct {
 	reporter reporting.Reporter
 	test     t
 
+	name string
+
 	curIdx   int
-	children []*suiteContextNode
+	children []*context
 
 	resets []func()
 
@@ -46,25 +70,10 @@ type suiteContextNode struct {
 	failureMode FailureMode
 }
 
-//////////////////////////////////// Context ////////////////////////////////////
-
-func getCurrentContext() *suiteContextNode {
-	ctx, ok := ctxMgr.GetValue(nodeKey)
-	if ok {
-		return ctx.(*suiteContextNode)
-	}
-	return nil
-}
-
-func mustGetCurrentContext() *suiteContextNode {
-	ctx := getCurrentContext()
-	if ctx == nil {
-		panic("cannot perform operation outside of a convey context")
-	}
-	return ctx
-}
-
-func RootConvey(items ...interface{}) {
+// rootConvey is the main entry point to a test suite. This is called when
+// there's no context in the stack already, and items must contain a `t` object,
+// or this panics.
+func rootConvey(items ...interface{}) {
 	entry := discover(items)
 
 	if entry.Test == nil {
@@ -72,7 +81,7 @@ func RootConvey(items ...interface{}) {
 	}
 
 	expectChildRun := true
-	ctx := &suiteContextNode{
+	ctx := &context{
 		name: entry.Situation,
 
 		test:     entry.Test,
@@ -94,21 +103,121 @@ func RootConvey(items ...interface{}) {
 	})
 }
 
-func (c *suiteContextNode) shouldVisit() bool {
+//////////////////////////////////// Methods ////////////////////////////////////
+
+func (ctx *context) SkipConvey(items ...interface{}) {
+	ctx.Convey(items, skipConvey)
+}
+
+func (ctx *context) FocusConvey(items ...interface{}) {
+	ctx.Convey(items, focusConvey)
+}
+
+func (ctx *context) Convey(items ...interface{}) {
+	entry := discover(items)
+
+	// we're a branch, or leaf (on the wind)
+	if entry.Test != nil {
+		panic(extraGoTest)
+	}
+	if ctx.focus && !entry.Focus {
+		return
+	}
+
+	var inner_ctx *context
+	if ctx.executedOnce {
+		if ctx.curIdx >= len(ctx.children) {
+			panic("different set of Convey statements on subsequent pass!")
+		}
+		inner_ctx = ctx.children[ctx.curIdx]
+		if inner_ctx.name != entry.Situation {
+			panic("different set of Convey statements on subsequent pass!")
+		}
+		ctx.curIdx++
+	} else {
+		inner_ctx = &context{
+			name:     entry.Situation,
+			test:     ctx.test,
+			reporter: ctx.reporter,
+
+			expectChildRun: ctx.expectChildRun,
+
+			focus:       entry.Focus,
+			failureMode: ctx.failureMode.combine(entry.FailMode),
+		}
+		ctx.children = append(ctx.children, inner_ctx)
+	}
+
+	if inner_ctx.shouldVisit() {
+		ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
+			inner_ctx.conveyInner(entry.Situation, entry.Func)
+		})
+	}
+}
+
+func (ctx *context) SkipSo(stuff ...interface{}) {
+	ctx.assertionReport(reporting.NewSkipReport())
+}
+
+func (ctx *context) So(actual interface{}, assert assertion, expected ...interface{}) {
+	if result := assert(actual, expected...); result == assertionSuccess {
+		ctx.assertionReport(reporting.NewSuccessReport())
+	} else {
+		ctx.assertionReport(reporting.NewFailureReport(result))
+	}
+}
+
+func (ctx *context) Reset(action func()) {
+	/* TODO: Failure mode configuration */
+	ctx.resets = append(ctx.resets, action)
+}
+
+func (ctx *context) Print(items ...interface{}) (int, error) {
+	fmt.Fprint(ctx.reporter, items...)
+	return fmt.Print(items...)
+}
+
+func (ctx *context) Println(items ...interface{}) (int, error) {
+	fmt.Fprintln(ctx.reporter, items...)
+	return fmt.Println(items...)
+}
+
+func (ctx *context) Printf(format string, items ...interface{}) (int, error) {
+	fmt.Fprintf(ctx.reporter, format, items...)
+	return fmt.Printf(format, items...)
+}
+
+//////////////////////////////////// Private ////////////////////////////////////
+
+// shouldVisit returns true iff we should traverse down into a Convey. Note
+// that just because we don't traverse a Convey this time, doesn't mean that
+// we may not traverse it on a subsequent pass.
+func (c *context) shouldVisit() bool {
 	return !c.complete && *c.expectChildRun
 }
 
-func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
+// conveyInner is the function which actually executes the user's anonymous test
+// function body. At this point, Convey or RootConvey has decided that this
+// function should actually run.
+func (ctx *context) conveyInner(situation string, f func(C)) {
+	// Record/Reset state for next time.
 	defer func() {
 		ctx.executedOnce = true
 		ctx.curIdx = 0
+
+		// This is only needed at the leaves, but there's no harm in also setting it
+		// when returning from branch Convey's
 		*ctx.expectChildRun = false
 	}()
 
+	// Set up+tear down our scope for the reporter
 	fname := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 	ctx.reporter.Enter(reporting.NewScopeReport(situation, fname))
 	defer ctx.reporter.Exit()
 
+	// Resets are registered as the `f` function executes, so nil them here.
+	// All resets are run in registration order (FIFO).
+	// TODO(riannucci): Should these be run in LIFO?
 	ctx.resets = []func(){}
 	defer func() {
 		for _, r := range ctx.resets {
@@ -117,6 +226,8 @@ func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
 		}
 	}()
 
+	// Recover from any panics in f, and assign the `complete` status for this
+	// node of the tree.
 	defer func() {
 		if problem := recover(); problem != nil {
 			if strings.HasPrefix(fmt.Sprintf("%v", problem), extraGoTest) {
@@ -138,98 +249,18 @@ func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
 	}()
 
 	if f == nil {
-		// skipped
+		// if f is nil, this was either a Convey(..., nil), or a SkipConvey
 		ctx.reporter.Report(reporting.NewSkipReport())
 	} else {
 		f(ctx)
 	}
 }
 
-func (ctx *suiteContextNode) SkipConvey(items ...interface{}) {
-	ctx.Convey(items, skipConvey)
-}
-
-func (ctx *suiteContextNode) FocusConvey(items ...interface{}) {
-	ctx.Convey(items, focusConvey)
-}
-
-func (ctx *suiteContextNode) Convey(items ...interface{}) {
-	entry := discover(items)
-
-	// we're a branch, or leaf (on the wind)
-	if entry.Test != nil {
-		panic(extraGoTest)
-	}
-	if ctx.focus && !entry.Focus {
-		return
-	}
-
-	var inner_ctx *suiteContextNode
-	if ctx.executedOnce {
-		if ctx.curIdx >= len(ctx.children) {
-			panic("different set of Convey statements on subsequent pass!")
-		}
-		inner_ctx = ctx.children[ctx.curIdx]
-		if inner_ctx.name != entry.Situation {
-			panic("different set of Convey statements on subsequent pass!")
-		}
-		ctx.curIdx++
-	} else {
-		inner_ctx = &suiteContextNode{
-			name:     entry.Situation,
-			test:     ctx.test,
-			reporter: ctx.reporter,
-
-			expectChildRun: ctx.expectChildRun,
-
-			focus:       entry.Focus,
-			failureMode: ctx.failureMode.combine(entry.FailMode),
-		}
-		ctx.children = append(ctx.children, inner_ctx)
-	}
-
-	if inner_ctx.shouldVisit() {
-		ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
-			inner_ctx.conveyInner(entry.Situation, entry.Func)
-		})
-	}
-}
-
-func (ctx *suiteContextNode) SkipSo(stuff ...interface{}) {
-	ctx.assertionReport(reporting.NewSkipReport())
-}
-
-func (ctx *suiteContextNode) So(actual interface{}, assert assertion, expected ...interface{}) {
-	if result := assert(actual, expected...); result == assertionSuccess {
-		ctx.assertionReport(reporting.NewSuccessReport())
-	} else {
-		ctx.assertionReport(reporting.NewFailureReport(result))
-	}
-}
-
-func (ctx *suiteContextNode) assertionReport(r *reporting.AssertionResult) {
+// assertionReport is a helper for So and SkipSo which makes the report and
+// then possibly panics, depending on the current context's failureMode.
+func (ctx *context) assertionReport(r *reporting.AssertionResult) {
 	ctx.reporter.Report(r)
 	if r.Failure != "" && ctx.failureMode == FailureHalts {
 		panic(failureHalt)
 	}
-}
-
-func (ctx *suiteContextNode) Reset(action func()) {
-	/* TODO: Failure mode configuration */
-	ctx.resets = append(ctx.resets, action)
-}
-
-func (ctx *suiteContextNode) Print(items ...interface{}) (int, error) {
-	fmt.Fprint(ctx.reporter, items...)
-	return fmt.Print(items...)
-}
-
-func (ctx *suiteContextNode) Println(items ...interface{}) (int, error) {
-	fmt.Fprintln(ctx.reporter, items...)
-	return fmt.Println(items...)
-}
-
-func (ctx *suiteContextNode) Printf(format string, items ...interface{}) (int, error) {
-	fmt.Fprintf(ctx.reporter, format, items...)
-	return fmt.Printf(format, items...)
 }

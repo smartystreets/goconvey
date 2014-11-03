@@ -51,7 +51,7 @@ type C interface {
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
 	if ctx := getCurrentContext(); ctx == nil {
-		RootConvey(items...)
+		rootConvey(items...)
 	} else {
 		ctx.Convey(items...)
 	}
