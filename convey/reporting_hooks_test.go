@@ -216,12 +216,12 @@ func TestNestedIterativeConveysReported(t *testing.T) {
 		"End"), myReporter.wholeStory())
 }
 
-func SkipTestEmbeddedAssertionReported(t *testing.T) {
+func TestEmbeddedAssertionReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
+	Convey("A", test, func(c C) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			So(r.FormValue("msg"), ShouldEqual, "ping")
+			c.So(r.FormValue("msg"), ShouldEqual, "ping")
 		}))
 		http.DefaultClient.Get(ts.URL + "?msg=ping")
 	})

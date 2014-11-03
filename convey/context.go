@@ -14,13 +14,21 @@ import (
 )
 
 const (
-	missingGoTest string = `Top-level calls to Convey(...) need a reference to the *testing.T.
+	missingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T.
 		Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
-	extraGoTest string = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+	extraGoTest = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
 
 	failureHalt = "___FAILURE_HALT___"
 
-	nodeKey string = "node"
+	nodeKey = "node"
+)
+
+type actionSpecifier uint8
+
+const (
+	noSpecifier actionSpecifier = iota
+	skipConvey
+	focusConvey
 )
 
 // suiteContext magically handles all coordination of reporter, runners as they handle calls
@@ -33,14 +41,13 @@ type suiteContextNode struct {
 	reporter reporting.Reporter
 	test     t
 
-	parent   *suiteContextNode
 	curIdx   int
 	children []*suiteContextNode
 
 	resets []func()
 
 	executedOnce   bool
-	expectChildRun bool
+	expectChildRun *bool
 	result         VisitResult
 
 	focus       bool
@@ -60,7 +67,7 @@ const (
 )
 
 func (c *suiteContextNode) shouldVisit() bool {
-	return c.result == VisitedIncomplete && (c.parent == nil || c.parent.expectChildRun)
+	return c.result == VisitedIncomplete && *c.expectChildRun
 }
 
 func getCurrentContext() *suiteContextNode {
@@ -79,16 +86,11 @@ func mustGetCurrentContext() *suiteContextNode {
 	return ctx
 }
 
-func conveyanceInner(situation string, f func(), ctx *suiteContextNode) {
-	ctx.expectChildRun = true
+func (ctx *suiteContextNode) conveyanceInner(situation string, f func(C)) {
 	defer func() {
 		ctx.executedOnce = true
 		ctx.curIdx = 0
-		tmp := ctx
-		for tmp != nil {
-			tmp.expectChildRun = false
-			tmp = tmp.parent
-		}
+		*ctx.expectChildRun = false
 	}()
 
 	fname := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
@@ -128,7 +130,7 @@ func conveyanceInner(situation string, f func(), ctx *suiteContextNode) {
 		// skipped
 		ctx.reporter.Report(reporting.NewSkipReport())
 	} else {
-		f()
+		f(ctx)
 	}
 }
 
@@ -142,109 +144,148 @@ func computeNewFailureMode(parent, cur FailureMode) FailureMode {
 	return cur
 }
 
-func Conveyance(entry *suite) {
-	ctx := getCurrentContext()
-	if ctx == nil {
-		// we're the root
-		if entry.Test == nil {
-			panic(missingGoTest)
-		}
-		ctx = &suiteContextNode{
-			name: entry.Situation,
+func RootConvey(items ...interface{}) {
+	entry := discover(items)
 
-			test:     entry.Test,
-			reporter: buildReporter(),
+	if entry.Test == nil {
+		panic(missingGoTest)
+	}
+	expectChildRun := true
+	ctx := &suiteContextNode{
+		name: entry.Situation,
 
-			focus:       entry.Focus,
-			failureMode: computeNewFailureMode("", entry.FailMode),
-		}
-		ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
-			ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
-			defer ctx.reporter.EndStory()
+		test:     entry.Test,
+		reporter: buildReporter(),
 
-			rootRun := func() {
-				fmt.Println("root", entry.Situation)
-				defer func() {
-					el := recover()
-					fmt.Println("done", entry.Situation, el)
-					ctx.expectChildRun = true
-					if el != nil {
-						panic(el)
-					}
-				}()
-				conveyanceInner(entry.Situation, entry.Func, ctx)
-			}
+		expectChildRun: &expectChildRun,
 
-		keepRunning:
-			rootRun()
-			if ctx.shouldVisit() {
-				for _, c := range ctx.children {
-					if c.shouldVisit() {
-						goto keepRunning
-					}
-				}
-			}
-		})
-	} else {
-		// we're a branch, or leaf (on the wind)
-		if entry.Test != nil {
-			panic(extraGoTest)
-		}
-		if ctx.focus && !entry.Focus {
-			return
-		}
+		focus:       entry.Focus,
+		failureMode: computeNewFailureMode("", entry.FailMode),
+	}
+	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
+		ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
+		defer ctx.reporter.EndStory()
 
-		var inner_ctx *suiteContextNode
-		if ctx.executedOnce {
-			if ctx.curIdx >= len(ctx.children) {
-				panic("different set of Convey statements on subsequent pass!")
-			}
-			inner_ctx = ctx.children[ctx.curIdx]
-			if inner_ctx.name != entry.Situation {
-				panic("different set of Convey statements on subsequent pass!")
-			}
-			ctx.curIdx++
-		} else {
-			inner_ctx = &suiteContextNode{
-				name:     entry.Situation,
-				test:     ctx.test,
-				reporter: ctx.reporter,
-
-				parent: ctx,
-
-				focus:       entry.Focus,
-				failureMode: computeNewFailureMode(ctx.failureMode, entry.FailMode),
-			}
-			ctx.children = append(ctx.children, inner_ctx)
-		}
-
-		if inner_ctx.shouldVisit() {
-			fmt.Println("visiting", entry.Situation)
+		rootRun := func() {
+			fmt.Println("root", entry.Situation)
 			defer func() {
 				el := recover()
-				fmt.Println("done_visit", entry.Situation, el)
+				fmt.Println("done", entry.Situation, el)
+				expectChildRun = true
 				if el != nil {
 					panic(el)
 				}
 			}()
-			ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
-				conveyanceInner(entry.Situation, entry.Func, inner_ctx)
-			})
-		} else {
-			fmt.Println("deferring", entry.Situation)
+			ctx.conveyanceInner(entry.Situation, entry.Func)
 		}
+
+	keepRunning:
+		rootRun()
+		if ctx.shouldVisit() {
+			for _, c := range ctx.children {
+				if c.shouldVisit() {
+					goto keepRunning
+				}
+			}
+		}
+	})
+}
+
+func (ctx *suiteContextNode) SkipConvey(items ...interface{}) {
+	ctx.Convey(items, skipConvey)
+}
+
+func (ctx *suiteContextNode) FocusConvey(items ...interface{}) {
+	ctx.Convey(items, focusConvey)
+}
+
+func (ctx *suiteContextNode) Convey(items ...interface{}) {
+	entry := discover(items)
+
+	// we're a branch, or leaf (on the wind)
+	if entry.Test != nil {
+		panic(extraGoTest)
+	}
+	if ctx.focus && !entry.Focus {
+		return
+	}
+
+	var inner_ctx *suiteContextNode
+	if ctx.executedOnce {
+		if ctx.curIdx >= len(ctx.children) {
+			panic("different set of Convey statements on subsequent pass!")
+		}
+		inner_ctx = ctx.children[ctx.curIdx]
+		if inner_ctx.name != entry.Situation {
+			panic("different set of Convey statements on subsequent pass!")
+		}
+		ctx.curIdx++
+	} else {
+		inner_ctx = &suiteContextNode{
+			name:     entry.Situation,
+			test:     ctx.test,
+			reporter: ctx.reporter,
+
+			expectChildRun: ctx.expectChildRun,
+
+			focus:       entry.Focus,
+			failureMode: computeNewFailureMode(ctx.failureMode, entry.FailMode),
+		}
+		ctx.children = append(ctx.children, inner_ctx)
+	}
+
+	if inner_ctx.shouldVisit() {
+		fmt.Println("visiting", entry.Situation)
+		defer func() {
+			el := recover()
+			fmt.Println("done_visit", entry.Situation, el)
+			if el != nil {
+				panic(el)
+			}
+		}()
+		ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
+			inner_ctx.conveyanceInner(entry.Situation, entry.Func)
+		})
+	} else {
+		fmt.Println("deferring", entry.Situation)
 	}
 }
 
-func assertionReport(r *reporting.AssertionResult) {
-	ctx := mustGetCurrentContext()
+func (ctx *suiteContextNode) SkipSo(stuff ...interface{}) {
+	ctx.assertionReport(reporting.NewSkipReport())
+}
+
+func (ctx *suiteContextNode) So(actual interface{}, assert assertion, expected ...interface{}) {
+	if result := assert(actual, expected...); result == assertionSuccess {
+		ctx.assertionReport(reporting.NewSuccessReport())
+	} else {
+		ctx.assertionReport(reporting.NewFailureReport(result))
+	}
+}
+
+func (ctx *suiteContextNode) assertionReport(r *reporting.AssertionResult) {
 	ctx.reporter.Report(r)
 	if r.Failure != "" && ctx.failureMode == FailureHalts {
 		panic(failureHalt)
 	}
 }
 
-func registerReset(action func()) {
-	ctx := mustGetCurrentContext()
+func (ctx *suiteContextNode) Reset(action func()) {
+	/* TODO: Failure mode configuration */
 	ctx.resets = append(ctx.resets, action)
+}
+
+func (ctx *suiteContextNode) Print(items ...interface{}) (int, error) {
+	fmt.Fprint(ctx, items...)
+	return fmt.Print(items...)
+}
+
+func (ctx *suiteContextNode) Println(items ...interface{}) (int, error) {
+	fmt.Fprintln(ctx, items...)
+	return fmt.Println(items...)
+}
+
+func (ctx *suiteContextNode) Printf(format string, items ...interface{}) (int, error) {
+	fmt.Fprintf(ctx, format, items...)
+	return fmt.Printf(format, items...)
 }

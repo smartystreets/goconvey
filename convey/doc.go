@@ -3,13 +3,22 @@
 // packages from this project as they serve internal purposes.
 package convey
 
-import (
-	"fmt"
-
-	"github.com/smartystreets/goconvey/convey/reporting"
-)
-
 ////////////////////////////////// suite //////////////////////////////////
+
+type C interface {
+	Convey(items ...interface{})
+	SkipConvey(items ...interface{})
+	FocusConvey(items ...interface{})
+
+	So(actual interface{}, assert assertion, expected ...interface{})
+	SkipSo(stuff ...interface{})
+
+	Reset(action func())
+
+	Println(items ...interface{}) (int, error)
+	Print(items ...interface{}) (int, error)
+	Printf(format string, items ...interface{}) (int, error)
+}
 
 // Convey is the method intended for use when declaring the scopes
 // of a specification. Each scope has a description and a func()
@@ -41,16 +50,18 @@ import (
 //
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
-	Conveyance(discover(items))
+	if ctx := getCurrentContext(); ctx == nil {
+		RootConvey(items...)
+	} else {
+		ctx.Convey(items...)
+	}
 }
 
 // SkipConvey is analagous to Convey except that the scope is not executed
 // (which means that child scopes defined within this scope are not run either).
 // The reporter will be notified that this step was skipped.
 func SkipConvey(items ...interface{}) {
-	entry := discover(items)
-	entry.Func = nil
-	Conveyance(entry)
+	Convey(append(items, skipConvey)...)
 }
 
 // FocusConvey is has the inverse effect of SkipConvey. If the top-level
@@ -61,16 +72,13 @@ func SkipConvey(items ...interface{}) {
 // without swaths of `SkipConvey` calls, just a targeted chain of calls
 // to FocusConvey.
 func FocusConvey(items ...interface{}) {
-	entry := discover(items)
-	entry.Focus = true
-	Conveyance(entry)
+	Convey(append(items, focusConvey)...)
 }
 
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
-	/* TODO: Failure mode configuration */
-	registerReset(action)
+	mustGetCurrentContext().Reset(action)
 }
 
 /////////////////////////////////// Assertions ///////////////////////////////////
@@ -91,17 +99,13 @@ const assertionSuccess = ""
 // See the examples package for use cases and the assertions package for
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
-	if result := assert(actual, expected...); result == assertionSuccess {
-		assertionReport(reporting.NewSuccessReport())
-	} else {
-		assertionReport(reporting.NewFailureReport(result))
-	}
+	mustGetCurrentContext().So(actual, assert, expected...)
 }
 
 // SkipSo is analagous to So except that the assertion that would have been passed
 // to So is not executed and the reporter is notified that the assertion was skipped.
 func SkipSo(stuff ...interface{}) {
-	assertionReport(reporting.NewSkipReport())
+	mustGetCurrentContext().SkipSo()
 }
 
 // FailureMode is a type which determines how the So() blocks should fail
@@ -145,20 +149,17 @@ func SetDefaultFailureMode(mode FailureMode) {
 // Print is analogous to fmt.Print (and it even calls fmt.Print). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Print(items ...interface{}) (written int, err error) {
-	fmt.Fprint(mustGetCurrentContext(), items...)
-	return fmt.Print(items...)
+	return mustGetCurrentContext().Print(items...)
 }
 
 // Print is analogous to fmt.Println (and it even calls fmt.Println). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Println(items ...interface{}) (written int, err error) {
-	fmt.Fprintln(mustGetCurrentContext(), items...)
-	return fmt.Println(items...)
+	return mustGetCurrentContext().Println(items...)
 }
 
 // Print is analogous to fmt.Printf (and it even calls fmt.Printf). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Printf(format string, items ...interface{}) (written int, err error) {
-	fmt.Fprintf(mustGetCurrentContext(), format, items...)
-	return fmt.Printf(format, items...)
+	return mustGetCurrentContext().Printf(format, items...)
 }

@@ -4,7 +4,7 @@ type suite struct {
 	Situation string
 	Test      t
 	Focus     bool
-	Func      func() // nil means skipped
+	Func      func(C) // nil means skipped
 	FailMode  FailureMode
 }
 
@@ -12,13 +12,20 @@ func (self *suite) ShouldBeTopLevel() bool {
 	return self.Test != nil
 }
 
-func newSuite(situation string, failureMode FailureMode, f func(), test t) *suite {
-	return &suite{
+func newSuite(situation string, failureMode FailureMode, f func(C), test t, specifier actionSpecifier) *suite {
+	ret := &suite{
 		Situation: situation,
 		Test:      test,
 		Func:      f,
 		FailMode:  failureMode,
 	}
+	switch specifier {
+	case skipConvey:
+		ret.Func = nil
+	case focusConvey:
+		ret.Focus = true
+	}
+	return ret
 }
 
 func discover(items []interface{}) *suite {
@@ -26,12 +33,13 @@ func discover(items []interface{}) *suite {
 	test, items := parseGoTest(items)
 	failure, items := parseFailureMode(items)
 	action, items := parseAction(items)
+	specifier, items := parseSpecifier(items)
 
 	if len(items) != 0 {
 		panic(parseError)
 	}
 
-	return newSuite(name, failure, action, test)
+	return newSuite(name, failure, action, test, specifier)
 }
 func item(items []interface{}) interface{} {
 	if len(items) == 0 {
@@ -57,12 +65,23 @@ func parseFailureMode(items []interface{}) (FailureMode, []interface{}) {
 	}
 	return FailureInherits, items
 }
-func parseAction(items []interface{}) (func(), []interface{}) {
+func parseAction(items []interface{}) (func(C), []interface{}) {
 	switch x := item(items).(type) {
 	case nil:
 		return nil, items[1:]
-	case func():
+	case func(C):
 		return x, items[1:]
+	case func():
+		return func(C) { x() }, items[1:]
+	}
+	panic(parseError)
+}
+func parseSpecifier(items []interface{}) (actionSpecifier, []interface{}) {
+	if len(items) == 0 {
+		return noSpecifier, items
+	}
+	if spec, ok := items[0].(actionSpecifier); ok {
+		return spec, items[1:]
 	}
 	panic(parseError)
 }
