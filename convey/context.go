@@ -109,7 +109,6 @@ func (ctx *suiteContextNode) conveyanceInner(situation string, f func(C)) {
 			if problem != failureHalt {
 				ctx.reporter.Report(reporting.NewErrorReport(problem))
 			}
-			fmt.Println(situation, "marked as panic")
 			ctx.result = VisitedPanic
 		} else {
 			ctx.result = VisitedOK
@@ -163,14 +162,8 @@ func RootConvey(items ...interface{}) {
 		defer ctx.reporter.EndStory()
 
 		rootRun := func() {
-			fmt.Println("root", entry.Situation)
 			defer func() {
-				el := recover()
-				fmt.Println("done", entry.Situation, el)
 				expectChildRun = true
-				if el != nil {
-					panic(el)
-				}
 			}()
 			ctx.conveyanceInner(entry.Situation, entry.Func)
 		}
@@ -225,19 +218,9 @@ func (ctx *suiteContextNode) Convey(items ...interface{}) {
 	}
 
 	if inner_ctx.shouldVisit() {
-		fmt.Println("visiting", entry.Situation)
-		defer func() {
-			el := recover()
-			fmt.Println("done_visit", entry.Situation, el)
-			if el != nil {
-				panic(el)
-			}
-		}()
 		ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
 			inner_ctx.conveyanceInner(entry.Situation, entry.Func)
 		})
-	} else {
-		fmt.Println("deferring", entry.Situation)
 	}
 }
 
