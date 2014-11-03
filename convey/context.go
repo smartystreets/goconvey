@@ -5,11 +5,11 @@ package convey
 
 import (
 	"fmt"
-	"github.com/jtolds/gls"
 	"reflect"
 	"runtime"
 	"strings"
 
+	"github.com/jtolds/gls"
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
