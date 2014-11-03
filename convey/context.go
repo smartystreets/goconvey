@@ -54,10 +54,6 @@ type suiteContextNode struct {
 	failureMode FailureMode
 }
 
-func (c *suiteContextNode) Write(p []byte) (int, error) {
-	return c.reporter.Write(p)
-}
-
 type VisitResult uint8
 
 const (
@@ -270,16 +266,16 @@ func (ctx *suiteContextNode) Reset(action func()) {
 }
 
 func (ctx *suiteContextNode) Print(items ...interface{}) (int, error) {
-	fmt.Fprint(ctx, items...)
+	fmt.Fprint(ctx.reporter, items...)
 	return fmt.Print(items...)
 }
 
 func (ctx *suiteContextNode) Println(items ...interface{}) (int, error) {
-	fmt.Fprintln(ctx, items...)
+	fmt.Fprintln(ctx.reporter, items...)
 	return fmt.Println(items...)
 }
 
 func (ctx *suiteContextNode) Printf(format string, items ...interface{}) (int, error) {
-	fmt.Fprintf(ctx, format, items...)
+	fmt.Fprintf(ctx.reporter, format, items...)
 	return fmt.Printf(format, items...)
 }
