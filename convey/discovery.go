@@ -16,10 +16,6 @@ type suite struct {
 	FailMode  FailureMode
 }
 
-func (self *suite) ShouldBeTopLevel() bool {
-	return self.Test != nil
-}
-
 func newSuite(situation string, failureMode FailureMode, f func(C), test t, specifier actionSpecifier) *suite {
 	ret := &suite{
 		Situation: situation,
