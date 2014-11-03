@@ -23,14 +23,6 @@ const (
 	nodeKey = "node"
 )
 
-type actionSpecifier uint8
-
-const (
-	noSpecifier actionSpecifier = iota
-	skipConvey
-	focusConvey
-)
-
 // suiteContext magically handles all coordination of reporter, runners as they handle calls
 // to Convey, So, and the like. It does this via runtime call stack inspection, making sure
 // that each test function has its own runner, and routes all live registrations
@@ -48,23 +40,13 @@ type suiteContextNode struct {
 
 	executedOnce   bool
 	expectChildRun *bool
-	result         VisitResult
+	complete       bool
 
 	focus       bool
 	failureMode FailureMode
 }
 
-type VisitResult uint8
-
-const (
-	VisitedIncomplete VisitResult = iota
-	VisitedOK
-	VisitedPanic
-)
-
-func (c *suiteContextNode) shouldVisit() bool {
-	return c.result == VisitedIncomplete && *c.expectChildRun
-}
+//////////////////////////////////// Context ////////////////////////////////////
 
 func getCurrentContext() *suiteContextNode {
 	ctx, ok := ctxMgr.GetValue(nodeKey)
@@ -80,6 +62,40 @@ func mustGetCurrentContext() *suiteContextNode {
 		panic("cannot perform operation outside of a convey context")
 	}
 	return ctx
+}
+
+func RootConvey(items ...interface{}) {
+	entry := discover(items)
+
+	if entry.Test == nil {
+		panic(missingGoTest)
+	}
+
+	expectChildRun := true
+	ctx := &suiteContextNode{
+		name: entry.Situation,
+
+		test:     entry.Test,
+		reporter: buildReporter(),
+
+		expectChildRun: &expectChildRun,
+
+		focus:       entry.Focus,
+		failureMode: defaultFailureMode.combine(entry.FailMode),
+	}
+	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
+		ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
+		defer ctx.reporter.EndStory()
+
+		for ctx.shouldVisit() {
+			ctx.conveyInner(entry.Situation, entry.Func)
+			expectChildRun = true
+		}
+	})
+}
+
+func (c *suiteContextNode) shouldVisit() bool {
+	return !c.complete && *c.expectChildRun
 }
 
 func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
@@ -109,12 +125,12 @@ func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
 			if problem != failureHalt {
 				ctx.reporter.Report(reporting.NewErrorReport(problem))
 			}
-			ctx.result = VisitedPanic
+			ctx.complete = true
 		} else {
-			ctx.result = VisitedOK
+			ctx.complete = true
 			for _, child := range ctx.children {
-				if child.result == VisitedIncomplete {
-					ctx.result = VisitedIncomplete
+				if !child.complete {
+					ctx.complete = false
 					return
 				}
 			}
@@ -127,35 +143,6 @@ func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
 	} else {
 		f(ctx)
 	}
-}
-
-func RootConvey(items ...interface{}) {
-	entry := discover(items)
-
-	if entry.Test == nil {
-		panic(missingGoTest)
-	}
-	expectChildRun := true
-	ctx := &suiteContextNode{
-		name: entry.Situation,
-
-		test:     entry.Test,
-		reporter: buildReporter(),
-
-		expectChildRun: &expectChildRun,
-
-		focus:       entry.Focus,
-		failureMode: defaultFailureMode.combine(entry.FailMode),
-	}
-	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
-		ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
-		defer ctx.reporter.EndStory()
-
-		for ctx.shouldVisit() {
-			ctx.conveyInner(entry.Situation, entry.Func)
-			expectChildRun = true
-		}
-	})
 }
 
 func (ctx *suiteContextNode) SkipConvey(items ...interface{}) {

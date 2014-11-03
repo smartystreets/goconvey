@@ -1,5 +1,13 @@
 package convey
 
+type actionSpecifier uint8
+
+const (
+	noSpecifier actionSpecifier = iota
+	skipConvey
+	focusConvey
+)
+
 type suite struct {
 	Situation string
 	Test      t
