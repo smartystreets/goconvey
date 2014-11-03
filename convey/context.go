@@ -82,7 +82,7 @@ func mustGetCurrentContext() *suiteContextNode {
 	return ctx
 }
 
-func (ctx *suiteContextNode) conveyanceInner(situation string, f func(C)) {
+func (ctx *suiteContextNode) conveyInner(situation string, f func(C)) {
 	defer func() {
 		ctx.executedOnce = true
 		ctx.curIdx = 0
@@ -161,15 +161,9 @@ func RootConvey(items ...interface{}) {
 		ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
 		defer ctx.reporter.EndStory()
 
-		rootRun := func() {
-			defer func() {
-				expectChildRun = true
-			}()
-			ctx.conveyanceInner(entry.Situation, entry.Func)
-		}
-
 		for ctx.shouldVisit() {
-			rootRun()
+			ctx.conveyInner(entry.Situation, entry.Func)
+			expectChildRun = true
 		}
 	})
 }
@@ -219,7 +213,7 @@ func (ctx *suiteContextNode) Convey(items ...interface{}) {
 
 	if inner_ctx.shouldVisit() {
 		ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
-			inner_ctx.conveyanceInner(entry.Situation, entry.Func)
+			inner_ctx.conveyInner(entry.Situation, entry.Func)
 		})
 	}
 }
