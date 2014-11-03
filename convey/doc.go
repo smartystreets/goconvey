@@ -5,6 +5,17 @@ package convey
 
 ////////////////////////////////// suite //////////////////////////////////
 
+// C is the Convey context which you can optionally obtain in your action
+// by calling Convey like:
+//
+//   Convey(..., func(c C) {
+//     ...
+//   })
+//
+// See the documentation on Convey for more details.
+//
+// All methods in this context behave identically to the global functions of the
+// same name in this package.
 type C interface {
 	Convey(items ...interface{})
 	SkipConvey(items ...interface{})
@@ -20,10 +31,10 @@ type C interface {
 	Printf(format string, items ...interface{}) (int, error)
 }
 
-// Convey is the method intended for use when declaring the scopes
-// of a specification. Each scope has a description and a func()
-// which may contain other calls to Convey(), Reset() or Should-style
-// assertions. Convey calls can be nested as far as you see fit.
+// Convey is the method intended for use when declaring the scopes of
+// a specification. Each scope has a description and a func() which may contain
+// other calls to Convey(), Reset() or Should-style assertions. Convey calls can
+// be nested as far as you see fit.
 //
 // IMPORTANT NOTE: The top-level Convey() within a Test method
 // must conform to the following signature:
@@ -36,8 +47,16 @@ type C interface {
 //
 // Don't worry, the goconvey will panic if you get it wrong so you can fix it.
 //
-// All Convey()-blocks also take an optional parameter of FailureMode which
-// sets how goconvey should treat failures for So()-assertions in the block and
+// Additionally, you may explicitly obtain access to the Convey context by doing:
+//
+//     Convey(description string, action func(c C))
+//
+// You may need to do this if you want to pass the context through to a
+// goroutine, or to close over the context in a handler to a library which
+// calls your handler in a goroutine (httptest comes to mind).
+//
+// All Convey()-blocks also take an optional parameter of FailureMode which sets
+// how goconvey should treat failures for So()-assertions in the block and
 // nested blocks. See the constants in this file for the available options.
 //
 // By default it will inherit from its parent block and the top-level blocks

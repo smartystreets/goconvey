@@ -51,6 +51,8 @@ func mustGetCurrentContext() *context {
 //   Convey(..., func(c C) {
 //     c.So(...)
 //   })
+//
+// This implements the `C` interface.
 type context struct {
 	reporter reporting.Reporter
 	test     t
