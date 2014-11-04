@@ -24,7 +24,7 @@ func TestWatcher(t *testing.T) {
 
 	_, filename, _, _ := runtime.Caller(0)
 	originalRoot := filepath.Join(filepath.Dir(filename), "integration_testing")
-	temporary, err := ioutil.TempDir("", "")
+	temporary, err := ioutil.TempDir("/tmp", "goconvey")
 	if err != nil {
 		t.Fatal(err)
 	}

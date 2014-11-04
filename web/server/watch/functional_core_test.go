@@ -82,6 +82,14 @@ func TestCategorize(t *testing.T) {
 			Modified: 3,
 			IsFolder: false,
 		},
+		&FileSystemItem{
+			Root:     "/",
+			Path:     "/_hello",
+			Name:     "_hello",
+			Size:     12345566645,
+			Modified: 712342134,
+			IsFolder: true,
+		},
 	}
 
 	Convey("A stream of file system items should be categorized correctly", t, func() {
