@@ -53,7 +53,6 @@ func mustGetCurrentContext() *context {
 // This implements the `C` interface.
 type context struct {
 	reporter reporting.Reporter
-	test     t
 
 	children map[string]*context
 
@@ -79,7 +78,6 @@ func rootConvey(items ...interface{}) {
 
 	expectChildRun := true
 	ctx := &context{
-		test:     entry.Test,
 		reporter: buildReporter(),
 
 		children: make(map[string]*context),
@@ -90,7 +88,7 @@ func rootConvey(items ...interface{}) {
 		failureMode: defaultFailureMode.combine(entry.FailMode),
 	}
 	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
-		ctx.reporter.BeginStory(reporting.NewStoryReport(ctx.test))
+		ctx.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
 		defer ctx.reporter.EndStory()
 
 		for ctx.shouldVisit() {
@@ -130,7 +128,6 @@ func (ctx *context) Convey(items ...interface{}) {
 		}
 	} else {
 		inner_ctx = &context{
-			test:     ctx.test,
 			reporter: ctx.reporter,
 
 			children: make(map[string]*context),
