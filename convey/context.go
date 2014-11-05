@@ -55,10 +55,7 @@ type context struct {
 	reporter reporting.Reporter
 	test     t
 
-	name string
-
-	curIdx   int
-	children []*context
+	children map[string]*context
 
 	resets []func()
 
@@ -82,10 +79,10 @@ func rootConvey(items ...interface{}) {
 
 	expectChildRun := true
 	ctx := &context{
-		name: entry.Situation,
-
 		test:     entry.Test,
 		reporter: buildReporter(),
+
+		children: make(map[string]*context),
 
 		expectChildRun: &expectChildRun,
 
@@ -126,26 +123,24 @@ func (ctx *context) Convey(items ...interface{}) {
 
 	var inner_ctx *context
 	if ctx.executedOnce {
-		if ctx.curIdx >= len(ctx.children) {
+		var ok bool
+		inner_ctx, ok = ctx.children[entry.Situation]
+		if !ok {
 			panic("different set of Convey statements on subsequent pass!")
 		}
-		inner_ctx = ctx.children[ctx.curIdx]
-		if inner_ctx.name != entry.Situation {
-			panic("different set of Convey statements on subsequent pass!")
-		}
-		ctx.curIdx++
 	} else {
 		inner_ctx = &context{
-			name:     entry.Situation,
 			test:     ctx.test,
 			reporter: ctx.reporter,
+
+			children: make(map[string]*context),
 
 			expectChildRun: ctx.expectChildRun,
 
 			focus:       entry.Focus,
 			failureMode: ctx.failureMode.combine(entry.FailMode),
 		}
-		ctx.children = append(ctx.children, inner_ctx)
+		ctx.children[entry.Situation] = inner_ctx
 	}
 
 	if inner_ctx.shouldVisit() {
@@ -203,7 +198,6 @@ func (ctx *context) conveyInner(situation string, f func(C)) {
 	// Record/Reset state for next time.
 	defer func() {
 		ctx.executedOnce = true
-		ctx.curIdx = 0
 
 		// This is only needed at the leaves, but there's no harm in also setting it
 		// when returning from branch Convey's
