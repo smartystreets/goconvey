@@ -5,8 +5,6 @@ package convey
 
 import (
 	"fmt"
-	"reflect"
-	"runtime"
 	"strings"
 
 	"github.com/jtolds/gls"
@@ -213,8 +211,7 @@ func (ctx *context) conveyInner(situation string, f func(C)) {
 	}()
 
 	// Set up+tear down our scope for the reporter
-	fname := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
-	ctx.reporter.Enter(reporting.NewScopeReport(situation, fname))
+	ctx.reporter.Enter(reporting.NewScopeReport(situation))
 	defer ctx.reporter.Exit()
 
 	// Resets are registered as the `f` function executes, so nil them here.
