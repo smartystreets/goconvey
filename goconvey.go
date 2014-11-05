@@ -38,6 +38,7 @@ func flags() {
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Requires Go 1.2+ and the go cover tool. (default: true)")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
+	flag.StringVar(&timeout, "timeout", "5s", "The test execution timeout if none is specified in the *.goconvey file (default: 5s).")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -59,7 +60,7 @@ func main() {
 	}
 
 	cover = coverageEnabled(cover, reports)
-	shell := system.NewShell(gobin, reports, cover)
+	shell := system.NewShell(gobin, reports, cover, timeout)
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
@@ -200,6 +201,7 @@ var (
 	packages int
 	cover    bool
 	depth    int
+	timeout  string
 
 	static  string
 	reports string
