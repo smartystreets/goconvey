@@ -9,7 +9,7 @@ import (
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
-////////////////////////////////// Registration //////////////////////////////////
+////////////////////////////////// suite //////////////////////////////////
 
 // Convey is the method intended for use when declaring the scopes
 // of a specification. Each scope has a description and a func()
@@ -41,7 +41,7 @@ import (
 //
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
-	register(discover(items))
+	Conveyance(discover(items))
 }
 
 // SkipConvey is analagous to Convey except that the scope is not executed
@@ -49,9 +49,8 @@ func Convey(items ...interface{}) {
 // The reporter will be notified that this step was skipped.
 func SkipConvey(items ...interface{}) {
 	entry := discover(items)
-	entry.action = newSkippedAction(skipReport, entry.action.failureMode)
-
-	register(entry)
+	entry.Func = nil
+	Conveyance(entry)
 }
 
 // FocusConvey is has the inverse effect of SkipConvey. If the top-level
@@ -64,27 +63,14 @@ func SkipConvey(items ...interface{}) {
 func FocusConvey(items ...interface{}) {
 	entry := discover(items)
 	entry.Focus = true
-
-	register(entry)
-}
-
-func register(entry *registration) {
-	if entry.ShouldBeTopLevel() {
-		suites.Run(entry)
-	} else {
-		suites.Current().Register(entry)
-	}
-}
-
-func skipReport() {
-	suites.Current().Report(reporting.NewSkipReport())
+	Conveyance(entry)
 }
 
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
 	/* TODO: Failure mode configuration */
-	suites.Current().RegisterReset(newAction(action, FailureInherits))
+	registerReset(action)
 }
 
 /////////////////////////////////// Assertions ///////////////////////////////////
@@ -106,16 +92,16 @@ const assertionSuccess = ""
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
 	if result := assert(actual, expected...); result == assertionSuccess {
-		suites.Current().Report(reporting.NewSuccessReport())
+		assertionReport(reporting.NewSuccessReport())
 	} else {
-		suites.Current().Report(reporting.NewFailureReport(result))
+		assertionReport(reporting.NewFailureReport(result))
 	}
 }
 
 // SkipSo is analagous to So except that the assertion that would have been passed
 // to So is not executed and the reporter is notified that the assertion was skipped.
 func SkipSo(stuff ...interface{}) {
-	skipReport()
+	assertionReport(reporting.NewSkipReport())
 }
 
 // FailureMode is a type which determines how the So() blocks should fail
@@ -159,20 +145,20 @@ func SetDefaultFailureMode(mode FailureMode) {
 // Print is analogous to fmt.Print (and it even calls fmt.Print). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Print(items ...interface{}) (written int, err error) {
-	fmt.Fprint(suites.Current(), items...)
+	fmt.Fprint(mustGetCurrentContext(), items...)
 	return fmt.Print(items...)
 }
 
 // Print is analogous to fmt.Println (and it even calls fmt.Println). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Println(items ...interface{}) (written int, err error) {
-	fmt.Fprintln(suites.Current(), items...)
+	fmt.Fprintln(mustGetCurrentContext(), items...)
 	return fmt.Println(items...)
 }
 
 // Print is analogous to fmt.Printf (and it even calls fmt.Printf). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Printf(format string, items ...interface{}) (written int, err error) {
-	fmt.Fprintf(suites.Current(), format, items...)
+	fmt.Fprintf(mustGetCurrentContext(), format, items...)
 	return fmt.Printf(format, items...)
 }

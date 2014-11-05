@@ -154,14 +154,24 @@ func Test_Panic_AtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
 	output := prepare()
 
 	Convey("This step panics", t, func() {
-		Convey("this should NOT be executed", func() {
+		Convey("this happens, because the panic didn't happen yet", func() {
 			output += "1"
 		})
 
+		output += "a"
+
+		Convey("this should NOT be executed", func() {
+			output += "2"
+		})
+
+		output += "b"
+
 		panic("Hi")
+
+		output += "nope"
 	})
 
-	expectEqual(t, "", output)
+	expectEqual(t, "1ab", output)
 }
 
 func Test_Panic_InChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {
