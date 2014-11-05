@@ -205,20 +205,10 @@ func (ctx *context) conveyInner(situation string, f func(C)) {
 	ctx.reporter.Enter(reporting.NewScopeReport(situation))
 	defer ctx.reporter.Exit()
 
-	// Resets are registered as the `f` function executes, so nil them here.
-	// All resets are run in registration order (FIFO).
-	// TODO(riannucci): Should these be run in LIFO?
-	ctx.resets = []func(){}
-	defer func() {
-		for _, r := range ctx.resets {
-			// TODO(riannucci): handle panics?
-			r()
-		}
-	}()
-
 	// Recover from any panics in f, and assign the `complete` status for this
 	// node of the tree.
 	defer func() {
+		ctx.complete = true
 		if problem := recover(); problem != nil {
 			if strings.HasPrefix(fmt.Sprintf("%v", problem), extraGoTest) {
 				panic(problem)
@@ -226,15 +216,23 @@ func (ctx *context) conveyInner(situation string, f func(C)) {
 			if problem != failureHalt {
 				ctx.reporter.Report(reporting.NewErrorReport(problem))
 			}
-			ctx.complete = true
 		} else {
-			ctx.complete = true
 			for _, child := range ctx.children {
 				if !child.complete {
 					ctx.complete = false
 					return
 				}
 			}
+		}
+	}()
+
+	// Resets are registered as the `f` function executes, so nil them here.
+	// All resets are run in registration order (FIFO).
+	ctx.resets = []func(){}
+	defer func() {
+		for _, r := range ctx.resets {
+			// panics handled by the previous defer
+			r()
 		}
 	}()
 

@@ -92,6 +92,28 @@ func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
 	expectEqual(t, "1a", output)
 }
 
+func TestPanicingReset(t *testing.T) {
+	output := prepare()
+
+	Convey("1", t, func() {
+		output += "1"
+
+		Reset(func() {
+			panic("nooo")
+		})
+
+		Convey("runs since the reset hasn't yet", func() {
+			output += "a"
+		})
+
+		Convey("but this doesnt", func() {
+			output += "nope"
+		})
+	})
+
+	expectEqual(t, "1a", output)
+}
+
 func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
 	output := prepare()
 
