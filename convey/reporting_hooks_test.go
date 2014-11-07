@@ -229,6 +229,25 @@ func TestEmbeddedAssertionReported(t *testing.T) {
 	expectEqual(t, "Begin|A|Success|Exit|End", myReporter.wholeStory())
 }
 
+func TestEmbeddedContextHelperReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	helper := func(c C) http.HandlerFunc {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c.Convey("Embedded", func() {
+				So(r.FormValue("msg"), ShouldEqual, "ping")
+			})
+		})
+	}
+
+	Convey("A", test, func(c C) {
+		ts := httptest.NewServer(helper(c))
+		http.DefaultClient.Get(ts.URL + "?msg=ping")
+	})
+
+	expectEqual(t, "Begin|A|Embedded|Success|Exit|Exit|End", myReporter.wholeStory())
+}
+
 func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 	if expected != actual {
 		_, file, line, _ := runtime.Caller(1)

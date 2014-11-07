@@ -40,14 +40,14 @@ func discover(items []interface{}) *suite {
 	specifier, items := parseSpecifier(items)
 
 	if len(items) != 0 {
-		panic(parseError)
+		conveyPanic(parseError)
 	}
 
 	return newSuite(name, failure, action, test, specifier)
 }
 func item(items []interface{}) interface{} {
 	if len(items) == 0 {
-		panic(parseError)
+		conveyPanic(parseError)
 	}
 	return items[0]
 }
@@ -55,7 +55,8 @@ func parseName(items []interface{}) (string, []interface{}) {
 	if name, parsed := item(items).(string); parsed {
 		return name, items[1:]
 	}
-	panic(parseError)
+	conveyPanic(parseError)
+	panic("never get here")
 }
 func parseGoTest(items []interface{}) (t, []interface{}) {
 	if test, parsed := item(items).(t); parsed {
@@ -78,7 +79,8 @@ func parseAction(items []interface{}) (func(C), []interface{}) {
 	case func():
 		return func(C) { x() }, items[1:]
 	}
-	panic(parseError)
+	conveyPanic(parseError)
+	panic("never get here")
 }
 func parseSpecifier(items []interface{}) (actionSpecifier, []interface{}) {
 	if len(items) == 0 {
@@ -87,7 +89,8 @@ func parseSpecifier(items []interface{}) (actionSpecifier, []interface{}) {
 	if spec, ok := items[0].(actionSpecifier); ok {
 		return spec, items[1:]
 	}
-	panic(parseError)
+	conveyPanic(parseError)
+	panic("never get here")
 }
 
 // This interface allows us to pass the *testing.T struct

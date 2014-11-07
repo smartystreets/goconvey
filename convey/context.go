@@ -5,17 +5,35 @@ package convey
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/jtolds/gls"
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
+type conveyErr struct {
+	fmt    string
+	params []interface{}
+}
+
+func (e *conveyErr) Error() string {
+	return fmt.Sprintf(e.fmt, e.params...)
+}
+
+func conveyPanic(fmt string, params ...interface{}) {
+	panic(&conveyErr{fmt, params})
+}
+
 const (
 	missingGoTest = `Top-level calls to Convey(...) need a reference to the *testing.T.
 		Hint: Convey("description here", t, func() { /* notice that the second argument was the *testing.T (t)! */ }) `
-	extraGoTest = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+	extraGoTest    = `Only the top-level call to Convey(...) needs a reference to the *testing.T.`
+	noStackContext = "Convey operation made without context on goroutine stack.\n" +
+		"Hint: Perhaps you meant to use `Convey(..., func(c C){...})` ?"
+	differentConveySituations = "Different set of Convey statements on subsequent pass!\nDid not expect %#v."
+	multipleIdenticalConvey   = "Multiple convey suites with identical names: %#v"
+)
 
+const (
 	failureHalt = "___FAILURE_HALT___"
 
 	nodeKey = "node"
@@ -34,7 +52,7 @@ func getCurrentContext() *context {
 func mustGetCurrentContext() *context {
 	ctx := getCurrentContext()
 	if ctx == nil {
-		panic("cannot perform operation outside of a convey context")
+		conveyPanic(noStackContext)
 	}
 	return ctx
 }
@@ -73,7 +91,7 @@ func rootConvey(items ...interface{}) {
 	entry := discover(items)
 
 	if entry.Test == nil {
-		panic(missingGoTest)
+		conveyPanic(missingGoTest)
 	}
 
 	expectChildRun := true
@@ -113,7 +131,7 @@ func (ctx *context) Convey(items ...interface{}) {
 
 	// we're a branch, or leaf (on the wind)
 	if entry.Test != nil {
-		panic(extraGoTest)
+		conveyPanic(extraGoTest)
 	}
 	if ctx.focus && !entry.Focus {
 		return
@@ -124,9 +142,12 @@ func (ctx *context) Convey(items ...interface{}) {
 		var ok bool
 		inner_ctx, ok = ctx.children[entry.Situation]
 		if !ok {
-			panic("different set of Convey statements on subsequent pass!")
+			conveyPanic(differentConveySituations, entry.Situation)
 		}
 	} else {
+		if _, ok := ctx.children[entry.Situation]; ok {
+			conveyPanic(multipleIdenticalConvey, entry.Situation)
+		}
 		inner_ctx = &context{
 			reporter: ctx.reporter,
 
@@ -210,7 +231,7 @@ func (ctx *context) conveyInner(situation string, f func(C)) {
 	defer func() {
 		ctx.complete = true
 		if problem := recover(); problem != nil {
-			if strings.HasPrefix(fmt.Sprintf("%v", problem), extraGoTest) {
+			if problem, ok := problem.(*conveyErr); ok {
 				panic(problem)
 			}
 			if problem != failureHalt {
