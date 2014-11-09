@@ -1,16 +1,31 @@
 package convey
 
 import (
-	"fmt"
-	"strings"
+	"reflect"
 	"testing"
 )
+
+func expectPanic(t *testing.T, f string) interface{} {
+	r := recover()
+	if r != nil {
+		if cp, ok := r.(*conveyErr); ok {
+			if cp.fmt != f {
+				t.Error("Incorrect panic message.")
+			}
+		} else {
+			t.Errorf("Incorrect panic type. %s", reflect.TypeOf(r))
+		}
+	} else {
+		t.Error("Expected panic but none occured")
+	}
+	return r
+}
 
 func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {
 	output := map[string]bool{}
 
 	defer expectEqual(t, false, output["good"])
-	defer requireGoTestReference(t)
+	defer expectPanic(t, missingGoTest)
 
 	Convey("Hi", func() {
 		output["bad"] = true // this shouldn't happen
@@ -33,7 +48,7 @@ func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
 		expectEqual(t, true, output["good"])
 		expectEqual(t, false, output["bad"])
 	}()
-	defer requireGoTestReference(t)
+	defer expectPanic(t, missingGoTest)
 
 	Convey("Good example", t, func() {
 		output["good"] = true
@@ -47,17 +62,8 @@ func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
 func TestExtraReferencePanics(t *testing.T) {
 	output := map[string]bool{}
 
-	defer func() {
-		err := recover()
-		if err == nil {
-			t.Error("We should have recovered a panic here (because of an extra *testing.T reference)!")
-		} else if !strings.HasPrefix(fmt.Sprintf("%v", err), extraGoTest) {
-			t.Error("Should have panicked with the 'extra go test' error!")
-		}
-		if output["bad"] {
-			t.Error("We should NOT have run the bad example!")
-		}
-	}()
+	defer expectEqual(t, false, output["bad"])
+	defer expectPanic(t, extraGoTest)
 
 	Convey("Good example", t, func() {
 		Convey("Bad example - passing in *testing.T a second time!", t, func() {
@@ -67,59 +73,72 @@ func TestExtraReferencePanics(t *testing.T) {
 }
 
 func TestParseRegistrationMissingRequiredElements(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			if r != "You must provide a name (string), then a *testing.T (if in outermost scope), an optional FailureMode, and then an action (func())." {
-				t.Errorf("Incorrect panic message.")
-			}
-		}
-	}()
+	defer expectPanic(t, parseError)
 
 	Convey()
-
-	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
 }
 
 func TestParseRegistration_MissingNameString(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			if r != parseError {
-				t.Errorf("Incorrect panic message.")
-			}
-		}
-	}()
+	defer expectPanic(t, parseError)
 
-	action := func() {}
-
-	Convey(action)
-
-	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
+	Convey(func() {})
 }
 
 func TestParseRegistration_MissingActionFunc(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			if r != parseError {
-				t.Errorf("Incorrect panic message: '%s'", r)
-			}
-		}
-	}()
+	defer expectPanic(t, parseError)
 
 	Convey("Hi there", 12345)
+}
 
-	t.Errorf("goTest should have panicked in Convey(...) and then recovered in the defer func().")
+func TestFailureModeNoContext(t *testing.T) {
+	Convey("Foo", t, func() {
+		done := make(chan int, 1)
+		go func() {
+			defer func() { done <- 1 }()
+			defer expectPanic(t, noStackContext)
+			So(len("I have no context"), ShouldBeGreaterThan, 0)
+		}()
+		<-done
+	})
+}
+
+func TestFailureModeDuplicateSuite(t *testing.T) {
+	Convey("cool", t, func() {
+		defer expectPanic(t, multipleIdenticalConvey)
+
+		Convey("dup", nil)
+		Convey("dup", nil)
+	})
+}
+
+func TestFailureModeIndeterminentSuiteNames(t *testing.T) {
+	defer expectPanic(t, differentConveySituations)
+
+	name := "bob"
+	Convey("cool", t, func() {
+		for i := 0; i < 3; i++ {
+			Convey(name, func() {})
+			name += "bob"
+		}
+	})
+}
+
+func TestFailureModeNestedIndeterminentSuiteNames(t *testing.T) {
+	defer expectPanic(t, differentConveySituations)
+
+	name := "bob"
+	Convey("cool", t, func() {
+		Convey("inner", func() {
+			for i := 0; i < 3; i++ {
+				Convey(name, func() {})
+				name += "bob"
+			}
+		})
+	})
 }
 
 func TestFailureModeParameterButMissing(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			if r != parseError {
-				t.Errorf("Incorrect panic message.")
-			}
-		} else {
-			t.Errorf("Expected panic")
-		}
-	}()
+	defer expectPanic(t, parseError)
 
 	prepare()
 
@@ -129,25 +148,11 @@ func TestFailureModeParameterButMissing(t *testing.T) {
 func TestFailureModeParameterWithAction(t *testing.T) {
 	prepare()
 
-	defer func() {
-		if r := recover(); r != nil {
-			t.Errorf("Unexpected panic")
-		}
-	}()
-
 	Convey("Foobar", t, FailureHalts, func() {})
 }
 
 func TestExtraConveyParameters(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			if r != parseError {
-				t.Errorf("Incorrect panic message.")
-			}
-		} else {
-			t.Errorf("Expected panic")
-		}
-	}()
+	defer expectPanic(t, parseError)
 
 	prepare()
 
@@ -155,15 +160,7 @@ func TestExtraConveyParameters(t *testing.T) {
 }
 
 func TestExtraConveyParameters2(t *testing.T) {
-	defer func() {
-		if r := recover(); r != nil {
-			if r != parseError {
-				t.Errorf("Incorrect panic message.")
-			}
-		} else {
-			t.Errorf("Expected panic")
-		}
-	}()
+	defer expectPanic(t, parseError)
 
 	prepare()
 
@@ -171,6 +168,8 @@ func TestExtraConveyParameters2(t *testing.T) {
 }
 
 func TestExtraConveyParameters3(t *testing.T) {
+	defer expectPanic(t, parseError)
+
 	output := prepare()
 
 	Convey("A", t, func() {

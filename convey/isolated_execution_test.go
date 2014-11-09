@@ -92,6 +92,28 @@ func TestSingleScopeWithConveyAndNestedReset(t *testing.T) {
 	expectEqual(t, "1a", output)
 }
 
+func TestPanicingReset(t *testing.T) {
+	output := prepare()
+
+	Convey("1", t, func() {
+		output += "1"
+
+		Reset(func() {
+			panic("nooo")
+		})
+
+		Convey("runs since the reset hasn't yet", func() {
+			output += "a"
+		})
+
+		Convey("but this doesnt", func() {
+			output += "nope"
+		})
+	})
+
+	expectEqual(t, "1a", output)
+}
+
 func TestSingleScopeWithMultipleRegistrationsAndReset(t *testing.T) {
 	output := prepare()
 
@@ -154,14 +176,24 @@ func Test_Panic_AtHigherLevelScopePreventsChildScopesFromRunning(t *testing.T) {
 	output := prepare()
 
 	Convey("This step panics", t, func() {
-		Convey("this should NOT be executed", func() {
+		Convey("this happens, because the panic didn't happen yet", func() {
 			output += "1"
 		})
 
+		output += "a"
+
+		Convey("this should NOT be executed", func() {
+			output += "2"
+		})
+
+		output += "b"
+
 		panic("Hi")
+
+		output += "nope"
 	})
 
-	expectEqual(t, "", output)
+	expectEqual(t, "1ab", output)
 }
 
 func Test_Panic_InChildScopeDoes_NOT_PreventExecutionOfSiblingScopes(t *testing.T) {

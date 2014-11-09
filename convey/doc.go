@@ -3,18 +3,38 @@
 // packages from this project as they serve internal purposes.
 package convey
 
-import (
-	"fmt"
+////////////////////////////////// suite //////////////////////////////////
 
-	"github.com/smartystreets/goconvey/convey/reporting"
-)
+// C is the Convey context which you can optionally obtain in your action
+// by calling Convey like:
+//
+//   Convey(..., func(c C) {
+//     ...
+//   })
+//
+// See the documentation on Convey for more details.
+//
+// All methods in this context behave identically to the global functions of the
+// same name in this package.
+type C interface {
+	Convey(items ...interface{})
+	SkipConvey(items ...interface{})
+	FocusConvey(items ...interface{})
 
-////////////////////////////////// Registration //////////////////////////////////
+	So(actual interface{}, assert assertion, expected ...interface{})
+	SkipSo(stuff ...interface{})
 
-// Convey is the method intended for use when declaring the scopes
-// of a specification. Each scope has a description and a func()
-// which may contain other calls to Convey(), Reset() or Should-style
-// assertions. Convey calls can be nested as far as you see fit.
+	Reset(action func())
+
+	Println(items ...interface{}) (int, error)
+	Print(items ...interface{}) (int, error)
+	Printf(format string, items ...interface{}) (int, error)
+}
+
+// Convey is the method intended for use when declaring the scopes of
+// a specification. Each scope has a description and a func() which may contain
+// other calls to Convey(), Reset() or Should-style assertions. Convey calls can
+// be nested as far as you see fit.
 //
 // IMPORTANT NOTE: The top-level Convey() within a Test method
 // must conform to the following signature:
@@ -27,8 +47,16 @@ import (
 //
 // Don't worry, the goconvey will panic if you get it wrong so you can fix it.
 //
-// All Convey()-blocks also take an optional parameter of FailureMode which
-// sets how goconvey should treat failures for So()-assertions in the block and
+// Additionally, you may explicitly obtain access to the Convey context by doing:
+//
+//     Convey(description string, action func(c C))
+//
+// You may need to do this if you want to pass the context through to a
+// goroutine, or to close over the context in a handler to a library which
+// calls your handler in a goroutine (httptest comes to mind).
+//
+// All Convey()-blocks also take an optional parameter of FailureMode which sets
+// how goconvey should treat failures for So()-assertions in the block and
 // nested blocks. See the constants in this file for the available options.
 //
 // By default it will inherit from its parent block and the top-level blocks
@@ -41,17 +69,18 @@ import (
 //
 // See the examples package for, well, examples.
 func Convey(items ...interface{}) {
-	register(discover(items))
+	if ctx := getCurrentContext(); ctx == nil {
+		rootConvey(items...)
+	} else {
+		ctx.Convey(items...)
+	}
 }
 
 // SkipConvey is analagous to Convey except that the scope is not executed
 // (which means that child scopes defined within this scope are not run either).
 // The reporter will be notified that this step was skipped.
 func SkipConvey(items ...interface{}) {
-	entry := discover(items)
-	entry.action = newSkippedAction(skipReport, entry.action.failureMode)
-
-	register(entry)
+	Convey(append(items, skipConvey)...)
 }
 
 // FocusConvey is has the inverse effect of SkipConvey. If the top-level
@@ -62,29 +91,13 @@ func SkipConvey(items ...interface{}) {
 // without swaths of `SkipConvey` calls, just a targeted chain of calls
 // to FocusConvey.
 func FocusConvey(items ...interface{}) {
-	entry := discover(items)
-	entry.Focus = true
-
-	register(entry)
-}
-
-func register(entry *registration) {
-	if entry.ShouldBeTopLevel() {
-		suites.Run(entry)
-	} else {
-		suites.Current().Register(entry)
-	}
-}
-
-func skipReport() {
-	suites.Current().Report(reporting.NewSkipReport())
+	Convey(append(items, focusConvey)...)
 }
 
 // Reset registers a cleanup function to be run after each Convey()
 // in the same scope. See the examples package for a simple use case.
 func Reset(action func()) {
-	/* TODO: Failure mode configuration */
-	suites.Current().RegisterReset(newAction(action, FailureInherits))
+	mustGetCurrentContext().Reset(action)
 }
 
 /////////////////////////////////// Assertions ///////////////////////////////////
@@ -105,17 +118,13 @@ const assertionSuccess = ""
 // See the examples package for use cases and the assertions package for
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
-	if result := assert(actual, expected...); result == assertionSuccess {
-		suites.Current().Report(reporting.NewSuccessReport())
-	} else {
-		suites.Current().Report(reporting.NewFailureReport(result))
-	}
+	mustGetCurrentContext().So(actual, assert, expected...)
 }
 
 // SkipSo is analagous to So except that the assertion that would have been passed
 // to So is not executed and the reporter is notified that the assertion was skipped.
 func SkipSo(stuff ...interface{}) {
-	skipReport()
+	mustGetCurrentContext().SkipSo()
 }
 
 // FailureMode is a type which determines how the So() blocks should fail
@@ -140,6 +149,13 @@ const (
 	FailureInherits FailureMode = "inherits"
 )
 
+func (f FailureMode) combine(other FailureMode) FailureMode {
+	if other == FailureInherits {
+		return f
+	}
+	return other
+}
+
 var defaultFailureMode FailureMode = FailureHalts
 
 // SetDefaultFailureMode allows you to specify the default failure mode
@@ -159,20 +175,17 @@ func SetDefaultFailureMode(mode FailureMode) {
 // Print is analogous to fmt.Print (and it even calls fmt.Print). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Print(items ...interface{}) (written int, err error) {
-	fmt.Fprint(suites.Current(), items...)
-	return fmt.Print(items...)
+	return mustGetCurrentContext().Print(items...)
 }
 
 // Print is analogous to fmt.Println (and it even calls fmt.Println). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Println(items ...interface{}) (written int, err error) {
-	fmt.Fprintln(suites.Current(), items...)
-	return fmt.Println(items...)
+	return mustGetCurrentContext().Println(items...)
 }
 
 // Print is analogous to fmt.Printf (and it even calls fmt.Printf). It ensures that
 // output is aligned with the corresponding scopes in the web UI.
 func Printf(format string, items ...interface{}) (written int, err error) {
-	fmt.Fprintf(suites.Current(), format, items...)
-	return fmt.Printf(format, items...)
+	return mustGetCurrentContext().Printf(format, items...)
 }
