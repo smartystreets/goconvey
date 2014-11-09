@@ -588,7 +588,10 @@ function process(data, status, jqxhr)
 			test._pkgid = pkg._id;
 			test._pkg = pkg.PackageName;
 
-			if (test.Stories.length == 0)
+			if (test.Stories.length == 0) 
+			// Note to Matt: Really, what we need is another server-side 
+			// field to identify the usage of the convey package (this 
+			// condition doesn't hold up in certain edge cases). --Mike
 			{
 				// Here we've got ourselves a classic Go test,
 				// not a GoConvey test that has stories and assertions
@@ -700,6 +703,21 @@ function process(data, status, jqxhr)
 				pkg._failed++;
 				test._failed++;
 				current().assertions.failed.push(test);
+			}
+
+			if (test.Error && test.Stories.length > 0)
+			{
+				// Another edge case: Developer wrote a valid convey(...) suite, then 
+				// in the same test function, wrote an invalid convey(...) suite
+				// (maybe the `t` was forgotton or repeated). So we have stories,
+				// but we also have an error.
+				
+				current().assertions.failed = [] // This gets rid of the "failure" section containing "???"
+
+				test._status = convey.statuses.panic;
+				pkg._panicked++;
+				test._panicked++;
+				current().assertions.panicked.push(test);
 			}
 		}
 	}

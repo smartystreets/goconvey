@@ -3,6 +3,7 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -88,7 +89,7 @@ func (self *testParser) deserializeJson() {
 	var scopes []reporting.ScopeResult
 	err := json.Unmarshal(formatted, &scopes)
 	if err != nil {
-		panic(fmt.Sprintf(bugReportRequest, err, formatted))
+		log.Fatalf(bugReportRequest, err, formatted)
 	}
 	self.test.Stories = scopes
 }
