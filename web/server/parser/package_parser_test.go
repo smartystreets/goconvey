@@ -1,16 +1,20 @@
-// +build go1.1,!go1.2
-
 package parser
 
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"strings"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey/reporting"
 	"github.com/smartystreets/goconvey/web/server/contract"
 )
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
 
 func TestParsePackage_NoGoFiles_ReturnsPackageResult(t *testing.T) {
 	actual := &contract.PackageResult{PackageName: expected_NoGoFiles.PackageName}
@@ -38,6 +42,10 @@ func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
 	actual = &contract.PackageResult{PackageName: expected_BuildFailed_OtherErrors.PackageName}
 	ParsePackageResults(actual, input_BuildFailed_OtherErrors)
 	assertEqual(t, expected_BuildFailed_OtherErrors, *actual)
+
+	actual = &contract.PackageResult{PackageName: expected_BuildFailed_ImportCycle.PackageName}
+	ParsePackageResults(actual, input_BuildFailed_ImportCycle)
+	assertEqual(t, expected_BuildFailed_ImportCycle, *actual)
 
 	actual = &contract.PackageResult{PackageName: expected_BuildFailed_CantFindPackage.PackageName}
 	ParsePackageResults(actual, input_BuildFailed_CantFindPackage)
@@ -96,6 +104,12 @@ func TestParsePackage_GoConveyWithRandomOutput_ReturnsPackageResult(t *testing.T
 	assertEqual(t, expectedGoConvey_WithRandomOutput, *actual)
 }
 
+func TestParsePackage_OldSchoolWithSuccessAndBogusCoverage_ReturnsCompletePackageResult(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedOldSchool_PassesButCoverageIsBogus.PackageName}
+	ParsePackageResults(actual, inputOldSchool_PassesButCoverageIsBogus)
+	assertEqual(t, expectedOldSchool_PassesButCoverageIsBogus, *actual)
+}
+
 func TestParsePackage_NestedTests_ReturnsPackageResult(t *testing.T) {
 	actual := &contract.PackageResult{PackageName: expectedNestedTests.PackageName}
 	ParsePackageResults(actual, inputNestedTests)
@@ -118,7 +132,7 @@ func assertEqual(t *testing.T, expected, actual interface{}) {
 
 const failureTemplate = "Comparison failed:\n  Expected: %v\n    Actual: %v\n"
 
-const input_NoGoFiles = `can't load package: package github.com/smartystreets/goconvey: no Go source files in /Users/matt/Work/Dev/goconvey/src/github.com/smartystreets/goconvey`
+const input_NoGoFiles = `can't load package: package github.com/smartystreets/goconvey: no buildable Go source files in /Users/matt/Work/Dev/goconvey/src/github.com/smartystreets/goconvey`
 
 var expected_NoGoFiles = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey",
@@ -134,7 +148,9 @@ var expected_NoTestFiles = contract.PackageResult{
 	BuildOutput: input_NoTestFiles,
 }
 
-const input_NoTestFunctions = `testing: warning: no tests to run`
+const input_NoTestFunctions = `testing: warning: no tests to run
+PASS
+ok  	github.com/smartystreets/goconvey/scripts	0.011s`
 
 var expected_NoTestFunctions = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
@@ -158,6 +174,7 @@ const input_BuildFailed_CantFindPackage = `
 bowling_game.go:3:8: cannot find package "format" in any of:
 	/usr/local/go/src/pkg/format (from $GOROOT)
 	/Users/mike/work/dev/goconvey/src/format (from $GOPATH)
+FAIL	github.com/smartystreets/goconvey/examples [setup failed]
 `
 
 var expected_BuildFailed_CantFindPackage = contract.PackageResult{
@@ -188,6 +205,18 @@ var expected_BuildFailed_OtherErrors = contract.PackageResult{
 	BuildOutput: strings.TrimSpace(input_BuildFailed_OtherErrors),
 }
 
+const input_BuildFailed_ImportCycle = `
+# github.com/smartystreets/goconvey/t
+./t_test.go:23: import "github.com/smartystreets/goconvey/t" while compiling that package (import cycle)
+FAIL	github.com/smartystreets/goconvey/t [build failed]
+`
+
+var expected_BuildFailed_ImportCycle = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/t",
+	Outcome:     contract.BuildFailure,
+	BuildOutput: strings.TrimSpace(input_BuildFailed_ImportCycle),
+}
+
 const inputOldSchool_Passes = `
 === RUN TestOldSchool_Passes
 --- PASS: TestOldSchool_Passes (0.02 seconds)
@@ -199,12 +228,14 @@ const inputOldSchool_Passes = `
 	old_school_test.go:10: I am a passing test.
 		With a newline.
 PASS
+coverage: 100.0%% of statements in github.com/smartystreets/goconvey/convey, github.com/smartystreets/goconvey/convey/gotest, github.com/smartystreets/goconvey/convey/reporting
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.018s
 `
 
 var expectedOldSchool_Passes = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.018,
+	Coverage:    100,
 	Outcome:     contract.Passed,
 	TestResults: []contract.TestResult{
 		contract.TestResult{
@@ -413,6 +444,7 @@ const inputGoConvey = `
 <<<<<
 --- PASS: TestPassingStory (0.01 seconds)
 PASS
+coverage: 75.5%% of statements
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
 `
 
@@ -420,6 +452,7 @@ var expectedGoConvey = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
 	Elapsed:     0.019,
 	Outcome:     contract.Passed,
+	Coverage:    75.5,
 	TestResults: []contract.TestResult{
 		contract.TestResult{
 			TestName: "TestPassingStory",
@@ -495,6 +528,7 @@ const inputGoConvey_WithRandomOutput = `
 *** Hello, World! (6) ***
 --- PASS: TestPassingStory (0.03 seconds)
 PASS
+coverage: 45.0%% of statements
 ok  	github.com/smartystreets/goconvey/web/server/testing	0.024s
 `
 
@@ -502,6 +536,7 @@ var expectedGoConvey_WithRandomOutput = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/web/server/testing",
 	Elapsed:     0.024,
 	Outcome:     contract.Passed,
+	Coverage:    45.0,
 	TestResults: []contract.TestResult{
 		contract.TestResult{
 			TestName: "TestPassingStory",
@@ -548,76 +583,44 @@ var expectedGoConvey_WithRandomOutput = contract.PackageResult{
 	},
 }
 
-/*
-Test output for these tests was generated from the following test code:
+const inputOldSchool_PassesButCoverageIsBogus = `
+=== RUN TestOldSchool_Passes
+--- PASS: TestOldSchool_Passes (0.02 seconds)
+=== RUN TestOldSchool_PassesWithMessage
+--- PASS: TestOldSchool_PassesWithMessage (0.05 seconds)
+	old_school_test.go:10: I am a passing test.
+		With a newline.
+PASS
+coverage: bogus%% of statements
+ok  	github.com/smartystreets/goconvey/webserver/examples	0.018s
+`
 
-Old School style tests:
-
-	package examples
-
-	import "testing"
-
-	func TestOldSchool_Passes(t *testing.T) {
-		// passes implicitly
-	}
-
-	func TestOldSchool_PassesWithMessage(t *testing.T) {
-		t.Log("I am a passing test.\nWith a newline.")
-	}
-
-	func TestOldSchool_Failure(t *testing.T) {
-		t.Fail() // no message
-	}
-
-	func TestOldSchool_FailureWithReason(t *testing.T) {
-		t.Error("I am a failing test.")
-	}
-
-GoConvey style tests:
-
-	package examples
-
-	import (
-		. "github.com/smartystreets/goconvey/convey"
-		"testing"
-	)
-
-	func TestPassingStory(t *testing.T) {
-		Convey("A passing story", t, func() {
-			So("This test passes", ShouldContainSubstring, "pass")
-		})
-	}
-
-GoConvey style tests with random output:
-
-	package examples
-
-	import (
-		"fmt"
-		. "github.com/smartystreets/goconvey/convey"
-		"testing"
-	)
-
-	func TestPassingStory(t *testing.T) {
-		fmt.Println("*** Hello, World! (1) ***")
-
-		Convey("A passing story", t, func() {
-			fmt.Println("*** Hello, World! (2) ***")
-			So("This test passes", ShouldContainSubstring, "pass")
-			fmt.Println("*** Hello, World! (3) ***")
-		})
-
-		Convey("A passing story", t, func() {
-			fmt.Println("*** Hello, World! (4)***")
-			So("This test passes", ShouldContainSubstring, "pass")
-			fmt.Println("*** Hello, World! (5) ***")
-		})
-
-		fmt.Println("*** Hello, World! (6) ***")
-	}
-
-
-*/
+var expectedOldSchool_PassesButCoverageIsBogus = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.018,
+	Coverage:    -1,
+	Outcome:     contract.Passed,
+	TestResults: []contract.TestResult{
+		contract.TestResult{
+			TestName: "TestOldSchool_Passes",
+			Elapsed:  0.02,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "TestOldSchool_PassesWithMessage",
+			Elapsed:  0.05,
+			Passed:   true,
+			File:     "old_school_test.go",
+			Line:     10,
+			Message:  "old_school_test.go:10: I am a passing test.\nWith a newline.",
+			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
 
 const inputNestedTests = `
 === RUN TestNestedTests

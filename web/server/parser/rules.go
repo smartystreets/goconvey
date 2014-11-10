@@ -1,5 +1,3 @@
-// +build go1.2
-
 package parser
 
 import "strings"
