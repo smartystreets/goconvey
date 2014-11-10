@@ -43,16 +43,17 @@ const ( // collections
 )
 
 const ( // strings
-	shouldHaveStartedWith           = "Expected      '%v'\nto start with '%v'\n(but it didn't)!"
-	shouldNotHaveStartedWith        = "Expected          '%v'\nNOT to start with '%v'\n(but it did)!"
-	shouldHaveEndedWith             = "Expected    '%v'\nto end with '%v'\n(but it didn't)!"
-	shouldNotHaveEndedWith          = "Expected        '%v'\nNOT to end with '%v'\n(but it did)!"
-	shouldBothBeStrings             = "Both arguments to this assertion must be strings (you provided %v and %v)."
-	shouldBeString                  = "The argument to this assertion must be a string (you provided %v)."
-	shouldHaveContainedSubstring    = "Expected '%s' to contain substring '%s' (but it didn't)!"
-	shouldNotHaveContainedSubstring = "Expected '%s' NOT to contain substring '%s' (but it didn't)!"
-	shouldHaveBeenBlank             = "Expected '%s' to be blank (but it wasn't)!"
-	shouldNotHaveBeenBlank          = "Expected value to NOT be blank (but it was)!"
+	shouldHaveStartedWith             = "Expected      '%v'\nto start with '%v'\n(but it didn't)!"
+	shouldNotHaveStartedWith          = "Expected          '%v'\nNOT to start with '%v'\n(but it did)!"
+	shouldHaveEndedWith               = "Expected    '%v'\nto end with '%v'\n(but it didn't)!"
+	shouldNotHaveEndedWith            = "Expected        '%v'\nNOT to end with '%v'\n(but it did)!"
+	shouldBothBeStrings               = "Both arguments to this assertion must be strings (you provided %v and %v)."
+	shouldBeString                    = "The argument to this assertion must be a string (you provided %v)."
+	shouldHaveContainedSubstring      = "Expected '%s' to contain substring '%s' (but it didn't)!"
+	shouldNotHaveContainedSubstring   = "Expected '%s' NOT to contain substring '%s' (but it didn't)!"
+	shouldHaveBeenBlank               = "Expected '%s' to be blank (but it wasn't)!"
+	shouldNotHaveBeenBlank            = "Expected value to NOT be blank (but it was)!"
+	shouldHaveBeenEqualIgnoringSpaces = "Expected '%s' and '%s' to be equal--ignoring spaces (but they were not!)"
 )
 
 const ( // panics
