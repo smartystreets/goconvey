@@ -28,9 +28,7 @@ func ShouldBeEqualIgnoringSpaces(actual interface{}, expected ...interface{}) st
 	}
 }
 
-func equalIgnoringSpaces(a, b string) bool {
-	r := []rune(a)
-	s := []rune(b)
+func equalIgnoringSpaces(r, s string) bool {
 	nextr := 0
 	nexts := 0
 
