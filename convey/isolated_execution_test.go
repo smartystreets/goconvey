@@ -753,6 +753,41 @@ func TestMultipleInvocationInheritance2(t *testing.T) {
 	expectEqual(t, "A1 A2 A3 B1 B2 A1 A2 A3 C1 C2 C3 ", output)
 }
 
+func TestRandomizedExecution(t *testing.T) {
+	randomizeTests = true
+	defer func() { randomizeTests = false }()
+
+	tests := map[int64]string{
+		1:  " A AD AC AB ABY ABX",
+		15: " A AB ABX AD AC ABY",
+	}
+
+	for seed, expect := range tests {
+		randomSeed = seed
+		output := prepare()
+
+		Convey("A", t, func() {
+			output += " A"
+
+			Convey("B", func() {
+				output += "B"
+
+				Convey("X", func() {
+					output += "X"
+				})
+
+				Convey("Y", func() {
+					output += "Y"
+				})
+			})
+			Convey("C", func() { output += "C" })
+			Convey("D", func() { output += "D" })
+		})
+
+		expectEqualCtx(t, expect, output, "seed %d", seed)
+	}
+}
+
 func TestSetDefaultFailureMode(t *testing.T) {
 	output := prepare()
 

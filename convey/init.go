@@ -2,7 +2,11 @@ package convey
 
 import (
 	"flag"
+	"fmt"
+	"math/rand"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/jtolds/gls"
 	"github.com/smartystreets/goconvey/convey/reporting"
@@ -18,6 +22,8 @@ func declareFlags() {
 	flag.BoolVar(&json, "json", false, "When true, emits results in JSON blocks. Default: 'false'")
 	flag.BoolVar(&silent, "silent", false, "When true, all output from GoConvey is suppressed.")
 	flag.BoolVar(&story, "story", false, "When true, emits story output, otherwise emits dot output. When not provided, this flag mirros the value of the '-test.v' flag")
+	flag.BoolVar(&randomizeTests, "randomize-tests", false, "When true, randomizes the order of tests run.")
+	flag.Int64Var(&randomSeed, "random-seed", 0, "The randomization seed if -randomize-tests is specified. 0 uses the time.")
 
 	if noStoryFlagProvided() {
 		story = verboseEnabled
@@ -53,13 +59,56 @@ var (
 )
 
 var (
-	json   bool
-	silent bool
-	story  bool
+	json           bool
+	silent         bool
+	story          bool
+	randomizeTests bool
+	randomSeed     int64
+
+	randomSeedMtx sync.Mutex
 
 	verboseEnabled = flagFound("-test.v=true")
 	storyDisabled  = flagFound("-story=false")
 )
+
+type picker interface {
+	Enter(remaining []string)
+	New() picker
+	Pick(string) bool
+}
+
+type fakePicker struct{}
+
+func (fakePicker) New() picker      { return fakePicker{} }
+func (fakePicker) Enter([]string)   {}
+func (fakePicker) Pick(string) bool { return true }
+
+type realPicker struct {
+	r      *rand.Rand
+	choice string
+}
+
+func (p *realPicker) New() picker             { return &realPicker{r: p.r} }
+func (p *realPicker) Pick(choice string) bool { return choice == p.choice }
+func (p *realPicker) Enter(choices []string)  { p.choice = choices[p.r.Intn(len(choices))] }
+
+func newPicker() picker {
+	if randomizeTests {
+		if randomSeed == 0 {
+			func() {
+				randomSeedMtx.Lock()
+				defer randomSeedMtx.Unlock()
+				if randomSeed == 0 {
+					randomSeed = time.Now().UnixNano()
+					fmt.Println("Using random seed: ", randomSeed)
+				}
+			}()
+		}
+		return &realPicker{r: rand.New(rand.NewSource(randomSeed))}
+	} else {
+		return fakePicker{}
+	}
+}
 
 // flagFound parses the command line args manually for flags defined in other
 // packages. Like the '-v' flag from the "testing" package, for instance.

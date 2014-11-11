@@ -256,6 +256,16 @@ func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 	}
 }
 
+func expectEqualCtx(t *testing.T, expected interface{}, actual interface{}, format string, args ...interface{}) {
+	if expected != actual {
+		_, file, line, _ := runtime.Caller(1)
+		err := fmt.Sprintf("Expected '%v' to be '%v' but it wasn't. See '%s' at line %d.",
+			actual, expected, path.Base(file), line)
+		err += fmt.Sprintf("\n  Context: "+format, args...)
+		t.Errorf(err)
+	}
+}
+
 func setupFakeReporter() (*fakeReporter, *fakeGoTest) {
 	myReporter := new(fakeReporter)
 	myReporter.calls = []string{}
