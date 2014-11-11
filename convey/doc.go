@@ -41,11 +41,11 @@ type C interface {
 //
 //     Convey(description string, t *testing.T, action func())
 //
-// All other calls should like like this (no need to pass in *testing.T):
+// All other calls should look like this (no need to pass in *testing.T):
 //
 //     Convey(description string, action func())
 //
-// Don't worry, the goconvey will panic if you get it wrong so you can fix it.
+// Don't worry, goconvey will panic if you get it wrong so you can fix it.
 //
 // Additionally, you may explicitly obtain access to the Convey context by doing:
 //
@@ -55,12 +55,12 @@ type C interface {
 // goroutine, or to close over the context in a handler to a library which
 // calls your handler in a goroutine (httptest comes to mind).
 //
-// All Convey()-blocks also take an optional parameter of FailureMode which sets
+// All Convey()-blocks also accept an optional parameter of FailureMode which sets
 // how goconvey should treat failures for So()-assertions in the block and
 // nested blocks. See the constants in this file for the available options.
 //
 // By default it will inherit from its parent block and the top-level blocks
-// start with setting of FailureHalts.
+// default to the FailureHalts setting.
 //
 // This parameter is inserted before the block itself:
 //
@@ -116,7 +116,9 @@ const assertionSuccess = ""
 // of the final (expected) arguments. How many final arguments are accepted
 // depends on the particular assertion that is passed in as the assert argument.
 // See the examples package for use cases and the assertions package for
-// documentation on specific assertion methods.
+// documentation on specific assertion methods. A failing assertion will
+// cause t.Fail() to be invoked--you should never call this method (or other
+// failure-inducing methods) in your test code. Leave that to GoConvey.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
 	mustGetCurrentContext().So(actual, assert, expected...)
 }
@@ -160,7 +162,7 @@ var defaultFailureMode FailureMode = FailureHalts
 
 // SetDefaultFailureMode allows you to specify the default failure mode
 // for all Convey blocks. It is meant to be used in an init function to
-// allow the default mode to be changd across all tests for an entire packgae
+// allow the default mode to be changdd across all tests for an entire packgae
 // but it can be used anywhere.
 func SetDefaultFailureMode(mode FailureMode) {
 	if mode == FailureContinues || mode == FailureHalts {

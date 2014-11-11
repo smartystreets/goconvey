@@ -94,7 +94,7 @@ func parseSpecifier(items []interface{}) (actionSpecifier, []interface{}) {
 }
 
 // This interface allows us to pass the *testing.T struct
-// throughout the internals of this tool without ever
+// throughout the internals of this package without ever
 // having to import the "testing" package.
 type t interface {
 	Fail()

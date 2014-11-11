@@ -1,6 +1,3 @@
-// Oh the stack trace scanning!
-// The density of comments in this file is evidence that
-// the code doesn't exactly explain itself. Tread with care...
 package convey
 
 import (
