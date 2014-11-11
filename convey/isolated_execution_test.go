@@ -754,16 +754,19 @@ func TestMultipleInvocationInheritance2(t *testing.T) {
 }
 
 func TestRandomizedExecution(t *testing.T) {
-	randomizeTests = true
 	defer func() { randomizeTests = false }()
 
 	tests := map[int64]string{
+		0:  " ABX ABY AC AD", // non-randomized
 		1:  " A AD AC AB ABY ABX",
 		15: " A AB ABX AD AC ABY",
 	}
 
 	for seed, expect := range tests {
 		randomSeed = seed
+		if randomSeed != 0 {
+			randomizeTests = true
+		}
 		output := prepare()
 
 		Convey("A", t, func() {
