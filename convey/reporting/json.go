@@ -76,8 +76,8 @@ func NewJsonReporter(out *Printer) *JsonReporter {
 	return self
 }
 
-const OpenJson = ">>>>>"  // "⌦"
-const CloseJson = "<<<<<" // "⌫"
+const OpenJson = ">->->OPEN-JSON->->->"   // "⌦"
+const CloseJson = "<-<-<-CLOSE-JSON<-<-<" // "⌫"
 const jsonMarshalFailure = `
 
 GOCONVEY_JSON_MARSHALL_FAILURE: There was an error when attempting to convert test results to JSON.

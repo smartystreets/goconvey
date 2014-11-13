@@ -396,7 +396,7 @@ main.main()
 
 const inputGoConvey_Malformed = `
 === RUN TestPassingStory
->>>>>
+>->->OPEN-JSON->->->
 {
   "Title": "A passing story",
   "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
@@ -416,7 +416,7 @@ const inputGoConvey_Malformed = `
     }
   ]
 },
-<<<<<
+<-<-<-CLOSE-JSON<-<-<
 --- PASS: TestPassingStory (0.01 seconds)
 PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
@@ -424,7 +424,7 @@ ok  	github.com/smartystreets/goconvey/webserver/examples	0.019s
 
 const inputGoConvey = `
 === RUN TestPassingStory
->>>>>
+>->->OPEN-JSON->->->
 {
   "Title": "A passing story",
   "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/webserver/examples/old_school_test.go",
@@ -441,7 +441,7 @@ const inputGoConvey = `
     }
   ]
 },
-<<<<<
+<-<-<-CLOSE-JSON<-<-<
 --- PASS: TestPassingStory (0.01 seconds)
 PASS
 coverage: 75.5%% of statements
@@ -487,7 +487,7 @@ const inputGoConvey_WithRandomOutput = `
 === RUN TestPassingStory
 *** Hello, World! (1) ***
 *** Hello, World! (2) ***
-*** Hello, World! (3) ***>>>>>
+*** Hello, World! (3) ***>->->OPEN-JSON->->->
 {
   "Title": "A passing story",
   "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
@@ -504,10 +504,10 @@ const inputGoConvey_WithRandomOutput = `
     }
   ]
 },
-<<<<<
+<-<-<-CLOSE-JSON<-<-<
 *** Hello, World! (4)***
 *** Hello, World! (5) ***
->>>>>
+>->->OPEN-JSON->->->
 {
   "Title": "A passing story",
   "File": "/Users/mike/work/dev/goconvey/src/github.com/smartystreets/goconvey/web/server/testing/go_test.go",
@@ -524,7 +524,7 @@ const inputGoConvey_WithRandomOutput = `
     }
   ]
 },
-<<<<<
+<-<-<-CLOSE-JSON<-<-<
 *** Hello, World! (6) ***
 --- PASS: TestPassingStory (0.03 seconds)
 PASS
