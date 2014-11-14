@@ -11,83 +11,69 @@ import (
 func TestCategorize(t *testing.T) {
 	fileSystem := []*FileSystemItem{
 		&FileSystemItem{
-			Root:     "/",
-			Path:     "/hello",
-			Name:     "hello",
-			Size:     12345566645,
-			Modified: 712342134,
-			IsFolder: true,
-		},
-		&FileSystemItem{
-			Root:     "/",
-			Path:     "/1/hello/world.txt",
-			Name:     "world.txt",
-			Size:     3,
-			Modified: 5,
-			IsFolder: false,
-		},
-		&FileSystemItem{
-			Root:     "/",
-			Path:     "/1/2/3/4/5/hello/world.go",
-			Name:     "world.go",
-			Size:     3,
-			Modified: 5,
-			IsFolder: false,
-		},
-		&FileSystemItem{
-			Root:     "/",
-			Path:     "/hello/.world.go",
-			Name:     ".world.go",
-			Size:     3,
-			Modified: 5,
-			IsFolder: false,
-		},
-		&FileSystemItem{
-			Root:     "/",
+			Root:     "/.hello",
 			Path:     "/.hello",
-			Name:     ".hello",
-			Size:     3,
-			Modified: 5,
-			IsFolder: true,
-		},
-		&FileSystemItem{
-			Root:     "/",
-			Path:     "/.hello/hello",
 			Name:     "hello",
-			Size:     2,
-			Modified: 3,
 			IsFolder: true,
 		},
 		&FileSystemItem{
-			Root:     "/",
+			Root:     "/.hello",
+			Path:     "/.hello/1/hello/world.txt",
+			Name:     "world.txt",
+			IsFolder: false,
+		},
+		&FileSystemItem{
+			Root:     "/.hello",
+			Path:     "/.hello/1/2/3/4/5/hello/world.go",
+			Name:     "world.go",
+			IsFolder: false,
+		},
+		&FileSystemItem{
+			Root:     "/.hello",
 			Path:     "/.hello/world.go",
 			Name:     "world.go",
-			Size:     3,
-			Modified: 5,
 			IsFolder: false,
 		},
 		&FileSystemItem{
-			Root:     "/",
-			Path:     "/hello/hi.goconvey",
+			Root:     "/.hello",
+			Path:     "/.hello/hello/.world.go",
+			Name:     ".world.go",
+			IsFolder: false,
+		},
+		&FileSystemItem{
+			Root:     "/.hello",
+			Path:     "/.hello/.hello",
+			Name:     ".hello",
+			IsFolder: true,
+		},
+		&FileSystemItem{
+			Root:     "/.hello",
+			Path:     "/.hello/.hello/hello",
+			Name:     "hello",
+			IsFolder: true,
+		},
+		&FileSystemItem{
+			Root:     "/.hello",
+			Path:     "/.hello/.hello/world.go",
+			Name:     "world.go",
+			IsFolder: false,
+		},
+		&FileSystemItem{
+			Root:     "/.hello",
+			Path:     "/.hello/hello/hi.goconvey",
 			Name:     "hi.goconvey",
-			Size:     2,
-			Modified: 3,
 			IsFolder: false,
 		},
 		&FileSystemItem{
-			Root:     "/",
-			Path:     "/hello2/.goconvey",
+			Root:     "/.hello",
+			Path:     "/.hello/hello2/.goconvey",
 			Name:     ".goconvey",
-			Size:     2,
-			Modified: 3,
 			IsFolder: false,
 		},
 		&FileSystemItem{
-			Root:     "/",
-			Path:     "/_hello",
+			Root:     "/.hello",
+			Path:     "/.hello/_hello",
 			Name:     "_hello",
-			Size:     12345566645,
-			Modified: 712342134,
 			IsFolder: true,
 		},
 	}
@@ -102,11 +88,11 @@ func TestCategorize(t *testing.T) {
 			close(items)
 		}()
 
-		folders, profiles, goFiles := Categorize(items)
+		folders, profiles, goFiles := Categorize(items, "/.hello")
 
 		So(folders, ShouldResemble, fileSystem[:1])
-		So(profiles, ShouldResemble, fileSystem[7:8])
-		So(goFiles, ShouldResemble, fileSystem[2:3])
+		So(profiles, ShouldResemble, fileSystem[8:9])
+		So(goFiles, ShouldResemble, fileSystem[2:4])
 	})
 }
 

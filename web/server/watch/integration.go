@@ -120,7 +120,7 @@ func (this *Watcher) scan() {
 
 func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	items := YieldFileSystemItems(this.rootFolder)
-	folderItems, profileItems, goFileItems := Categorize(items)
+	folderItems, profileItems, goFileItems := Categorize(items, this.rootFolder)
 
 	for _, item := range profileItems {
 		// TODO: don't even bother if the item's size is over a few hundred bytes...

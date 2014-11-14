@@ -10,27 +10,33 @@ import (
 
 ///////////////////////////////////////////////////////////////////////////////
 
-func Categorize(items chan *FileSystemItem) (folders, profiles, goFiles []*FileSystemItem) {
+func Categorize(items chan *FileSystemItem, root string) (folders, profiles, goFiles []*FileSystemItem) {
 	for item := range items {
-		if item.IsFolder && !isHidden(item.Name) && !foundInHiddenDirectory(item) {
+		if item.IsFolder && !isHidden(item.Name) && !foundInHiddenDirectory(item, root) {
 			folders = append(folders, item)
 
 		} else if strings.HasSuffix(item.Name, ".goconvey") && len(item.Name) > len(".goconvey") {
 			profiles = append(profiles, item)
 
-		} else if strings.HasSuffix(item.Name, ".go") && !isHidden(item.Name) && !foundInHiddenDirectory(item) {
+		} else if strings.HasSuffix(item.Name, ".go") && !isHidden(item.Name) && !foundInHiddenDirectory(item, root) {
 			goFiles = append(goFiles, item)
 
 		}
 	}
 	return folders, profiles, goFiles
 }
-func foundInHiddenDirectory(item *FileSystemItem) bool {
-	for _, folder := range strings.Split(filepath.Dir(item.Path), slash) {
+func foundInHiddenDirectory(item *FileSystemItem, root string) bool {
+	path := item.Path
+	if len(path) > len(root) {
+		path = path[len(root):]
+	}
+
+	for _, folder := range strings.Split(filepath.Dir(path), slash) {
 		if isHidden(folder) {
 			return true
 		}
 	}
+
 	return false
 }
 func isHidden(path string) bool {
