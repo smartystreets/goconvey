@@ -153,7 +153,7 @@ PASS
 ok  	github.com/smartystreets/goconvey/scripts	0.011s`
 
 var expected_NoTestFunctions = contract.PackageResult{
-	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	PackageName: "github.com/smartystreets/goconvey/scripts",
 	Outcome:     contract.NoTestFunctions,
 	BuildOutput: input_NoTestFunctions,
 }
