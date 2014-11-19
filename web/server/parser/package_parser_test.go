@@ -50,6 +50,10 @@ func TestParsePackage_BuildFailed_ReturnsPackageResult(t *testing.T) {
 	actual = &contract.PackageResult{PackageName: expected_BuildFailed_CantFindPackage.PackageName}
 	ParsePackageResults(actual, input_BuildFailed_CantFindPackage)
 	assertEqual(t, expected_BuildFailed_CantFindPackage, *actual)
+
+	actual = &contract.PackageResult{PackageName: expected_BuildFailed_ConflictingImport.PackageName}
+	ParsePackageResults(actual, input_BuildFailed_ConfictingImport)
+	assertEqual(t, expected_BuildFailed_ConflictingImport, *actual)
 }
 
 func TestParsePackage_OldSchoolWithFailureOutput_ReturnsCompletePackageResult(t *testing.T) {
@@ -181,6 +185,16 @@ var expected_BuildFailed_CantFindPackage = contract.PackageResult{
 	PackageName: "github.com/smartystreets/goconvey/examples",
 	Outcome:     contract.BuildFailure,
 	BuildOutput: strings.TrimSpace(input_BuildFailed_CantFindPackage),
+}
+
+const input_BuildFailed_ConfictingImport = `
+mutustus.go:4:2: found packages e (e.go) and err (prepend.go) in /Users/mike/src/utensils.git/e
+`
+
+var expected_BuildFailed_ConflictingImport = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/examples",
+	Outcome:     contract.BuildFailure,
+	BuildOutput: strings.TrimSpace(input_BuildFailed_ConfictingImport),
 }
 
 const input_BuildFailed_OtherErrors = `
