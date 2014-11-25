@@ -10,70 +10,71 @@ import (
 )
 
 type JsonReporter struct {
-	out        *Printer
-	currentKey []string
-	current    *ScopeResult
-	index      map[string]*ScopeResult
-	scopes     []*ScopeResult
+	nestedReporter
+	out  *Printer
+	seed int64
 }
 
-func (self *JsonReporter) depth() int { return len(self.currentKey) }
+func (s *JsonReporter) Close() {
+	flattened := []*ScopeResult{}
+	stack := []*ScopeResult{}
 
-func (self *JsonReporter) BeginStory(story *StoryReport) {}
-
-func (self *JsonReporter) Enter(scope *ScopeReport) {
-	self.currentKey = append(self.currentKey, scope.Title)
-	ID := strings.Join(self.currentKey, "|")
-	if _, found := self.index[ID]; !found {
-		next := newScopeResult(scope.Title, self.depth(), scope.File, scope.Line)
-		self.scopes = append(self.scopes, next)
-		self.index[ID] = next
+	top := func() *ScopeResult {
+		return stack[len(stack)-1]
 	}
-	self.current = self.index[ID]
-}
 
-func (self *JsonReporter) Report(report *AssertionResult) {
-	self.current.Assertions = append(self.current.Assertions, report)
-}
+	if s.seed != 0 {
+		flattened = append(flattened, &ScopeResult{
+			Title:      "Random Seed",
+			Depth:      1,
+			Assertions: []*AssertionResult{},
+		}, &ScopeResult{
+			Title:      fmt.Sprint(s.seed),
+			Depth:      2,
+			Assertions: []*AssertionResult{},
+		})
+	}
 
-func (self *JsonReporter) Exit() {
-	self.currentKey = self.currentKey[:len(self.currentKey)-1]
-}
+	s.Walk(func(obj interface{}) {
+		switch obj := obj.(type) {
+		case *NestedScopeResult:
+			ent := &ScopeResult{
+				Title:      obj.Title,
+				File:       obj.File,
+				Line:       obj.Line,
+				Depth:      len(stack) + 1,
+				Assertions: []*AssertionResult{},
+			}
+			stack = append(stack, ent)
+			flattened = append(flattened, ent)
 
-func (self *JsonReporter) EndStory() {
-	self.report()
-	self.reset()
-}
-func (self *JsonReporter) report() {
+		case ScopeExit:
+			stack = stack[:len(stack)-1]
+
+		case string:
+			top().Output += obj
+
+		case *AssertionResult:
+			top().Assertions = append(top().Assertions, obj)
+		}
+	})
+
 	scopes := []string{}
-	for _, scope := range self.scopes {
+	for _, scope := range flattened {
 		serialized, err := json.Marshal(scope)
 		if err != nil {
-			self.out.Println(jsonMarshalFailure)
+			s.out.Statement(jsonMarshalFailure)
 			panic(err)
 		}
 		var buffer bytes.Buffer
 		json.Indent(&buffer, serialized, "", "  ")
 		scopes = append(scopes, buffer.String())
 	}
-	self.out.Print(fmt.Sprintf("%s\n%s,\n%s\n", OpenJson, strings.Join(scopes, ","), CloseJson))
-}
-func (self *JsonReporter) reset() {
-	self.scopes = []*ScopeResult{}
-	self.index = map[string]*ScopeResult{}
-	self.currentKey = nil
+	s.out.Insert(fmt.Sprintf("%s\n%s,\n%s\n", OpenJson, strings.Join(scopes, ","), CloseJson))
 }
 
-func (self *JsonReporter) Write(content []byte) (written int, err error) {
-	self.current.Output += string(content)
-	return len(content), nil
-}
-
-func NewJsonReporter(out *Printer) *JsonReporter {
-	self := new(JsonReporter)
-	self.out = out
-	self.reset()
-	return self
+func NewJsonReporter(out *Printer, seed int64) Reporter {
+	return &JsonReporter{out: out, seed: seed}
 }
 
 const OpenJson = ">->->OPEN-JSON->->->"   // "⌦"

@@ -1,6 +1,8 @@
 package reporting
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type problem struct {
 	out      *Printer
@@ -8,9 +10,9 @@ type problem struct {
 	failures []*AssertionResult
 }
 
-func (self *problem) BeginStory(story *StoryReport) {}
-
+func (self *problem) BeginStory()              {}
 func (self *problem) Enter(scope *ScopeReport) {}
+func (self *problem) Exit()                    {}
 
 func (self *problem) Report(report *AssertionResult) {
 	if report.Error != nil {
@@ -20,35 +22,35 @@ func (self *problem) Report(report *AssertionResult) {
 	}
 }
 
-func (self *problem) Exit() {}
-
-func (self *problem) EndStory() {
+func (self *problem) Close() {
 	self.show(self.showErrors, redColor)
 	self.show(self.showFailures, yellowColor)
-	self.prepareForNextStory()
 }
 func (self *problem) show(display func(), color string) {
-	fmt.Print(color)
+	self.out.Insert(color)
 	display()
-	fmt.Print(resetColor)
-	self.out.Dedent()
+	self.out.Insert(resetColor)
+	self.out.Exit()
 }
 func (self *problem) showErrors() {
 	for i, e := range self.errors {
 		if i == 0 {
-			self.out.Println("\nErrors:\n")
-			self.out.Indent()
+			self.out.Suite("Errors:")
 		}
-		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.StackTrace)
+		self.out.Statement(
+			fmt.Sprintf(errorTemplate, e.File, e.Line, e.Error, e.StackTrace))
+		self.out.Statement()
 	}
 }
 func (self *problem) showFailures() {
 	for i, f := range self.failures {
 		if i == 0 {
-			self.out.Println("\nFailures:\n")
-			self.out.Indent()
+			self.out.Suite("Failures:")
 		}
-		self.out.Println(failureTemplate, f.File, f.Line, f.Failure)
+
+		self.out.Statement(
+			fmt.Sprintf(failureTemplate, f.File, f.Line, f.Failure))
+		self.out.Statement()
 	}
 }
 
@@ -57,12 +59,5 @@ func (self *problem) Write(content []byte) (written int, err error) {
 }
 
 func NewProblemReporter(out *Printer) *problem {
-	self := new(problem)
-	self.out = out
-	self.prepareForNextStory()
-	return self
-}
-func (self *problem) prepareForNextStory() {
-	self.errors = []*AssertionResult{}
-	self.failures = []*AssertionResult{}
+	return &problem{out: out}
 }

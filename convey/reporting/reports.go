@@ -18,12 +18,9 @@ type ScopeReport struct {
 }
 
 func NewScopeReport(title string) *ScopeReport {
-	file, line, _ := gotest.ResolveExternalCaller()
-	self := new(ScopeReport)
-	self.Title = title
-	self.File = file
-	self.Line = line
-	return self
+	ret := &ScopeReport{Title: title}
+	ret.File, ret.Line = gotest.ResolveExternalCaller()
+	return ret
 }
 
 ////////////////// ScopeResult ////////////////////
@@ -37,41 +34,42 @@ type ScopeResult struct {
 	Output     string
 }
 
-func newScopeResult(title string, depth int, file string, line int) *ScopeResult {
-	self := new(ScopeResult)
-	self.Title = title
-	self.Depth = depth
-	self.File = file
-	self.Line = line
-	self.Assertions = []*AssertionResult{}
-	return self
+////////////////// NestedScopeResult ////////////////////
+
+type NestedScopeResult struct {
+	Parent *NestedScopeResult `json:"-"`
+	Title  string
+	File   string
+	Line   int
+
+	// Items is a list of either:
+	//   string (Output data)
+	//   *NestedScopeResult
+	//   *AssertionReport
+	Items []interface{}
 }
 
-/////////////////// StoryReport /////////////////////
-
-type StoryReport struct {
-	Test T
-	Name string
-	File string
-	Line int
+func NewNestedScopeResult(parent *NestedScopeResult, report *ScopeReport) *NestedScopeResult {
+	return &NestedScopeResult{
+		Parent: parent,
+		Title:  report.Title,
+		File:   report.File,
+		Line:   report.Line,
+	}
 }
 
-func NewStoryReport(test T) *StoryReport {
-	file, line, name := gotest.ResolveExternalCaller()
-	name = removePackagePath(name)
-	self := new(StoryReport)
-	self.Test = test
-	self.Name = name
-	self.File = file
-	self.Line = line
-	return self
+type ScopeExit struct {
+	Leaving *NestedScopeResult
 }
 
-// name comes in looking like "github.com/smartystreets/goconvey/examples.TestName".
-// We only want the stuff after the last '.', which is the name of the test function.
-func removePackagePath(name string) string {
-	parts := strings.Split(name, ".")
-	return parts[len(parts)-1]
+func (s *NestedScopeResult) Walk(cb func(interface{})) {
+	for _, i := range s.Items {
+		cb(i)
+		if scope, ok := i.(*NestedScopeResult); ok {
+			scope.Walk(cb)
+			cb(ScopeExit{scope})
+		}
+	}
 }
 
 /////////////////// FailureView ////////////////////////
@@ -95,67 +93,57 @@ type AssertionResult struct {
 	Skipped    bool
 }
 
-func NewFailureReport(failure string) *AssertionResult {
-	report := new(AssertionResult)
-	report.File, report.Line = caller()
-	report.StackTrace = stackTrace()
-	parseFailure(failure, report)
-	return report
+func NewAssertionResult(all bool) *AssertionResult {
+	ret := &AssertionResult{}
+	ret.File, ret.Line = gotest.ResolveExternalCaller()
+	ret.StackTrace = stackTrace(all)
+	return ret
 }
-func parseFailure(failure string, report *AssertionResult) {
-	view := new(FailureView)
+
+func NewFailureReport(failure string) *AssertionResult {
+	result := NewAssertionResult(false)
+
+	view := &FailureView{}
 	err := json.Unmarshal([]byte(failure), view)
 	if err == nil {
-		report.Failure = view.Message
-		report.Expected = view.Expected
-		report.Actual = view.Actual
+		result.Failure = view.Message
+		result.Expected = view.Expected
+		result.Actual = view.Actual
 	} else {
-		report.Failure = failure
+		result.Failure = failure
 	}
+	return result
 }
 func NewErrorReport(err interface{}) *AssertionResult {
-	report := new(AssertionResult)
-	report.File, report.Line = caller()
-	report.StackTrace = fullStackTrace()
-	report.Error = fmt.Sprintf("%v", err)
-	return report
+	ret := NewAssertionResult(true)
+	ret.Error = fmt.Sprintf("%v", err)
+	return ret
 }
 func NewSuccessReport() *AssertionResult {
-	return new(AssertionResult)
+	return &AssertionResult{}
 }
 func NewSkipReport() *AssertionResult {
-	report := new(AssertionResult)
-	report.File, report.Line = caller()
-	report.StackTrace = fullStackTrace()
-	report.Skipped = true
-	return report
+	ret := NewAssertionResult(false)
+	ret.Skipped = true
+	return ret
 }
 
-func caller() (file string, line int) {
-	file, line, _ = gotest.ResolveExternalCaller()
-	return
-}
-
-func stackTrace() string {
+func stackTrace(all bool) string {
 	buffer := make([]byte, 1024*64)
-	n := runtime.Stack(buffer, false)
-	return removeInternalEntries(string(buffer[:n]))
-}
-func fullStackTrace() string {
-	buffer := make([]byte, 1024*64)
-	n := runtime.Stack(buffer, true)
-	return removeInternalEntries(string(buffer[:n]))
-}
-func removeInternalEntries(stack string) string {
-	lines := strings.Split(stack, newline)
+	n := runtime.Stack(buffer, all)
+	lines := strings.Split(string(buffer[:n]), newline)
 	filtered := []string{}
 	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
 		if !isExternal(line) {
 			filtered = append(filtered, line)
 		}
 	}
 	return strings.Join(filtered, newline)
 }
+
 func isExternal(line string) bool {
 	for _, p := range internalPackages {
 		if strings.Contains(line, p) {
@@ -174,4 +162,5 @@ var internalPackages = []string{
 	"goconvey/execution",
 	"goconvey/gotest",
 	"goconvey/reporting",
+	"jtolds/gls",
 }

@@ -2,10 +2,9 @@ package convey
 
 import (
 	"flag"
-	"fmt"
 	"math/rand"
 	"os"
-	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/jtolds/gls"
@@ -36,18 +35,18 @@ func noStoryFlagProvided() bool {
 	return !story && !storyDisabled
 }
 
-func buildReporter() reporting.Reporter {
+func buildReporter(test t, seed int64) reporting.Reporter {
 	switch {
 	case testReporter != nil:
 		return testReporter
 	case json:
-		return reporting.BuildJsonReporter()
+		return reporting.BuildJsonReporter(test, seed)
 	case silent:
-		return reporting.BuildSilentReporter()
+		return reporting.BuildSilentReporter(test)
 	case story:
-		return reporting.BuildStoryReporter()
+		return reporting.BuildStoryReporter(test, seed)
 	default:
-		return reporting.BuildDotReporter()
+		return reporting.BuildDotReporter(test, seed)
 	}
 }
 
@@ -64,8 +63,6 @@ var (
 	story          bool
 	randomizeTests bool
 	randomSeed     int64
-
-	randomSeedMtx sync.Mutex
 
 	verboseEnabled = flagFound("-test.v=true")
 	storyDisabled  = flagFound("-story=false")
@@ -94,20 +91,20 @@ func (p *realPicker) Enter(choices []string)  { p.choice = choices[p.r.Intn(len(
 
 func newPicker() picker {
 	if randomizeTests {
-		if randomSeed == 0 {
-			func() {
-				randomSeedMtx.Lock()
-				defer randomSeedMtx.Unlock()
-				if randomSeed == 0 {
-					randomSeed = time.Now().UnixNano()
-					fmt.Println("Using random seed: ", randomSeed)
-				}
-			}()
-		}
-		return &realPicker{r: rand.New(rand.NewSource(randomSeed))}
+		return &realPicker{r: rand.New(rand.NewSource(getSeed()))}
 	} else {
 		return fakePicker{}
 	}
+}
+
+func getSeed() int64 {
+	if randomizeTests {
+		if randomSeed == 0 {
+			atomic.CompareAndSwapInt64(&randomSeed, 0, time.Now().UnixNano())
+		}
+		return randomSeed
+	}
+	return 0
 }
 
 // flagFound parses the command line args manually for flags defined in other

@@ -95,7 +95,7 @@ func rootConvey(items ...interface{}) {
 
 	var expectChildRun bool
 	ctx := &context{
-		reporter: buildReporter(),
+		reporter: buildReporter(entry.Test, getSeed()),
 		picker:   newPicker(),
 
 		children: make(map[string]*context),
@@ -106,8 +106,7 @@ func rootConvey(items ...interface{}) {
 		failureMode: defaultFailureMode.combine(entry.FailMode),
 	}
 	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
-		ctx.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
-		defer ctx.reporter.EndStory()
+		defer ctx.reporter.Close()
 
 		ranOnce := false
 		// if we're not randomizing, we can start running children right away
@@ -197,18 +196,15 @@ func (ctx *context) Reset(action func()) {
 }
 
 func (ctx *context) Print(items ...interface{}) (int, error) {
-	fmt.Fprint(ctx.reporter, items...)
-	return fmt.Print(items...)
+	return fmt.Fprint(ctx.reporter, items...)
 }
 
 func (ctx *context) Println(items ...interface{}) (int, error) {
-	fmt.Fprintln(ctx.reporter, items...)
-	return fmt.Println(items...)
+	return fmt.Fprintln(ctx.reporter, items...)
 }
 
 func (ctx *context) Printf(format string, items ...interface{}) (int, error) {
-	fmt.Fprintf(ctx.reporter, format, items...)
-	return fmt.Printf(format, items...)
+	return fmt.Fprintf(ctx.reporter, format, items...)
 }
 
 //////////////////////////////////// Private ////////////////////////////////////

@@ -267,18 +267,13 @@ func expectEqualCtx(t *testing.T, expected interface{}, actual interface{}, form
 }
 
 func setupFakeReporter() (*fakeReporter, *fakeGoTest) {
-	myReporter := new(fakeReporter)
-	myReporter.calls = []string{}
+	myReporter := &fakeReporter{[]string{"Begin"}}
 	testReporter = myReporter
 	return myReporter, new(fakeGoTest)
 }
 
 type fakeReporter struct {
 	calls []string
-}
-
-func (self *fakeReporter) BeginStory(story *reporting.StoryReport) {
-	self.calls = append(self.calls, "Begin")
 }
 
 func (self *fakeReporter) Enter(scope *reporting.ScopeReport) {
@@ -305,7 +300,7 @@ func (self *fakeReporter) Exit() {
 	self.calls = append(self.calls, "Exit")
 }
 
-func (self *fakeReporter) EndStory() {
+func (self *fakeReporter) Close() {
 	self.calls = append(self.calls, "End")
 }
 

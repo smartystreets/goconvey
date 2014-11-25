@@ -2,137 +2,108 @@ package reporting
 
 import "testing"
 
-func TestPrint(t *testing.T) {
+func TestExpression(t *testing.T) {
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+	const expected = "\nHello, World!"
+
+	printer.Expression(expected[1:])
+
+	if file.buffer != expected {
+		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
+	}
+}
+
+func TestExpressionPreservesEncodedStrings(t *testing.T) {
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+	const expected = "\n= -> %3D"
+	printer.Expression(expected[1:])
+
+	if file.buffer != expected {
+		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
+	}
+}
+
+func TestStatement(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
 	const expected = "Hello, World!"
 
-	printer.Print(expected)
+	printer.Statement(expected)
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
 	}
 }
 
-func TestPrintFormat(t *testing.T) {
-	file := newMemoryFile()
-	printer := NewPrinter(file)
-	template := "Hi, %s"
-	name := "Ralph"
-	expected := "Hi, Ralph"
-
-	printer.Print(template, name)
-
-	if file.buffer != expected {
-		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
-	}
-}
-
-func TestPrintPreservesEncodedStrings(t *testing.T) {
+func TestStatementPreservesEncodedStrings(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
 	const expected = "= -> %3D"
-	printer.Print(expected)
+	printer.Statement(expected)
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
 	}
 }
 
-func TestPrintln(t *testing.T) {
+func TestSuiteExpression(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
-	const expected = "Hello, World!"
+	const expected = "Hello, World! +\n  Goodbye, World!"
 
-	printer.Println(expected)
-
-	if file.buffer != expected+"\n" {
-		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
-	}
-}
-
-func TestPrintlnFormat(t *testing.T) {
-	file := newMemoryFile()
-	printer := NewPrinter(file)
-	template := "Hi, %s"
-	name := "Ralph"
-	expected := "Hi, Ralph\n"
-
-	printer.Println(template, name)
+	printer.Suite("Hello, World!")
+	printer.Expression("+")
+	printer.Statement("Goodbye, World!")
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
 	}
 }
 
-func TestPrintlnPreservesEncodedStrings(t *testing.T) {
-	file := newMemoryFile()
-	printer := NewPrinter(file)
-	const expected = "= -> %3D"
-	printer.Println(expected)
-
-	if file.buffer != expected+"\n" {
-		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
-	}
-}
-
-func TestPrintIndented(t *testing.T) {
-	file := newMemoryFile()
-	printer := NewPrinter(file)
-	const message = "Hello, World!\nGoodbye, World!"
-	const expected = "  Hello, World!\n  Goodbye, World!"
-
-	printer.Indent()
-	printer.Print(message)
-
-	if file.buffer != expected {
-		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
-	}
-}
-
-func TestPrintDedented(t *testing.T) {
+func TestExpressionDedented(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
 	const expected = "Hello, World!\nGoodbye, World!"
 
-	printer.Indent()
-	printer.Dedent()
-	printer.Print(expected)
+	printer.Suite("Hello, World!")
+	printer.Exit()
+	printer.Expression("Goodbye, World!")
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
 	}
 }
 
-func TestPrintlnIndented(t *testing.T) {
+func TestStatementIndented(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
-	const message = "Hello, World!\nGoodbye, World!"
-	const expected = "  Hello, World!\n  Goodbye, World!\n"
+	const expected = "Hello, World!\n  line\n    Goodbye, World!"
 
-	printer.Indent()
-	printer.Println(message)
+	printer.Suite("Hello, World!")
+	printer.Statement("line\nGoodbye, World!")
 
 	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
 	}
 }
 
-func TestPrintlnDedented(t *testing.T) {
+func TestStatementDedented(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
 	const expected = "Hello, World!\nGoodbye, World!"
 
-	printer.Indent()
-	printer.Dedent()
-	printer.Println(expected)
+	printer.Suite("Hello, World!")
+	printer.Exit()
+	printer.Statement("Goodbye, World!")
 
-	if file.buffer != expected+"\n" {
+	if file.buffer != expected {
 		t.Errorf("Expected '%s' to equal '%s'.", expected, file.buffer)
 	}
 }
 
-func TestDedentTooFarShouldNotPanic(t *testing.T) {
+func TestExitTooFarShouldNotPanic(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			t.Error("Should not have panicked!")
@@ -141,7 +112,7 @@ func TestDedentTooFarShouldNotPanic(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
 
-	printer.Dedent()
+	printer.Exit()
 
 	t.Log("Getting to this point without panicking means we passed.")
 }
@@ -150,12 +121,43 @@ func TestInsert(t *testing.T) {
 	file := newMemoryFile()
 	printer := NewPrinter(file)
 
-	printer.Indent()
-	printer.Print("Hi")
+	printer.Suite("Sup")
+	printer.Expression("Hi")
 	printer.Insert(" there")
-	printer.Dedent()
+	printer.Exit()
 
-	expected := "  Hi there"
+	expected := "Sup Hi there"
+	if file.buffer != expected {
+		t.Errorf("Should have written '%s' but instead wrote '%s'.", expected, file.buffer)
+	}
+}
+
+func TestFullSuite(t *testing.T) {
+	file := newMemoryFile()
+	printer := NewPrinter(file)
+
+	printer.Suite("Sup")
+	printer.Expression("+")
+	printer.Expression("+")
+	printer.Statement("some\ntext\nwith\nbreaks")
+	printer.Expression("X")
+	printer.Suite("Other")
+	printer.Statement("other")
+	printer.Expression("+")
+	printer.Exit()
+	printer.Expression("+")
+	printer.Exit()
+
+	expected := (`Sup ++
+  some
+    text
+    with
+    breaks
+  X
+  Other
+    other
+    +
+  +`)
 	if file.buffer != expected {
 		t.Errorf("Should have written '%s' but instead wrote '%s'.", expected, file.buffer)
 	}

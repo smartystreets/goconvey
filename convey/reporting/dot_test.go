@@ -29,10 +29,9 @@ func TestDotReporterOnlyReportsAssertions(t *testing.T) {
 	printer := NewPrinter(file)
 	reporter := NewDotReporter(printer)
 
-	reporter.BeginStory(nil)
 	reporter.Enter(nil)
 	reporter.Exit()
-	reporter.EndStory()
+	reporter.Close()
 
 	if file.buffer != "" {
 		t.Errorf("\nExpected: '(blank)'\nActual:  '%s'", file.buffer)

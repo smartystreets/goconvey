@@ -7,17 +7,49 @@ import (
 )
 
 type Printer struct {
-	out    io.Writer
-	prefix string
+	out          io.Writer
+	indent       int
+	needSpace    bool
+	inExpression bool
+	firstLine    bool
 }
 
-func (self *Printer) Println(message string, values ...interface{}) {
-	formatted := self.format(message, values...) + newline
+func (self *Printer) Suite(name string) {
+	self.Statement(name)
+	self.indent++
+	self.inExpression = true
+	self.needSpace = true
+}
+
+func (self *Printer) Exit() {
+	self.indent--
+	if self.indent < 0 {
+		self.indent = 0
+	}
+	self.inExpression = false
+}
+
+func (self *Printer) Statement(values ...interface{}) {
+	var formatted string
+	if self.firstLine {
+		formatted = self.format(values...)
+		self.firstLine = false
+	} else {
+		formatted = newline + self.format(values...)
+	}
+	self.inExpression = false
 	self.out.Write([]byte(formatted))
 }
 
-func (self *Printer) Print(message string, values ...interface{}) {
-	formatted := self.format(message, values...)
+func (self *Printer) Expression(values ...interface{}) {
+	formatted := fmt.Sprint(values...)
+	if !self.inExpression {
+		formatted = newline + self.format(formatted)
+	} else if self.needSpace {
+		self.needSpace = false
+		formatted = " " + formatted
+	}
+	self.inExpression = true
 	self.out.Write([]byte(formatted))
 }
 
@@ -25,33 +57,16 @@ func (self *Printer) Insert(text string) {
 	self.out.Write([]byte(text))
 }
 
-func (self *Printer) format(message string, values ...interface{}) string {
-	var formatted string
-	if len(values) == 0 {
-		formatted = self.prefix + message
-	} else {
-		formatted = self.prefix + fmt.Sprintf(message, values...)
-	}
-	indented := strings.Replace(formatted, newline, newline+self.prefix, -1)
-	return strings.TrimRight(indented, space)
-}
-
-func (self *Printer) Indent() {
-	self.prefix += pad
-}
-
-func (self *Printer) Dedent() {
-	if len(self.prefix) >= padLength {
-		self.prefix = self.prefix[:len(self.prefix)-padLength]
-	}
+func (self *Printer) format(values ...interface{}) string {
+	pfx := strings.Repeat(pad, self.indent)
+	formatted := pfx + fmt.Sprint(values...)
+	indented := strings.Replace(formatted, newline, newline+pfx+pad, -1)
+	return strings.TrimRight(indented, space+newline)
 }
 
 func NewPrinter(out io.Writer) *Printer {
-	self := new(Printer)
-	self.out = out
-	return self
+	return &Printer{out: out, firstLine: true}
 }
 
 const space = " "
 const pad = space + space
-const padLength = len(pad)
