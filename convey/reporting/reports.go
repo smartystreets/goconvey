@@ -32,6 +32,7 @@ type ScopeResult struct {
 	Depth      int
 	Assertions []*AssertionResult
 	Output     string
+	RandomSeed int64 `json:",omitempty"`
 }
 
 ////////////////// NestedScopeResult ////////////////////

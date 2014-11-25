@@ -23,18 +23,6 @@ func (s *JsonReporter) Close() {
 		return stack[len(stack)-1]
 	}
 
-	if s.seed != 0 {
-		flattened = append(flattened, &ScopeResult{
-			Title:      "Random Seed",
-			Depth:      1,
-			Assertions: []*AssertionResult{},
-		}, &ScopeResult{
-			Title:      fmt.Sprint(s.seed),
-			Depth:      2,
-			Assertions: []*AssertionResult{},
-		})
-	}
-
 	s.Walk(func(obj interface{}) {
 		switch obj := obj.(type) {
 		case *NestedScopeResult:
@@ -58,6 +46,14 @@ func (s *JsonReporter) Close() {
 			top().Assertions = append(top().Assertions, obj)
 		}
 	})
+
+	if len(flattened) == 0 {
+		return
+	}
+
+	if s.seed != 0 {
+		flattened[0].RandomSeed = s.seed
+	}
 
 	scopes := []string{}
 	for _, scope := range flattened {
