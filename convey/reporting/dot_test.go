@@ -9,7 +9,7 @@ func TestDotReporterAssertionPrinting(t *testing.T) {
 	monochrome()
 	file := newMemoryFile()
 	printer := NewPrinter(file)
-	reporter := NewDotReporter(printer)
+	reporter := NewDotReporter(printer, 0)
 
 	reporter.Report(NewSuccessReport())
 	reporter.Report(NewFailureReport("failed"))
@@ -27,7 +27,7 @@ func TestDotReporterOnlyReportsAssertions(t *testing.T) {
 	monochrome()
 	file := newMemoryFile()
 	printer := NewPrinter(file)
-	reporter := NewDotReporter(printer)
+	reporter := NewDotReporter(printer, 0)
 
 	reporter.Enter(nil)
 	reporter.Exit()
