@@ -19,6 +19,8 @@ package assertions
 //   }
 //
 func So(actual interface{}, assert assertion, expected ...interface{}) (bool, string) {
+	serializer = noop
+
 	if result := so(actual, assert, expected...); len(result) == 0 {
 		return true, result
 	} else {
@@ -37,3 +39,5 @@ func so(actual interface{}, assert func(interface{}, ...interface{}) string, exp
 // method signature. The return value should be an empty string if the assertion
 // passes and a well-formed failure message if not.
 type assertion func(actual interface{}, expected ...interface{}) string
+
+////////////////////////////////////////////////////////////////////////////

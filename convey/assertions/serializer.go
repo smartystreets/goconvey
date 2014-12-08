@@ -43,3 +43,17 @@ func (self *failureSerializer) format(expected, actual interface{}, message stri
 func newSerializer() *failureSerializer {
 	return &failureSerializer{}
 }
+
+///////////////////////////////////////////////////////
+
+// noopSerializer just gives back the original message. This is useful when we are using
+// the assertions from a context other than the web UI, that requires the JSON structure
+// provided by the failureSerializer.
+type noopSerializer struct{}
+
+func (self *noopSerializer) serialize(expected, actual interface{}, message string) string {
+	return message
+}
+func (self *noopSerializer) serializeDetailed(expected, actual interface{}, message string) string {
+	return message
+}
