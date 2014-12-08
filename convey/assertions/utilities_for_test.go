@@ -38,10 +38,6 @@ func format(message string) string {
 	return message
 }
 
-func so(actual interface{}, assert func(interface{}, ...interface{}) string, expected ...interface{}) string {
-	return assert(actual, expected...)
-}
-
 type Thing1 struct {
 	a string
 }
