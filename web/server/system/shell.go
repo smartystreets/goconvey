@@ -1,6 +1,7 @@
 package system
 
 import (
+	"bytes"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -37,7 +38,9 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 	goconvey := findGoConvey(directory, self.gobin, packageName).Execute()
 	compilation := compile(directory, self.gobin).Execute()
 	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, arguments).Execute()
+	log.Println("COMMAND:", withCoverage)
 	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, arguments).Execute()
+	log.Println("COMMAND:", final)
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
 	return final.Output, final.Error
@@ -158,6 +161,17 @@ func (this Command) Execute() Command {
 	rawOutput, this.Error = command.CombinedOutput()
 	this.Output = string(rawOutput)
 	return this
+}
+
+func (this Command) String() string {
+	buffer := bytes.NewBufferString(this.directory)
+	buffer.WriteString("\n")
+	buffer.WriteString(this.executable)
+	for _, arg := range this.arguments {
+		buffer.WriteString(" ")
+		buffer.WriteString(arg)
+	}
+	return buffer.String()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
