@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -35,8 +36,15 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 	reportHTML := reportPath + ".html"
 
 	goconvey := findGoConvey(directory, self.gobin, packageName).Execute()
+	if goconvey.Error != nil {
+		return fmt.Sprintf("Is your source in $GOPATH or using symbolic links?\n%s",
+			goconvey.Output), goconvey.Error
+	}
 	compilation := compile(directory, self.gobin).Execute()
 	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, arguments).Execute()
+	if withCoverage.Error != nil {
+		return withCoverage.Output, withCoverage.Error
+	}
 	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, arguments).Execute()
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
