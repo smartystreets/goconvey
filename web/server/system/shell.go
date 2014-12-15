@@ -42,9 +42,6 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 	}
 	compilation := compile(directory, self.gobin).Execute()
 	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, arguments).Execute()
-	if withCoverage.Error != nil {
-		return withCoverage.Output, withCoverage.Error
-	}
 	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, arguments).Execute()
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
