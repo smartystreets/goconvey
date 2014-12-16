@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -36,10 +35,6 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 	reportHTML := reportPath + ".html"
 
 	goconvey := findGoConvey(directory, self.gobin, packageName).Execute()
-	if goconvey.Error != nil {
-		return fmt.Sprintf("Is your source in $GOPATH or using symbolic links?\n%s",
-			goconvey.Output), goconvey.Error
-	}
 	compilation := compile(directory, self.gobin).Execute()
 	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, arguments).Execute()
 	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, arguments).Execute()
@@ -61,7 +56,7 @@ func compile(directory, gobin string) Command {
 }
 
 func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout string, customArguments []string) Command {
-	if compile.Error != nil {
+	if compile.Error != nil || goconvey.Error != nil {
 		return compile
 	}
 
@@ -92,6 +87,11 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin, defaultTimeout string, customArguments []string) Command {
 	if compile.Error != nil {
 		return compile
+	}
+
+	if goconvey.Error != nil {
+		log.Println(probableSymlinkError, goconvey.Output, goconvey.Error)
+		return goconvey
 	}
 
 	if coverageStatementRE.MatchString(withCoverage.Output) {
@@ -168,4 +168,6 @@ func (this Command) Execute() Command {
 ///////////////////////////////////////////////////////////////////////////////
 
 const goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
+const probableSymlinkError = "Please run goconvey from within your $GOPATH (symlinks might be problematic). Output and Error: "
+
 var coverageStatementRE = regexp.MustCompile(`(?m)^coverage: \d+\.\d% of statements(.*)$|^panic: test timed out after `)

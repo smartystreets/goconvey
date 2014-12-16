@@ -13,6 +13,7 @@ func TestShellCommandComposition(t *testing.T) {
 		buildSucceeded   = Command{Output: "ok"}
 		goConvey         = Command{Output: "[fmt github.com/smartystreets/goconvey/convey net/http net/http/httptest path runtime strconv strings testing time]"}
 		noGoConvey       = Command{Output: "[fmt net/http net/http/httptest path runtime strconv strings testing time]"}
+		errorGoConvey    = Command{Output: "This is a wacky error", Error: errors.New("This happens when running goconvey outside your $GOPATH (symlinked code).")}
 		noCoveragePassed = Command{Output: "PASS\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
 		coveragePassed   = Command{Output: "PASS\ncoverage: 100.0% of statements\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
 		coverageFailed   = Command{
@@ -68,6 +69,14 @@ func TestShellCommandComposition(t *testing.T) {
 					executable: "go",
 					arguments:  []string{"test", "-v", "-coverprofile=reportsPath", "-covermode=set", "-timeout=1s", "-arg1", "-arg2"},
 				})
+			})
+		})
+
+		Convey("And the package being tested has been symlinked outside the $GOAPTH", func() {
+			result := runWithCoverage(buildSucceeded, errorGoConvey, yesCoverage, "reportsPath", "/directory", "go", "1s", nil)
+
+			Convey("The returned command should be the compilation command", func() {
+				So(result, ShouldResemble, buildSucceeded)
 			})
 		})
 
@@ -127,6 +136,14 @@ func TestShellCommandComposition(t *testing.T) {
 
 			Convey("Then no action should be taken", func() {
 				So(result, ShouldResemble, buildFailed)
+			})
+		})
+
+		Convey("And the goconvey dsl command failed (probably because of symlinks)", func() {
+			result := runWithoutCoverage(buildSucceeded, Command{}, errorGoConvey, "", "", "", nil)
+
+			Convey("Then no action should be taken", func() {
+				So(result, ShouldResemble, errorGoConvey)
 			})
 		})
 
