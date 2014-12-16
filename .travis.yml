@@ -7,3 +7,4 @@ go:
 
 install:
   - go get golang.org/x/tools/cover
+  - go get github.com/jtolds/gls
