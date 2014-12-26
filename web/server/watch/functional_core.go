@@ -27,6 +27,11 @@ func Categorize(items chan *FileSystemItem, root string) (folders, profiles, goF
 }
 func foundInHiddenDirectory(item *FileSystemItem, root string) bool {
 	path := item.Path
+
+	if len(path) == len(root) {
+		return false
+	}
+
 	if len(path) > len(root) {
 		path = path[len(root):]
 	}
