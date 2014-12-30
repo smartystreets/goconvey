@@ -40,7 +40,8 @@ func foundInHiddenDirectory(item *FileSystemItem, root string) bool {
 	return false
 }
 func isHidden(path string) bool {
-	return strings.HasPrefix(path, ".") || strings.HasPrefix(path, "_")
+	return !strings.HasPrefix(path, ".go") && 
+		(strings.HasPrefix(path, ".") || strings.HasPrefix(path, "_"))
 }
 
 ///////////////////////////////////////////////////////////////////////////////

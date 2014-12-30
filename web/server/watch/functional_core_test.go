@@ -94,6 +94,15 @@ func TestCategorize(t *testing.T) {
 		So(profiles, ShouldResemble, fileSystem[8:9])
 		So(goFiles, ShouldResemble, fileSystem[2:4])
 	})
+
+	Convey("A '.go' as path section should not result in a hidden path", t, func() {
+
+		item := FileSystemItem{Path: "/.go/test"}
+		isHidden := foundInHiddenDirectory(&item, "/.go/test")
+
+		So(isHidden, ShouldBeFalse)
+	})	
+	
 }
 
 func TestParseProfile(t *testing.T) {
