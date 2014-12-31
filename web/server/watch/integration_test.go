@@ -62,7 +62,7 @@ func TestWatcher(t *testing.T) {
 	Convey("Subject: Watcher operations", t, func() {
 		input := make(chan messaging.WatcherCommand)
 		output := make(chan messaging.Folders)
-		watcher := NewWatcher(root, -1, time.Millisecond, input, output)
+		watcher := NewWatcher(root, -1, time.Millisecond, input, output, ".go")
 
 		go watcher.Listen()
 

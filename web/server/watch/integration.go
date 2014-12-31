@@ -18,6 +18,7 @@ type Watcher struct {
 	fileSystemState int64
 	paused          bool
 	stopped         bool
+	watchSuffixes   []string
 
 	input  chan messaging.WatcherCommand
 	output chan messaging.Folders
@@ -26,14 +27,15 @@ type Watcher struct {
 }
 
 func NewWatcher(rootFolder string, folderDepth int, nap time.Duration,
-	input chan messaging.WatcherCommand, output chan messaging.Folders) *Watcher {
+	input chan messaging.WatcherCommand, output chan messaging.Folders, watchSuffixes string) *Watcher {
 
 	return &Watcher{
-		nap:         nap,
-		rootFolder:  rootFolder,
-		folderDepth: folderDepth,
-		input:       input,
-		output:      output,
+		nap:           nap,
+		rootFolder:    rootFolder,
+		folderDepth:   folderDepth,
+		input:         input,
+		output:        output,
+		watchSuffixes: strings.Split(watchSuffixes, ","),
 
 		ignoredFolders: make(map[string]struct{}),
 	}
@@ -120,7 +122,7 @@ func (this *Watcher) scan() {
 
 func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	items := YieldFileSystemItems(this.rootFolder)
-	folderItems, profileItems, goFileItems := Categorize(items, this.rootFolder)
+	folderItems, profileItems, goFileItems := Categorize(items, this.rootFolder, this.watchSuffixes)
 
 	for _, item := range profileItems {
 		// TODO: don't even bother if the item's size is over a few hundred bytes...

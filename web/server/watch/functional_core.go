@@ -10,7 +10,7 @@ import (
 
 ///////////////////////////////////////////////////////////////////////////////
 
-func Categorize(items chan *FileSystemItem, root string) (folders, profiles, goFiles []*FileSystemItem) {
+func Categorize(items chan *FileSystemItem, root string, watchSuffixes []string) (folders, profiles, goFiles []*FileSystemItem) {
 	for item := range items {
 		if item.IsFolder && !isHidden(item.Name) && !foundInHiddenDirectory(item, root) {
 			folders = append(folders, item)
@@ -18,13 +18,17 @@ func Categorize(items chan *FileSystemItem, root string) (folders, profiles, goF
 		} else if strings.HasSuffix(item.Name, ".goconvey") && len(item.Name) > len(".goconvey") {
 			profiles = append(profiles, item)
 
-		} else if strings.HasSuffix(item.Name, ".go") && !isHidden(item.Name) && !foundInHiddenDirectory(item, root) {
-			goFiles = append(goFiles, item)
-
+		} else {
+			for _, suffix := range watchSuffixes {
+				if strings.HasSuffix(item.Name, suffix) && !isHidden(item.Name) && !foundInHiddenDirectory(item, root) {
+					goFiles = append(goFiles, item)
+				}
+			}
 		}
 	}
 	return folders, profiles, goFiles
 }
+
 func foundInHiddenDirectory(item *FileSystemItem, root string) bool {
 	path := item.Path
 	if len(path) > len(root) {

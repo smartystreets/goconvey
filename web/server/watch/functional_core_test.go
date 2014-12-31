@@ -36,6 +36,12 @@ func TestCategorize(t *testing.T) {
 		},
 		&FileSystemItem{
 			Root:     "/.hello",
+			Path:     "/.hello/hello/world.tmpl",
+			Name:     "world.tmpl",
+			IsFolder: false,
+		},
+		&FileSystemItem{
+			Root:     "/.hello",
 			Path:     "/.hello/hello/.world.go",
 			Name:     ".world.go",
 			IsFolder: false,
@@ -88,11 +94,26 @@ func TestCategorize(t *testing.T) {
 			close(items)
 		}()
 
-		folders, profiles, goFiles := Categorize(items, "/.hello")
-
+		folders, profiles, goFiles := Categorize(items, "/.hello", []string{".go"})
 		So(folders, ShouldResemble, fileSystem[:1])
-		So(profiles, ShouldResemble, fileSystem[8:9])
+		So(profiles, ShouldResemble, fileSystem[9:10])
 		So(goFiles, ShouldResemble, fileSystem[2:4])
+	})
+
+	Convey("A stream of file system items should be categorized correctly", t, func() {
+		items := make(chan *FileSystemItem)
+
+		go func() {
+			for _, item := range fileSystem {
+				items <- item
+			}
+			close(items)
+		}()
+
+		folders, profiles, goFiles := Categorize(items, "/.hello", []string{".go", ".tmpl"})
+		So(folders, ShouldResemble, fileSystem[:1])
+		So(profiles, ShouldResemble, fileSystem[9:10])
+		So(goFiles, ShouldResemble, fileSystem[2:5])
 	})
 }
 
