@@ -362,7 +362,7 @@ function wireup()
 	});
 
 	// Keyboard shortcuts!
-	$(document).keyup(function(e)
+	$(document).keydown(function(e)
 	{
 		if (e.ctrlKey || e.metaKey || e.shiftKey)
 			return;
