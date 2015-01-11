@@ -135,7 +135,7 @@ func serveAjaxMethods(server contract.Server) {
 
 func activateServer() {
 	log.Printf("Serving HTTP at: http://%s:%d\n", host, port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil)
 	if err != nil {
 		log.Println(err)
 	}
