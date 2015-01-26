@@ -101,13 +101,8 @@ func NewTestResult(testName string) *TestResult {
 }
 
 func resolvePackageName(path string) string {
-	index := strings.Index(path, endGoPath)
-	if index < 0 {
-		return path
-	}
-	packageBeginning := index + len(endGoPath)
-	name := path[packageBeginning:]
-	return name
+	nameArr := strings.Split(path, endGoPath)
+	return nameArr[len(nameArr)-1]
 }
 
 const (
