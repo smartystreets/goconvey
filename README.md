@@ -108,18 +108,9 @@ For web UI and terminal screenshots, check out [the full feature tour](http://go
 
 
 
-Contributions
--------------
 
-You can get started on the [guidelines page](https://github.com/smartystreets/goconvey/wiki/For-Contributors) found in our wiki.
-
-
-
-
-Contributors (Thanks!)
+[Contributors](https://github.com/smartystreets/goconvey/graphs/contributors) (Thanks!)
 ----------------------
-
-We appreciate everyone's contributions to the project! Please see the [contributor graphs](https://github.com/smartystreets/goconvey/graphs/contributors) provided by GitHub for all the credits.
 
 GoConvey is brought to you by [SmartyStreets](https://github.com/smartystreets); in particular:
 
