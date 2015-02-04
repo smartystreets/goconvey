@@ -1274,6 +1274,7 @@ function customMarkupPipes()
 	{
 		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	};
+	Mark.pipes.ansiColours = ansispan;
 	Mark.pipes.boldPkgName = function(str)
 	{
 		var pkg = splitPathName(str);

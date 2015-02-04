@@ -9,6 +9,7 @@
 		<link rel="shortcut icon" class="favicon" href="/favicon.ico" type="image/vnd.microsoft.icon">
 		<script src="/resources/js/lib/markup.min.js"></script>
 		<script src="/resources/js/lib/moment.min.js"></script>
+		<script src="/resources/js/lib/ansispan.js"></script>
 		<script src="/resources/js/lib/diff-match-patch.min.js"></script>
 		<script src="/resources/js/lib/jquery-2_1_0.min.js"></script>
 		<script src="/resources/js/lib/jquery-ui-1_10_3-custom.min.js"></script>
@@ -233,7 +234,7 @@
 						{{.}}
 						<div class="buildfail">
 							<div class="buildfail-pkg"><i class="fa fa-wrench"></i>&nbsp; {{PackageName|boldPkgName}}</div>
-							<div class="buildfail-output">{{BuildOutput|htmlSafe}}</div>
+							<div class="buildfail-output">{{BuildOutput|htmlSafe|ansiColours}}</div>
 						</div>
 						{{/.}}
 					</div>
@@ -268,7 +269,7 @@
 					{{/if}}
 							{{if StackTrace|notempty}}<div class="depth-{{_maxDepth}} panic-summary">{{Error}}</div>{{/if}}
 							</div>
-							<div class="panic-output">{{if StackTrace|empty}}{{Error|htmlSafe}}{{else}}{{StackTrace|htmlSafe}}{{/if}}</div>
+							<div class="panic-output">{{if StackTrace|empty}}{{Error|htmlSafe|ansiColours}}{{else}}{{StackTrace|htmlSafe|ansiColours}}{{/if}}</div>
 						</div>
 						{{/.}}
 					</div>
@@ -301,16 +302,16 @@
 								{{/_path}}
 							{{/if}}
 								</div>
-								<div class="failure-output">{{if Failure|notempty}}{{Failure|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
+								<div class="failure-output">{{if Failure|notempty}}{{Failure|htmlSafe|ansiColours}}{{else}}{{if Message|notempty}}{{Message|htmlSafe|ansiColours}}{{else}}{{StackTrace|htmlSafe|ansiColours}}{{/if}}{{/if}}</div>
 								{{if .|needsDiff}}
 								<table class="diffviewer">
 									<tr>
 										<td class="exp">Expected</td>
-										<td class="original">{{Expected|htmlSafe}}</td>
+										<td class="original">{{Expected|htmlSafe|ansiColours}}</td>
 									</tr>
 									<tr>
 										<td class="act">Actual</td>
-										<td class="changed">{{Actual|htmlSafe}}</td>
+										<td class="changed">{{Actual|htmlSafe|ansiColours}}</td>
 									</tr>
 									<tr>
 										<td>Diff</td>
@@ -375,8 +376,8 @@
 
 							</td>
 							<td colspan="3" class="depth-0 story-line-desc">
-								<b>{{TestName|htmlSafe}}</b>
-								{{if Message}}<div class="message">{{Message|htmlSafe}}</div>{{/if}}
+								<b>{{TestName|htmlSafe|ansiColours}}</b>
+								{{if Message}}<div class="message">{{Message|htmlSafe|ansiColours}}</div>{{/if}}
 							</td>
 						</tr>
 
@@ -394,15 +395,15 @@
 
 								</td>
 								<td colspan="3" class="depth-{{Depth}} story-line-desc">
-									{{Title|htmlSafe}}
-									{{if Output}}<div class="message">{{Output|htmlSafe}}</div>{{/if}}
+									{{Title|htmlSafe|ansiColours}}
+									{{if Output}}<div class="message">{{Output|htmlSafe|ansiColours}}</div>{{/if}}
 									{{if _failed}}
 										{{Assertions}}
 											{{if _failed}}
 											<div class="failure">
 												<div class="failure-details">
-													<div class="failure-output">{{if Failure|notempty}}{{Failure|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}
-															{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
+													<div class="failure-output">{{if Failure|notempty}}{{Failure|htmlSafe|ansiColours}}{{else}}{{if Message|notempty}}{{Message|htmlSafe|ansiColours}}{{else}}
+															{{StackTrace|htmlSafe|ansiColours}}{{/if}}{{/if}}</div>
 												</div>
 											</div>
 											{{/if}}
@@ -413,7 +414,7 @@
 											{{if _panicked}}
 											<div class="panic">
 												<div class="panic-details">
-													<div class="panic-output">{{if Panic|notempty}}{{Panic|htmlSafe}}{{else}}{{if Message|notempty}}{{Message|htmlSafe}}{{else}}{{StackTrace|htmlSafe}}{{/if}}{{/if}}</div>
+													<div class="panic-output">{{if Panic|notempty}}{{Panic|htmlSafe|ansiColours}}{{else}}{{if Message|notempty}}{{Message|htmlSafe|ansiColours}}{{else}}{{StackTrace|htmlSafe|ansiColours}}{{/if}}{{/if}}</div>
 												</div>
 											</div>
 											{{/if}}
