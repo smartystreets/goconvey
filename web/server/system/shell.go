@@ -90,7 +90,7 @@ func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobi
 	}
 
 	if goconvey.Error != nil {
-		log.Println(probableSymlinkError, goconvey.Output, goconvey.Error)
+		log.Println(gopathProblem, goconvey.Output, goconvey.Error)
 		return goconvey
 	}
 
@@ -168,6 +168,6 @@ func (this Command) Execute() Command {
 ///////////////////////////////////////////////////////////////////////////////
 
 const goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
-const probableSymlinkError = "Please run goconvey from within your $GOPATH (symlinks might be problematic). Output and Error: "
+const gopathProblem = "Please run goconvey from within $GOPATH/src (also, symlinks might be problematic). Output and Error: "
 
 var coverageStatementRE = regexp.MustCompile(`(?m)^coverage: \d+\.\d% of statements(.*)$|^panic: test timed out after `)
