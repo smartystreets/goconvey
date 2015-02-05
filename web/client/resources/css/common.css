@@ -13,10 +13,6 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 	font-family: 'Oswald';
 	src: local("Oswald"), url("../fonts/Oswald/Oswald-Regular.ttf");
 }
-@font-face {
-	font-family: 'Share Tech Mono';
-	src: local("Share Tech Mono"), url("../fonts/Share_Tech_Mono/ShareTechMono-Regular.ttf");
-}
 
 ::selection {
 	background: #87AFBC;
@@ -274,7 +270,7 @@ footer .server-down {
 }
 
 .history .item .summary {
-	font: 14px/1.5em 'Share Tech Mono', 'Monaco', 'Menlo', 'Courier New', monospace;
+	font: 14px/1.5em 'Monaco', 'Menlo', 'Courier New', monospace;
 }
 
 .history .item.selected {
@@ -366,7 +362,7 @@ footer .server-down {
 
 .pkg-cover-name,
 .pkg-list {
-	font-family: 'Menlo', 'Share Tech Mono', monospace;
+	font-family: 'Menlo', monospace;
 	font-size: 10px;
 	padding-right: 2%;
 	white-space: nowrap;
@@ -388,7 +384,7 @@ footer .server-down {
 	max-height: 150px;
 	overflow-y: auto;
 	white-space: pre;
-	font-family: 'Menlo', 'Share Tech Mono', monospace;
+	font-family: 'Menlo', monospace;
 }
 
 .panic-story,
@@ -508,7 +504,7 @@ footer .server-down {
 }
 
 .story-line-desc .message {
-	font-family: 'Menlo', 'Share Tech Mono', monospace;
+	font-family: 'Menlo', monospace;
 	white-space: pre-wrap;
 }
 
