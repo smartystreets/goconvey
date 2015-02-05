@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -142,6 +143,22 @@ func (self *outputParser) saveLineForParsingLater() {
 	self.test.RawLines = append(self.test.RawLines, self.line)
 }
 
+// TestResults is a collection of TestResults that implements sort.Interface.
+type TestResults []contract.TestResult
+
+func (r TestResults) Len() int {
+	return len(r)
+}
+
+// Less compares TestResults on TestName
+func (r TestResults) Less(i, j int) bool {
+	return r[i].TestName < r[j].TestName
+}
+
+func (r TestResults) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+
 func (self *outputParser) parseEachTestFunction() {
 	for _, self.test = range self.tests {
 		self.test = parseTestOutput(self.test)
@@ -151,4 +168,5 @@ func (self *outputParser) parseEachTestFunction() {
 		self.test.RawLines = []string{}
 		self.result.TestResults = append(self.result.TestResults, *self.test)
 	}
+	sort.Sort(TestResults(self.result.TestResults))
 }
