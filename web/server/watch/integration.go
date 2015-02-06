@@ -72,12 +72,16 @@ func (this *Watcher) respond(command messaging.WatcherCommand) {
 	case messaging.WatcherIgnore:
 		log.Println("Ignoring specified folders")
 		this.ignore(command.Details)
-		this.execute()
+		// Prevent a filesystem change due to the number of active folders changing
+		_, checksum := this.gather()
+		this.set(checksum)
 
 	case messaging.WatcherReinstate:
 		log.Println("Reinstating specified folders")
 		this.reinstate(command.Details)
-		this.execute()
+		// Prevent a filesystem change due to the number of active folders changing
+		_, checksum := this.gather()
+		this.set(checksum)
 
 	case messaging.WatcherPause:
 		log.Println("Pausing watcher...")
@@ -86,7 +90,6 @@ func (this *Watcher) respond(command messaging.WatcherCommand) {
 	case messaging.WatcherResume:
 		log.Println("Resuming watcher...")
 		this.paused = false
-		this.execute()
 
 	case messaging.WatcherExecute:
 		log.Println("Gathering folders for immediate execution...")
