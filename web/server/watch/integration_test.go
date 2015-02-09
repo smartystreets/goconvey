@@ -93,7 +93,7 @@ func TestWatcher(t *testing.T) {
 			So(len(results[1]), ShouldEqual, 2)
 		})
 
-		Convey("Ignore and Reinstate commands are reflected in the scan results", func() {
+		Convey("Ignore and Reinstate commands are not reflected in the scan results", func() {
 			go func() {
 				input <- ignore
 				input <- reinstate
@@ -105,10 +105,8 @@ func TestWatcher(t *testing.T) {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 3)
+			So(len(results), ShouldEqual, 1)
 			So(results[0][sub].Ignored, ShouldBeFalse) // initial
-			So(results[1][sub].Ignored, ShouldBeTrue)  // ignored
-			So(results[2][sub].Ignored, ShouldBeFalse) // reinstated
 		})
 
 		Convey("Adjusting the root changes the number of folders in the scanned results", func() {
@@ -159,7 +157,7 @@ func TestWatcher(t *testing.T) {
 			So(len(results), ShouldEqual, 2)
 		})
 
-		Convey("Scanning occurs as a result of resuming after a pause", func() {
+		Convey("Scanning does not occur as a result of resuming after a pause", func() {
 			go func() {
 				input <- pause
 				input <- resume
@@ -171,7 +169,7 @@ func TestWatcher(t *testing.T) {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 2)
+			So(len(results), ShouldEqual, 1)
 		})
 
 		Convey("Scanning should not occur when the watcher is paused", func() {
