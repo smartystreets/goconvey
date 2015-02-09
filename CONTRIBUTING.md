@@ -1,1 +1,3 @@
 At SmartyStreets we find GoConvey to be wonderfully useful and have declared the project "feature-complete" as it currently stands and so other projects are crowding in. Having said that, we welcome contributions, especially fixes to incorrect behavior (ok I'll admit it, there are some bugs...).
+
+You can track the progress of known issues on our public [Trello](https://trello.com/b/hM7xVauQ/goconvey) board. If you'd like to see a new feature included or have a bug report, please send an email to [goconvey@smartystreets.com](goconvey@smartystreets.com).
