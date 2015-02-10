@@ -88,6 +88,12 @@ table {
 h1 {
 	font: 120px 'Oswald', sans-serif;
 	padding-left: 5px;
+	margin-top: 50px;
+	line-height: .75em;
+}
+
+h1 span {
+	font-size: 48px;
 }
 
 h2 {
