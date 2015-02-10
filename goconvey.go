@@ -39,6 +39,7 @@ func flags() {
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Requires Go 1.2+ and the go cover tool. (default: true)")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
 	flag.StringVar(&timeout, "timeout", "5s", "The test execution timeout if none is specified in the *.goconvey file (default: 5s).")
+	flag.BoolVar(&short, "short", false, "Specifies if the short flag should be turned on for testing if none is specified in the  *.goconvey file (default: false).")
 	flag.StringVar(&watchedSuffixes, "watchedSuffixes", ".go", "A comma separated list of file suffixes to watch for modifications (default: .go).")
 
 	log.SetOutput(os.Stdout)
@@ -53,7 +54,7 @@ func folders() {
 
 func main() {
 	flag.Parse()
-	log.Printf(initialConfiguration, host, port, nap, cover)
+	log.Printf(initialConfiguration, host, port, nap, cover, short)
 
 	working, err := os.Getwd()
 	if err != nil {
@@ -61,7 +62,7 @@ func main() {
 	}
 
 	cover = coverageEnabled(cover, reports)
-	shell := system.NewShell(gobin, reports, cover, timeout)
+	shell := system.NewShell(gobin, reports, cover, timeout, short)
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
@@ -203,6 +204,7 @@ var (
 	cover           bool
 	depth           int
 	timeout         string
+	short           bool
 	watchedSuffixes string
 
 	static  string
@@ -212,7 +214,7 @@ var (
 )
 
 const (
-	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n"
+	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v] [short: %v]\n"
 	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
 	coverToolMissing           = "Go cover tool is not installed or not accessible: `go get code.google.com/p/go.tools/cmd/cover`\n"
 	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
