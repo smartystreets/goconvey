@@ -17,14 +17,16 @@ type Shell struct {
 	gobin          string
 	reportsPath    string
 	defaultTimeout string
+	short          bool
 }
 
-func NewShell(gobin, reportsPath string, coverage bool, defaultTimeout string) *Shell {
+func NewShell(gobin, reportsPath string, coverage bool, defaultTimeout string, short bool) *Shell {
 	return &Shell{
 		coverage:       coverage,
 		gobin:          gobin,
 		reportsPath:    reportsPath,
 		defaultTimeout: defaultTimeout,
+		short:          short,
 	}
 }
 
@@ -36,8 +38,8 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 
 	goconvey := findGoConvey(directory, self.gobin, packageName).Execute()
 	compilation := compile(directory, self.gobin).Execute()
-	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, arguments).Execute()
-	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, arguments).Execute()
+	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, self.short, arguments).Execute()
+	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, self.short, arguments).Execute()
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
 	return final.Output, final.Error
@@ -55,7 +57,7 @@ func compile(directory, gobin string) Command {
 	return NewCommand(directory, gobin, "test", "-i")
 }
 
-func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout string, customArguments []string) Command {
+func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout string, short bool, customArguments []string) Command {
 	if compile.Error != nil || goconvey.Error != nil {
 		return compile
 	}
@@ -75,6 +77,10 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 		arguments = append(arguments, "-timeout="+defaultTimeout)
 	}
 
+	if short {
+		arguments = append(arguments, "-short")
+	}
+
 	if strings.Contains(goconvey.Output, goconveyDSLImport) {
 		arguments = append(arguments, "-json")
 	}
@@ -84,7 +90,7 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 	return NewCommand(directory, gobin, arguments...)
 }
 
-func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin, defaultTimeout string, customArguments []string) Command {
+func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin, defaultTimeout string, short bool, customArguments []string) Command {
 	if compile.Error != nil {
 		return compile
 	}
@@ -111,6 +117,11 @@ func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobi
 	if strings.Contains(goconvey.Output, goconveyDSLImport) {
 		arguments = append(arguments, "-json")
 	}
+
+	if short {
+		arguments = append(arguments, "-short")
+	}
+
 	arguments = append(arguments, customArguments...)
 	return NewCommand(directory, gobin, arguments...)
 }
