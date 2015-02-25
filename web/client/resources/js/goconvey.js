@@ -388,11 +388,11 @@ function wireup()
 
 		return suppress(e);
 	});
-	$('body').on('keyup', 'input, textarea, select', function(e)
+	$('body').on('keydown', 'input, textarea, select', function(e)
 	{
 		// If user is typing something, don't let this event bubble
 		// up to the document to annoyingly fire keyboard shortcuts
-		suppress(e);
+		e.stopPropagation();
 	});
 
 	// Keep everything positioned and sized properly on window resize
