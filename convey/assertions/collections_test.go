@@ -32,7 +32,7 @@ func TestShouldNotContain(t *testing.T) {
 }
 
 func TestShouldBeIn(t *testing.T) {
-	fail(t, so(4, ShouldBeIn), shouldHaveProvidedCollectionMembers)
+	fail(t, so(4, ShouldBeIn), needNonEmptyCollection)
 
 	container := []int{1, 2, 3, 4}
 	pass(t, so(4, ShouldBeIn, container))
@@ -43,7 +43,7 @@ func TestShouldBeIn(t *testing.T) {
 }
 
 func TestShouldNotBeIn(t *testing.T) {
-	fail(t, so(4, ShouldNotBeIn), shouldHaveProvidedCollectionMembers)
+	fail(t, so(4, ShouldNotBeIn), needNonEmptyCollection)
 
 	container := []int{1, 2, 3, 4}
 	pass(t, so(42, ShouldNotBeIn, container))
