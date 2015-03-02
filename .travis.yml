@@ -6,5 +6,6 @@ go:
   - 1.4
 
 install:
+  - go get github.com/smartystreets/assertions
   - go get golang.org/x/tools/cover
   - go get github.com/jtolds/gls
