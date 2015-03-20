@@ -764,9 +764,7 @@ func TestRandomizedExecution(t *testing.T) {
 
 	for seed, expect := range tests {
 		randomSeed = seed
-		if randomSeed != 0 {
-			randomizeTests = true
-		}
+		randomizeTests = randomSeed != 0
 		output := prepare()
 
 		Convey("A", t, func() {
