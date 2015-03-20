@@ -785,7 +785,7 @@ func TestRandomizedExecution(t *testing.T) {
 			Convey("D", func() { output += "D" })
 		})
 
-		expectEqualCtx(t, expect, output, "seed %d", seed)
+		expectEqualf(t, expect, output, "seed %d", seed)
 	}
 }
 
