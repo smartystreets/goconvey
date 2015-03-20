@@ -1,73 +1,52 @@
-// TODO: in order for this reporter to be completely honest
-// we need to retrofit to be more like the json reporter such that:
-// 1. it maintains ScopeResult collections, which count assertions
-// 2. it reports only after EndStory(), so that all tick marks
-//    are placed near the appropriate title.
-// 3. Under unit test
-
 package reporting
 
-import (
-	"fmt"
-	"strings"
-)
-
-type story struct {
-	out        *Printer
-	titlesById map[string]string
-	currentKey []string
+type StoryReporter struct {
+	nestedReporter
+	out  *Printer
+	seed int64
 }
 
-func (self *story) BeginStory(story *StoryReport) {}
+func (s *StoryReporter) Close() {
+	o := s.out
 
-func (self *story) Enter(scope *ScopeReport) {
-	self.out.Indent()
-
-	self.currentKey = append(self.currentKey, scope.Title)
-	ID := strings.Join(self.currentKey, "|")
-
-	if _, found := self.titlesById[ID]; !found {
-		self.out.Println("")
-		self.out.Print(scope.Title)
-		self.out.Insert(" ")
-		self.titlesById[ID] = scope.Title
+	if s.seed != 0 {
+		o.Insert(whiteColor)
+		o.Suite("Random Seed")
+		o.Statement(s.seed)
+		o.Exit()
+		o.Insert(resetColor)
 	}
+
+	s.Walk(func(obj interface{}) {
+		switch obj := obj.(type) {
+		case *NestedScopeResult:
+			o.Suite(obj.Title)
+
+		case ScopeExit:
+			o.Exit()
+
+		case string:
+			o.Insert(whiteColor)
+			o.Statement(obj)
+			o.Insert(resetColor)
+
+		case *AssertionResult:
+			color, tok := greenColor, success
+			if obj.Error != nil {
+				color, tok = redColor, error_
+			} else if obj.Failure != "" {
+				color, tok = yellowColor, failure
+			} else if obj.Skipped {
+				color, tok = yellowColor, skip
+			}
+			o.Insert(color)
+			o.Expression(tok)
+			o.Insert(resetColor)
+		}
+	})
+	o.Insert("\n\n")
 }
 
-func (self *story) Report(report *AssertionResult) {
-	if report.Error != nil {
-		fmt.Print(redColor)
-		self.out.Insert(error_)
-	} else if report.Failure != "" {
-		fmt.Print(yellowColor)
-		self.out.Insert(failure)
-	} else if report.Skipped {
-		fmt.Print(yellowColor)
-		self.out.Insert(skip)
-	} else {
-		fmt.Print(greenColor)
-		self.out.Insert(success)
-	}
-	fmt.Print(resetColor)
-}
-
-func (self *story) Exit() {
-	self.out.Dedent()
-	self.currentKey = self.currentKey[:len(self.currentKey)-1]
-}
-
-func (self *story) EndStory() {
-	self.titlesById = make(map[string]string)
-	self.out.Println("\n")
-}
-
-func (self *story) Write(content []byte) (written int, err error) {
-	return len(content), nil // no-op
-}
-
-func NewStoryReporter(out *Printer) *story {
-	self := new(story)
-	self.out = out
-	self.titlesById = make(map[string]string)
-	return self
+func NewStoryReporter(out *Printer, seed int64) Reporter {
+	return &StoryReporter{out: out, seed: seed}
 }

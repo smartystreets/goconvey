@@ -10,7 +10,6 @@ func TestEachNestedReporterReceivesTheCallFromTheContainingReporter(t *testing.T
 	fake2 := newFakeReporter()
 	reporter := NewReporters(fake1, fake2)
 
-	reporter.BeginStory(nil)
 	assertTrue(t, fake1.begun)
 	assertTrue(t, fake2.begun)
 
@@ -26,7 +25,7 @@ func TestEachNestedReporterReceivesTheCallFromTheContainingReporter(t *testing.T
 	assertTrue(t, fake1.exited)
 	assertTrue(t, fake2.exited)
 
-	reporter.EndStory()
+	reporter.Close()
 	assertTrue(t, fake1.ended)
 	assertTrue(t, fake2.ended)
 
@@ -56,7 +55,7 @@ func assertEqual(t *testing.T, expected, actual int) {
 func assertNil(t *testing.T, err error) {
 	if err != nil {
 		_, _, line, _ := runtime.Caller(1)
-		t.Errorf("Error should have been <nil> (but wasn't). See line %d", err, line)
+		t.Errorf("Error should have been <nil> (but wasn't). See line %d", line)
 	}
 }
 
@@ -70,12 +69,9 @@ type fakeReporter struct {
 }
 
 func newFakeReporter() *fakeReporter {
-	return &fakeReporter{}
+	return &fakeReporter{begun: true}
 }
 
-func (self *fakeReporter) BeginStory(story *StoryReport) {
-	self.begun = true
-}
 func (self *fakeReporter) Enter(scope *ScopeReport) {
 	self.entered = true
 }
@@ -85,7 +81,7 @@ func (self *fakeReporter) Report(report *AssertionResult) {
 func (self *fakeReporter) Exit() {
 	self.exited = true
 }
-func (self *fakeReporter) EndStory() {
+func (self *fakeReporter) Close() {
 	self.ended = true
 }
 func (self *fakeReporter) Write(content []byte) (int, error) {

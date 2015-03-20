@@ -4,32 +4,22 @@
 package gotest
 
 import (
-	"fmt"
 	"runtime"
 	"strings"
 )
 
-func FormatExternalFileAndLine() string {
-	file, line, _ := ResolveExternalCaller()
-	if line == -1 {
-		return "<unknown caller!>" // panic?
-	}
-	return fmt.Sprintf("%s:%d", file, line)
-}
-
-func ResolveExternalCaller() (file string, line int, name string) {
-	var caller_id uintptr
+func ResolveExternalCaller() (string, int) {
 	callers := runtime.Callers(0, callStack)
 
 	for x := 0; x < callers; x++ {
-		caller_id, file, line, _ = runtime.Caller(x)
+		_, file, line, _ := runtime.Caller(x)
 		if strings.HasSuffix(file, "_test.go") {
-			name = runtime.FuncForPC(caller_id).Name()
-			return
+			return file, line
 		}
 	}
-	file, line, name = "<unkown file>", -1, "<unknown name>"
-	return // panic?
+
+	// panic?
+	return "<unkown file>", -1
 }
 
 const maxStackDepth = 100 // This had better be enough...

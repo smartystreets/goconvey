@@ -2,7 +2,7 @@ package reporting
 
 import "fmt"
 
-func (self *statistics) BeginStory(story *StoryReport) {}
+func (self *statistics) BeginStory() {}
 
 func (self *statistics) Enter(scope *ScopeReport) {}
 
@@ -22,14 +22,15 @@ func (self *statistics) Report(report *AssertionResult) {
 
 func (self *statistics) Exit() {}
 
-func (self *statistics) EndStory() {
+func (self *statistics) Close() {
 	self.reportAssertions()
 	self.reportSkippedSections()
 	self.completeReport()
 }
 func (self *statistics) reportAssertions() {
 	self.decideColor()
-	self.out.Print("\n%d %s thus far", self.total, plural("assertion", self.total))
+	self.out.Statement(
+		fmt.Sprintf("\n%d %s thus far", self.total, plural("assertion", self.total)))
 }
 func (self *statistics) decideColor() {
 	if self.failing && !self.erroring {
@@ -43,14 +44,13 @@ func (self *statistics) decideColor() {
 func (self *statistics) reportSkippedSections() {
 	if self.skipped > 0 {
 		fmt.Print(yellowColor)
-		self.out.Print(" (one or more sections skipped)")
+		self.out.Expression(" (one or more sections skipped)")
 		self.skipped = 0
 	}
 }
 func (self *statistics) completeReport() {
-	fmt.Print(resetColor)
-	self.out.Print("\n")
-	self.out.Print("\n")
+	self.out.Insert(resetColor)
+	self.out.Insert("\n\n")
 }
 
 func (self *statistics) Write(content []byte) (written int, err error) {

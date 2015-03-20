@@ -2,10 +2,6 @@ package reporting
 
 type gotestReporter struct{ test T }
 
-func (self *gotestReporter) BeginStory(story *StoryReport) {
-	self.test = story.Test
-}
-
 func (self *gotestReporter) Enter(scope *ScopeReport) {}
 
 func (self *gotestReporter) Report(r *AssertionResult) {
@@ -16,16 +12,14 @@ func (self *gotestReporter) Report(r *AssertionResult) {
 
 func (self *gotestReporter) Exit() {}
 
-func (self *gotestReporter) EndStory() {
-	self.test = nil
-}
+func (self *gotestReporter) Close() {}
 
 func (self *gotestReporter) Write(content []byte) (written int, err error) {
 	return len(content), nil // no-op
 }
 
-func NewGoTestReporter() *gotestReporter {
-	return new(gotestReporter)
+func NewGoTestReporter(t T) *gotestReporter {
+	return &gotestReporter{t}
 }
 
 func passed(r *AssertionResult) bool {

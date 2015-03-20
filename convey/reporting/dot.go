@@ -4,8 +4,6 @@ import "fmt"
 
 type dot struct{ out *Printer }
 
-func (self *dot) BeginStory(story *StoryReport) {}
-
 func (self *dot) Enter(scope *ScopeReport) {}
 
 func (self *dot) Report(report *AssertionResult) {
@@ -27,13 +25,22 @@ func (self *dot) Report(report *AssertionResult) {
 
 func (self *dot) Exit() {}
 
-func (self *dot) EndStory() {}
+func (self *dot) Close() {}
 
 func (self *dot) Write(content []byte) (written int, err error) {
 	return len(content), nil // no-op
 }
 
-func NewDotReporter(out *Printer) *dot {
+func NewDotReporter(out *Printer, seed int64) *dot {
+	if seed != 0 {
+		out.Insert(whiteColor)
+		out.Suite("Random Seed")
+		out.Statement(seed)
+		out.Exit()
+		out.Insert(resetColor)
+		out.Insert("\n")
+	}
+
 	self := new(dot)
 	self.out = out
 	return self
