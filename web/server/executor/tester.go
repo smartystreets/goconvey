@@ -41,7 +41,7 @@ func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) 
 			folder.Output, folder.Error = message, errors.New(message)
 		} else {
 			log.Printf("Executing tests: %s\n", packageName)
-			folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName, folder.TestArguments)
+			folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName, folder.BuildTags, folder.TestArguments)
 		}
 	}
 }

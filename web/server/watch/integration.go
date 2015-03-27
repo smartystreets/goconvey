@@ -130,7 +130,7 @@ func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	for _, item := range profileItems {
 		// TODO: don't even bother if the item's size is over a few hundred bytes...
 		contents := ReadContents(item.Path)
-		item.ProfileDisabled, item.ProfileArguments = ParseProfile(contents)
+		item.ProfileDisabled, item.ProfileTags, item.ProfileArguments = ParseProfile(contents)
 	}
 
 	folders = CreateFolders(folderItems)

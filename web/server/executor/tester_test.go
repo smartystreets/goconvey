@@ -83,13 +83,13 @@ func NewTesterFixture() *TesterFixture {
 	self.shell = NewTimedShell()
 	self.tester = NewConcurrentTester(self.shell)
 	self.packages = []*contract.Package{
-		&contract.Package{Path: "a"},
-		&contract.Package{Path: "b"},
-		&contract.Package{Path: "c"},
-		&contract.Package{Path: "d"},
-		&contract.Package{Path: "e", Ignored: true},
-		&contract.Package{Path: "f"},
-		&contract.Package{Path: "g", HasImportCycle: true},
+		{Path: "a"},
+		{Path: "b"},
+		{Path: "c"},
+		{Path: "d"},
+		{Path: "e", Ignored: true},
+		{Path: "f"},
+		{Path: "g", HasImportCycle: true},
 	}
 	return self
 }
@@ -225,7 +225,7 @@ func (self *TimedShell) setExitWithError() {
 	self.err = errors.New("Simulate test failure")
 }
 
-func (self *TimedShell) GoTest(directory, packageName string, arguments []string) (output string, err error) {
+func (self *TimedShell) GoTest(directory, packageName string, arguments, tags []string) (output string, err error) {
 	if self.panicMessage != "" {
 		return "", errors.New(self.panicMessage)
 	}
