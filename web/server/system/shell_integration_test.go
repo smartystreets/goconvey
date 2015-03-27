@@ -22,7 +22,7 @@ func TestShellIntegration(t *testing.T) {
 	packageName := "github.com/smartystreets/goconvey/web/server/watch/integration_testing/sub"
 
 	shell := NewShell("go", "", true, "5s")
-	output, err := shell.GoTest(directory, packageName, []string{"-short"})
+	output, err := shell.GoTest(directory, packageName, []string{}, []string{"-short"})
 
 	if !strings.Contains(output, "PASS\n") || !strings.Contains(output, "ok") {
 		t.Errorf("Expected output that resembed tests passing but got this instead: [%s]", output)
