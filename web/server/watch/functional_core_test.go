@@ -10,73 +10,73 @@ import (
 
 func TestCategorize(t *testing.T) {
 	fileSystem := []*FileSystemItem{
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello",
 			Name:     "hello",
 			IsFolder: true,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/1/hello/world.txt",
 			Name:     "world.txt",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/1/2/3/4/5/hello/world.go",
 			Name:     "world.go",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/world.go",
 			Name:     "world.go",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/hello/world.tmpl",
 			Name:     "world.tmpl",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/hello/.world.go",
 			Name:     ".world.go",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/.hello",
 			Name:     ".hello",
 			IsFolder: true,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/.hello/hello",
 			Name:     "hello",
 			IsFolder: true,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/.hello/world.go",
 			Name:     "world.go",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/hello/hi.goconvey",
 			Name:     "hi.goconvey",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/hello2/.goconvey",
 			Name:     ".goconvey",
 			IsFolder: false,
 		},
-		&FileSystemItem{
+		{
 			Root:     "/.hello",
 			Path:     "/.hello/_hello",
 			Name:     "_hello",
@@ -123,28 +123,26 @@ func TestParseProfile(t *testing.T) {
 		description    string
 		input          string
 		resultIgnored  bool
+		resultTestTags []string
 		resultTestArgs []string
 	}{
 		{
-			SKIP:           false,
-			description:    "Blank profile",
-			input:          "",
-			resultIgnored:  false,
-			resultTestArgs: []string{},
+			SKIP:          false,
+			description:   "Blank profile",
+			input:         "",
+			resultIgnored: false,
 		},
 		{
-			SKIP:           false,
-			description:    "All lines are blank or whitespace",
-			input:          "\n \n \t\t\t  \n \n \n",
-			resultIgnored:  false,
-			resultTestArgs: []string{},
+			SKIP:          false,
+			description:   "All lines are blank or whitespace",
+			input:         "\n \n \t\t\t  \n \n \n",
+			resultIgnored: false,
 		},
 		{
-			SKIP:           false,
-			description:    "Ignored package, no args included",
-			input:          "IGNORE\n-timeout=4s",
-			resultIgnored:  true,
-			resultTestArgs: []string{},
+			SKIP:          false,
+			description:   "Ignored package, no args included",
+			input:         "IGNORE\n-timeout=4s",
+			resultIgnored: true,
 		},
 		{
 			SKIP:           false,
@@ -168,24 +166,30 @@ func TestParseProfile(t *testing.T) {
 			resultTestArgs: []string{"-run=TestBlah"},
 		},
 		{
-			SKIP:           false,
-			description:    "All args are commented, therefore all are ignored",
-			input:          "#-run=TestBlah\n//-timeout=42",
-			resultIgnored:  false,
-			resultTestArgs: []string{},
+			SKIP:          false,
+			description:   "All args are commented, therefore all are ignored",
+			input:         "#-run=TestBlah\n//-timeout=42",
+			resultIgnored: false,
 		},
 		{
-			SKIP:           false,
-			description:    "We ignore certain flags like -v and -cover and -coverprofile because they are specified by the shell",
-			input:          "-v\n-cover\n-coverprofile=blah.out",
-			resultIgnored:  false,
-			resultTestArgs: []string{},
+			SKIP:          false,
+			description:   "We ignore certain flags like -v and -cover and -coverprofile because they are specified by the shell",
+			input:         "-v\n-cover\n-coverprofile=blah.out",
+			resultIgnored: false,
 		},
 		{
 			SKIP:           false,
 			description:    "We allow certain coverage flags like -coverpkg and -covermode",
 			input:          "-coverpkg=blah\n-covermode=atomic",
 			resultIgnored:  false,
+			resultTestArgs: []string{"-coverpkg=blah", "-covermode=atomic"},
+		},
+		{
+			SKIP:           false,
+			description:    "We parse out -tags particularly",
+			input:          "-coverpkg=blah\n-covermode=atomic\n-tags=foo,bar",
+			resultIgnored:  false,
+			resultTestTags: []string{"foo", "bar"},
 			resultTestArgs: []string{"-coverpkg=blah", "-covermode=atomic"},
 		},
 	}
@@ -195,9 +199,10 @@ func TestParseProfile(t *testing.T) {
 			SkipConvey(fmt.Sprintf("Profile Parsing, Test Case #%d: %s (SKIPPED)", i, test.description), t, nil)
 		} else {
 			Convey(fmt.Sprintf("Profile Parsing, Test Case #%d: %s", i, test.description), t, func() {
-				ignored, testArgs := ParseProfile(test.input)
+				ignored, testTags, testArgs := ParseProfile(test.input)
 
 				So(ignored, ShouldEqual, test.resultIgnored)
+				So(testTags, ShouldResemble, test.resultTestTags)
 				So(testArgs, ShouldResemble, test.resultTestArgs)
 			})
 		}
@@ -207,15 +212,15 @@ func TestParseProfile(t *testing.T) {
 func TestCreateFolders(t *testing.T) {
 	Convey("File system items that represent folders should be converted to folder structs correctly", t, func() {
 		expected := map[string]*messaging.Folder{
-			"/root/1":     &messaging.Folder{Path: "/root/1", Root: "/root"},
-			"/root/1/2":   &messaging.Folder{Path: "/root/1/2", Root: "/root"},
-			"/root/1/2/3": &messaging.Folder{Path: "/root/1/2/3", Root: "/root"},
+			"/root/1":     {Path: "/root/1", Root: "/root"},
+			"/root/1/2":   {Path: "/root/1/2", Root: "/root"},
+			"/root/1/2/3": {Path: "/root/1/2/3", Root: "/root"},
 		}
 
 		inputs := []*FileSystemItem{
-			&FileSystemItem{Path: "/root/1", Root: "/root", IsFolder: true},
-			&FileSystemItem{Path: "/root/1/2", Root: "/root", IsFolder: true},
-			&FileSystemItem{Path: "/root/1/2/3", Root: "/root", IsFolder: true},
+			{Path: "/root/1", Root: "/root", IsFolder: true},
+			{Path: "/root/1/2", Root: "/root", IsFolder: true},
+			{Path: "/root/1/2/3", Root: "/root", IsFolder: true},
 		}
 
 		actual := CreateFolders(inputs)
@@ -230,15 +235,15 @@ func TestLimitDepth(t *testing.T) {
 	Convey("Subject: Limiting folders based on relative depth from a common root", t, func() {
 
 		folders := map[string]*messaging.Folder{
-			"/root/1": &messaging.Folder{
+			"/root/1": {
 				Path: "/root/1",
 				Root: "/root",
 			},
-			"/root/1/2": &messaging.Folder{
+			"/root/1/2": {
 				Path: "/root/1/2",
 				Root: "/root",
 			},
-			"/root/1/2/3": &messaging.Folder{
+			"/root/1/2/3": {
 				Path: "/root/1/2/3",
 				Root: "/root",
 			},
@@ -267,32 +272,32 @@ func TestLimitDepth(t *testing.T) {
 func TestAttachProfiles(t *testing.T) {
 	Convey("Subject: Attaching profile information to a folder", t, func() {
 		folders := map[string]*messaging.Folder{
-			"/root/1": &messaging.Folder{
+			"/root/1": {
 				Path: "/root/1",
 				Root: "/root",
 			},
-			"/root/1/2": &messaging.Folder{
+			"/root/1/2": {
 				Path: "/root/1/2",
 				Root: "/root",
 			},
-			"/root/1/2/3": &messaging.Folder{
+			"/root/1/2/3": {
 				Path: "/root/1/2/3",
 				Root: "/root",
 			},
 		}
 
 		profiles := []*FileSystemItem{
-			&FileSystemItem{
+			{
 				Path:             "/root/too-shallow.goconvey",
 				ProfileDisabled:  true,
 				ProfileArguments: []string{"1", "2"},
 			},
-			&FileSystemItem{
+			{
 				Path:             "/root/1/2/hi.goconvey",
 				ProfileDisabled:  true,
 				ProfileArguments: []string{"1", "2"},
 			},
-			&FileSystemItem{
+			{
 				Path:             "/root/1/2/3/4/does-not-exist",
 				ProfileDisabled:  true,
 				ProfileArguments: []string{"1", "2", "3", "4"},
@@ -323,15 +328,15 @@ func TestAttachProfiles(t *testing.T) {
 func TestMarkIgnored(t *testing.T) {
 	Convey("Subject: folders that have been ignored should be marked as such", t, func() {
 		folders := map[string]*messaging.Folder{
-			"/root/1": &messaging.Folder{
+			"/root/1": {
 				Path: "/root/1",
 				Root: "/root",
 			},
-			"/root/1/2": &messaging.Folder{
+			"/root/1/2": {
 				Path: "/root/1/2",
 				Root: "/root",
 			},
-			"/root/1/2/3": &messaging.Folder{
+			"/root/1/2/3": {
 				Path: "/root/1/2/3",
 				Root: "/root",
 			},
@@ -348,7 +353,7 @@ func TestMarkIgnored(t *testing.T) {
 			})
 		})
 		Convey("When there are ignored folders", func() {
-			ignored := map[string]struct{}{"1/2": struct{}{}}
+			ignored := map[string]struct{}{"1/2": {}}
 			MarkIgnored(folders, ignored)
 
 			Convey("The ignored folders should be marked as ignored", func() {
@@ -363,16 +368,16 @@ func TestMarkIgnored(t *testing.T) {
 func TestActiveFolders(t *testing.T) {
 	Convey("Subject: Folders that are not ignored or disabled are active", t, func() {
 		folders := map[string]*messaging.Folder{
-			"/root/1": &messaging.Folder{
+			"/root/1": {
 				Path:    "/root/1",
 				Root:    "/root",
 				Ignored: true,
 			},
-			"/root/1/2": &messaging.Folder{
+			"/root/1/2": {
 				Path: "/root/1/2",
 				Root: "/root",
 			},
-			"/root/1/2/3": &messaging.Folder{
+			"/root/1/2/3": {
 				Path:     "/root/1/2/3",
 				Root:     "/root",
 				Disabled: true,
@@ -389,12 +394,12 @@ func TestActiveFolders(t *testing.T) {
 func TestSum(t *testing.T) {
 	Convey("Subject: file system items within specified directores should be counted and summed", t, func() {
 		folders := map[string]*messaging.Folder{
-			"/root/1": &messaging.Folder{Path: "/root/1", Root: "/root", Ignored: true},
+			"/root/1": {Path: "/root/1", Root: "/root", Ignored: true},
 		}
 		items := []*FileSystemItem{
-			&FileSystemItem{Size: 1, Modified: 3, Path: "/root/1/hi.go"},
-			&FileSystemItem{Size: 7, Modified: 13, Path: "/root/1/bye.go"},
-			&FileSystemItem{Size: 33, Modified: 45, Path: "/root/1/2/salutations.go"}, // not counted
+			{Size: 1, Modified: 3, Path: "/root/1/hi.go"},
+			{Size: 7, Modified: 13, Path: "/root/1/bye.go"},
+			{Size: 33, Modified: 45, Path: "/root/1/2/salutations.go"}, // not counted
 		}
 
 		So(Sum(folders, items), ShouldEqual, 1+3+7+13)

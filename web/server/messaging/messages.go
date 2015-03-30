@@ -49,6 +49,7 @@ type Folder struct {
 	Root          string
 	Ignored       bool
 	Disabled      bool
+	BuildTags     []string
 	TestArguments []string
 }
 

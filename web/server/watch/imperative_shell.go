@@ -17,6 +17,7 @@ type FileSystemItem struct {
 	IsFolder bool
 
 	ProfileDisabled  bool
+	ProfileTags      []string
 	ProfileArguments []string
 }
 

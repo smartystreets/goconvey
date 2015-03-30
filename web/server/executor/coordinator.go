@@ -44,7 +44,7 @@ func (self *concurrentCoordinator) worker(id int) {
 			folder.Output, folder.Error = message, errors.New(message)
 		} else {
 			log.Printf("Executing concurrent tests: %s\n", packageName)
-			folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName, folder.TestArguments)
+			folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName, folder.BuildTags, folder.TestArguments)
 		}
 	}
 	self.waiter.Done()

@@ -15,6 +15,7 @@ type Package struct {
 	Name          string
 	Ignored       bool
 	Disabled      bool
+	BuildTags     []string
 	TestArguments []string
 	Error         error
 	Output        string
@@ -30,6 +31,7 @@ func NewPackage(folder *messaging.Folder, hasImportCycle bool) *Package {
 	self.Result = NewPackageResult(self.Name)
 	self.Ignored = folder.Ignored
 	self.Disabled = folder.Disabled
+	self.BuildTags = folder.BuildTags
 	self.TestArguments = folder.TestArguments
 	self.HasImportCycle = hasImportCycle
 	return self

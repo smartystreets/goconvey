@@ -49,15 +49,18 @@ func isHidden(path string) bool {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-func ParseProfile(profile string) (isDisabled bool, arguments []string) {
+func ParseProfile(profile string) (isDisabled bool, tags, arguments []string) {
 	lines := strings.Split(profile, "\n")
-	arguments = []string{}
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
 		if len(arguments) == 0 && strings.ToLower(line) == "ignore" {
-			return true, []string{}
+			return true, nil, nil
+
+		} else if strings.HasPrefix(line, "-tags=") {
+			tags = append(tags, strings.Split(strings.SplitN(line, "=", 2)[1], ",")...)
+			continue
 
 		} else if len(line) == 0 {
 			continue
@@ -79,7 +82,7 @@ func ParseProfile(profile string) (isDisabled bool, arguments []string) {
 		arguments = append(arguments, line)
 	}
 
-	return false, arguments
+	return false, tags, arguments
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -113,7 +116,7 @@ func LimitDepth(folders messaging.Folders, depth int) {
 func AttachProfiles(folders messaging.Folders, items []*FileSystemItem) {
 	for _, profile := range items {
 		if folder, exists := folders[filepath.Dir(profile.Path)]; exists {
-			folder.Disabled, folder.TestArguments = profile.ProfileDisabled, profile.ProfileArguments
+			folder.Disabled, folder.BuildTags, folder.TestArguments = profile.ProfileDisabled, profile.ProfileTags, profile.ProfileArguments
 		}
 	}
 }
@@ -126,7 +129,7 @@ func MarkIgnored(folders messaging.Folders, ignored map[string]struct{}) {
 	}
 
 	for _, folder := range folders {
-		for ignored, _ := range ignored {
+		for ignored := range ignored {
 			if !folder.Ignored && strings.HasSuffix(folder.Path, ignored) {
 				folder.Ignored = true
 			}

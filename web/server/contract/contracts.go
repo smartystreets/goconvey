@@ -22,6 +22,6 @@ type (
 	}
 
 	Shell interface {
-		GoTest(directory, packageName string, arguments []string) (output string, err error)
+		GoTest(directory, packageName string, tags, arguments []string) (output string, err error)
 	}
 )

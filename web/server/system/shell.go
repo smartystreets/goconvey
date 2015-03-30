@@ -28,16 +28,17 @@ func NewShell(gobin, reportsPath string, coverage bool, defaultTimeout string) *
 	}
 }
 
-func (self *Shell) GoTest(directory, packageName string, arguments []string) (output string, err error) {
+func (self *Shell) GoTest(directory, packageName string, tags, arguments []string) (output string, err error) {
 	reportFilename := strings.Replace(packageName, "/", "-", -1)
 	reportPath := filepath.Join(self.reportsPath, reportFilename)
 	reportData := reportPath + ".txt"
 	reportHTML := reportPath + ".html"
+	tagsArg := "-tags=" + strings.Join(tags, ",")
 
-	goconvey := findGoConvey(directory, self.gobin, packageName).Execute()
-	compilation := compile(directory, self.gobin).Execute()
-	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, arguments).Execute()
-	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, arguments).Execute()
+	goconvey := findGoConvey(directory, self.gobin, packageName, tagsArg).Execute()
+	compilation := compile(directory, self.gobin, tagsArg).Execute()
+	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
+	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
 	return final.Output, final.Error
@@ -47,15 +48,15 @@ func (self *Shell) GoTest(directory, packageName string, arguments []string) (ou
 // Functional Core:////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-func findGoConvey(directory, gobin, packageName string) Command {
-	return NewCommand(directory, gobin, "list", "-f", "'{{.TestImports}}'", packageName)
+func findGoConvey(directory, gobin, packageName, tagsArg string) Command {
+	return NewCommand(directory, gobin, "list", "-f", "'{{.TestImports}}'", tagsArg, packageName)
 }
 
-func compile(directory, gobin string) Command {
-	return NewCommand(directory, gobin, "test", "-i")
+func compile(directory, gobin, tagsArg string) Command {
+	return NewCommand(directory, gobin, "test", "-i", tagsArg)
 }
 
-func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout string, customArguments []string) Command {
+func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout, tagsArg string, customArguments []string) Command {
 	if compile.Error != nil || goconvey.Error != nil {
 		return compile
 	}
@@ -64,7 +65,7 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 		return compile
 	}
 
-	arguments := []string{"test", "-v", "-coverprofile=" + reportPath}
+	arguments := []string{"test", "-v", "-coverprofile=" + reportPath, tagsArg}
 
 	customArgsText := strings.Join(customArguments, "\t")
 	if !strings.Contains(customArgsText, "-covermode=") {
@@ -84,7 +85,7 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 	return NewCommand(directory, gobin, arguments...)
 }
 
-func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin, defaultTimeout string, customArguments []string) Command {
+func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin, defaultTimeout, tagsArg string, customArguments []string) Command {
 	if compile.Error != nil {
 		return compile
 	}
@@ -102,7 +103,7 @@ func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobi
 
 	log.Print("Run without coverage")
 
-	arguments := []string{"test", "-v"}
+	arguments := []string{"test", "-v", tagsArg}
 	customArgsText := strings.Join(customArguments, "\t")
 	if !strings.Contains(customArgsText, "-timeout=") {
 		arguments = append(arguments, "-timeout="+defaultTimeout)
