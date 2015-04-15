@@ -117,4 +117,4 @@ GoConvey is brought to you by [SmartyStreets](https://github.com/smartystreets);
  - [Michael Whatcott](https://github.com/mdwhatcott)
  - [Matt Holt](https://github.com/mholt)
 
- You can track the progress of known issues on our public [Trello](https://trello.com/b/hM7xVauQ/goconvey) board. If you'd like to discuss a new feature idea or think you've found a bug, please send an email to [goconvey@smartystreets.com](goconvey@smartystreets.com).
+ You can track the progress of known issues on our public [Trello](https://trello.com/b/hM7xVauQ/goconvey) board. If you'd like to discuss a new feature idea or think you've found a bug, please send an email to [goconvey@smartystreets.com](mailto:goconvey@smartystreets.com).
