@@ -7,7 +7,6 @@ import (
 
 func TestNoopProblemReporterActions(t *testing.T) {
 	file, reporter := setup()
-	reporter.BeginStory(nil)
 	reporter.Enter(nil)
 	reporter.Exit()
 	expected := ""
@@ -22,7 +21,7 @@ func TestReporterPrintsFailuresAndErrorsAtTheEndOfTheStory(t *testing.T) {
 	reporter.Report(NewFailureReport("failed"))
 	reporter.Report(NewErrorReport("error"))
 	reporter.Report(NewSuccessReport())
-	reporter.EndStory()
+	reporter.Close()
 
 	result := file.String()
 	if !strings.Contains(result, "Errors:\n") {

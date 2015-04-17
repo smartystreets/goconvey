@@ -17,32 +17,32 @@ func init() {
 	}
 }
 
-func BuildJsonReporter() Reporter {
+func BuildJsonReporter(t T, seed int64) Reporter {
 	out := NewPrinter(NewConsole())
 	return NewReporters(
-		NewGoTestReporter(),
-		NewJsonReporter(out))
+		NewGoTestReporter(t),
+		NewJsonReporter(out, seed))
 }
-func BuildDotReporter() Reporter {
+func BuildDotReporter(t T, seed int64) Reporter {
 	out := NewPrinter(NewConsole())
 	return NewReporters(
-		NewGoTestReporter(),
-		NewDotReporter(out),
+		NewGoTestReporter(t),
+		NewDotReporter(out, seed),
 		NewProblemReporter(out),
 		consoleStatistics)
 }
-func BuildStoryReporter() Reporter {
+func BuildStoryReporter(t T, seed int64) Reporter {
 	out := NewPrinter(NewConsole())
 	return NewReporters(
-		NewGoTestReporter(),
-		NewStoryReporter(out),
+		NewGoTestReporter(t),
+		NewStoryReporter(out, seed),
 		NewProblemReporter(out),
 		consoleStatistics)
 }
-func BuildSilentReporter() Reporter {
+func BuildSilentReporter(t T) Reporter {
 	out := NewPrinter(NewConsole())
 	return NewReporters(
-		NewGoTestReporter(),
+		NewGoTestReporter(t),
 		NewProblemReporter(out))
 }
 
@@ -62,9 +62,10 @@ var (
 
 var (
 	greenColor  = "\033[32m"
-	yellowColor = "\033[33m"
 	redColor    = "\033[31m"
 	resetColor  = "\033[0m"
+	whiteColor  = "\033[37;1m"
+	yellowColor = "\033[33m"
 )
 
 var consoleStatistics = NewStatisticsReporter(NewPrinter(NewConsole()))

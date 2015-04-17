@@ -3,9 +3,8 @@ package reporting
 import "testing"
 
 func TestReporterReceivesSuccessfulReport(t *testing.T) {
-	reporter := NewGoTestReporter()
 	test := new(fakeTest)
-	reporter.BeginStory(NewStoryReport(test))
+	reporter := NewGoTestReporter(test)
 	reporter.Report(NewSuccessReport())
 
 	if test.failed {
@@ -14,9 +13,8 @@ func TestReporterReceivesSuccessfulReport(t *testing.T) {
 }
 
 func TestReporterReceivesFailureReport(t *testing.T) {
-	reporter := NewGoTestReporter()
 	test := new(fakeTest)
-	reporter.BeginStory(NewStoryReport(test))
+	reporter := NewGoTestReporter(test)
 	reporter.Report(NewFailureReport("This is a failure."))
 
 	if !test.failed {
@@ -25,9 +23,8 @@ func TestReporterReceivesFailureReport(t *testing.T) {
 }
 
 func TestReporterReceivesErrorReport(t *testing.T) {
-	reporter := NewGoTestReporter()
 	test := new(fakeTest)
-	reporter.BeginStory(NewStoryReport(test))
+	reporter := NewGoTestReporter(test)
 	reporter.Report(NewErrorReport("This is an error."))
 
 	if !test.failed {
@@ -37,16 +34,16 @@ func TestReporterReceivesErrorReport(t *testing.T) {
 
 func TestReporterIsResetAtTheEndOfTheStory(t *testing.T) {
 	defer catch(t)
-	reporter := NewGoTestReporter()
 	test := new(fakeTest)
-	reporter.BeginStory(NewStoryReport(test))
-	reporter.EndStory()
+	reporter := NewGoTestReporter(test)
+	reporter.Close()
 
 	reporter.Report(NewSuccessReport())
 }
 
 func TestReporterNoopMethods(t *testing.T) {
-	reporter := NewGoTestReporter()
+	test := new(fakeTest)
+	reporter := NewGoTestReporter(test)
 	reporter.Enter(NewScopeReport("title"))
 	reporter.Exit()
 }

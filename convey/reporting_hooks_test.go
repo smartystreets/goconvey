@@ -256,19 +256,24 @@ func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
 	}
 }
 
+func expectEqualCtx(t *testing.T, expected interface{}, actual interface{}, format string, args ...interface{}) {
+	if expected != actual {
+		_, file, line, _ := runtime.Caller(1)
+		err := fmt.Sprintf("Expected '%v' to be '%v' but it wasn't. See '%s' at line %d.",
+			actual, expected, path.Base(file), line)
+		err += fmt.Sprintf("\n  Context: "+format, args...)
+		t.Errorf(err)
+	}
+}
+
 func setupFakeReporter() (*fakeReporter, *fakeGoTest) {
-	myReporter := new(fakeReporter)
-	myReporter.calls = []string{}
+	myReporter := &fakeReporter{[]string{"Begin"}}
 	testReporter = myReporter
 	return myReporter, new(fakeGoTest)
 }
 
 type fakeReporter struct {
 	calls []string
-}
-
-func (self *fakeReporter) BeginStory(story *reporting.StoryReport) {
-	self.calls = append(self.calls, "Begin")
 }
 
 func (self *fakeReporter) Enter(scope *reporting.ScopeReport) {
@@ -295,7 +300,7 @@ func (self *fakeReporter) Exit() {
 	self.calls = append(self.calls, "Exit")
 }
 
-func (self *fakeReporter) EndStory() {
+func (self *fakeReporter) Close() {
 	self.calls = append(self.calls, "End")
 }
 

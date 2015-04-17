@@ -2,6 +2,7 @@ package convey
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/jtolds/gls"
 	"github.com/smartystreets/goconvey/convey/reporting"
@@ -68,6 +69,7 @@ func mustGetCurrentContext() *context {
 // This implements the `C` interface.
 type context struct {
 	reporter reporting.Reporter
+	picker   picker
 
 	children map[string]*context
 
@@ -91,9 +93,10 @@ func rootConvey(items ...interface{}) {
 		conveyPanic(missingGoTest)
 	}
 
-	expectChildRun := true
+	var expectChildRun bool
 	ctx := &context{
-		reporter: buildReporter(),
+		reporter: buildReporter(entry.Test, getSeed()),
+		picker:   newPicker(),
 
 		children: make(map[string]*context),
 
@@ -103,12 +106,17 @@ func rootConvey(items ...interface{}) {
 		failureMode: defaultFailureMode.combine(entry.FailMode),
 	}
 	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
-		ctx.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
-		defer ctx.reporter.EndStory()
+		defer ctx.reporter.Close()
 
-		for ctx.shouldVisit() {
+		ranOnce := false
+		// if we're not randomizing, we can start running children right away
+		if !randomizeTests {
+			expectChildRun = true
+		}
+		for !ranOnce || ctx.shouldVisit() {
 			ctx.conveyInner(entry.Situation, entry.Func)
 			expectChildRun = true
+			ranOnce = true
 		}
 	})
 }
@@ -147,6 +155,7 @@ func (ctx *context) Convey(items ...interface{}) {
 		}
 		inner_ctx = &context{
 			reporter: ctx.reporter,
+			picker:   ctx.picker.New(),
 
 			children: make(map[string]*context),
 
@@ -156,9 +165,13 @@ func (ctx *context) Convey(items ...interface{}) {
 			failureMode: ctx.failureMode.combine(entry.FailMode),
 		}
 		ctx.children[entry.Situation] = inner_ctx
+
+		if randomizeTests {
+			*ctx.expectChildRun = false
+		}
 	}
 
-	if inner_ctx.shouldVisit() {
+	if inner_ctx.shouldVisit() && ctx.picker.Pick(entry.Situation) {
 		ctxMgr.SetValues(gls.Values{nodeKey: inner_ctx}, func() {
 			inner_ctx.conveyInner(entry.Situation, entry.Func)
 		})
@@ -183,18 +196,15 @@ func (ctx *context) Reset(action func()) {
 }
 
 func (ctx *context) Print(items ...interface{}) (int, error) {
-	fmt.Fprint(ctx.reporter, items...)
-	return fmt.Print(items...)
+	return fmt.Fprint(ctx.reporter, items...)
 }
 
 func (ctx *context) Println(items ...interface{}) (int, error) {
-	fmt.Fprintln(ctx.reporter, items...)
-	return fmt.Println(items...)
+	return fmt.Fprintln(ctx.reporter, items...)
 }
 
 func (ctx *context) Printf(format string, items ...interface{}) (int, error) {
-	fmt.Fprintf(ctx.reporter, format, items...)
-	return fmt.Printf(format, items...)
+	return fmt.Fprintf(ctx.reporter, format, items...)
 }
 
 //////////////////////////////////// Private ////////////////////////////////////
@@ -210,6 +220,17 @@ func (c *context) shouldVisit() bool {
 // function body. At this point, Convey or RootConvey has decided that this
 // function should actually run.
 func (ctx *context) conveyInner(situation string, f func(C)) {
+	if ctx.executedOnce {
+		choices := []string{}
+		for k, v := range ctx.children {
+			if !v.complete {
+				choices = append(choices, k)
+			}
+		}
+		sort.Strings(choices)
+		ctx.picker.Enter(choices)
+	}
+
 	// Record/Reset state for next time.
 	defer func() {
 		ctx.executedOnce = true
