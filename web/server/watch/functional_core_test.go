@@ -82,6 +82,12 @@ func TestCategorize(t *testing.T) {
 			Name:     "_hello",
 			IsFolder: true,
 		},
+		{
+			Root:     "/.hello",
+			Path:     "/.hello/generated_by_gunit_test.go",
+			Name:     "generated_by_gunit_test.go",
+			IsFolder: false,
+		},
 	}
 
 	Convey("A stream of file system items should be categorized correctly", t, func() {

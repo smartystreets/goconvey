@@ -37,8 +37,9 @@ func (self *Shell) GoTest(directory, packageName string, tags, arguments []strin
 
 	goconvey := findGoConvey(directory, self.gobin, packageName, tagsArg).Execute()
 	compilation := compile(directory, self.gobin, tagsArg).Execute()
-	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
-	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
+	generate := goGenerate(compilation, goconvey, directory, self.gobin, packageName).Execute()
+	withCoverage := runWithCoverage(generate, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
+	final := runWithoutCoverage(generate, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
 	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
 
 	return final.Output, final.Error
@@ -56,13 +57,21 @@ func compile(directory, gobin, tagsArg string) Command {
 	return NewCommand(directory, gobin, "test", "-i", tagsArg)
 }
 
-func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout, tagsArg string, customArguments []string) Command {
+func goGenerate(compile, goconvey Command, directory, gobin, packageName string) Command {
 	if compile.Error != nil || goconvey.Error != nil {
 		return compile
 	}
 
+	return NewCommand(directory, gobin, "generate", packageName)
+}
+
+func runWithCoverage(generate, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout, tagsArg string, customArguments []string) Command {
+	if generate.Error != nil || goconvey.Error != nil {
+		return generate
+	}
+
 	if !coverage {
-		return compile
+		return generate
 	}
 
 	arguments := []string{"test", "-v", "-coverprofile=" + reportPath, tagsArg}
@@ -85,23 +94,19 @@ func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, direc
 	return NewCommand(directory, gobin, arguments...)
 }
 
-func runWithoutCoverage(compile, withCoverage, goconvey Command, directory, gobin, defaultTimeout, tagsArg string, customArguments []string) Command {
-	if compile.Error != nil {
-		return compile
+func runWithoutCoverage(generate, withCoverage, goconvey Command, directory, gobin, defaultTimeout, tagsArg string, customArguments []string) Command {
+	if generate.Error != nil {
+		return generate
 	}
 
 	if goconvey.Error != nil {
-		log.Println(gopathProblem, goconvey.Output, goconvey.Error)
+		log.Println(gopathProblem)
 		return goconvey
 	}
 
 	if coverageStatementRE.MatchString(withCoverage.Output) {
 		return withCoverage
 	}
-
-	log.Printf("Coverage output: %v", withCoverage.Output)
-
-	log.Print("Run without coverage")
 
 	arguments := []string{"test", "-v", tagsArg}
 	customArgsText := strings.Join(customArguments, "\t")
@@ -163,12 +168,16 @@ func (this Command) Execute() Command {
 	var rawOutput []byte
 	rawOutput, this.Error = command.CombinedOutput()
 	this.Output = string(rawOutput)
+	if this.Error != nil {
+		args := strings.Join(this.arguments, " ")
+		log.Printf("Failed Command Output (%s %s):\n%s\n", this.executable, args, this.Output)
+	}
 	return this
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 const goconveyDSLImport = "github.com/smartystreets/goconvey/convey " // note the trailing space: we don't want to target packages nested in the /convey package.
-const gopathProblem = "Please run goconvey from within $GOPATH/src (also, symlinks might be problematic). Output and Error: "
+const gopathProblem = "Please run goconvey from within $GOPATH/src (also, symlinks might be problematic). See previous output for details."
 
 var coverageStatementRE = regexp.MustCompile(`(?m)^coverage: \d+\.\d% of statements(.*)$|^panic: test timed out after `)

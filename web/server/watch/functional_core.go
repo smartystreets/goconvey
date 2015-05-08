@@ -18,6 +18,9 @@ func Categorize(items chan *FileSystemItem, root string, watchSuffixes []string)
 		} else if strings.HasSuffix(item.Name, ".goconvey") && len(item.Name) > len(".goconvey") {
 			profiles = append(profiles, item)
 
+		} else if item.Name == "generated_by_gunit_test.go" {
+			continue
+
 		} else {
 			for _, suffix := range watchSuffixes {
 				if strings.HasSuffix(item.Name, suffix) && !isHidden(item.Name) && !foundInHiddenDirectory(item, root) {
