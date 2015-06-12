@@ -120,10 +120,16 @@ func TestParsePackage_NestedTests_ReturnsPackageResult(t *testing.T) {
 	assertEqual(t, expectedNestedTests, *actual)
 }
 
-func TestParsePacakge_WithExampleFunctions_ReturnsPackageResult(t *testing.T) {
+func TestParsePackage_WithExampleFunctions_ReturnsPackageResult(t *testing.T) {
 	actual := &contract.PackageResult{PackageName: expectedExampleFunctions.PackageName}
 	ParsePackageResults(actual, inputExampleFunctions)
 	assertEqual(t, expectedExampleFunctions, *actual)
+}
+
+func TestParsePackage_Golang15Output_ShouldNotPanic(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedGolang15.PackageName}
+	ParsePackageResults(actual, inputGolang15)
+	assertEqual(t, expectedGolang15, *actual)
 }
 
 func assertEqual(t *testing.T, expected, actual interface{}) {
@@ -752,6 +758,30 @@ var expectedExampleFunctions = contract.PackageResult{
 		contract.TestResult{
 			TestName: "Example_Pass",
 			Elapsed:  0.06,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
+
+const inputGolang15 = `
+=== RUN   Golang15
+--- PASS: Golang15 (0.00s)
+PASS
+ok  	github.com/smartystreets/goconvey/webserver/examples	0.008s
+`
+
+var expectedGolang15 = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.008,
+	Outcome:     contract.Passed,
+	TestResults: []contract.TestResult{
+		contract.TestResult{
+			TestName: "Golang15",
+			Elapsed:  0.00,
 			Passed:   true,
 			File:     "",
 			Line:     0,
