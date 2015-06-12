@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	testNamePattern = regexp.MustCompile("^=== RUN:? (.+)$")
+	testNamePattern = regexp.MustCompile("^=== RUN:? +(.+)$")
 )
 
 func ParsePackageResults(result *contract.PackageResult, rawOutput string) {
@@ -101,10 +101,12 @@ func (self *outputParser) registerTestFunction() {
 }
 func (self *outputParser) recordTestMetadata() {
 	testName := strings.Split(self.line, " ")[2]
-	self.test = self.testMap[testName]
-	self.test.Passed = !strings.HasPrefix(self.line, "--- FAIL: ")
-	self.test.Skipped = strings.HasPrefix(self.line, "--- SKIP: ")
-	self.test.Elapsed = parseTestFunctionDuration(self.line)
+	if test, ok := self.testMap[testName]; ok {
+		self.test = test
+		self.test.Passed = !strings.HasPrefix(self.line, "--- FAIL: ")
+		self.test.Skipped = strings.HasPrefix(self.line, "--- SKIP: ")
+		self.test.Elapsed = parseTestFunctionDuration(self.line)
+	}
 }
 func (self *outputParser) recordPackageMetadata() {
 	if packageFailed(self.line) {
