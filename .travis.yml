@@ -9,3 +9,5 @@ install:
   - go get github.com/smartystreets/assertions
   - go get golang.org/x/tools/cover
   - go get github.com/jtolds/gls
+
+script: go test -short -v ./...
