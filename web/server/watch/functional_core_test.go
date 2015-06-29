@@ -48,6 +48,18 @@ func TestCategorize(t *testing.T) {
 		},
 		{
 			Root:     "/.hello",
+			Path:     "/.hello/hello/_world.go",
+			Name:     ".world.go",
+			IsFolder: false,
+		},
+		{
+			Root:     "/.hello",
+			Path:     "/.hello/hello/flymake_world.go",
+			Name:     "flymake_world.go",
+			IsFolder: false,
+		},
+		{
+			Root:     "/.hello",
 			Path:     "/.hello/.hello",
 			Name:     ".hello",
 			IsFolder: true,
@@ -96,7 +108,7 @@ func TestCategorize(t *testing.T) {
 
 		folders, profiles, goFiles := Categorize(items, "/.hello", []string{".go"})
 		So(folders, ShouldResemble, fileSystem[:1])
-		So(profiles, ShouldResemble, fileSystem[9:10])
+		So(profiles, ShouldResemble, fileSystem[11:12])
 		So(goFiles, ShouldResemble, fileSystem[2:4])
 	})
 
@@ -112,7 +124,7 @@ func TestCategorize(t *testing.T) {
 
 		folders, profiles, goFiles := Categorize(items, "/.hello", []string{".go", ".tmpl"})
 		So(folders, ShouldResemble, fileSystem[:1])
-		So(profiles, ShouldResemble, fileSystem[9:10])
+		So(profiles, ShouldResemble, fileSystem[11:12])
 		So(goFiles, ShouldResemble, fileSystem[2:5])
 	})
 }
