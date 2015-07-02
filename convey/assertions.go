@@ -26,12 +26,14 @@ var (
 	ShouldBeBetweenOrEqual       = assertions.ShouldBeBetweenOrEqual
 	ShouldNotBeBetweenOrEqual    = assertions.ShouldNotBeBetweenOrEqual
 
-	ShouldContain    = assertions.ShouldContain
-	ShouldNotContain = assertions.ShouldNotContain
-	ShouldBeIn       = assertions.ShouldBeIn
-	ShouldNotBeIn    = assertions.ShouldNotBeIn
-	ShouldBeEmpty    = assertions.ShouldBeEmpty
-	ShouldNotBeEmpty = assertions.ShouldNotBeEmpty
+	ShouldContain       = assertions.ShouldContain
+	ShouldNotContain    = assertions.ShouldNotContain
+	ShouldContainKey    = assertions.ShouldContainKey
+	ShouldNotContainKey = assertions.ShouldNotContainKey
+	ShouldBeIn          = assertions.ShouldBeIn
+	ShouldNotBeIn       = assertions.ShouldNotBeIn
+	ShouldBeEmpty       = assertions.ShouldBeEmpty
+	ShouldNotBeEmpty    = assertions.ShouldNotBeEmpty
 
 	ShouldStartWith           = assertions.ShouldStartWith
 	ShouldNotStartWith        = assertions.ShouldNotStartWith

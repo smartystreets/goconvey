@@ -47,6 +47,8 @@ func TestAssertionsAreAvailableFromConveyPackage(t *testing.T) {
 	Convey("Container assertions should be accessible", t, func() {
 		So([]int{1, 2, 3}, ShouldContain, 2)
 		So([]int{1, 2, 3}, ShouldNotContain, 4)
+		So(map[int]int{1: 1, 2: 2, 3: 3}, ShouldContainKey, 2)
+		So(map[int]int{1: 1, 2: 2, 3: 3}, ShouldNotContainKey, 4)
 		So(1, ShouldBeIn, []int{1, 2, 3})
 		So(4, ShouldNotBeIn, []int{1, 2, 3})
 		So([]int{}, ShouldBeEmpty)
