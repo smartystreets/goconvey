@@ -40,6 +40,7 @@ func flags() {
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
 	flag.StringVar(&timeout, "timeout", "0", "The test execution timeout if none is specified in the *.goconvey file (default is '0', which is the same as not providing this option).")
 	flag.StringVar(&watchedSuffixes, "watchedSuffixes", ".go", "A comma separated list of file suffixes to watch for modifications (default: .go).")
+	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory)")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -55,11 +56,7 @@ func main() {
 	flag.Parse()
 	log.Printf(initialConfiguration, host, port, nap, cover)
 
-	working, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	working := getWorkDir()
 	cover = coverageEnabled(cover, reports)
 	shell := system.NewShell(gobin, reports, cover, timeout)
 
@@ -159,10 +156,7 @@ func goVersion_1_2_orGreater() bool {
 	return true
 }
 func coverToolInstalled() bool {
-	working, err := os.Getwd()
-	if err != nil {
-		working = "."
-	}
+	working := getWorkDir()
 	command := system.NewCommand(working, "go", "tool", "cover").Execute()
 	installed := strings.Contains(command.Output, "Usage of 'go tool cover':")
 	if !installed {
@@ -172,7 +166,11 @@ func coverToolInstalled() bool {
 	return true
 }
 func ensureReportDirectoryExists(reports string) bool {
-	if exists(reports) {
+	result, err := exists(reports)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if result {
 		return true
 	}
 
@@ -183,15 +181,35 @@ func ensureReportDirectoryExists(reports string) bool {
 	log.Printf(reportDirectoryUnavailable, reports)
 	return false
 }
-func exists(path string) bool {
+func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
-		return true
+		return true, nil
 	}
 	if os.IsNotExist(err) {
-		return false
+		return false, nil
 	}
-	return false
+	return false, err
+}
+func getWorkDir() string {
+	working := ""
+	var err error
+	if workDir != "" {
+		working = workDir
+	} else {
+		working, err = os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	result, err := exists(working)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !result {
+		log.Fatalf("Path:%s does not exists", working)
+	}
+	return working
 }
 
 var (
@@ -209,6 +227,7 @@ var (
 	reports string
 
 	quarterSecond = time.Millisecond * 250
+	workDir       string
 )
 
 const (
