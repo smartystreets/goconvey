@@ -18,6 +18,8 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 - Desktop notifications (optional)
 - Immediately open problem lines in [Sublime Text](http://www.sublimetext.com) ([some assembly required](https://github.com/asuth/subl-handler))
 
+You can track the progress of known issues on our public [Trello](https://trello.com/b/hM7xVauQ/goconvey) board.
+
 **Menu:**
 
 - [Installation](#installation)
@@ -85,10 +87,8 @@ Or if you want the output to include the story:
     $ go test -v
 
 
-
-
-
 [Documentation](https://github.com/smartystreets/goconvey/wiki)
+
 -----------
 
 Check out the 
@@ -97,24 +97,15 @@ Check out the
 - [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.png)](http://godoc.org/github.com/smartystreets/goconvey)
 - and the *_test.go files scattered throughout this project.
 
-
-
-
-
 [Screenshots](http://goconvey.co)
+
 -----------
 
 For web UI and terminal screenshots, check out [the full feature tour](http://goconvey.co).
 
 
-
-
-[Contributors](https://github.com/smartystreets/goconvey/graphs/contributors) (Thanks!)
 ----------------------
 
-GoConvey is brought to you by [SmartyStreets](https://github.com/smartystreets); in particular:
+GoConvey is brought to you by [SmartyStreets](https://github.com/smartystreets) and [several contributors](https://github.com/smartystreets/goconvey/graphs/contributors) (Thanks!).
 
- - [Michael Whatcott](https://github.com/mdwhatcott)
- - [Matt Holt](https://github.com/mholt)
-
- You can track the progress of known issues on our public [Trello](https://trello.com/b/hM7xVauQ/goconvey) board. If you'd like to discuss a new feature idea or think you've found a bug, please send an email to [goconvey@smartystreets.com](mailto:goconvey@smartystreets.com).
+You can track the progress of known issues on our public [Trello](https://trello.com/b/hM7xVauQ/goconvey) board.
