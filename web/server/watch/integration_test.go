@@ -1,6 +1,7 @@
 package watch
 
 import (
+	"bytes"
 	"io/ioutil"
 	"log"
 	"os"
@@ -21,6 +22,9 @@ func TestWatcher(t *testing.T) {
 	}
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmicroseconds)
+	output := new(bytes.Buffer)
+	log.SetOutput(output)
+	defer func() { t.Log(output.String()) }()
 
 	_, filename, _, _ := runtime.Caller(0)
 	originalRoot := filepath.Join(filepath.Dir(filename), "integration_testing")
