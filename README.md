@@ -20,7 +20,7 @@ Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. 
 
 You can track the progress of known issues on our public [Trello](https://trello.com/b/hM7xVauQ/goconvey) board.
 
-You can ask questions about how to use GoConvey on [StackOverflow](http://stackoverflow.com/questions/ask?tags=goconvey,go&title=GoConvey%3A%20) and use the tags `go` and `goconvey`.
+You can ask questions about how to use GoConvey on [StackOverflow](http://stackoverflow.com/questions/ask?tags=goconvey,go&title=GoConvey%3A%20). Use the tags `go` and `goconvey`.
 
 **Menu:**
 
