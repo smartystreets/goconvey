@@ -561,9 +561,7 @@ function process(data, status, jqxhr)
 			current().failedBuilds.push(pkg);
 			continue;
 		}
-
-
-		if (pkg.Outcome == "no go code")
+		else if (pkg.Outcome == "no go code")
 			packages.nogofiles.push(pkg);
 		else if (pkg.Outcome == "no test files")
 			packages.notestfiles.push(pkg);
