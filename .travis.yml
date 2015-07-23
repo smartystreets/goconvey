@@ -11,3 +11,5 @@ install:
   - go get github.com/jtolds/gls
 
 script: go test -short -v ./...
+
+sudo: false
