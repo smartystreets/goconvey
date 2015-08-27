@@ -1,7 +1,9 @@
 # Subject: GoConvey maintainers wanted
 
 http://goconvey.co/
+
 https://github.com/smartystreets/goconvey
+
 https://github.com/smartystreets/goconvey/wiki
 
 GoConvey is a 2-pronged project:
