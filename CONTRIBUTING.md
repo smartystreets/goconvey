@@ -11,7 +11,7 @@ GoConvey is a popular 2-pronged, open-source github project (1,600+ stargazers, 
 - A package you import in your test code that allows you to write BDD-style tests.
 - An executable that runs a local web server which displays auto-updating test results in a web browser.
 
-
+----
 
 - http://goconvey.co/
 - https://github.com/smartystreets/goconvey
