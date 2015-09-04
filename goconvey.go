@@ -71,9 +71,9 @@ func main() {
 	longpollChan := make(chan chan string)
 	executor := executor.NewExecutor(tester, parser, longpollChan)
 	server := api.NewHTTPServer(working, watcherInput, executor, longpollChan)
-
 	go runTestOnUpdates(watcherOutput, executor, server)
 	go watcher.Listen()
+	launchBrowser(host, port)
 	serveHTTP(server)
 }
 
