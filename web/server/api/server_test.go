@@ -25,7 +25,7 @@ func TestHTTPServer(t *testing.T) {
 	Convey("Subject: HttpServer responds to requests appropriately", t, func() {
 		fixture := newServerFixture()
 
-		Convey("Before any update is recived", func() {
+		Convey("Before any update is recieved", func() {
 			Convey("When the update is requested", func() {
 				update, _ := fixture.RequestLatest()
 
