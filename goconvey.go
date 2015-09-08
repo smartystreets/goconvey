@@ -80,8 +80,9 @@ func main() {
 func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, server contract.Server) {
 	for update := range queue {
 		log.Println("Received request from watcher to execute tests...")
-		root, packages := extractRoot(update), extractPackages(update)
+		packages := extractPackages(update)
 		output := executor.ExecuteTests(packages)
+		root := extractRoot(update, packages)
 		server.ReceiveUpdate(root, output)
 	}
 }
@@ -95,12 +96,10 @@ func extractPackages(folderList messaging.Folders) []*contract.Package {
 	return packageList
 }
 
-func extractRoot(folders messaging.Folders) string {
-	root := ""
-	for _, f := range folders {
-		root = f.Root
-	}
-	return root
+func extractRoot(folderList messaging.Folders, packageList []*contract.Package) string {
+	path := packageList[0].Path
+	folder := folderList[path]
+	return folder.Root
 }
 
 // This method exists because of a bug in the go cover tool that
