@@ -1,4 +1,4 @@
-GoConvey is awesome Go testing 
+GoConvey is awesome Go testing
 ==============================
 
 [![Build Status](https://travis-ci.org/smartystreets/goconvey.png)](https://travis-ci.org/smartystreets/goconvey)
@@ -71,8 +71,16 @@ Then watch the test results display in your browser at:
 
 	http://localhost:8080
 
+
 If the browser doesn't open automatically, please click [http://localhost:8080](http://localhost:8080) to open manually.
-There you have it. As long as GoConvey is running, test results will automatically update in your browser window. The design is responsive, so you can squish the browser real tight if you need to put it beside your code.
+
+There you have it.
+![](http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-1-dark.png)
+As long as GoConvey is running, test results will automatically update in your browser window.
+
+![](http://d79i1fxsrar4t.cloudfront.net/goconvey.co/gc-5-dark.png)
+The design is responsive, so you can squish the browser real tight if you need to put it beside your code.
+
 
 The [web UI](https://github.com/smartystreets/goconvey/wiki/Web-UI) supports traditional Go tests, so use it even if you're not using GoConvey tests.
 
@@ -93,7 +101,7 @@ Or if you want the output to include the story:
 
 -----------
 
-Check out the 
+Check out the
 
 - [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki),
 - [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.png)](http://godoc.org/github.com/smartystreets/goconvey)
