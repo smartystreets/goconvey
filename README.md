@@ -67,10 +67,11 @@ Start up the GoConvey web server at your project's path:
 
 	$ $GOPATH/bin/goconvey
 
-Then open your browser to:
+Then watch the test results display in your browser at:
 
 	http://localhost:8080
 
+If the browser doesn't open automatically, please click [http://localhost:8080](http://localhost:8080) to open manually.
 There you have it. As long as GoConvey is running, test results will automatically update in your browser window. The design is responsive, so you can squish the browser real tight if you need to put it beside your code.
 
 The [web UI](https://github.com/smartystreets/goconvey/wiki/Web-UI) supports traditional Go tests, so use it even if you're not using GoConvey tests.
