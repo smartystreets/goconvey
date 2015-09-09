@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -71,10 +72,38 @@ func main() {
 	longpollChan := make(chan chan string)
 	executor := executor.NewExecutor(tester, parser, longpollChan)
 	server := api.NewHTTPServer(working, watcherInput, executor, longpollChan)
-
 	go runTestOnUpdates(watcherOutput, executor, server)
 	go watcher.Listen()
+	launchBrowser(host, port)
 	serveHTTP(server)
+}
+
+func browserCmd() (string, bool) {
+	browser := map[string]string{
+		"darwin": "open",
+		"linux":  "xdg-open",
+		"win32":  "start",
+	}
+	cmd, ok := browser[runtime.GOOS]
+	return cmd, ok
+}
+
+func launchBrowser(host string, port int) {
+	browser, ok := browserCmd()
+	if !ok {
+		log.Printf("Skipped launching browser for this OS: %s", runtime.GOOS)
+		return
+	}
+
+	log.Printf("Launching browser on %s:%d", host, port)
+	url := fmt.Sprintf("http://%s:%d", host, port)
+	cmd := exec.Command(browser, url)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(output))
 }
 
 func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, server contract.Server) {
