@@ -80,16 +80,26 @@ func main() {
 func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, server contract.Server) {
 	for update := range queue {
 		log.Println("Received request from watcher to execute tests...")
-		root := ""
-		packages := []*contract.Package{}
-		for _, folder := range update {
-			root = folder.Root
-			hasImportCycle := testFilesImportTheirOwnPackage(folder.Path)
-			packages = append(packages, contract.NewPackage(folder, hasImportCycle))
-		}
+		packages := extractPackages(update)
 		output := executor.ExecuteTests(packages)
+		root := extractRoot(update, packages)
 		server.ReceiveUpdate(root, output)
 	}
+}
+
+func extractPackages(folderList messaging.Folders) []*contract.Package {
+	packageList := []*contract.Package{}
+	for _, folder := range folderList {
+		hasImportCycle := testFilesImportTheirOwnPackage(folder.Path)
+		packageList = append(packageList, contract.NewPackage(folder, hasImportCycle))
+	}
+	return packageList
+}
+
+func extractRoot(folderList messaging.Folders, packageList []*contract.Package) string {
+	path := packageList[0].Path
+	folder := folderList[path]
+	return folder.Root
 }
 
 // This method exists because of a bug in the go cover tool that
