@@ -43,6 +43,13 @@ Installation
 Make a test, for example:
 
 ```go
+package package_name
+
+import (
+    "testing"
+    . "github.com/smartystreets/goconvey/convey"
+)
+
 func TestSpec(t *testing.T) {
 
 	// Only pass t into top-level Convey calls
