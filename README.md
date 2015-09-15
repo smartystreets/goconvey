@@ -5,7 +5,7 @@ GoConvey is awesome Go testing
 [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.svg)](http://godoc.org/github.com/smartystreets/goconvey)
 
 
-Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according your viewing pleasure. **[View full feature tour.](http://goconvey.co)**
+Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according to your viewing pleasure. **[View full feature tour.](http://goconvey.co)**
 
 **Features:**
 
@@ -43,6 +43,13 @@ Installation
 Make a test, for example:
 
 ```go
+package package_name
+
+import (
+    "testing"
+    . "github.com/smartystreets/goconvey/convey"
+)
+
 func TestSpec(t *testing.T) {
 
 	// Only pass t into top-level Convey calls
