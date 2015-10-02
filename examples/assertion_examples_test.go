@@ -53,6 +53,7 @@ func TestAssertionsAreAvailableFromConveyPackage(t *testing.T) {
 		So(4, ShouldNotBeIn, []int{1, 2, 3})
 		So([]int{}, ShouldBeEmpty)
 		So([]int{1}, ShouldNotBeEmpty)
+		So([]int{1, 2}, ShouldHaveLength, 2)
 	})
 
 	Convey("String assertions should be accessible", t, func() {
