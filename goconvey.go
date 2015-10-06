@@ -74,7 +74,7 @@ func main() {
 	server := api.NewHTTPServer(working, watcherInput, executor, longpollChan)
 	go runTestOnUpdates(watcherOutput, executor, server)
 	go watcher.Listen()
-	launchBrowser(host, port)
+	go launchBrowser(host, port)
 	serveHTTP(server)
 }
 
