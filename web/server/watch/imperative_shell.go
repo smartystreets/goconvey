@@ -1,6 +1,7 @@
 package watch
 
 import (
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -56,9 +57,13 @@ func YieldFileSystemItems(root string) chan *FileSystemItem {
 // ever more than a few hundred bytes. The ignored errors are ok because in
 // the event of an IO error all that need be returned is an empty string.
 func ReadContents(path string) string {
-	file, _ := os.Open(path)
+	file, err := os.Open(path)
+	if err != nil {
+		return ""
+	}
 	defer file.Close()
-	content, _ := ioutil.ReadAll(file)
+	reader := io.LimitReader(file, 1024*4)
+	content, _ := ioutil.ReadAll(reader)
 	return string(content)
 }
 
