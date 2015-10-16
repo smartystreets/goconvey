@@ -15,7 +15,7 @@ type Watcher struct {
 	rootFolder      string
 	folderDepth     int
 	ignoredFolders  map[string]struct{}
-	fileSystemState int64
+	fileSystemState *Checksums
 	paused          bool
 	stopped         bool
 	watchSuffixes   []string
@@ -113,7 +113,7 @@ func (this *Watcher) execute() {
 func (this *Watcher) scan() {
 	folders, checksum := this.gather()
 
-	if checksum == this.fileSystemState {
+	if !checksum.IsNewerThan(this.fileSystemState) {
 		return
 	}
 
@@ -123,7 +123,7 @@ func (this *Watcher) scan() {
 	this.sendToExecutor(folders)
 }
 
-func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
+func (this *Watcher) gather() (folders messaging.Folders, checksum *Checksums) {
 	items := YieldFileSystemItems(this.rootFolder)
 	folderItems, profileItems, goFileItems := Categorize(items, this.rootFolder, this.watchSuffixes)
 
@@ -139,14 +139,13 @@ func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	this.protectedRead(func() { MarkIgnored(folders, this.ignoredFolders) })
 
 	active := ActiveFolders(folders)
-	checksum = int64(len(active))
-	checksum += Sum(active, profileItems)
-	checksum += Sum(active, goFileItems)
-
+	checksum = NewChecksums(len(active))
+	checksum = checksum.Add(CalculateChecksums(active, profileItems))
+	checksum = checksum.Add(CalculateChecksums(active, goFileItems))
 	return folders, checksum
 }
 
-func (this *Watcher) set(state int64) {
+func (this *Watcher) set(state *Checksums) {
 	this.fileSystemState = state
 }
 

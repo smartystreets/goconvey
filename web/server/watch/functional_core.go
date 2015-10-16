@@ -164,6 +164,48 @@ func Sum(folders messaging.Folders, items []*FileSystemItem) int64 {
 	return sum
 }
 
+func CalculateChecksums(folders messaging.Folders, items []*FileSystemItem) *Checksums {
+	checksum := NewChecksums(len(folders))
+	for _, item := range items {
+		if _, exists := folders[filepath.Dir(item.Path)]; exists {
+			checksum.FileSizes += item.Size
+			checksum.FilesModified += item.Modified
+		}
+	}
+	return checksum
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+type Checksums struct {
+	ActiveFolders int64
+	FileSizes     int64
+	FilesModified int64
+}
+
+func NewChecksums(folders int) *Checksums {
+	return &Checksums{ActiveFolders: int64(folders)}
+}
+
+func (this *Checksums) Add(other *Checksums) *Checksums {
+	return &Checksums{
+		ActiveFolders: this.ActiveFolders + other.ActiveFolders,
+		FileSizes:     this.FileSizes + other.FileSizes,
+		FilesModified: this.FilesModified + other.FilesModified,
+	}
+}
+
+func (this *Checksums) Sum() int64 {
+	return this.ActiveFolders + this.FileSizes + this.FilesModified
+}
+
+func (this *Checksums) IsNewerThan(other *Checksums) bool {
+	if other == nil {
+		return true
+	}
+	return this.FilesModified > other.FilesModified && this.Sum() != other.Sum()
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 const slash = string(os.PathSeparator)
