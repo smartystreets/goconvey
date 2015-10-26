@@ -13,7 +13,7 @@ GoConvey is a popular 2-pronged, open-source github project (1,600+ stargazers, 
 
 ----
 
-- http://goconvey.co/
+- https://smartystreets.github.com/goconvey
 - https://github.com/smartystreets/goconvey
 - https://github.com/smartystreets/goconvey/wiki
 
