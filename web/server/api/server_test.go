@@ -281,17 +281,6 @@ func TestHTTPServer(t *testing.T) {
 	})
 }
 
-func statusRotation(i, total int) string {
-	switch i % total {
-	case 0:
-		return "executing"
-	case 1:
-		return "parsing"
-	default:
-		return "idle"
-	}
-}
-
 /********* Server Fixture *********/
 
 type ServerFixture struct {

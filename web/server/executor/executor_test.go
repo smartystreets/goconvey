@@ -44,15 +44,6 @@ func TestExecutor(t *testing.T) {
 	})
 }
 
-func statusRotation(i, total int) string {
-	switch i % total {
-	case 0:
-		return Executing
-	default:
-		return Idle
-	}
-}
-
 type ExecutorFixture struct {
 	executor *Executor
 	tester   *FakeTester

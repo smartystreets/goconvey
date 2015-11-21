@@ -32,15 +32,6 @@ func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {
 	})
 }
 
-func requireGoTestReference(t *testing.T) {
-	err := recover()
-	if err == nil {
-		t.Error("We should have recovered a panic here (because of a missing *testing.T reference)!")
-	} else {
-		expectEqual(t, missingGoTest, err)
-	}
-}
-
 func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
 	output := map[string]bool{}
 
