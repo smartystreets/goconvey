@@ -41,6 +41,7 @@ func flags() {
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value. (default: -1)")
 	flag.StringVar(&timeout, "timeout", "0", "The test execution timeout if none is specified in the *.goconvey file (default is '0', which is the same as not providing this option).")
 	flag.StringVar(&watchedSuffixes, "watchedSuffixes", ".go", "A comma separated list of file suffixes to watch for modifications (default: .go).")
+	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory)")
 
 	log.SetOutput(os.Stdout)
@@ -63,7 +64,8 @@ func main() {
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
-	watcher := watch.NewWatcher(working, depth, nap, watcherInput, watcherOutput, watchedSuffixes)
+	excludedDirItems := strings.Split(excludedDirs, `,`)
+	watcher := watch.NewWatcher(working, depth, nap, watcherInput, watcherOutput, watchedSuffixes, excludedDirItems)
 
 	parser := parser.NewParser(parser.ParsePackageResults)
 	tester := executor.NewConcurrentTester(shell)
@@ -261,6 +263,7 @@ var (
 	depth           int
 	timeout         string
 	watchedSuffixes string
+	excludedDirs    string
 
 	static  string
 	reports string
