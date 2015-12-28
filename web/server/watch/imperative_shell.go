@@ -1,6 +1,7 @@
 package watch
 
 import (
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -23,13 +24,20 @@ type FileSystemItem struct {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-func YieldFileSystemItems(root string) chan *FileSystemItem {
+func YieldFileSystemItems(root string, excludedDirs []string) chan *FileSystemItem {
 	items := make(chan *FileSystemItem)
 
 	go func() {
 		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return filepath.SkipDir
+			}
+
+			basePath := filepath.Base(path)
+			for _, item := range excludedDirs {
+				if item == basePath && info.IsDir() && item != "" && basePath != "" {
+					return filepath.SkipDir
+				}
 			}
 
 			items <- &FileSystemItem{
@@ -56,9 +64,13 @@ func YieldFileSystemItems(root string) chan *FileSystemItem {
 // ever more than a few hundred bytes. The ignored errors are ok because in
 // the event of an IO error all that need be returned is an empty string.
 func ReadContents(path string) string {
-	file, _ := os.Open(path)
+	file, err := os.Open(path)
+	if err != nil {
+		return ""
+	}
 	defer file.Close()
-	content, _ := ioutil.ReadAll(file)
+	reader := io.LimitReader(file, 1024*4)
+	content, _ := ioutil.ReadAll(reader)
 	return string(content)
 }
 

@@ -381,9 +381,8 @@ footer .server-down {
 	padding: 10px;
 	font-size: 12px;
 	line-height: 1.25em;
-	max-height: 150px;
 	overflow-y: auto;
-	white-space: pre;
+	white-space: pre-wrap;
 	font-family: 'Menlo', monospace;
 }
 
