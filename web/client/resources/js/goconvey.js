@@ -708,7 +708,7 @@ function process(data, status, jqxhr)
 	current().overall.panics = current().assertions.panicked.length;
 	current().overall.failures = current().assertions.failed.length;
 	current().overall.skipped = current().assertions.skipped.length;
-	
+
 	current().overall.coverage = Math.round((coverageAvgHelper.coverageSum / (coverageAvgHelper.countedPackages || 1)) * 100) / 100;
 	current().overall.duration = Math.round(current().overall.duration * 1000) / 1000;
 
@@ -767,7 +767,7 @@ function process(data, status, jqxhr)
 
 	// Now add the momentjs time to the new frame in the history
 	convey.intervalFuncs.momentjs();
-	
+
 	// Show notification, if enabled
 	if (notif())
 	{
@@ -1171,7 +1171,7 @@ function get(key)
 
 function save(key, val)
 {
-	if (typeof val === 'object' || typeof val === 'array')
+	if (typeof val === 'object')
 		val = JSON.stringify(val);
 	else if (typeof val === 'number' || typeof val === 'boolean')
 		val = val.toString();
