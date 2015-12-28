@@ -1171,7 +1171,7 @@ function get(key)
 
 function save(key, val)
 {
-	if (typeof val === 'object' || typeof val === 'array')
+	if (typeof val === 'object')
 		val = JSON.stringify(val);
 	else if (typeof val === 'number' || typeof val === 'boolean')
 		val = val.toString();
