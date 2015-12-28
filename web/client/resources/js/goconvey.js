@@ -66,15 +66,15 @@ function initPoller()
 
 	$(convey.poller).on('pollsuccess', function(event, data)
 	{
-		if (convey.status != "starting")
+		if (convey.status !== "starting")
 			hideServerDown();
 
 		// These two if statements determine if the server is now busy
 		// (and wasn't before) or is not busy (regardless of whether it was before)
 		if ((!convey.status || convey.status === "idle")
-				&& data.status && data.status != "idle")
+				&& data.status && data.status !== "idle")
 			$('#run-tests').addClass('spin-slowly disabled');
-		else if (convey.status != "idle" && data.status === "idle")
+		else if (convey.status !== "idle" && data.status === "idle")
 		{
 			$('#run-tests').removeClass('spin-slowly disabled');
 		}
@@ -859,14 +859,14 @@ function renderFrame(frame)
 	var pkgDefaultView = get('pkg-expand-collapse');
 	$('.story-pkg.expanded').each(function()
 	{
-		if (pkgDefaultView === "collapsed" && convey.packageStates[$(this).data('pkg-name')] != "expanded")
+		if (pkgDefaultView === "collapsed" && convey.packageStates[$(this).data('pkg-name')] !== "expanded")
 			collapsePackage($(this).data('pkg'));
 	});
 
 	redrawCoverageBars();
 
 	$('#assert-count').html("<b>"+frame.overall.assertions+"</b> assertion"
-							+ (frame.overall.assertions != 1 ? "s" : ""));
+							+ (frame.overall.assertions !== 1 ? "s" : ""));
 	$('#skip-count').html("<b>"+frame.assertions.skipped.length + "</b> skipped");
 	$('#fail-count').html("<b>"+frame.assertions.failed.length + "</b> failed");
 	$('#panic-count').html("<b>"+frame.assertions.panicked.length + "</b> panicked");
@@ -961,7 +961,7 @@ function changeStatus(newStatus, isHistoricalFrame)
 		{
 			$(this).text(newStatus.text);
 
-			if (newStatus != convey.statuses.pass)	// only flicker extra when not currently passing
+			if (newStatus !== convey.statuses.pass)	// only flicker extra when not currently passing
 			{
 				$(this).effect("pulsate", {times: 1}, 300, function()
 				{
@@ -994,7 +994,7 @@ function updateWatchPath()
 	$.get("/watch", function(data)
 	{
 		var newPath = $.trim(data);
-		if (newPath != $('#path').val())
+		if (newPath !== $('#path').val())
 			convey.framesOnSamePath = 1;
 		$('#path').val(newPath);
 	});
@@ -1005,7 +1005,7 @@ function notifSummary(frame)
 	var body = frame.overall.passed + " passed, ";
 
 	if (frame.overall.failedBuilds)
-		body += frame.overall.failedBuilds + " build" + (frame.overall.failedBuilds != 1 ? "s" : "") + " failed, ";
+		body += frame.overall.failedBuilds + " build" + (frame.overall.failedBuilds !== 1 ? "s" : "") + " failed, ";
 	if (frame.overall.failures)
 		body += frame.overall.failures + " failed, ";
 	if (frame.overall.panics)
@@ -1284,7 +1284,7 @@ function customMarkupPipes()
 	};
 	Mark.pipes.needsDiff = function(test)
 	{
-		return !!test.Failure && (test.Expected != "" || test.Actual != "");
+		return !!test.Failure && (test.Expected !== "" || test.Actual !== "");
 	};
 	Mark.pipes.coveragePct = function(str)
 	{
