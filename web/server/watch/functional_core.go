@@ -1,11 +1,10 @@
 package watch
 
 import (
+	"github.com/smartystreets/goconvey/web/server/messaging"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/smartystreets/goconvey/web/server/messaging"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,11 +30,15 @@ func Categorize(items chan *FileSystemItem, root string, watchSuffixes []string)
 
 func foundInHiddenDirectory(item *FileSystemItem, root string) bool {
 	path := item.Path
-	if len(path) > len(root) {
-		path = path[len(root):]
+	absPath, _ := filepath.Abs(path)
+	gopath := os.Getenv("GOPATH")
+	rel, _ := filepath.Rel(root, absPath)
+
+	if strings.HasPrefix(absPath, gopath) {
+		rel, _ = filepath.Rel(gopath, absPath)
 	}
 
-	for _, folder := range strings.Split(filepath.Dir(path), slash) {
+	for _, folder := range strings.Split(rel, slash) {
 		if isHidden(folder) {
 			return true
 		}
@@ -43,8 +46,9 @@ func foundInHiddenDirectory(item *FileSystemItem, root string) bool {
 
 	return false
 }
+
 func isHidden(path string) bool {
-	return strings.HasPrefix(path, ".") || strings.HasPrefix(path, "_") || strings.HasPrefix(path, "flymake_")
+	return len(path) > 1 && strings.HasPrefix(path, ".") || strings.HasPrefix(path, "_") || strings.HasPrefix(path, "flymake_")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
