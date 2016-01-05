@@ -1,10 +1,11 @@
 package watch
 
 import (
-	"github.com/smartystreets/goconvey/web/server/messaging"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/smartystreets/goconvey/web/server/messaging"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
