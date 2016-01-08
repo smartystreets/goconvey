@@ -6,7 +6,6 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/messaging"
-	"time"
 )
 
 func TestCategorize(t *testing.T) {
@@ -122,8 +121,6 @@ func TestCategorize(t *testing.T) {
 			}
 			close(items)
 		}()
-
-		time.Sleep(100 * time.Millisecond)
 
 		folders, profiles, goFiles := Categorize(items, "/.hello", []string{".go", ".tmpl"})
 		So(folders, ShouldResemble, fileSystem[:1])
