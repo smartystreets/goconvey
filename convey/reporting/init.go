@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	if !is256Terminal() {
+	if !isColorableTerminal() {
 		monochrome()
 	}
 
@@ -82,8 +82,8 @@ func monochrome() {
 	greenColor, yellowColor, redColor, resetColor = "", "", "", ""
 }
 
-func is256Terminal() bool {
-	return strings.Contains(os.Getenv("TERM"), "256")
+func isColorableTerminal() bool {
+	return strings.Contains(os.Getenv("TERM"), "color")
 }
 
 // This interface allows us to pass the *testing.T struct
