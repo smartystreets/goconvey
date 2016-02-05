@@ -1,14 +1,13 @@
 package reporting
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 	"strings"
 )
 
 func init() {
-	if !isXterm() {
+	if !is256Terminal() {
 		monochrome()
 	}
 
@@ -83,10 +82,8 @@ func monochrome() {
 	greenColor, yellowColor, redColor, resetColor = "", "", "", ""
 }
 
-func isXterm() bool {
-	env := fmt.Sprintf("%v", os.Environ())
-	return strings.Contains(env, " TERM=isXterm") ||
-		strings.Contains(env, " TERM=xterm")
+func is256Terminal() bool {
+	return strings.Contains(os.Getenv("TERM"), "256")
 }
 
 // This interface allows us to pass the *testing.T struct
