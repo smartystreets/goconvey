@@ -1,0 +1,6 @@
+[submodule "vendor/github.com/smartystreets/assertions"]
+	path = vendor/github.com/smartystreets/assertions
+	url = https://github.com/smartystreets/assertions
+[submodule "vendor/github.com/jtolds/gls"]
+	path = vendor/github.com/jtolds/gls
+	url = https://github.com/jtolds/gls
