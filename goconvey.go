@@ -64,7 +64,7 @@ func main() {
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
-	excludedDirItems := strings.Split(excludedDirs, `,`)
+	excludedDirItems := checkExcludedDirs(excludedDirs, working)
 	watcher := watch.NewWatcher(working, depth, nap, watcherInput, watcherOutput, watchedSuffixes, excludedDirItems)
 
 	parser := parser.NewParser(parser.ParsePackageResults)
@@ -78,6 +78,19 @@ func main() {
 	go watcher.Listen()
 	go launchBrowser(host, port)
 	serveHTTP(server)
+}
+
+func checkExcludedDirs(s string, working string) []string {
+	var items []string
+	dirname := path.Base(working)
+
+	for _, item := range strings.Split(excludedDirs, `,`) {
+		if item != dirname {
+			items = append(items, item)
+		}
+	}
+
+	return items
 }
 
 func browserCmd() (string, bool) {
