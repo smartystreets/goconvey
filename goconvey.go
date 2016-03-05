@@ -82,7 +82,7 @@ func main() {
 
 func checkExcludedDirs(s string, working string) []string {
 	var items []string
-	dirname := path.Base(working)
+	dirname := filepath.Base(working)
 
 	for _, item := range strings.Split(excludedDirs, `,`) {
 		if item != dirname {
