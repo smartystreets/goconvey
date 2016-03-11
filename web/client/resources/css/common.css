@@ -685,13 +685,13 @@ footer .server-down .notice-message {
 }
 
 .spin-once {
-	-webkit-animation: spin 0.5s 1 ease;
-	animation: spin 0.5s 1 ease;
+	-webkit-animation: fa-spin 0.5s 1 ease;
+	animation: fa-spin 0.5s 1 ease;
 }
 
 .spin-slowly {
-	-webkit-animation: spin .75s infinite linear;
-	animation: spin .75s infinite linear;
+	-webkit-animation: fa-spin .75s infinite linear;
+	animation: fa-spin .75s infinite linear;
 }
 
 .throb {
