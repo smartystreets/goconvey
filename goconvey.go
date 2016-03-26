@@ -158,6 +158,9 @@ func createListener() net.Listener {
 	if err != nil {
 		log.Println(err)
 	}
+	if l == nil {
+		os.Exit(1)
+	}
 	return l
 }
 
