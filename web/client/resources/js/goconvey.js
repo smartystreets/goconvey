@@ -257,15 +257,6 @@ function wireup()
 			writer.focus();
 	});
 
-	// Wire-up the tipsy tooltips
-	$('.controls li, .pkg-cover-name').tipsy({ live: true });
-	$('footer .replay').tipsy({ live: true, gravity: 'e' });
-	$('#path').tipsy({ delayIn: 500 });
-	$('.ignore').tipsy({ live: true, gravity: $.fn.tipsy.autoNS });
-	$('.disabled').tipsy({ live: true, gravity: $.fn.tipsy.autoNS });
-	$('#logo').tipsy({ gravity: 'w' });
-
-
 	$('.toggler').not('.narrow').prepend('<i class="fa fa-angle-up fa-lg"></i>');
 	$('.toggler.narrow').prepend('<i class="fa fa-angle-down fa-lg"></i>');
 
@@ -395,9 +386,32 @@ function wireup()
 		e.stopPropagation();
 	});
 
+	// Wire-up the tipsy tooltips
+	setTooltips();
+
 	// Keep everything positioned and sized properly on window resize
 	reframe();
 	$(window).resize(reframe);
+}
+
+function setTooltips(){
+	var tips = {
+		'#path': { delayIn: 500 },
+		'#logo': { gravity: 'w' },
+		'.controls li, .pkg-cover-name': { live: false },
+		'footer .replay':{ live: false, gravity: 'e' },
+		'.ignore': { live: false, gravity: $.fn.tipsy.autoNS },
+		'.disabled': { live: false, gravity: $.fn.tipsy.autoNS }
+	};
+
+	for (var key in tips)
+	{
+		$(key).each(function(el)
+		{
+			if(!$(this).tipsy(true))
+				$(this).tipsy(tips[key]);
+		});
+	}
 }
 
 function expandAll()
@@ -794,25 +808,11 @@ function process(data, status, jqxhr)
 	else
 		$('title').text("GoConvey [" + current().overall.status.text + "] " + current().overall.passed + "/" + current().overall.assertions);
 
+	setTooltips();
+
 	// All done!
 	log("Processing complete");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Updates the entire UI given a frame from the history
 function renderFrame(frame)
