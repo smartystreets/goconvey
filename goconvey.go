@@ -44,7 +44,7 @@ func flags() {
 	flag.StringVar(&watchedSuffixes, "watchedSuffixes", ".go", "A comma separated list of file suffixes to watch for modifications (default: .go).")
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory)")
-	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser (default: false)")
+	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser (default: true)")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
