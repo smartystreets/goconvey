@@ -73,6 +73,7 @@ func main() {
 
 	longpollChan := make(chan chan string)
 	executor := executor.NewExecutor(tester, parser, longpollChan)
+
 	server := api.NewHTTPServer(working, watcherInput, executor, longpollChan)
 	go runTestOnUpdates(watcherOutput, executor, server)
 	go watcher.Listen()
@@ -80,7 +81,9 @@ func main() {
 	serveHTTP(server)
 }
 
-func checkExcludedDirs(s string, working string) []string {
+//checkExcludedDirs checks whether the working directory is contained in the list of excluded
+//if is, then drop it from the excludedDirs
+func checkExcludedDirs(excludedDirs string, working string) []string {
 	var items []string
 	dirname := filepath.Base(working)
 
@@ -125,6 +128,13 @@ func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, 
 	for update := range queue {
 		log.Println("Received request from watcher to execute tests...")
 		packages := extractPackages(update)
+
+		//if extractPackages does not return packages
+		if len(packages) == 0 {
+			log.Println("Nothing to test, check the working directory")
+			continue
+		}
+
 		output := executor.ExecuteTests(packages)
 		root := extractRoot(update, packages)
 		server.ReceiveUpdate(root, output)
