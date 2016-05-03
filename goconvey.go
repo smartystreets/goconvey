@@ -44,6 +44,7 @@ func flags() {
 	flag.StringVar(&watchedSuffixes, "watchedSuffixes", ".go", "A comma separated list of file suffixes to watch for modifications (default: .go).")
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory)")
+	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser (default: true)")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -78,7 +79,9 @@ func main() {
 	listener := createListener()
 	go runTestOnUpdates(watcherOutput, executor, server)
 	go watcher.Listen()
-	go launchBrowser(listener.Addr().String())
+	if autoLaunchBrowser {
+		go launchBrowser(listener.Addr().String())
+	}
 	serveHTTP(server, listener)
 }
 
@@ -267,16 +270,17 @@ func getWorkDir() string {
 }
 
 var (
-	port            int
-	host            string
-	gobin           string
-	nap             time.Duration
-	packages        int
-	cover           bool
-	depth           int
-	timeout         string
-	watchedSuffixes string
-	excludedDirs    string
+	port              int
+	host              string
+	gobin             string
+	nap               time.Duration
+	packages          int
+	cover             bool
+	depth             int
+	timeout           string
+	watchedSuffixes   string
+	excludedDirs      string
+	autoLaunchBrowser bool
 
 	static  string
 	reports string
