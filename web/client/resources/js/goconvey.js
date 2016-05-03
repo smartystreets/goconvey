@@ -171,6 +171,40 @@ function wireup()
 	});
 	// End settings wireup
 
+	//wireup the notification-settings switches
+	$('.enum#notification').on('click', 'li:not(.sel)', function()
+	{
+		var enabled = $(this).data('notification');
+		log("Turning notifications " + enabled ? 'on' : 'off');
+		save('notifications', enabled);
+
+		if (notif() && 'Notification' in window)
+		{
+			if (Notification.permission !== 'denied')
+			{
+				Notification.requestPermission(function(per)
+				{
+					if (!('permission' in Notification))
+					{
+						Notification.permission = per;
+					}
+				});
+			}
+			else
+				log("Permission denied to show desktop notification");
+		}
+
+		setNotifUI()
+	});
+
+	$('.enum#notification-level').on('click', 'li:not(.sel)', function()
+	{
+		var level = $(this).data('notification-level');
+		convey.notificationLevel = level;
+		save('notification-level', level);
+	});
+	// End notification-settings
+
 	convey.layout.header = $('header').first();
 	convey.layout.frame = $('.frame').first();
 	convey.layout.footer = $('footer').last();
@@ -222,23 +256,7 @@ function wireup()
 
 	$('#toggle-notif').click(function()
 	{
-		log("Turning notifications " + (notif() ? "off" : "on"));
-		$(this).toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
-		save('notifications', !notif());
-
-		if (notif() && 'Notification' in window)
-		{
-			if (Notification.permission !== 'denied')
-			{
-				Notification.requestPermission(function(per)
-				{
-					if (!('permission' in Notification))
-						Notification.permission = per;
-				});
-			}
-			else
-				log("Permission denied to show desktop notification");
-		}
+		toggle($('.settings-notification'), $(this));
 	});
 
 	$('#show-history').click(function()
@@ -248,7 +266,7 @@ function wireup()
 
 	$('#show-settings').click(function()
 	{
-		toggle($('.settings'), $(this));
+		toggle($('.settings-general'), $(this));
 	});
 
 	$('#show-gen').click(function() {
@@ -394,12 +412,13 @@ function wireup()
 	$(window).resize(reframe);
 }
 
-function setTooltips(){
+function setTooltips()
+{
 	var tips = {
 		'#path': { delayIn: 500 },
 		'#logo': { gravity: 'w' },
 		'.controls li, .pkg-cover-name': { live: false },
-		'footer .replay':{ live: false, gravity: 'e' },
+		'footer .replay': { live: false, gravity: 'e' },
 		'.ignore': { live: false, gravity: $.fn.tipsy.autoNS },
 		'.disabled': { live: false, gravity: $.fn.tipsy.autoNS }
 	};
@@ -412,6 +431,12 @@ function setTooltips(){
 				$(this).tipsy(tips[key]);
 		});
 	}
+}
+
+function setNotifUI()
+{
+	var $toggleNotif = $('#toggle-notif').addClass(notif() ? "fa-bell" : "fa-bell-o");
+	$toggleNotif.removeClass(!notif() ? "fa-bell" : "fa-bell-o");
 }
 
 function expandAll()
@@ -491,8 +516,16 @@ function loadSettingsFromStorage()
 	convey.uiEffects = uiEffects === "true";
 	enumSel("ui-effects", uiEffects);
 
-	if (notif())
-		$('#toggle-notif').toggleClass("fa-bell-o fa-bell " + convey.layout.selClass);
+	enumSel("notification", ""+notif());
+	var notifLevel = get("notification-level");
+	if (notifLevel === null) 
+	{
+		notifLevel = '.*';
+	}
+	convey.notificationLevel = notifLevel;
+	enumSel("notification-level", notifLevel);
+
+	setNotifUI();
 }
 
 
@@ -783,7 +816,8 @@ function process(data, status, jqxhr)
 	convey.intervalFuncs.momentjs();
 
 	// Show notification, if enabled
-	if (notif())
+	var levelRegex = new RegExp("("+convey.notificationLevel+")", "i");
+	if (notif() && current().overall.status.class.match(levelRegex))
 	{
 		log("Showing notification");
 		if (convey.notif)
@@ -792,7 +826,7 @@ function process(data, status, jqxhr)
 			convey.notif.close();
 		}
 
-		var notifText = notifSummary(current())
+		var notifText = notifSummary(current());
 
 		convey.notif = new Notification(notifText.title, {
 			body: notifText.body,
