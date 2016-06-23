@@ -60,6 +60,12 @@ func TestCategorize(t *testing.T) {
 		},
 		{
 			Root:     "/.hello",
+			Path:     "/.hello/hello/flycheck_world.go",
+			Name:     "flycheck_world.go",
+			IsFolder: false,
+		},
+		{
+			Root:     "/.hello",
 			Path:     "/.hello/.hello",
 			Name:     ".hello",
 			IsFolder: true,
