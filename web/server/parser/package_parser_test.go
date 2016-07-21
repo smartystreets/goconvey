@@ -769,7 +769,7 @@ var expectedExampleFunctions = contract.PackageResult{
 
 const inputGolang15 = `
 === RUN   Golang15
---- PASS: Golang15 (0.00s)
+--- PASS: Golang15 (0.01s)
 PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.008s
 `
@@ -781,7 +781,7 @@ var expectedGolang15 = contract.PackageResult{
 	TestResults: []contract.TestResult{
 		contract.TestResult{
 			TestName: "Golang15",
-			Elapsed:  0.00,
+			Elapsed:  0.01,
 			Passed:   true,
 			File:     "",
 			Line:     0,
