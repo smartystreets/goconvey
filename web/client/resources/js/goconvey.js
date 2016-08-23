@@ -846,6 +846,10 @@ function process(data, status, jqxhr)
 			icon: $('.favicon').attr('href')
 		});
 
+                convey.notif.onclick = function() { 
+                  window.focus(); 
+                };
+
 		convey.notifTimer = setTimeout(function() { convey.notif.close(); }, 5000);
 	}
 
