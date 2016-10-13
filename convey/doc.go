@@ -125,6 +125,11 @@ func So(actual interface{}, assert assertion, expected ...interface{}) {
 	mustGetCurrentContext().So(actual, assert, expected...)
 }
 
+// SoMsg is an extension of So that allows you to specify a message to report on error.
+func SoMsg(msg string, actual interface{}, assert assertion, expected ...interface{}) {
+	mustGetCurrentContext().SoMsg(msg, actual, assert, expected...)
+}
+
 // SkipSo is analogous to So except that the assertion that would have been passed
 // to So is not executed and the reporter is notified that the assertion was skipped.
 func SkipSo(stuff ...interface{}) {
