@@ -19,6 +19,7 @@ import (
 
 	"go/build"
 
+	"github.com/smartystreets/goconvey/convey"
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/executor"
@@ -45,6 +46,7 @@ func flags() {
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory)")
 	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser (default: true)")
+	flag.BoolVar(&gbProject, "gb", false, "use gb (getgb.io) environment src/ and vendor/src")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -63,6 +65,10 @@ func main() {
 	working := getWorkDir()
 	cover = coverageEnabled(cover, reports)
 	shell := system.NewShell(gobin, reports, cover, timeout)
+
+	if gbProject {
+		convey.SetGBPath(working)
+	}
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
@@ -287,6 +293,8 @@ var (
 
 	quarterSecond = time.Millisecond * 250
 	workDir       string
+
+	gbProject bool
 )
 
 const (
