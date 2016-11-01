@@ -78,6 +78,7 @@ func (self *outputParser) recordFinalOutcome(outcome string) {
 }
 
 func (self *outputParser) processTestOutput() {
+	self.line = strings.TrimSpace(self.line)
 	if isNewTest(self.line) {
 		self.registerTestFunction()
 
