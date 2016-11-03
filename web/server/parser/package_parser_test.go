@@ -132,6 +132,12 @@ func TestParsePackage_Golang15Output_ShouldNotPanic(t *testing.T) {
 	assertEqual(t, expectedGolang15, *actual)
 }
 
+func TestParsePackage_Golang17Subtests_ReturnsPackageResult(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedGolang17Subtests.PackageName}
+	ParsePackageResults(actual, inputGolang17Subtests)
+	assertEqual(t, expectedGolang17Subtests, *actual)
+}
+
 func assertEqual(t *testing.T, expected, actual interface{}) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
@@ -781,6 +787,86 @@ var expectedGolang15 = contract.PackageResult{
 	TestResults: []contract.TestResult{
 		contract.TestResult{
 			TestName: "Golang15",
+			Elapsed:  0.00,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
+
+const inputGolang17Subtests = `
+=== RUN   Test
+=== RUN   Test/success
+=== RUN   Test/fail
+=== RUN   Test/nested
+=== RUN   Test/nested/nested_success
+=== RUN   Test/nested/nested_fail
+--- FAIL: Test (0.00s)
+    --- PASS: Test/success (0.00s)
+    --- FAIL: Test/fail (0.00s)
+    --- FAIL: Test/nested (0.00s)
+        --- PASS: Test/nested/nested_success (0.00s)
+        --- FAIL: Test/nested/nested_fail (0.00s)
+FAIL
+exit status 1
+FAIL	github.com/smartystreets/goconvey/webserver/examples	0.007s
+`
+
+var expectedGolang17Subtests = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.007,
+	Outcome:     contract.Failed,
+	TestResults: []contract.TestResult{
+		contract.TestResult{
+			TestName: "Test",
+			Elapsed:  0.00,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "Test/fail",
+			Elapsed:  0.00,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "Test/nested",
+			Elapsed:  0.00,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "Test/nested/nested_fail",
+			Elapsed:  0.00,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "Test/nested/nested_success",
+			Elapsed:  0.00,
+			Passed:   true,
+			File:     "",
+			Line:     0,
+			Message:  "",
+			Stories:  []reporting.ScopeResult{},
+		},
+		contract.TestResult{
+			TestName: "Test/success",
 			Elapsed:  0.00,
 			Passed:   true,
 			File:     "",
