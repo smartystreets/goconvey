@@ -35,7 +35,7 @@ func (self *Shell) GoTest(directory, packageName string, tags, arguments []strin
 	reportPath := filepath.Join(self.reportsPath, reportFilename)
 	reportData := reportPath + ".txt"
 	reportHTML := reportPath + ".html"
-	tagsArg := "-tags=" + strings.Join(append(self.gotags, tags...), ",")
+	tagsArg := "-tags=" + strings.Join(append(self.gotags, tags...), " ")
 
 	goconvey := findGoConvey(directory, self.gobin, packageName, tagsArg).Execute()
 	compilation := compile(directory, self.gobin, tagsArg).Execute()
