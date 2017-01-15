@@ -394,7 +394,7 @@ div#col-2 { width: 85%; }    /* fill it in with stories */
 td.story-pkg-name { font-size: 24px; }
 
 /* Smaller Header */
-div.overall      { padding: 10px 0 0px; }
-.overall .status { font-size: 36px; }
+div.overall      { padding: 10px 0; }
+.overall .status { font-size: 24px; }
 
 /***************************************************************/
