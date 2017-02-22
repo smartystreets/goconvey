@@ -11,8 +11,8 @@ func TestShellCommandComposition(t *testing.T) {
 	var (
 		buildFailed      = Command{Error: errors.New("BUILD FAILURE!")}
 		buildSucceeded   = Command{Output: "ok"}
-		goConvey         = Command{Output: "[fmt github.com/smartystreets/goconvey/convey net/http net/http/httptest path runtime strconv strings testing time]"}
-		noGoConvey       = Command{Output: "[fmt net/http net/http/httptest path runtime strconv strings testing time]"}
+		goConvey         = Command{Output: "[] [fmt github.com/smartystreets/goconvey/convey net/http net/http/httptest path runtime strconv strings testing time]"}
+		noGoConvey       = Command{Output: "[] [fmt net/http net/http/httptest path runtime strconv strings testing time]"}
 		errorGoConvey    = Command{Output: "This is a wacky error", Error: errors.New("This happens when running goconvey outside your $GOPATH (symlinked code).")}
 		noCoveragePassed = Command{Output: "PASS\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
 		coveragePassed   = Command{Output: "PASS\ncoverage: 100.0% of statements\nok  	github.com/smartystreets/goconvey/examples	0.012s"}
@@ -48,7 +48,7 @@ func TestShellCommandComposition(t *testing.T) {
 			})
 		})
 
-		Convey("And the package being tested usees the GoConvey DSL (`convey` package)", func() {
+		Convey("And the package being tested uses the GoConvey DSL (`convey` package)", func() {
 			result := runWithCoverage(buildSucceeded, goConvey, yesCoverage, "reportsPath", "/directory", "go", "5s", "-tags=bob", []string{"-arg1", "-arg2"})
 
 			Convey("The returned command should be well formed (and include the -json flag)", func() {
