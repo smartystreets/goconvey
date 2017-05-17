@@ -28,6 +28,14 @@ type FileSystemItem struct {
 func YieldFileSystemItems(root string, excludedDirs []string) chan *FileSystemItem {
 	items := make(chan *FileSystemItem)
 
+	if info, err := os.Lstat(root); err == nil {
+		if info.Mode()&os.ModeSymlink != 0 {
+			if path, err := filepath.EvalSymlinks(root); err == nil {
+				root = path
+			}
+		}
+	}
+
 	go func() {
 		filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
