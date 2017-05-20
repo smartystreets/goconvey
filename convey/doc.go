@@ -33,6 +33,31 @@ type C interface {
 	Printf(format string, items ...interface{}) (int, error)
 }
 
+func prefixConveyCallWith(prefix string, items ...interface{}) {
+	if len(items) > 0 {
+		s, ok := items[0].(string)
+		if ok {
+			items[0] = prefix + " " + s
+		}
+	}
+	Convey(items...)
+}
+
+// Given("a thing", ...) is an alias to Convey("Given a thing", ...)
+func Given(items ...interface{}) {
+	prefixConveyCallWith("Given", items...)
+}
+
+// When("something happens", ...) is an alias to Convey("When something happens", ...)
+func When(items ...interface{}) {
+	prefixConveyCallWith("When", items...)
+}
+
+// Then("something happens", ...) is an alias to Convey("Then something happens", ...)
+func Then(items ...interface{}) {
+	prefixConveyCallWith("Then", items...)
+}
+
 // Convey is the method intended for use when declaring the scopes of
 // a specification. Each scope has a description and a func() which may contain
 // other calls to Convey(), Reset() or Should-style assertions. Convey calls can
