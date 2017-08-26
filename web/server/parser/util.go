@@ -9,10 +9,17 @@ import (
 // parseTestFunctionDuration parses the duration in seconds as a float64
 // from a line of go test output that looks something like this:
 // --- PASS: TestOldSchool_PassesWithMessage (0.03 seconds)
+//
+// For Go1.5 and greater the test output looks something like this:
+// --- PASS: TestOldSchool_PassesWithMessage (0.03s)
 func parseTestFunctionDuration(line string) float64 {
 	line = strings.Replace(line, "(", "", 1)
 	fields := strings.Split(line, " ")
-	return parseDurationInSeconds(fields[3]+"s", 2)
+	timeStr := fields[3]+"s"
+	if strings.HasSuffix(timeStr, "s)s") {
+		timeStr = timeStr[:len(timeStr)-2]
+	}
+	return parseDurationInSeconds(timeStr, 2)
 }
 
 func parseDurationInSeconds(raw string, precision int) float64 {
