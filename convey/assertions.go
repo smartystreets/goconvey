@@ -3,68 +3,68 @@ package convey
 import "github.com/smartystreets/assertions"
 
 var (
-	ShouldEqual          = assertions.ShouldEqual
-	ShouldNotEqual       = assertions.ShouldNotEqual
-	ShouldAlmostEqual    = assertions.ShouldAlmostEqual
-	ShouldNotAlmostEqual = assertions.ShouldNotAlmostEqual
-	ShouldResemble       = assertions.ShouldResemble
-	ShouldNotResemble    = assertions.ShouldNotResemble
-	ShouldPointTo        = assertions.ShouldPointTo
-	ShouldNotPointTo     = assertions.ShouldNotPointTo
-	ShouldBeNil          = assertions.ShouldBeNil
-	ShouldNotBeNil       = assertions.ShouldNotBeNil
-	ShouldBeTrue         = assertions.ShouldBeTrue
-	ShouldBeFalse        = assertions.ShouldBeFalse
-	ShouldBeZeroValue    = assertions.ShouldBeZeroValue
+	ShouldEqual          assertion = assertions.ShouldEqual
+	ShouldNotEqual       assertion = assertions.ShouldNotEqual
+	ShouldAlmostEqual    assertion = assertions.ShouldAlmostEqual
+	ShouldNotAlmostEqual assertion = assertions.ShouldNotAlmostEqual
+	ShouldResemble       assertion = assertions.ShouldResemble
+	ShouldNotResemble    assertion = assertions.ShouldNotResemble
+	ShouldPointTo        assertion = assertions.ShouldPointTo
+	ShouldNotPointTo     assertion = assertions.ShouldNotPointTo
+	ShouldBeNil          assertion = assertions.ShouldBeNil
+	ShouldNotBeNil       assertion = assertions.ShouldNotBeNil
+	ShouldBeTrue         assertion = assertions.ShouldBeTrue
+	ShouldBeFalse        assertion = assertions.ShouldBeFalse
+	ShouldBeZeroValue    assertion = assertions.ShouldBeZeroValue
 
-	ShouldBeGreaterThan          = assertions.ShouldBeGreaterThan
-	ShouldBeGreaterThanOrEqualTo = assertions.ShouldBeGreaterThanOrEqualTo
-	ShouldBeLessThan             = assertions.ShouldBeLessThan
-	ShouldBeLessThanOrEqualTo    = assertions.ShouldBeLessThanOrEqualTo
-	ShouldBeBetween              = assertions.ShouldBeBetween
-	ShouldNotBeBetween           = assertions.ShouldNotBeBetween
-	ShouldBeBetweenOrEqual       = assertions.ShouldBeBetweenOrEqual
-	ShouldNotBeBetweenOrEqual    = assertions.ShouldNotBeBetweenOrEqual
+	ShouldBeGreaterThan          assertion = assertions.ShouldBeGreaterThan
+	ShouldBeGreaterThanOrEqualTo assertion = assertions.ShouldBeGreaterThanOrEqualTo
+	ShouldBeLessThan             assertion = assertions.ShouldBeLessThan
+	ShouldBeLessThanOrEqualTo    assertion = assertions.ShouldBeLessThanOrEqualTo
+	ShouldBeBetween              assertion = assertions.ShouldBeBetween
+	ShouldNotBeBetween           assertion = assertions.ShouldNotBeBetween
+	ShouldBeBetweenOrEqual       assertion = assertions.ShouldBeBetweenOrEqual
+	ShouldNotBeBetweenOrEqual    assertion = assertions.ShouldNotBeBetweenOrEqual
 
-	ShouldContain       = assertions.ShouldContain
-	ShouldNotContain    = assertions.ShouldNotContain
-	ShouldContainKey    = assertions.ShouldContainKey
-	ShouldNotContainKey = assertions.ShouldNotContainKey
-	ShouldBeIn          = assertions.ShouldBeIn
-	ShouldNotBeIn       = assertions.ShouldNotBeIn
-	ShouldBeEmpty       = assertions.ShouldBeEmpty
-	ShouldNotBeEmpty    = assertions.ShouldNotBeEmpty
-	ShouldHaveLength    = assertions.ShouldHaveLength
+	ShouldContain       assertion = assertions.ShouldContain
+	ShouldNotContain    assertion = assertions.ShouldNotContain
+	ShouldContainKey    assertion = assertions.ShouldContainKey
+	ShouldNotContainKey assertion = assertions.ShouldNotContainKey
+	ShouldBeIn          assertion = assertions.ShouldBeIn
+	ShouldNotBeIn       assertion = assertions.ShouldNotBeIn
+	ShouldBeEmpty       assertion = assertions.ShouldBeEmpty
+	ShouldNotBeEmpty    assertion = assertions.ShouldNotBeEmpty
+	ShouldHaveLength    assertion = assertions.ShouldHaveLength
 
-	ShouldStartWith           = assertions.ShouldStartWith
-	ShouldNotStartWith        = assertions.ShouldNotStartWith
-	ShouldEndWith             = assertions.ShouldEndWith
-	ShouldNotEndWith          = assertions.ShouldNotEndWith
-	ShouldBeBlank             = assertions.ShouldBeBlank
-	ShouldNotBeBlank          = assertions.ShouldNotBeBlank
-	ShouldContainSubstring    = assertions.ShouldContainSubstring
-	ShouldNotContainSubstring = assertions.ShouldNotContainSubstring
+	ShouldStartWith           assertion = assertions.ShouldStartWith
+	ShouldNotStartWith        assertion = assertions.ShouldNotStartWith
+	ShouldEndWith             assertion = assertions.ShouldEndWith
+	ShouldNotEndWith          assertion = assertions.ShouldNotEndWith
+	ShouldBeBlank             assertion = assertions.ShouldBeBlank
+	ShouldNotBeBlank          assertion = assertions.ShouldNotBeBlank
+	ShouldContainSubstring    assertion = assertions.ShouldContainSubstring
+	ShouldNotContainSubstring assertion = assertions.ShouldNotContainSubstring
 
-	ShouldPanic        = assertions.ShouldPanic
-	ShouldNotPanic     = assertions.ShouldNotPanic
-	ShouldPanicWith    = assertions.ShouldPanicWith
-	ShouldNotPanicWith = assertions.ShouldNotPanicWith
+	ShouldPanic        assertion = assertions.ShouldPanic
+	ShouldNotPanic     assertion = assertions.ShouldNotPanic
+	ShouldPanicWith    assertion = assertions.ShouldPanicWith
+	ShouldNotPanicWith assertion = assertions.ShouldNotPanicWith
 
-	ShouldHaveSameTypeAs    = assertions.ShouldHaveSameTypeAs
-	ShouldNotHaveSameTypeAs = assertions.ShouldNotHaveSameTypeAs
-	ShouldImplement         = assertions.ShouldImplement
-	ShouldNotImplement      = assertions.ShouldNotImplement
+	ShouldHaveSameTypeAs    assertion = assertions.ShouldHaveSameTypeAs
+	ShouldNotHaveSameTypeAs assertion = assertions.ShouldNotHaveSameTypeAs
+	ShouldImplement         assertion = assertions.ShouldImplement
+	ShouldNotImplement      assertion = assertions.ShouldNotImplement
 
-	ShouldHappenBefore         = assertions.ShouldHappenBefore
-	ShouldHappenOnOrBefore     = assertions.ShouldHappenOnOrBefore
-	ShouldHappenAfter          = assertions.ShouldHappenAfter
-	ShouldHappenOnOrAfter      = assertions.ShouldHappenOnOrAfter
-	ShouldHappenBetween        = assertions.ShouldHappenBetween
-	ShouldHappenOnOrBetween    = assertions.ShouldHappenOnOrBetween
-	ShouldNotHappenOnOrBetween = assertions.ShouldNotHappenOnOrBetween
-	ShouldHappenWithin         = assertions.ShouldHappenWithin
-	ShouldNotHappenWithin      = assertions.ShouldNotHappenWithin
-	ShouldBeChronological      = assertions.ShouldBeChronological
+	ShouldHappenBefore         assertion = assertions.ShouldHappenBefore
+	ShouldHappenOnOrBefore     assertion = assertions.ShouldHappenOnOrBefore
+	ShouldHappenAfter          assertion = assertions.ShouldHappenAfter
+	ShouldHappenOnOrAfter      assertion = assertions.ShouldHappenOnOrAfter
+	ShouldHappenBetween        assertion = assertions.ShouldHappenBetween
+	ShouldHappenOnOrBetween    assertion = assertions.ShouldHappenOnOrBetween
+	ShouldNotHappenOnOrBetween assertion = assertions.ShouldNotHappenOnOrBetween
+	ShouldHappenWithin         assertion = assertions.ShouldHappenWithin
+	ShouldNotHappenWithin      assertion = assertions.ShouldNotHappenWithin
+	ShouldBeChronological      assertion = assertions.ShouldBeChronological
 
-	ShouldBeError = assertions.ShouldBeError
+	ShouldBeError assertion = assertions.ShouldBeError
 )
