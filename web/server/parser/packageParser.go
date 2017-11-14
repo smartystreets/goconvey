@@ -101,7 +101,12 @@ func (self *outputParser) registerTestFunction() {
 	self.testMap[self.test.TestName] = self.test
 }
 func (self *outputParser) recordTestMetadata() {
-	testName := strings.Split(self.line, " ")[2]
+	line := strings.Split(self.line, " ")
+	if len(line) < 3 {
+		return
+	}
+
+	testName := line[2]
 	if test, ok := self.testMap[testName]; ok {
 		self.test = test
 		self.test.Passed = !strings.HasPrefix(self.line, "--- FAIL: ")
