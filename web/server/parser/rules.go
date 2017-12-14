@@ -1,6 +1,9 @@
 package parser
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 func noGoFiles(line string) bool {
 	return strings.HasPrefix(line, "can't load package: ") &&
@@ -22,8 +25,11 @@ func noTestFiles(line string) bool {
 func isNewTest(line string) bool {
 	return strings.HasPrefix(line, "=== ")
 }
+
+var validTestResult = regexp.MustCompile(`^--- (PASS|FAIL|SKIP): .*$`)
+
 func isTestResult(line string) bool {
-	return strings.HasPrefix(line, "--- ")
+	return validTestResult.MatchString(line)
 }
 func isPackageReport(line string) bool {
 	return (strings.HasPrefix(line, "FAIL") ||

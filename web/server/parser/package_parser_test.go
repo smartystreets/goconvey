@@ -138,6 +138,12 @@ func TestParsePackage_Golang17Subtests_ReturnsPackageResult(t *testing.T) {
 	assertEqual(t, expectedGolang17Subtests, *actual)
 }
 
+func TestParsePackage_TestifyAssertDiffLines_ShouldNotPanic(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedTestifyAssertDiffLines.PackageName}
+	ParsePackageResults(actual, inputTestifyAssertDiffLines)
+	assertEqual(t, expectedTestifyAssertDiffLines, *actual)
+}
+
 func assertEqual(t *testing.T, expected, actual interface{}) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
@@ -873,6 +879,56 @@ var expectedGolang17Subtests = contract.PackageResult{
 			Line:     0,
 			Message:  "",
 			Stories:  []reporting.ScopeResult{},
+		},
+	},
+}
+
+const inputTestifyAssertDiffLines = `
+=== RUN   Test
+--- FAIL: Test (0.07 seconds)
+        Error Trace:    foo_test.go:10
+	Error:      	Not equal: 
+	            	expected: map[string]string{"sad":"face"}
+	            	actual: map[string]string{"foo":"bar"}
+	            	
+	            	Diff:
+	            	--- Expected
+	            	+++ Actual
+	            	@@ -1,3 +1,3 @@
+	            	 (map[string]string) (len=1) {
+	            	- (string) (len=3) "sad": (string) (len=4) "face"
+	            	+ (string) (len=3) "foo": (string) (len=3) "bar"
+	            	 }
+FAIL
+exit status 1
+FAIL	github.com/smartystreets/goconvey/webserver/examples	0.07s
+`
+
+var expectedTestifyAssertDiffLines = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.07,
+	Outcome:     contract.Failed,
+	TestResults: []contract.TestResult{
+		contract.TestResult{
+			TestName: "Test",
+			Elapsed:  0.07,
+			Passed:   false,
+			File:     "",
+			Line:     0,
+			Message: `Error Trace:    foo_test.go:10
+Error:      	Not equal:
+expected: map[string]string{"sad":"face"}
+actual: map[string]string{"foo":"bar"}
+
+Diff:
+--- Expected
++++ Actual
+@@ -1,3 +1,3 @@
+(map[string]string) (len=1) {
+- (string) (len=3) "sad": (string) (len=4) "face"
++ (string) (len=3) "foo": (string) (len=3) "bar"
+}`,
+			Stories: []reporting.ScopeResult{},
 		},
 	},
 }

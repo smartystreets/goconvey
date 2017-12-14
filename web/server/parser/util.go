@@ -2,17 +2,24 @@ package parser
 
 import (
 	"math"
-	"strings"
+	"regexp"
 	"time"
 )
+
+// durationFinder look for durations in brackets at the end of lines for
+// example:
+// --- PASS: Test (0.03 seconds)
+// or
+// --- PASS: Test (0.03s)
+// it should be possible to extend this to allow for other units
+var durationFinder = regexp.MustCompile(`^.*\(([0-9.]+)\s?(s|seconds)\)$`)
 
 // parseTestFunctionDuration parses the duration in seconds as a float64
 // from a line of go test output that looks something like this:
 // --- PASS: TestOldSchool_PassesWithMessage (0.03 seconds)
 func parseTestFunctionDuration(line string) float64 {
-	line = strings.Replace(line, "(", "", 1)
-	fields := strings.Split(line, " ")
-	return parseDurationInSeconds(fields[3]+"s", 2)
+	dur := durationFinder.FindStringSubmatch(line)[1]
+	return parseDurationInSeconds(dur+"s", 2)
 }
 
 func parseDurationInSeconds(raw string, precision int) float64 {
