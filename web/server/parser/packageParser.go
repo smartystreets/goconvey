@@ -79,7 +79,9 @@ func (self *outputParser) recordFinalOutcome(outcome string) {
 
 func (self *outputParser) processTestOutput() {
 	self.line = applyCarriageReturn(self.line)
-	if s := strings.TrimLeft(self.line, " \t"); strings.HasPrefix(s, "--- ") {
+	if s := strings.TrimLeft(self.line, " \t"); strings.HasPrefix(s, "--- SKIP: ") ||
+		strings.HasPrefix(s, "--- FAIL: ") ||
+		strings.HasPrefix(s, "--- PASS: ") {
 		self.line = s
 	}
 	if isNewTest(self.line) {
