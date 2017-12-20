@@ -78,7 +78,10 @@ func (self *outputParser) recordFinalOutcome(outcome string) {
 }
 
 func (self *outputParser) processTestOutput() {
-	self.line = strings.TrimSpace(self.line)
+	self.line = applyCarriageReturn(self.line)
+	if s := strings.TrimLeft(self.line, " \t"); strings.HasPrefix(s, "--- ") {
+		self.line = s
+	}
 	if isNewTest(self.line) {
 		self.registerTestFunction()
 

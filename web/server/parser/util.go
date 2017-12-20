@@ -47,3 +47,23 @@ func round(x float64, precision int) float64 {
 
 	return rounder / float64(pow)
 }
+
+// applyCarriageReturn process line just like terminals do (CR moves
+// cursor to the start of line and next output overwrites previous one)
+// and return final line without CR.
+func applyCarriageReturn(line string) string {
+	output := []rune(line)[:0]
+	cursor := 0
+	for _, r := range line {
+		if r == '\r' {
+			cursor = 0
+		} else if cursor < len(output) {
+			output[cursor] = r
+			cursor++
+		} else {
+			output = append(output, r)
+			cursor++
+		}
+	}
+	return string(output)
+}
