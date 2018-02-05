@@ -14,8 +14,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"go/build"
 
@@ -31,6 +33,7 @@ import (
 func init() {
 	flags()
 	folders()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 func flags() {
 	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
@@ -198,20 +201,49 @@ func activateServer(listener net.Listener) {
 
 func coverageEnabled(cover bool, reports string) bool {
 	return (cover &&
-		goVersion_1_2_orGreater() &&
+		versionOnePointTwoOrGreater() &&
 		coverToolInstalled() &&
 		ensureReportDirectoryExists(reports))
 }
-func goVersion_1_2_orGreater() bool {
-	version := runtime.Version() // 'go1.2....'
-	major, minor := version[2], version[4]
-	version_1_2 := major >= byte('1') && minor >= byte('2')
-	if !version_1_2 {
+
+func versionOnePointTwoOrGreater() bool {
+	s := runtime.Version() // "go1.10..."
+	if !strings.HasPrefix(s, "go") {
+		log.Printf(unableToDetermineGoVersion, s)
+		return false
+	}
+
+	parts := strings.Split(s, " ")            // [go1.10, ...]
+	version := parts[0][2:]                   // "1.10"
+	majorminor := strings.Split(version, ".") // ["1", "10"]
+	major, err := strconv.Atoi(majorminor[0])
+	if err != nil {
+		log.Printf(unableToDetermineGoVersion, s)
+		return false
+	}
+
+	var minorStr string
+	for i, r := range majorminor[1] {
+		if !unicode.IsDigit(r) {
+			minorStr = majorminor[1][:i]
+			break
+		}
+	}
+	minor, err := strconv.Atoi(minorStr)
+	if err != nil {
+		log.Printf(unableToDetermineGoVersion, s)
+		return false
+	}
+
+	minimumVersion := major >= 1 && minor >= 2
+	if !minimumVersion {
 		log.Printf(pleaseUpgradeGoVersion, version)
 		return false
 	}
+
 	return true
 }
+
 func coverToolInstalled() bool {
 	working := getWorkDir()
 	command := system.NewCommand(working, "go", "tool", "cover").Execute()
@@ -292,6 +324,7 @@ var (
 const (
 	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n"
 	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
+	unableToDetermineGoVersion = "Go version could not be determined. Possibly not a tagged version? %q\n"
 	coverToolMissing           = "Go cover tool is not installed or not accessible: for Go < 1.5 run`go get golang.org/x/tools/cmd/cover`\n For >= Go 1.5 run `go install $GOROOT/src/cmd/cover`\n"
 	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
 )
