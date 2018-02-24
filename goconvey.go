@@ -222,7 +222,7 @@ func versionOnePointTwoOrGreater() bool {
 		return false
 	}
 
-	var minorStr string
+	var minorStr = majorminor[1]
 	for i, r := range majorminor[1] {
 		if !unicode.IsDigit(r) {
 			minorStr = majorminor[1][:i]
@@ -231,7 +231,7 @@ func versionOnePointTwoOrGreater() bool {
 	}
 	minor, err := strconv.Atoi(minorStr)
 	if err != nil {
-		log.Printf(unableToDetermineGoVersion, s)
+		log.Printf(unableToDetermineGoVersion, s, err)
 		return false
 	}
 
@@ -324,7 +324,7 @@ var (
 const (
 	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n"
 	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
-	unableToDetermineGoVersion = "Go version could not be determined. Possibly not a tagged version? %q\n"
+	unableToDetermineGoVersion = "Go version could not be determined. %q possibly not a tagged version? err: %s\n"
 	coverToolMissing           = "Go cover tool is not installed or not accessible: for Go < 1.5 run`go get golang.org/x/tools/cmd/cover`\n For >= Go 1.5 run `go install $GOROOT/src/cmd/cover`\n"
 	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
 )
