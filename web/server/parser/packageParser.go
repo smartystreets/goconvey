@@ -50,6 +50,15 @@ func (self *outputParser) separateTestFunctionsAndMetadata() {
 		if self.processNonTestOutput() {
 			break
 		}
+		// Hack for results from ginkgo tests
+		lines := strings.Split(self.line, " --- ")
+		if len(lines) == 2 {
+			self.line = lines[0]
+			self.processTestOutput()
+			self.line = "--- " + lines[1]
+			self.processTestOutput()
+			continue
+		}
 		self.processTestOutput()
 	}
 }
