@@ -89,9 +89,9 @@ func main() {
 
 func browserCmd() (string, bool) {
 	browser := map[string]string{
-		"darwin": "open",
-		"linux":  "xdg-open",
-		"win32":  "start",
+		"darwin":  "open",
+		"linux":   "xdg-open",
+		"windows": "start",
 	}
 	cmd, ok := browser[runtime.GOOS]
 	return cmd, ok
