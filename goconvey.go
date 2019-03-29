@@ -19,8 +19,6 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/tools/go/packages"
-
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/executor"
@@ -129,7 +127,11 @@ func extractPackages(folderList messaging.Folders) []*contract.Package {
 	packageList := []*contract.Package{}
 	for _, folder := range folderList {
 		hasImportCycle := testFilesImportTheirOwnPackage(folder.Path)
-		packageList = append(packageList, contract.NewPackage(folder, hasImportCycle))
+		packageName := resolvePackageName(folder.Path)
+		packageList = append(
+			packageList,
+			contract.NewPackage(folder, packageName, hasImportCycle),
+		)
 	}
 	return packageList
 }
@@ -138,39 +140,6 @@ func extractRoot(folderList messaging.Folders, packageList []*contract.Package) 
 	path := packageList[0].Path
 	folder := folderList[path]
 	return folder.Root
-}
-
-// This method exists because of a bug in the go cover tool that
-// causes an infinite loop when you try to run `go test -cover`
-// on a package that has an import cycle defined in one of it's
-// test files. Yuck.
-func testFilesImportTheirOwnPackage(packagePath string) bool {
-	meta, err := packages.Load(
-		&packages.Config{
-			Mode:  packages.NeedName | packages.NeedImports,
-			Tests: true,
-		},
-		packagePath,
-	)
-	if err != nil {
-		return false
-	}
-
-	testPackageID := fmt.Sprintf("%s [%s.test]", meta[0], meta[0])
-
-	for _, testPackage := range meta[1:] {
-		if testPackage.ID != testPackageID {
-			continue
-		}
-
-		for dependency := range testPackage.Imports {
-			if dependency == meta[0].PkgPath {
-				return true
-			}
-		}
-		break
-	}
-	return false
 }
 
 func createListener() net.Listener {
@@ -319,4 +288,6 @@ const (
 	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
 	coverToolMissing           = "Go cover tool is not installed or not accessible: for Go < 1.5 run`go get golang.org/x/tools/cmd/cover`\n For >= Go 1.5 run `go install $GOROOT/src/cmd/cover`\n"
 	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
+	separator                  = string(filepath.Separator)
+	endGoPath                  = separator + "src" + separator
 )
