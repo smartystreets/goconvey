@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"go/build"
+	"golang.org/x/tools/go/packages"
 
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
@@ -38,7 +38,7 @@ func flags() {
 	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
 	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	flag.DurationVar(&nap, "poll", quarterSecond, "The interval to wait between polling the file system for changes.")
-	flag.IntVar(&packages, "packages", 10, "The number of packages to test in parallel. Higher == faster but more costly in terms of computing.")
+	flag.IntVar(&parallelPackages, "packages", 10, "The number of packages to test in parallel. Higher == faster but more costly in terms of computing.")
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
 	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Requires Go 1.2+ and the go cover tool.")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value.")
@@ -73,7 +73,7 @@ func main() {
 
 	parser := parser.NewParser(parser.ParsePackageResults)
 	tester := executor.NewConcurrentTester(shell)
-	tester.SetBatchSize(packages)
+	tester.SetBatchSize(parallelPackages)
 
 	longpollChan := make(chan chan string)
 	executor := executor.NewExecutor(tester, parser, longpollChan)
@@ -145,15 +145,30 @@ func extractRoot(folderList messaging.Folders, packageList []*contract.Package) 
 // on a package that has an import cycle defined in one of it's
 // test files. Yuck.
 func testFilesImportTheirOwnPackage(packagePath string) bool {
-	meta, err := build.ImportDir(packagePath, build.AllowBinary)
+	meta, err := packages.Load(
+		&packages.Config{
+			Mode:  packages.NeedName | packages.NeedImports,
+			Tests: true,
+		},
+		packagePath,
+	)
 	if err != nil {
 		return false
 	}
 
-	for _, dependency := range meta.TestImports {
-		if dependency == meta.ImportPath {
-			return true
+	testPackageID := fmt.Sprintf("%s [%s.test]", meta[0], meta[0])
+
+	for _, testPackage := range meta[1:] {
+		if testPackage.ID != testPackageID {
+			continue
 		}
+
+		for dependency := range testPackage.Imports {
+			if dependency == meta[0].PkgPath {
+				return true
+			}
+		}
+		break
 	}
 	return false
 }
@@ -284,7 +299,7 @@ var (
 	host              string
 	gobin             string
 	nap               time.Duration
-	packages          int
+	parallelPackages  int
 	cover             bool
 	depth             int
 	timeout           string

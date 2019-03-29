@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go/build"
+	"golang.org/x/tools/go/packages"
 
 	"github.com/smartystreets/goconvey/convey/reporting"
 	"github.com/smartystreets/goconvey/web/server/messaging"
@@ -105,9 +105,14 @@ func NewTestResult(testName string) *TestResult {
 }
 
 func resolvePackageName(path string) string {
-	pkg, err := build.ImportDir(path, build.FindOnly)
+	pkg, err := packages.Load(
+		&packages.Config{
+			Mode: packages.NeedName,
+		},
+		path,
+	)
 	if err == nil {
-		return pkg.ImportPath
+		return pkg[0].PkgPath
 	}
 
 	nameArr := strings.Split(path, endGoPath)
