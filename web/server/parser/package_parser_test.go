@@ -1068,3 +1068,45 @@ var expectedGolang17Subtests = contract.PackageResult{
 		},
 	},
 }
+
+const inputGinkgo_Passes = `
+SUCCESS! -- 12 Passed | 0 Failed | 0 Pending | 0 Skipped --- PASS: TestModels (0.01s)
+PASS
+ok  	github.com/smartystreets/goconvey/webserver/examples	3.433s
+`
+
+var expectedGinkgo_Passes = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     3.433,
+	Outcome:     contract.Passed,
+}
+
+func TestParsePackage_GinkgoWithSuccessOutput(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedGinkgo_Passes.PackageName}
+	ParsePackageResults(actual, inputGinkgo_Passes)
+	assertEqual(t, expectedGinkgo_Passes, *actual)
+}
+
+const inputGinkgo_Fails = `
+Summarizing 1 Failure:
+
+[Fail] main.go GetHostname [It] returns an error if systemInfo.hostname == nil
+/Users/joeuser/go/src/github.com/smartystreets/goconvey/webserver/examples/main.go:141
+
+Ran 33 of 33 Specs in 0.005 seconds
+FAIL! -- 32 Passed | 1 Failed | 0 Pending | 0 Skipped --- FAIL: TestRoutes (0.01s)
+FAIL
+FAIL	github.com/smartystreets/goconvey/webserver/examples	0.810s
+`
+
+var expectedGinkgo_Fails = contract.PackageResult{
+	PackageName: "github.com/smartystreets/goconvey/webserver/examples",
+	Elapsed:     0.810,
+	Outcome:     contract.Failed,
+}
+
+func TestParsePackage_GinkgoWithFailureOutput(t *testing.T) {
+	actual := &contract.PackageResult{PackageName: expectedGinkgo_Fails.PackageName}
+	ParsePackageResults(actual, inputGinkgo_Fails)
+	assertEqual(t, expectedGinkgo_Fails, *actual)
+}
