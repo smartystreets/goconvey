@@ -52,7 +52,7 @@ func (self *outputParser) separateTestFunctionsAndMetadata() {
 		}
 		// Hack for results from ginkgo tests
 		lines := strings.Split(self.line, " --- ")
-		if len(lines) == 2 {
+		if len(lines) == 2 && len(strings.TrimSpace(lines[0])) > 0 && strings.HasPrefix(lines[1], "PASS") {
 			self.line = lines[0]
 			self.processTestOutput()
 			self.line = "--- " + lines[1]
