@@ -7,6 +7,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/otiai10/copy"
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/executor"
@@ -52,6 +54,20 @@ func flags() {
 func folders() {
 	_, file, _, _ := runtime.Caller(0)
 	here := filepath.Dir(file)
+	origin := filepath.Join(here, "/web/client")
+
+	var err error
+	tmpStatic, err = ioutil.TempDir("", "goconvey")
+	if err == nil {
+		static = filepath.Join(tmpStatic, "/web/client")
+		if err = copy.Copy(origin, static); err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+	} else {
+		static = origin
+	}
+
 	static = filepath.Join(here, "/web/client")
 	reports = filepath.Join(static, "reports")
 }
@@ -281,6 +297,7 @@ var (
 
 	quarterSecond = time.Millisecond * 250
 	workDir       string
+	tmpStatic     string
 )
 
 const (
