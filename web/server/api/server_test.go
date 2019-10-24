@@ -290,15 +290,15 @@ type ServerFixture struct {
 	statusUpdate chan bool
 }
 
-func (self *ServerFixture) ReceiveUpdate(root string, update *contract.CompleteOutput) {
-	self.server.ReceiveUpdate(root, update)
+func (s *ServerFixture) ReceiveUpdate(root string, update *contract.CompleteOutput) {
+	s.server.ReceiveUpdate(root, update)
 }
 
-func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, *httptest.ResponseRecorder) {
+func (s *ServerFixture) RequestLatest() (*contract.CompleteOutput, *httptest.ResponseRecorder) {
 	request, _ := http.NewRequest("GET", "http://localhost:8080/results", nil)
 	response := httptest.NewRecorder()
 
-	self.server.Results(response, request)
+	s.server.Results(response, request)
 
 	decoder := json.NewDecoder(strings.NewReader(response.Body.String()))
 	update := new(contract.CompleteOutput)
@@ -306,7 +306,7 @@ func (self *ServerFixture) RequestLatest() (*contract.CompleteOutput, *httptest.
 	return update, response
 }
 
-func (self *ServerFixture) QueryRootWatch(newclient bool) (string, int) {
+func (s *ServerFixture) QueryRootWatch(newclient bool) (string, int) {
 	url := "http://localhost:8080/watch"
 	if newclient {
 		url += "?newclient=1"
@@ -314,107 +314,107 @@ func (self *ServerFixture) QueryRootWatch(newclient bool) (string, int) {
 	request, _ := http.NewRequest("GET", url, nil)
 	response := httptest.NewRecorder()
 
-	self.server.Watch(response, request)
+	s.server.Watch(response, request)
 
 	return strings.TrimSpace(response.Body.String()), response.Code
 }
 
-func (self *ServerFixture) AdjustRootWatchMalformed() (status int, body string) {
+func (s *ServerFixture) AdjustRootWatchMalformed() (status int, body string) {
 	request, _ := http.NewRequest("POST", "http://localhost:8080/watch", nil)
 	response := httptest.NewRecorder()
 
-	self.server.Watch(response, request)
+	s.server.Watch(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) AdjustRootWatch(newRoot string) (status int, body string) {
+func (s *ServerFixture) AdjustRootWatch(newRoot string) (status int, body string) {
 	escapedRoot := url.QueryEscape(newRoot)
 	request, _ := http.NewRequest("POST", "http://localhost:8080/watch?root="+escapedRoot, nil)
 	response := httptest.NewRecorder()
 
-	self.server.Watch(response, request)
+	s.server.Watch(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) IgnoreMalformed() (status int, body string) {
+func (s *ServerFixture) IgnoreMalformed() (status int, body string) {
 	request, _ := http.NewRequest("POST", "http://localhost:8080/ignore", nil)
 	response := httptest.NewRecorder()
 
-	self.server.Ignore(response, request)
+	s.server.Ignore(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) Ignore(folder string) (status int, body string) {
+func (s *ServerFixture) Ignore(folder string) (status int, body string) {
 	escapedFolder := url.QueryEscape(folder)
 	request, _ := http.NewRequest("POST", "http://localhost:8080/ignore?paths="+escapedFolder, nil)
 	response := httptest.NewRecorder()
 
-	self.server.Ignore(response, request)
+	s.server.Ignore(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) ReinstateMalformed() (status int, body string) {
+func (s *ServerFixture) ReinstateMalformed() (status int, body string) {
 	request, _ := http.NewRequest("POST", "http://localhost:8080/reinstate", nil)
 	response := httptest.NewRecorder()
 
-	self.server.Reinstate(response, request)
+	s.server.Reinstate(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) Reinstate(folder string) (status int, body string) {
+func (s *ServerFixture) Reinstate(folder string) (status int, body string) {
 	escapedFolder := url.QueryEscape(folder)
 	request, _ := http.NewRequest("POST", "http://localhost:8080/reinstate?paths="+escapedFolder, nil)
 	response := httptest.NewRecorder()
 
-	self.server.Reinstate(response, request)
+	s.server.Reinstate(response, request)
 
 	status, body = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) SetExecutorStatus(status string) {
-	// self.executor.status = status
+func (s *ServerFixture) SetExecutorStatus(status string) {
+	// s.executor.status = status
 	// select {
-	// case self.executor.statusUpdate <- make(chan string):
+	// case s.executor.statusUpdate <- make(chan string):
 	// default:
 	// }
 }
 
-func (self *ServerFixture) RequestExecutorStatus() (code int, status string) {
+func (s *ServerFixture) RequestExecutorStatus() (code int, status string) {
 	request, _ := http.NewRequest("GET", "http://localhost:8080/status", nil)
 	response := httptest.NewRecorder()
 
-	self.server.Status(response, request)
+	s.server.Status(response, request)
 
 	code, status = response.Code, strings.TrimSpace(response.Body.String())
 	return
 }
 
-func (self *ServerFixture) ManualExecution() int {
+func (s *ServerFixture) ManualExecution() int {
 	request, _ := http.NewRequest("POST", "http://localhost:8080/execute", nil)
 	response := httptest.NewRecorder()
 
-	self.server.Execute(response, request)
+	s.server.Execute(response, request)
 	nap, _ := time.ParseDuration("100ms")
 	time.Sleep(nap)
 	return response.Code
 }
 
-func (self *ServerFixture) TogglePause() string {
+func (s *ServerFixture) TogglePause() string {
 	request, _ := http.NewRequest("POST", "http://localhost:8080/pause", nil)
 	response := httptest.NewRecorder()
 
-	self.server.TogglePause(response, request)
+	s.server.TogglePause(response, request)
 
 	return response.Body.String()
 }

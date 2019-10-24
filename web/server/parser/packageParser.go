@@ -40,31 +40,31 @@ func newOutputParser(result *contract.PackageResult, rawOutput string) *outputPa
 	return self
 }
 
-func (self *outputParser) parse() {
-	self.separateTestFunctionsAndMetadata()
-	self.parseEachTestFunction()
+func (o *outputParser) parse() {
+	o.separateTestFunctionsAndMetadata()
+	o.parseEachTestFunction()
 }
 
-func (self *outputParser) separateTestFunctionsAndMetadata() {
-	for _, self.line = range self.lines {
-		if self.processNonTestOutput() {
+func (o *outputParser) separateTestFunctionsAndMetadata() {
+	for _, o.line = range o.lines {
+		if o.processNonTestOutput() {
 			break
 		}
-		self.processTestOutput()
+		o.processTestOutput()
 	}
 }
-func (self *outputParser) processNonTestOutput() bool {
-	if noGoFiles(self.line) {
-		self.recordFinalOutcome(contract.NoGoFiles)
+func (o *outputParser) processNonTestOutput() bool {
+	if noGoFiles(o.line) {
+		o.recordFinalOutcome(contract.NoGoFiles)
 
-	} else if buildFailed(self.line) {
-		self.recordFinalOutcome(contract.BuildFailure)
+	} else if buildFailed(o.line) {
+		o.recordFinalOutcome(contract.BuildFailure)
 
-	} else if noTestFiles(self.line) {
-		self.recordFinalOutcome(contract.NoTestFiles)
+	} else if noTestFiles(o.line) {
+		o.recordFinalOutcome(contract.NoTestFiles)
 
-	} else if noTestFunctions(self.line) {
-		self.recordFinalOutcome(contract.NoTestFunctions)
+	} else if noTestFunctions(o.line) {
+		o.recordFinalOutcome(contract.NoTestFunctions)
 
 	} else {
 		return false
@@ -72,81 +72,81 @@ func (self *outputParser) processNonTestOutput() bool {
 	return true
 }
 
-func (self *outputParser) recordFinalOutcome(outcome string) {
-	self.result.Outcome = outcome
-	self.result.BuildOutput = strings.Join(self.lines, "\n")
+func (o *outputParser) recordFinalOutcome(outcome string) {
+	o.result.Outcome = outcome
+	o.result.BuildOutput = strings.Join(o.lines, "\n")
 }
 
-func (self *outputParser) processTestOutput() {
-	self.line = strings.TrimSpace(self.line)
-	if isNewTest(self.line) {
-		self.registerTestFunction()
+func (o *outputParser) processTestOutput() {
+	o.line = strings.TrimSpace(o.line)
+	if isNewTest(o.line) {
+		o.registerTestFunction()
 
-	} else if isTestResult(self.line) {
-		self.recordTestMetadata()
+	} else if isTestResult(o.line) {
+		o.recordTestMetadata()
 
-	} else if isPackageReport(self.line) {
-		self.recordPackageMetadata()
+	} else if isPackageReport(o.line) {
+		o.recordPackageMetadata()
 
 	} else {
-		self.saveLineForParsingLater()
+		o.saveLineForParsingLater()
 
 	}
 }
 
-func (self *outputParser) registerTestFunction() {
-	testNameReg := testNamePattern.FindStringSubmatch(self.line)
+func (o *outputParser) registerTestFunction() {
+	testNameReg := testNamePattern.FindStringSubmatch(o.line)
 	if len(testNameReg) < 2 { // Test-related lines that aren't about a new test
 		return
 	}
-	self.test = contract.NewTestResult(testNameReg[1])
-	self.tests = append(self.tests, self.test)
-	self.testMap[self.test.TestName] = self.test
+	o.test = contract.NewTestResult(testNameReg[1])
+	o.tests = append(o.tests, o.test)
+	o.testMap[o.test.TestName] = o.test
 }
-func (self *outputParser) recordTestMetadata() {
-	testName := strings.Split(self.line, " ")[2]
-	if test, ok := self.testMap[testName]; ok {
-		self.test = test
-		self.test.Passed = !strings.HasPrefix(self.line, "--- FAIL: ")
-		self.test.Skipped = strings.HasPrefix(self.line, "--- SKIP: ")
-		self.test.Elapsed = parseTestFunctionDuration(self.line)
+func (o *outputParser) recordTestMetadata() {
+	testName := strings.Split(o.line, " ")[2]
+	if test, ok := o.testMap[testName]; ok {
+		o.test = test
+		o.test.Passed = !strings.HasPrefix(o.line, "--- FAIL: ")
+		o.test.Skipped = strings.HasPrefix(o.line, "--- SKIP: ")
+		o.test.Elapsed = parseTestFunctionDuration(o.line)
 	}
 }
-func (self *outputParser) recordPackageMetadata() {
-	if packageFailed(self.line) {
-		self.recordTestingOutcome(contract.Failed)
+func (o *outputParser) recordPackageMetadata() {
+	if packageFailed(o.line) {
+		o.recordTestingOutcome(contract.Failed)
 
-	} else if packagePassed(self.line) {
-		self.recordTestingOutcome(contract.Passed)
+	} else if packagePassed(o.line) {
+		o.recordTestingOutcome(contract.Passed)
 
-	} else if isCoverageSummary(self.line) {
-		self.recordCoverageSummary(self.line)
+	} else if isCoverageSummary(o.line) {
+		o.recordCoverageSummary(o.line)
 	}
 }
-func (self *outputParser) recordTestingOutcome(outcome string) {
-	self.result.Outcome = outcome
-	fields := strings.Split(self.line, "\t")
-	self.result.PackageName = strings.TrimSpace(fields[1])
-	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
+func (o *outputParser) recordTestingOutcome(outcome string) {
+	o.result.Outcome = outcome
+	fields := strings.Split(o.line, "\t")
+	o.result.PackageName = strings.TrimSpace(fields[1])
+	o.result.Elapsed = parseDurationInSeconds(fields[2], 3)
 }
-func (self *outputParser) recordCoverageSummary(summary string) {
+func (o *outputParser) recordCoverageSummary(summary string) {
 	start := len("coverage: ")
 	end := strings.Index(summary, "%")
 	value := summary[start:end]
 	parsed, err := strconv.ParseFloat(value, 64)
 	if err != nil {
-		self.result.Coverage = -1
+		o.result.Coverage = -1
 	} else {
-		self.result.Coverage = parsed
+		o.result.Coverage = parsed
 	}
 }
-func (self *outputParser) saveLineForParsingLater() {
-	self.line = strings.TrimLeft(self.line, "\t")
-	if self.test == nil {
-		fmt.Println("Potential error parsing output of", self.result.PackageName, "; couldn't handle this stray line:", self.line)
+func (o *outputParser) saveLineForParsingLater() {
+	o.line = strings.TrimLeft(o.line, "\t")
+	if o.test == nil {
+		fmt.Println("Potential error parsing output of", o.result.PackageName, "; couldn't handle this stray line:", o.line)
 		return
 	}
-	self.test.RawLines = append(self.test.RawLines, self.line)
+	o.test.RawLines = append(o.test.RawLines, o.line)
 }
 
 // TestResults is a collection of TestResults that implements sort.Interface.
@@ -165,14 +165,14 @@ func (r TestResults) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
 }
 
-func (self *outputParser) parseEachTestFunction() {
-	for _, self.test = range self.tests {
-		self.test = parseTestOutput(self.test)
-		if self.test.Error != "" {
-			self.result.Outcome = contract.Panicked
+func (o *outputParser) parseEachTestFunction() {
+	for _, o.test = range o.tests {
+		o.test = parseTestOutput(o.test)
+		if o.test.Error != "" {
+			o.result.Outcome = contract.Panicked
 		}
-		self.test.RawLines = []string{}
-		self.result.TestResults = append(self.result.TestResults, *self.test)
+		o.test.RawLines = []string{}
+		o.result.TestResults = append(o.result.TestResults, *o.test)
 	}
-	sort.Sort(TestResults(self.result.TestResults))
+	sort.Sort(TestResults(o.result.TestResults))
 }

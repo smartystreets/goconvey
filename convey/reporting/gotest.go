@@ -2,25 +2,25 @@ package reporting
 
 type gotestReporter struct{ test T }
 
-func (self *gotestReporter) BeginStory(story *StoryReport) {
-	self.test = story.Test
+func (g *gotestReporter) BeginStory(story *StoryReport) {
+	g.test = story.Test
 }
 
-func (self *gotestReporter) Enter(scope *ScopeReport) {}
+func (g *gotestReporter) Enter(scope *ScopeReport) {}
 
-func (self *gotestReporter) Report(r *AssertionResult) {
+func (g *gotestReporter) Report(r *AssertionResult) {
 	if !passed(r) {
-		self.test.Fail()
+		g.test.Fail()
 	}
 }
 
-func (self *gotestReporter) Exit() {}
+func (g *gotestReporter) Exit() {}
 
-func (self *gotestReporter) EndStory() {
-	self.test = nil
+func (g *gotestReporter) EndStory() {
+	g.test = nil
 }
 
-func (self *gotestReporter) Write(content []byte) (written int, err error) {
+func (g *gotestReporter) Write(content []byte) (written int, err error) {
 	return len(content), nil // no-op
 }
 

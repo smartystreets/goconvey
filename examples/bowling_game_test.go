@@ -66,15 +66,15 @@ func TestBowlingGameScoring(t *testing.T) {
 	})
 }
 
-func (self *Game) rollMany(times, pins int) {
+func (g *Game) rollMany(times, pins int) {
 	for x := 0; x < times; x++ {
-		self.Roll(pins)
+		g.Roll(pins)
 	}
 }
-func (self *Game) rollSpare() {
-	self.Roll(5)
-	self.Roll(5)
+func (g *Game) rollSpare() {
+	g.Roll(5)
+	g.Roll(5)
 }
-func (self *Game) rollStrike() {
-	self.Roll(10)
+func (g *Game) rollStrike() {
+	g.Roll(10)
 }

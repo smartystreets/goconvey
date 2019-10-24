@@ -21,21 +21,21 @@ type HTTPServer struct {
 	paused      bool
 }
 
-func (self *HTTPServer) ReceiveUpdate(root string, update *contract.CompleteOutput) {
-	self.currentRoot = root
-	self.latest = update
+func (h *HTTPServer) ReceiveUpdate(root string, update *contract.CompleteOutput) {
+	h.currentRoot = root
+	h.latest = update
 }
 
-func (self *HTTPServer) Watch(response http.ResponseWriter, request *http.Request) {
+func (h *HTTPServer) Watch(response http.ResponseWriter, request *http.Request) {
 	if request.Method == "POST" {
-		self.adjustRoot(response, request)
+		h.adjustRoot(response, request)
 	} else if request.Method == "GET" {
-		response.Write([]byte(self.currentRoot))
+		response.Write([]byte(h.currentRoot))
 	}
 }
 
-func (self *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.Request) {
-	newRoot := self.parseQueryString("root", response, request)
+func (h *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.Request) {
+	newRoot := h.parseQueryString("root", response, request)
 	if newRoot == "" {
 		return
 	}
@@ -45,33 +45,33 @@ func (self *HTTPServer) adjustRoot(response http.ResponseWriter, request *http.R
 		return
 	}
 
-	self.watcher <- messaging.WatcherCommand{
+	h.watcher <- messaging.WatcherCommand{
 		Instruction: messaging.WatcherAdjustRoot,
 		Details:     newRoot,
 	}
 }
 
-func (self *HTTPServer) Ignore(response http.ResponseWriter, request *http.Request) {
-	paths := self.parseQueryString("paths", response, request)
+func (h *HTTPServer) Ignore(response http.ResponseWriter, request *http.Request) {
+	paths := h.parseQueryString("paths", response, request)
 	if paths != "" {
-		self.watcher <- messaging.WatcherCommand{
+		h.watcher <- messaging.WatcherCommand{
 			Instruction: messaging.WatcherIgnore,
 			Details:     paths,
 		}
 	}
 }
 
-func (self *HTTPServer) Reinstate(response http.ResponseWriter, request *http.Request) {
-	paths := self.parseQueryString("paths", response, request)
+func (h *HTTPServer) Reinstate(response http.ResponseWriter, request *http.Request) {
+	paths := h.parseQueryString("paths", response, request)
 	if paths != "" {
-		self.watcher <- messaging.WatcherCommand{
+		h.watcher <- messaging.WatcherCommand{
 			Instruction: messaging.WatcherReinstate,
 			Details:     paths,
 		}
 	}
 }
 
-func (self *HTTPServer) parseQueryString(key string, response http.ResponseWriter, request *http.Request) string {
+func (h *HTTPServer) parseQueryString(key string, response http.ResponseWriter, request *http.Request) string {
 	value := request.URL.Query()[key]
 
 	if len(value) == 0 {
@@ -86,14 +86,14 @@ func (self *HTTPServer) parseQueryString(key string, response http.ResponseWrite
 	return path
 }
 
-func (self *HTTPServer) Status(response http.ResponseWriter, request *http.Request) {
-	status := self.executor.Status()
+func (h *HTTPServer) Status(response http.ResponseWriter, request *http.Request) {
+	status := h.executor.Status()
 	response.Write([]byte(status))
 }
 
-func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *http.Request) {
-	if self.executor.ClearStatusFlag() {
-		response.Write([]byte(self.executor.Status()))
+func (h *HTTPServer) LongPollStatus(response http.ResponseWriter, request *http.Request) {
+	if h.executor.ClearStatusFlag() {
+		response.Write([]byte(h.executor.Status()))
 		return
 	}
 
@@ -105,7 +105,7 @@ func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *ht
 	myReqChan := make(chan string)
 
 	select {
-	case self.longpoll <- myReqChan: // this case means the executor's status is changing
+	case h.longpoll <- myReqChan: // this case means the executor's status is changing
 	case <-time.After(time.Duration(timeout) * time.Millisecond): // this case means the executor hasn't changed status
 		return
 	}
@@ -117,36 +117,36 @@ func (self *HTTPServer) LongPollStatus(response http.ResponseWriter, request *ht
 	}
 }
 
-func (self *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
+func (h *HTTPServer) Results(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type", "application/json")
 	response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	response.Header().Set("Pragma", "no-cache")
 	response.Header().Set("Expires", "0")
-	if self.latest != nil {
-		self.latest.Paused = self.paused
+	if h.latest != nil {
+		h.latest.Paused = h.paused
 	}
-	stuff, _ := json.Marshal(self.latest)
+	stuff, _ := json.Marshal(h.latest)
 	response.Write(stuff)
 }
 
-func (self *HTTPServer) Execute(response http.ResponseWriter, request *http.Request) {
-	go self.execute()
+func (h *HTTPServer) Execute(response http.ResponseWriter, request *http.Request) {
+	go h.execute()
 }
 
-func (self *HTTPServer) execute() {
-	self.watcher <- messaging.WatcherCommand{Instruction: messaging.WatcherExecute}
+func (h *HTTPServer) execute() {
+	h.watcher <- messaging.WatcherCommand{Instruction: messaging.WatcherExecute}
 }
 
-func (self *HTTPServer) TogglePause(response http.ResponseWriter, request *http.Request) {
+func (h *HTTPServer) TogglePause(response http.ResponseWriter, request *http.Request) {
 	instruction := messaging.WatcherPause
-	if self.paused {
+	if h.paused {
 		instruction = messaging.WatcherResume
 	}
 
-	self.watcher <- messaging.WatcherCommand{Instruction: instruction}
-	self.paused = !self.paused
+	h.watcher <- messaging.WatcherCommand{Instruction: instruction}
+	h.paused = !h.paused
 
-	fmt.Fprint(response, self.paused) // we could write out whatever helps keep the UI honest...
+	fmt.Fprint(response, h.paused) // we could write out whatever helps keep the UI honest...
 }
 
 func NewHTTPServer(

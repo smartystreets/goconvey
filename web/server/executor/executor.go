@@ -20,53 +20,53 @@ type Executor struct {
 	statusFlag bool
 }
 
-func (self *Executor) Status() string {
-	return self.status
+func (e *Executor) Status() string {
+	return e.status
 }
 
-func (self *Executor) ClearStatusFlag() bool {
-	hasNewStatus := self.statusFlag
-	self.statusFlag = false
+func (e *Executor) ClearStatusFlag() bool {
+	hasNewStatus := e.statusFlag
+	e.statusFlag = false
 	return hasNewStatus
 }
 
-func (self *Executor) ExecuteTests(folders []*contract.Package) *contract.CompleteOutput {
-	defer func() { self.setStatus(Idle) }()
-	self.execute(folders)
-	result := self.parse(folders)
+func (e *Executor) ExecuteTests(folders []*contract.Package) *contract.CompleteOutput {
+	defer func() { e.setStatus(Idle) }()
+	e.execute(folders)
+	result := e.parse(folders)
 	return result
 }
 
-func (self *Executor) execute(folders []*contract.Package) {
-	self.setStatus(Executing)
-	self.tester.TestAll(folders)
+func (e *Executor) execute(folders []*contract.Package) {
+	e.setStatus(Executing)
+	e.tester.TestAll(folders)
 }
 
-func (self *Executor) parse(folders []*contract.Package) *contract.CompleteOutput {
+func (e *Executor) parse(folders []*contract.Package) *contract.CompleteOutput {
 	result := &contract.CompleteOutput{Revision: now().String()}
-	self.parser.Parse(folders)
+	e.parser.Parse(folders)
 	for _, folder := range folders {
 		result.Packages = append(result.Packages, folder.Result)
 	}
 	return result
 }
 
-func (self *Executor) setStatus(status string) {
-	self.status = status
-	self.statusFlag = true
+func (e *Executor) setStatus(status string) {
+	e.status = status
+	e.statusFlag = true
 
 Loop:
 	for {
 		select {
-		case c := <-self.statusChan:
-			self.statusFlag = false
+		case c := <-e.statusChan:
+			e.statusFlag = false
 			c <- status
 		default:
 			break Loop
 		}
 	}
 
-	log.Printf("Executor status: '%s'\n", self.status)
+	log.Printf("Executor status: '%s'\n", e.status)
 }
 
 func NewExecutor(tester Tester, parser Parser, ch chan chan string) *Executor {

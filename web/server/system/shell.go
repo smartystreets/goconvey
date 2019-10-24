@@ -28,18 +28,18 @@ func NewShell(gobin, reportsPath string, coverage bool, defaultTimeout string) *
 	}
 }
 
-func (self *Shell) GoTest(directory, packageName string, tags, arguments []string) (output string, err error) {
+func (s *Shell) GoTest(directory, packageName string, tags, arguments []string) (output string, err error) {
 	reportFilename := strings.Replace(packageName, "/", "-", -1)
-	reportPath := filepath.Join(self.reportsPath, reportFilename)
+	reportPath := filepath.Join(s.reportsPath, reportFilename)
 	reportData := reportPath + ".txt"
 	reportHTML := reportPath + ".html"
 	tagsArg := "-tags=" + strings.Join(tags, ",")
 
-	goconvey := findGoConvey(directory, self.gobin, packageName, tagsArg).Execute()
-	compilation := compile(directory, self.gobin, tagsArg).Execute()
-	withCoverage := runWithCoverage(compilation, goconvey, self.coverage, reportData, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
-	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, self.gobin, self.defaultTimeout, tagsArg, arguments).Execute()
-	go generateReports(final, self.coverage, directory, self.gobin, reportData, reportHTML).Execute()
+	goconvey := findGoConvey(directory, s.gobin, packageName, tagsArg).Execute()
+	compilation := compile(directory, s.gobin, tagsArg).Execute()
+	withCoverage := runWithCoverage(compilation, goconvey, s.coverage, reportData, directory, s.gobin, s.defaultTimeout, tagsArg, arguments).Execute()
+	final := runWithoutCoverage(compilation, withCoverage, goconvey, directory, s.gobin, s.defaultTimeout, tagsArg, arguments).Execute()
+	go generateReports(final, s.coverage, directory, s.gobin, reportData, reportHTML).Execute()
 
 	return final.Output, final.Error
 }
@@ -149,21 +149,21 @@ func NewCommand(directory, executable string, arguments ...string) Command {
 	}
 }
 
-func (this Command) Execute() Command {
-	if len(this.executable) == 0 {
-		return this
+func (c Command) Execute() Command {
+	if len(c.executable) == 0 {
+		return c
 	}
 
-	if len(this.Output) > 0 || this.Error != nil {
-		return this
+	if len(c.Output) > 0 || c.Error != nil {
+		return c
 	}
 
-	command := exec.Command(this.executable, this.arguments...)
-	command.Dir = this.directory
+	command := exec.Command(c.executable, c.arguments...)
+	command.Dir = c.directory
 	var rawOutput []byte
-	rawOutput, this.Error = command.CombinedOutput()
-	this.Output = string(rawOutput)
-	return this
+	rawOutput, c.Error = command.CombinedOutput()
+	c.Output = string(rawOutput)
+	return c
 }
 
 ///////////////////////////////////////////////////////////////////////////////

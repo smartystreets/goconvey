@@ -61,6 +61,6 @@ type fakeTest struct {
 	failed bool
 }
 
-func (self *fakeTest) Fail() {
-	self.failed = true
+func (f *fakeTest) Fail() {
+	f.failed = true
 }

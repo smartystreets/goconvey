@@ -95,41 +95,41 @@ func NewTesterFixture() *TesterFixture {
 	return self
 }
 
-func (self *TesterFixture) InBatchesOf(batchSize int) *TesterFixture {
-	self.tester.SetBatchSize(batchSize)
-	return self
+func (t *TesterFixture) InBatchesOf(batchSize int) *TesterFixture {
+	t.tester.SetBatchSize(batchSize)
+	return t
 }
 
-func (self *TesterFixture) SetupAbnormalError(message string) *TesterFixture {
-	self.shell.setTripWire(message)
-	return self
+func (t *TesterFixture) SetupAbnormalError(message string) *TesterFixture {
+	t.shell.setTripWire(message)
+	return t
 }
 
-func (self *TesterFixture) SetupFailedTestSuites() *TesterFixture {
-	self.shell.setExitWithError()
-	return self
+func (t *TesterFixture) SetupFailedTestSuites() *TesterFixture {
+	t.shell.setExitWithError()
+	return t
 }
 
-func (self *TesterFixture) RunTests() {
+func (t *TesterFixture) RunTests() {
 	defer func() {
 		if r := recover(); r != nil {
-			self.recovered = r.(error)
+			t.recovered = r.(error)
 		}
 	}()
 
-	self.tester.TestAll(self.packages)
-	for _, p := range self.packages {
-		self.results = append(self.results, p.Output)
+	t.tester.TestAll(t.packages)
+	for _, p := range t.packages {
+		t.results = append(t.results, p.Output)
 	}
-	self.executions = self.shell.Executions()
+	t.executions = t.shell.Executions()
 }
 
-func (self *TesterFixture) ShouldHaveRecordOfExecutionCommands() {
+func (t *TesterFixture) ShouldHaveRecordOfExecutionCommands() {
 	executed := []string{"a", "b", "c", "d", "f"}
 	ignored := "e"
 	importCycle := "g"
 	actual := []string{}
-	for _, pkg := range self.executions {
+	for _, pkg := range t.executions {
 		actual = append(actual, pkg.Command)
 	}
 	So(actual, ShouldResemble, executed)
@@ -137,12 +137,12 @@ func (self *TesterFixture) ShouldHaveRecordOfExecutionCommands() {
 	So(actual, ShouldNotContain, importCycle)
 }
 
-func (self *TesterFixture) ShouldHaveOneOutputPerInput() {
-	So(len(self.results), ShouldEqual, len(self.packages))
+func (t *TesterFixture) ShouldHaveOneOutputPerInput() {
+	So(len(t.results), ShouldEqual, len(t.packages))
 }
 
-func (self *TesterFixture) OutputShouldBeAsExpected() {
-	for _, p := range self.packages {
+func (t *TesterFixture) OutputShouldBeAsExpected() {
+	for _, p := range t.packages {
 		if p.HasImportCycle {
 			So(p.Output, ShouldContainSubstring, "can't load package: import cycle not allowed")
 			So(p.Error.Error(), ShouldContainSubstring, "can't load package: import cycle not allowed")
@@ -157,23 +157,23 @@ func (self *TesterFixture) OutputShouldBeAsExpected() {
 	}
 }
 
-func (self *TesterFixture) TestsShouldHaveRunContiguously() {
-	self.OutputShouldBeAsExpected()
+func (t *TesterFixture) TestsShouldHaveRunContiguously() {
+	t.OutputShouldBeAsExpected()
 
-	So(self.shell.MaxConcurrentCommands(), ShouldEqual, 1)
+	So(t.shell.MaxConcurrentCommands(), ShouldEqual, 1)
 
-	for i := 0; i < len(self.executions)-1; i++ {
-		current := self.executions[i]
-		next := self.executions[i+1]
+	for i := 0; i < len(t.executions)-1; i++ {
+		current := t.executions[i]
+		next := t.executions[i+1]
 		So(current.Started, ShouldHappenBefore, next.Started)
 		So(current.Ended, ShouldHappenOnOrBefore, next.Started)
 	}
 }
 
-func (self *TesterFixture) TestsShouldHaveRunInBatchesOfTwo() {
-	self.OutputShouldBeAsExpected()
+func (t *TesterFixture) TestsShouldHaveRunInBatchesOfTwo() {
+	t.OutputShouldBeAsExpected()
 
-	So(self.shell.MaxConcurrentCommands(), ShouldEqual, concurrentBatchSize)
+	So(t.shell.MaxConcurrentCommands(), ShouldEqual, concurrentBatchSize)
 }
 
 /**** Fakes ****/
@@ -190,16 +190,16 @@ type TimedShell struct {
 	err          error
 }
 
-func (self *TimedShell) Executions() []*ShellCommand {
-	return self.executions
+func (t *TimedShell) Executions() []*ShellCommand {
+	return t.executions
 }
 
-func (self *TimedShell) MaxConcurrentCommands() int {
+func (t *TimedShell) MaxConcurrentCommands() int {
 	var concurrent int
 
-	for x, current := range self.executions {
+	for x, current := range t.executions {
 		concurrentWith_x := 1
-		for y, comparison := range self.executions {
+		for y, comparison := range t.executions {
 			if y == x {
 				continue
 			} else if concurrentWith(current, comparison) {
@@ -218,26 +218,26 @@ func concurrentWith(current, comparison *ShellCommand) bool {
 		(comparison.Started.Before(current.Ended)))
 }
 
-func (self *TimedShell) setTripWire(message string) {
-	self.panicMessage = message
+func (t *TimedShell) setTripWire(message string) {
+	t.panicMessage = message
 }
 
-func (self *TimedShell) setExitWithError() {
-	self.err = errors.New("Simulate test failure")
+func (t *TimedShell) setExitWithError() {
+	t.err = errors.New("Simulate test failure")
 }
 
-func (self *TimedShell) GoTest(directory, packageName string, arguments, tags []string) (output string, err error) {
-	if self.panicMessage != "" {
-		return "", errors.New(self.panicMessage)
+func (t *TimedShell) GoTest(directory, packageName string, arguments, tags []string) (output string, err error) {
+	if t.panicMessage != "" {
+		return "", errors.New(t.panicMessage)
 	}
 
 	output = directory
-	err = self.err
-	self.executions = append(self.executions, self.composeCommand(directory))
+	err = t.err
+	t.executions = append(t.executions, t.composeCommand(directory))
 	return
 }
 
-func (self *TimedShell) composeCommand(commandText string) *ShellCommand {
+func (t *TimedShell) composeCommand(commandText string) *ShellCommand {
 	start := time.Now()
 	time.Sleep(nap)
 	end := time.Now()

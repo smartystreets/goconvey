@@ -267,44 +267,44 @@ type fakeReporter struct {
 	calls []string
 }
 
-func (self *fakeReporter) BeginStory(story *reporting.StoryReport) {
-	self.calls = append(self.calls, "Begin")
+func (f *fakeReporter) BeginStory(story *reporting.StoryReport) {
+	f.calls = append(f.calls, "Begin")
 }
 
-func (self *fakeReporter) Enter(scope *reporting.ScopeReport) {
-	self.calls = append(self.calls, scope.Title)
+func (f *fakeReporter) Enter(scope *reporting.ScopeReport) {
+	f.calls = append(f.calls, scope.Title)
 }
 
-func (self *fakeReporter) Report(report *reporting.AssertionResult) {
+func (f *fakeReporter) Report(report *reporting.AssertionResult) {
 	if report.Error != nil {
-		self.calls = append(self.calls, "Error")
+		f.calls = append(f.calls, "Error")
 	} else if report.Failure != "" {
 		message := "Failure"
 		if report.Expected != "" || report.Actual != "" {
 			message += fmt.Sprintf("(%s/%s)", report.Expected, report.Actual)
 		}
-		self.calls = append(self.calls, message)
+		f.calls = append(f.calls, message)
 	} else if report.Skipped {
-		self.calls = append(self.calls, "Skipped")
+		f.calls = append(f.calls, "Skipped")
 	} else {
-		self.calls = append(self.calls, "Success")
+		f.calls = append(f.calls, "Success")
 	}
 }
 
-func (self *fakeReporter) Exit() {
-	self.calls = append(self.calls, "Exit")
+func (f *fakeReporter) Exit() {
+	f.calls = append(f.calls, "Exit")
 }
 
-func (self *fakeReporter) EndStory() {
-	self.calls = append(self.calls, "End")
+func (f *fakeReporter) EndStory() {
+	f.calls = append(f.calls, "End")
 }
 
-func (self *fakeReporter) Write(content []byte) (int, error) {
+func (f *fakeReporter) Write(content []byte) (int, error) {
 	return len(content), nil // no-op
 }
 
-func (self *fakeReporter) wholeStory() string {
-	return strings.Join(self.calls, "|")
+func (f *fakeReporter) wholeStory() string {
+	return strings.Join(f.calls, "|")
 }
 
 ////////////////////////////////

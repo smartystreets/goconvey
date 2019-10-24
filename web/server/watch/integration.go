@@ -43,91 +43,91 @@ func NewWatcher(rootFolder string, folderDepth int, nap time.Duration,
 	}
 }
 
-func (this *Watcher) Listen() {
+func (w *Watcher) Listen() {
 	for {
-		if this.stopped {
+		if w.stopped {
 			return
 		}
 
 		select {
 
-		case command := <-this.input:
-			this.respond(command)
+		case command := <-w.input:
+			w.respond(command)
 
 		default:
-			if !this.paused {
-				this.scan()
+			if !w.paused {
+				w.scan()
 			}
-			time.Sleep(this.nap)
+			time.Sleep(w.nap)
 		}
 	}
 }
 
-func (this *Watcher) respond(command messaging.WatcherCommand) {
+func (w *Watcher) respond(command messaging.WatcherCommand) {
 	switch command.Instruction {
 
 	case messaging.WatcherAdjustRoot:
 		log.Println("Adjusting root...")
-		this.rootFolder = command.Details
-		this.execute()
+		w.rootFolder = command.Details
+		w.execute()
 
 	case messaging.WatcherIgnore:
 		log.Println("Ignoring specified folders")
-		this.ignore(command.Details)
+		w.ignore(command.Details)
 		// Prevent a filesystem change due to the number of active folders changing
-		_, checksum := this.gather()
-		this.set(checksum)
+		_, checksum := w.gather()
+		w.set(checksum)
 
 	case messaging.WatcherReinstate:
 		log.Println("Reinstating specified folders")
-		this.reinstate(command.Details)
+		w.reinstate(command.Details)
 		// Prevent a filesystem change due to the number of active folders changing
-		_, checksum := this.gather()
-		this.set(checksum)
+		_, checksum := w.gather()
+		w.set(checksum)
 
 	case messaging.WatcherPause:
 		log.Println("Pausing watcher...")
-		this.paused = true
+		w.paused = true
 
 	case messaging.WatcherResume:
 		log.Println("Resuming watcher...")
-		this.paused = false
+		w.paused = false
 
 	case messaging.WatcherExecute:
 		log.Println("Gathering folders for immediate execution...")
-		this.execute()
+		w.execute()
 
 	case messaging.WatcherStop:
 		log.Println("Stopping the watcher...")
-		close(this.output)
-		this.stopped = true
+		close(w.output)
+		w.stopped = true
 
 	default:
 		log.Println("Unrecognized command from server:", command.Instruction)
 	}
 }
 
-func (this *Watcher) execute() {
-	folders, _ := this.gather()
-	this.sendToExecutor(folders)
+func (w *Watcher) execute() {
+	folders, _ := w.gather()
+	w.sendToExecutor(folders)
 }
 
-func (this *Watcher) scan() {
-	folders, checksum := this.gather()
+func (w *Watcher) scan() {
+	folders, checksum := w.gather()
 
-	if checksum == this.fileSystemState {
+	if checksum == w.fileSystemState {
 		return
 	}
 
-	log.Println("File system state modified, publishing current folders...", this.fileSystemState, checksum)
+	log.Println("File system state modified, publishing current folders...", w.fileSystemState, checksum)
 
-	defer this.set(checksum)
-	this.sendToExecutor(folders)
+	defer w.set(checksum)
+	w.sendToExecutor(folders)
 }
 
-func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
-	items := YieldFileSystemItems(this.rootFolder, this.excludedDirs)
-	folderItems, profileItems, goFileItems := Categorize(items, this.rootFolder, this.watchSuffixes)
+func (w *Watcher) gather() (folders messaging.Folders, checksum int64) {
+	items := YieldFileSystemItems(w.rootFolder, w.excludedDirs)
+	folderItems, profileItems, goFileItems := Categorize(items, w.rootFolder, w.watchSuffixes)
 
 	for _, item := range profileItems {
 		// TODO: don't even bother if the item's size is over a few hundred bytes...
@@ -136,9 +136,9 @@ func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	}
 
 	folders = CreateFolders(folderItems)
-	LimitDepth(folders, this.folderDepth)
+	LimitDepth(folders, w.folderDepth)
 	AttachProfiles(folders, profileItems)
-	this.protectedRead(func() { MarkIgnored(folders, this.ignoredFolders) })
+	w.protectedRead(func() { MarkIgnored(folders, w.ignoredFolders) })
 
 	active := ActiveFolders(folders)
 	checksum = int64(len(active))
@@ -148,36 +148,36 @@ func (this *Watcher) gather() (folders messaging.Folders, checksum int64) {
 	return folders, checksum
 }
 
-func (this *Watcher) set(state int64) {
-	this.fileSystemState = state
+func (w *Watcher) set(state int64) {
+	w.fileSystemState = state
 }
 
-func (this *Watcher) sendToExecutor(folders messaging.Folders) {
-	this.output <- folders
+func (w *Watcher) sendToExecutor(folders messaging.Folders) {
+	w.output <- folders
 }
 
-func (this *Watcher) ignore(paths string) {
-	this.protectedWrite(func() {
+func (w *Watcher) ignore(paths string) {
+	w.protectedWrite(func() {
 		for _, folder := range strings.Split(paths, string(os.PathListSeparator)) {
-			this.ignoredFolders[folder] = struct{}{}
-			log.Println("Currently ignored folders:", this.ignoredFolders)
+			w.ignoredFolders[folder] = struct{}{}
+			log.Println("Currently ignored folders:", w.ignoredFolders)
 		}
 	})
 }
-func (this *Watcher) reinstate(paths string) {
-	this.protectedWrite(func() {
+func (w *Watcher) reinstate(paths string) {
+	w.protectedWrite(func() {
 		for _, folder := range strings.Split(paths, string(os.PathListSeparator)) {
-			delete(this.ignoredFolders, folder)
+			delete(w.ignoredFolders, folder)
 		}
 	})
 }
-func (this *Watcher) protectedWrite(protected func()) {
-	this.lock.Lock()
-	defer this.lock.Unlock()
+func (w *Watcher) protectedWrite(protected func()) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
 	protected()
 }
-func (this *Watcher) protectedRead(protected func()) {
-	this.lock.RLock()
-	defer this.lock.RUnlock()
+func (w *Watcher) protectedRead(protected func()) {
+	w.lock.RLock()
+	defer w.lock.RUnlock()
 	protected()
 }

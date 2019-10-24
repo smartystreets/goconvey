@@ -7,7 +7,7 @@ import (
 
 type console struct{}
 
-func (self *console) Write(p []byte) (n int, err error) {
+func (c *console) Write(p []byte) (n int, err error) {
 	return fmt.Print(string(p))
 }
 

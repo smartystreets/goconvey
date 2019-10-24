@@ -73,22 +73,22 @@ func newFakeReporter() *fakeReporter {
 	return &fakeReporter{}
 }
 
-func (self *fakeReporter) BeginStory(story *StoryReport) {
-	self.begun = true
+func (f *fakeReporter) BeginStory(story *StoryReport) {
+	f.begun = true
 }
-func (self *fakeReporter) Enter(scope *ScopeReport) {
-	self.entered = true
+func (f *fakeReporter) Enter(scope *ScopeReport) {
+	f.entered = true
 }
-func (self *fakeReporter) Report(report *AssertionResult) {
-	self.reported = true
+func (f *fakeReporter) Report(report *AssertionResult) {
+	f.reported = true
 }
-func (self *fakeReporter) Exit() {
-	self.exited = true
+func (f *fakeReporter) Exit() {
+	f.exited = true
 }
-func (self *fakeReporter) EndStory() {
-	self.ended = true
+func (f *fakeReporter) EndStory() {
+	f.ended = true
 }
-func (self *fakeReporter) Write(content []byte) (int, error) {
-	self.written = true
+func (f *fakeReporter) Write(content []byte) (int, error) {
+	f.written = true
 	return len(content), nil
 }

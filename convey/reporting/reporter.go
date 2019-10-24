@@ -13,21 +13,21 @@ type Reporter interface {
 
 type reporters struct{ collection []Reporter }
 
-func (self *reporters) BeginStory(s *StoryReport) { self.foreach(func(r Reporter) { r.BeginStory(s) }) }
-func (self *reporters) Enter(s *ScopeReport)      { self.foreach(func(r Reporter) { r.Enter(s) }) }
-func (self *reporters) Report(a *AssertionResult) { self.foreach(func(r Reporter) { r.Report(a) }) }
-func (self *reporters) Exit()                     { self.foreach(func(r Reporter) { r.Exit() }) }
-func (self *reporters) EndStory()                 { self.foreach(func(r Reporter) { r.EndStory() }) }
+func (r *reporters) BeginStory(s *StoryReport) { r.foreach(func(r Reporter) { r.BeginStory(s) }) }
+func (r *reporters) Enter(s *ScopeReport)      { r.foreach(func(r Reporter) { r.Enter(s) }) }
+func (r *reporters) Report(a *AssertionResult) { r.foreach(func(r Reporter) { r.Report(a) }) }
+func (r *reporters) Exit()                     { r.foreach(func(r Reporter) { r.Exit() }) }
+func (r *reporters) EndStory()                 { r.foreach(func(r Reporter) { r.EndStory() }) }
 
-func (self *reporters) Write(contents []byte) (written int, err error) {
-	self.foreach(func(r Reporter) {
+func (r *reporters) Write(contents []byte) (written int, err error) {
+	r.foreach(func(r Reporter) {
 		written, err = r.Write(contents)
 	})
 	return written, err
 }
 
-func (self *reporters) foreach(action func(Reporter)) {
-	for _, r := range self.collection {
+func (r *reporters) foreach(action func(Reporter)) {
+	for _, r := range r.collection {
 		action(r)
 	}
 }

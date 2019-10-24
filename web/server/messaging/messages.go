@@ -9,8 +9,8 @@ type WatcherCommand struct {
 
 type WatcherInstruction int
 
-func (this WatcherInstruction) String() string {
-	switch this {
+func (w WatcherInstruction) String() string {
+	switch w {
 	case WatcherPause:
 		return "Pause"
 	case WatcherResume:

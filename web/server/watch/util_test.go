@@ -87,6 +87,6 @@ type CustomError struct {
 }
 
 // Returns the error message defined in Message as a string
-func (this *CustomError) Error() string {
-	return this.Message
+func (c *CustomError) Error() string {
+	return c.Message
 }

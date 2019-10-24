@@ -32,12 +32,12 @@ func NewPackage(folder *messaging.Folder, name string, hasImportCycle bool) *Pac
 	return self
 }
 
-func (self *Package) Active() bool {
-	return !self.Disabled && !self.Ignored
+func (p *Package) Active() bool {
+	return !p.Disabled && !p.Ignored
 }
 
-func (self *Package) HasUsableResult() bool {
-	return self.Active() && (self.Error == nil || (self.Output != ""))
+func (p *Package) HasUsableResult() bool {
+	return p.Active() && (p.Error == nil || (p.Output != ""))
 }
 
 type CompleteOutput struct {

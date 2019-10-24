@@ -5,81 +5,81 @@ import (
 	"sync"
 )
 
-func (self *statistics) BeginStory(story *StoryReport) {}
+func (s *statistics) BeginStory(story *StoryReport) {}
 
-func (self *statistics) Enter(scope *ScopeReport) {}
+func (s *statistics) Enter(scope *ScopeReport) {}
 
-func (self *statistics) Report(report *AssertionResult) {
-	self.Lock()
-	defer self.Unlock()
+func (s *statistics) Report(report *AssertionResult) {
+	s.Lock()
+	defer s.Unlock()
 
-	if !self.failing && report.Failure != "" {
-		self.failing = true
+	if !s.failing && report.Failure != "" {
+		s.failing = true
 	}
-	if !self.erroring && report.Error != nil {
-		self.erroring = true
+	if !s.erroring && report.Error != nil {
+		s.erroring = true
 	}
 	if report.Skipped {
-		self.skipped += 1
+		s.skipped += 1
 	} else {
-		self.total++
+		s.total++
 	}
 }
 
-func (self *statistics) Exit() {}
+func (s *statistics) Exit() {}
 
-func (self *statistics) EndStory() {
-	self.Lock()
-	defer self.Unlock()
+func (s *statistics) EndStory() {
+	s.Lock()
+	defer s.Unlock()
 
-	if !self.suppressed {
-		self.printSummaryLocked()
+	if !s.suppressed {
+		s.printSummaryLocked()
 	}
 }
 
-func (self *statistics) Suppress() {
-	self.Lock()
-	defer self.Unlock()
-	self.suppressed = true
+func (s *statistics) Suppress() {
+	s.Lock()
+	defer s.Unlock()
+	s.suppressed = true
 }
 
-func (self *statistics) PrintSummary() {
-	self.Lock()
-	defer self.Unlock()
-	self.printSummaryLocked()
+func (s *statistics) PrintSummary() {
+	s.Lock()
+	defer s.Unlock()
+	s.printSummaryLocked()
 }
 
-func (self *statistics) printSummaryLocked() {
-	self.reportAssertionsLocked()
-	self.reportSkippedSectionsLocked()
-	self.completeReportLocked()
+func (s *statistics) printSummaryLocked() {
+	s.reportAssertionsLocked()
+	s.reportSkippedSectionsLocked()
+	s.completeReportLocked()
 }
-func (self *statistics) reportAssertionsLocked() {
-	self.decideColorLocked()
-	self.out.Print("\n%d total %s", self.total, plural("assertion", self.total))
+func (s *statistics) reportAssertionsLocked() {
+	s.decideColorLocked()
+	s.out.Print("\n%d total %s", s.total, plural("assertion", s.total))
 }
-func (self *statistics) decideColorLocked() {
-	if self.failing && !self.erroring {
+func (s *statistics) decideColorLocked() {
+	if s.failing && !s.erroring {
 		fmt.Print(yellowColor)
-	} else if self.erroring {
+	} else if s.erroring {
 		fmt.Print(redColor)
 	} else {
 		fmt.Print(greenColor)
 	}
 }
-func (self *statistics) reportSkippedSectionsLocked() {
-	if self.skipped > 0 {
+func (s *statistics) reportSkippedSectionsLocked() {
+	if s.skipped > 0 {
 		fmt.Print(yellowColor)
-		self.out.Print(" (one or more sections skipped)")
+		s.out.Print(" (one or more sections skipped)")
 	}
 }
-func (self *statistics) completeReportLocked() {
+func (s *statistics) completeReportLocked() {
 	fmt.Print(resetColor)
-	self.out.Print("\n")
-	self.out.Print("\n")
+	s.out.Print("\n")
+	s.out.Print("\n")
 }
 
-func (self *statistics) Write(content []byte) (written int, err error) {
+func (s *statistics) Write(content []byte) (written int, err error) {
 	return len(content), nil // no-op
 }
 

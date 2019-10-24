@@ -56,24 +56,24 @@ type ExecutorFixture struct {
 	stamp    time.Time
 }
 
-func (self *ExecutorFixture) ExecuteTests() {
-	self.result = self.executor.ExecuteTests(self.folders)
+func (e *ExecutorFixture) ExecuteTests() {
+	e.result = e.executor.ExecuteTests(e.folders)
 }
 
-func (self *ExecutorFixture) CaptureStatusDuringExecutionPhase() string {
+func (e *ExecutorFixture) CaptureStatusDuringExecutionPhase() string {
 	nap, _ := time.ParseDuration("25ms")
-	self.tester.addDelay(nap)
-	return self.delayedExecution(nap)
+	e.tester.addDelay(nap)
+	return e.delayedExecution(nap)
 }
 
-func (self *ExecutorFixture) delayedExecution(nap time.Duration) string {
-	go self.ExecuteTests()
+func (e *ExecutorFixture) delayedExecution(nap time.Duration) string {
+	go e.ExecuteTests()
 	time.Sleep(nap)
-	return self.executor.Status()
+	return e.executor.Status()
 }
 
-func (self *ExecutorFixture) ResultShouldBePopulated() {
-	So(self.result, ShouldResemble, self.expected)
+func (e *ExecutorFixture) ResultShouldBePopulated() {
+	So(e.result, ShouldResemble, e.expected)
 }
 
 var (
@@ -112,15 +112,15 @@ type FakeTester struct {
 	nap time.Duration
 }
 
-func (self *FakeTester) SetBatchSize(batchSize int) { panic("NOT SUPPORTED") }
-func (self *FakeTester) TestAll(folders []*contract.Package) {
+func (f *FakeTester) SetBatchSize(batchSize int) { panic("NOT SUPPORTED") }
+func (f *FakeTester) TestAll(folders []*contract.Package) {
 	for _, p := range folders {
 		p.Output = p.Path
 	}
-	time.Sleep(self.nap)
+	time.Sleep(f.nap)
 }
-func (self *FakeTester) addDelay(nap time.Duration) {
-	self.nap = nap
+func (f *FakeTester) addDelay(nap time.Duration) {
+	f.nap = nap
 }
 
 func newFakeTester() *FakeTester {
@@ -136,8 +136,8 @@ type FakeParser struct {
 	nap time.Duration
 }
 
-func (self *FakeParser) Parse(packages []*contract.Package) {
-	time.Sleep(self.nap)
+func (f *FakeParser) Parse(packages []*contract.Package) {
+	time.Sleep(f.nap)
 	for _, package_ := range packages {
 		if package_.Name == packageA && strings.HasSuffix(package_.Output, packageA) {
 			package_.Result = resultA
@@ -148,8 +148,8 @@ func (self *FakeParser) Parse(packages []*contract.Package) {
 	}
 }
 
-func (self *FakeParser) addDelay(nap time.Duration) {
-	self.nap = nap
+func (f *FakeParser) addDelay(nap time.Duration) {
+	f.nap = nap
 }
 
 func newFakeParser() *FakeParser {

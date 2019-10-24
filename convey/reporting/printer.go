@@ -11,41 +11,41 @@ type Printer struct {
 	prefix string
 }
 
-func (self *Printer) Println(message string, values ...interface{}) {
-	formatted := self.format(message, values...) + newline
-	self.out.Write([]byte(formatted))
+func (p *Printer) Println(message string, values ...interface{}) {
+	formatted := p.format(message, values...) + newline
+	p.out.Write([]byte(formatted))
 }
 
-func (self *Printer) Print(message string, values ...interface{}) {
-	formatted := self.format(message, values...)
-	self.out.Write([]byte(formatted))
+func (p *Printer) Print(message string, values ...interface{}) {
+	formatted := p.format(message, values...)
+	p.out.Write([]byte(formatted))
 }
 
-func (self *Printer) Insert(text string) {
-	self.out.Write([]byte(text))
+func (p *Printer) Insert(text string) {
+	p.out.Write([]byte(text))
 }
 
-func (self *Printer) format(message string, values ...interface{}) string {
+func (p *Printer) format(message string, values ...interface{}) string {
 	var formatted string
 	if len(values) == 0 {
-		formatted = self.prefix + message
+		formatted = p.prefix + message
 	} else {
-		formatted = self.prefix + fmt_Sprintf(message, values...)
+		formatted = p.prefix + fmt_Sprintf(message, values...)
 	}
-	indented := strings.Replace(formatted, newline, newline+self.prefix, -1)
+	indented := strings.Replace(formatted, newline, newline+p.prefix, -1)
 	return strings.TrimRight(indented, space)
 }
 
 // Extracting fmt.Sprintf to a separate variable circumvents go vet, which, as of go 1.10 is run with go test.
 var fmt_Sprintf = fmt.Sprintf
 
-func (self *Printer) Indent() {
-	self.prefix += pad
+func (p *Printer) Indent() {
+	p.prefix += pad
 }
 
-func (self *Printer) Dedent() {
-	if len(self.prefix) >= padLength {
-		self.prefix = self.prefix[:len(self.prefix)-padLength]
+func (p *Printer) Dedent() {
+	if len(p.prefix) >= padLength {
+		p.prefix = p.prefix[:len(p.prefix)-padLength]
 	}
 }
 

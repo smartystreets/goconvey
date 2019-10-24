@@ -14,21 +14,21 @@ type ConcurrentTester struct {
 	batchSize int
 }
 
-func (self *ConcurrentTester) SetBatchSize(batchSize int) {
-	self.batchSize = batchSize
-	log.Printf("Now configured to test %d packages concurrently.\n", self.batchSize)
+func (c *ConcurrentTester) SetBatchSize(batchSize int) {
+	c.batchSize = batchSize
+	log.Printf("Now configured to test %d packages concurrently.\n", c.batchSize)
 }
 
-func (self *ConcurrentTester) TestAll(folders []*contract.Package) {
-	if self.batchSize == 1 {
-		self.executeSynchronously(folders)
+func (c *ConcurrentTester) TestAll(folders []*contract.Package) {
+	if c.batchSize == 1 {
+		c.executeSynchronously(folders)
 	} else {
-		newConcurrentCoordinator(folders, self.batchSize, self.shell).ExecuteConcurrently()
+		newConcurrentCoordinator(folders, c.batchSize, c.shell).ExecuteConcurrently()
 	}
 	return
 }
 
-func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) {
+func (c *ConcurrentTester) executeSynchronously(folders []*contract.Package) {
 	for _, folder := range folders {
 		packageName := strings.Replace(folder.Name, "\\", "/", -1)
 		if !folder.Active() {
@@ -41,7 +41,7 @@ func (self *ConcurrentTester) executeSynchronously(folders []*contract.Package) 
 			folder.Output, folder.Error = message, errors.New(message)
 		} else {
 			log.Printf("Executing tests: %s\n", packageName)
-			folder.Output, folder.Error = self.shell.GoTest(folder.Path, packageName, folder.BuildTags, folder.TestArguments)
+			folder.Output, folder.Error = c.shell.GoTest(folder.Path, packageName, folder.BuildTags, folder.TestArguments)
 		}
 	}
 }

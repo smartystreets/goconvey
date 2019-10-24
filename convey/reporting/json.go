@@ -17,55 +17,55 @@ type JsonReporter struct {
 	scopes     []*ScopeResult
 }
 
-func (self *JsonReporter) depth() int { return len(self.currentKey) }
+func (j *JsonReporter) depth() int { return len(j.currentKey) }
 
-func (self *JsonReporter) BeginStory(story *StoryReport) {}
+func (j *JsonReporter) BeginStory(story *StoryReport) {}
 
-func (self *JsonReporter) Enter(scope *ScopeReport) {
-	self.currentKey = append(self.currentKey, scope.Title)
-	ID := strings.Join(self.currentKey, "|")
-	if _, found := self.index[ID]; !found {
-		next := newScopeResult(scope.Title, self.depth(), scope.File, scope.Line)
-		self.scopes = append(self.scopes, next)
-		self.index[ID] = next
+func (j *JsonReporter) Enter(scope *ScopeReport) {
+	j.currentKey = append(j.currentKey, scope.Title)
+	ID := strings.Join(j.currentKey, "|")
+	if _, found := j.index[ID]; !found {
+		next := newScopeResult(scope.Title, j.depth(), scope.File, scope.Line)
+		j.scopes = append(j.scopes, next)
+		j.index[ID] = next
 	}
-	self.current = self.index[ID]
+	j.current = j.index[ID]
 }
 
-func (self *JsonReporter) Report(report *AssertionResult) {
-	self.current.Assertions = append(self.current.Assertions, report)
+func (j *JsonReporter) Report(report *AssertionResult) {
+	j.current.Assertions = append(j.current.Assertions, report)
 }
 
-func (self *JsonReporter) Exit() {
-	self.currentKey = self.currentKey[:len(self.currentKey)-1]
+func (j *JsonReporter) Exit() {
+	j.currentKey = j.currentKey[:len(j.currentKey)-1]
 }
 
-func (self *JsonReporter) EndStory() {
-	self.report()
-	self.reset()
+func (j *JsonReporter) EndStory() {
+	j.report()
+	j.reset()
 }
-func (self *JsonReporter) report() {
+func (j *JsonReporter) report() {
 	scopes := []string{}
-	for _, scope := range self.scopes {
+	for _, scope := range j.scopes {
 		serialized, err := json.Marshal(scope)
 		if err != nil {
-			self.out.Println(jsonMarshalFailure)
+			j.out.Println(jsonMarshalFailure)
 			panic(err)
 		}
 		var buffer bytes.Buffer
 		json.Indent(&buffer, serialized, "", "  ")
 		scopes = append(scopes, buffer.String())
 	}
-	self.out.Print(fmt.Sprintf("%s\n%s,\n%s\n", OpenJson, strings.Join(scopes, ","), CloseJson))
+	j.out.Print(fmt.Sprintf("%s\n%s,\n%s\n", OpenJson, strings.Join(scopes, ","), CloseJson))
 }
-func (self *JsonReporter) reset() {
-	self.scopes = []*ScopeResult{}
-	self.index = map[string]*ScopeResult{}
-	self.currentKey = nil
+func (j *JsonReporter) reset() {
+	j.scopes = []*ScopeResult{}
+	j.index = map[string]*ScopeResult{}
+	j.currentKey = nil
 }
 
-func (self *JsonReporter) Write(content []byte) (written int, err error) {
-	self.current.Output += string(content)
+func (j *JsonReporter) Write(content []byte) (written int, err error) {
+	j.current.Output += string(content)
 	return len(content), nil
 }
 

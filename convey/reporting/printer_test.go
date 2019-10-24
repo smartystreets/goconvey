@@ -167,13 +167,13 @@ type memoryFile struct {
 	buffer string
 }
 
-func (self *memoryFile) Write(p []byte) (n int, err error) {
-	self.buffer += string(p)
+func (m *memoryFile) Write(p []byte) (n int, err error) {
+	m.buffer += string(p)
 	return len(p), nil
 }
 
-func (self *memoryFile) String() string {
-	return self.buffer
+func (m *memoryFile) String() string {
+	return m.buffer
 }
 
 func newMemoryFile() *memoryFile {

@@ -9,55 +9,55 @@ type problem struct {
 	failures []*AssertionResult
 }
 
-func (self *problem) BeginStory(story *StoryReport) {}
+func (p *problem) BeginStory(story *StoryReport) {}
 
-func (self *problem) Enter(scope *ScopeReport) {}
+func (p *problem) Enter(scope *ScopeReport) {}
 
-func (self *problem) Report(report *AssertionResult) {
+func (p *problem) Report(report *AssertionResult) {
 	if report.Error != nil {
-		self.errors = append(self.errors, report)
+		p.errors = append(p.errors, report)
 	} else if report.Failure != "" {
-		self.failures = append(self.failures, report)
+		p.failures = append(p.failures, report)
 	}
 }
 
-func (self *problem) Exit() {}
+func (p *problem) Exit() {}
 
-func (self *problem) EndStory() {
-	self.show(self.showErrors, redColor)
-	self.show(self.showFailures, yellowColor)
-	self.prepareForNextStory()
+func (p *problem) EndStory() {
+	p.show(p.showErrors, redColor)
+	p.show(p.showFailures, yellowColor)
+	p.prepareForNextStory()
 }
-func (self *problem) show(display func(), color string) {
-	if !self.silent {
+func (p *problem) show(display func(), color string) {
+	if !p.silent {
 		fmt.Print(color)
 	}
 	display()
-	if !self.silent {
+	if !p.silent {
 		fmt.Print(resetColor)
 	}
-	self.out.Dedent()
+	p.out.Dedent()
 }
-func (self *problem) showErrors() {
-	for i, e := range self.errors {
+func (p *problem) showErrors() {
+	for i, e := range p.errors {
 		if i == 0 {
-			self.out.Println("\nErrors:\n")
-			self.out.Indent()
+			p.out.Println("\nErrors:\n")
+			p.out.Indent()
 		}
-		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.StackTrace)
+		p.out.Println(errorTemplate, e.File, e.Line, e.Error, e.StackTrace)
 	}
 }
-func (self *problem) showFailures() {
-	for i, f := range self.failures {
+func (p *problem) showFailures() {
+	for i, f := range p.failures {
 		if i == 0 {
-			self.out.Println("\nFailures:\n")
-			self.out.Indent()
+			p.out.Println("\nFailures:\n")
+			p.out.Indent()
 		}
-		self.out.Println(failureTemplate, f.File, f.Line, f.Failure, f.StackTrace)
+		p.out.Println(failureTemplate, f.File, f.Line, f.Failure, f.StackTrace)
 	}
 }
 
-func (self *problem) Write(content []byte) (written int, err error) {
+func (p *problem) Write(content []byte) (written int, err error) {
 	return len(content), nil // no-op
 }
 
@@ -74,7 +74,7 @@ func NewSilentProblemReporter(out *Printer) *problem {
 	return self
 }
 
-func (self *problem) prepareForNextStory() {
-	self.errors = []*AssertionResult{}
-	self.failures = []*AssertionResult{}
+func (p *problem) prepareForNextStory() {
+	p.errors = []*AssertionResult{}
+	p.failures = []*AssertionResult{}
 }

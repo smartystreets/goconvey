@@ -18,50 +18,50 @@ type story struct {
 	currentKey []string
 }
 
-func (self *story) BeginStory(story *StoryReport) {}
+func (s *story) BeginStory(story *StoryReport) {}
 
-func (self *story) Enter(scope *ScopeReport) {
-	self.out.Indent()
+func (s *story) Enter(scope *ScopeReport) {
+	s.out.Indent()
 
-	self.currentKey = append(self.currentKey, scope.Title)
-	ID := strings.Join(self.currentKey, "|")
+	s.currentKey = append(s.currentKey, scope.Title)
+	ID := strings.Join(s.currentKey, "|")
 
-	if _, found := self.titlesById[ID]; !found {
-		self.out.Println("")
-		self.out.Print(scope.Title)
-		self.out.Insert(" ")
-		self.titlesById[ID] = scope.Title
+	if _, found := s.titlesById[ID]; !found {
+		s.out.Println("")
+		s.out.Print(scope.Title)
+		s.out.Insert(" ")
+		s.titlesById[ID] = scope.Title
 	}
 }
 
-func (self *story) Report(report *AssertionResult) {
+func (s *story) Report(report *AssertionResult) {
 	if report.Error != nil {
 		fmt.Print(redColor)
-		self.out.Insert(error_)
+		s.out.Insert(error_)
 	} else if report.Failure != "" {
 		fmt.Print(yellowColor)
-		self.out.Insert(failure)
+		s.out.Insert(failure)
 	} else if report.Skipped {
 		fmt.Print(yellowColor)
-		self.out.Insert(skip)
+		s.out.Insert(skip)
 	} else {
 		fmt.Print(greenColor)
-		self.out.Insert(success)
+		s.out.Insert(success)
 	}
 	fmt.Print(resetColor)
 }
 
-func (self *story) Exit() {
-	self.out.Dedent()
-	self.currentKey = self.currentKey[:len(self.currentKey)-1]
+func (s *story) Exit() {
+	s.out.Dedent()
+	s.currentKey = s.currentKey[:len(s.currentKey)-1]
 }
 
-func (self *story) EndStory() {
-	self.titlesById = make(map[string]string)
-	self.out.Println("\n")
+func (s *story) EndStory() {
+	s.titlesById = make(map[string]string)
+	s.out.Println("\n")
 }
 
-func (self *story) Write(content []byte) (written int, err error) {
+func (s *story) Write(content []byte) (written int, err error) {
 	return len(content), nil // no-op
 }
 
