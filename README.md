@@ -35,6 +35,8 @@ You can ask questions about how to use GoConvey on [StackOverflow](http://stacko
 Installation
 ------------
 
+*WARNING:* Goconvery currently works with go version < 1.12. See this [issue](https://github.com/smartystreets/goconvey/issues/561) for details.
+
 	$ go get github.com/smartystreets/goconvey
 
 [Quick start](https://github.com/smartystreets/goconvey/wiki#get-going-in-25-seconds)
