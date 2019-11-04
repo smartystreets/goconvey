@@ -17,7 +17,7 @@ func TestReporterReceivesFailureReport(t *testing.T) {
 	reporter := NewGoTestReporter()
 	test := new(fakeTest)
 	reporter.BeginStory(NewStoryReport(test))
-	reporter.Report(NewFailureReport("This is a failure."))
+	reporter.Report(NewFailureReport("This is a failure.", false))
 
 	if !test.failed {
 		t.Errorf("Test should have been marked as failed (but it wasn't).")

@@ -135,6 +135,10 @@ func SkipSo(stuff ...interface{}) {
 // if their assertion fails. See constants further down for acceptable values
 type FailureMode string
 
+// StackMode is a type which determines whether the So() blocks should report
+// stack traces their assertion fails. See constants further down for acceptable values
+type StackMode string
+
 const (
 
 	// FailureContinues is a failure mode which prevents failing
@@ -151,6 +155,19 @@ const (
 	// default to the failure-mode of the parent block. You should never
 	// need to specify this mode in your tests..
 	FailureInherits FailureMode = "inherits"
+
+	// StackError is a stack mode which tells Convey to print stack traces
+	// only for errors and not for test failures
+	StackError StackMode = "error"
+
+	// StackFail is a stack mode which tells Convey to print stack traces
+	// for both errors and test failures
+	StackFail StackMode = "fail"
+
+	// StackInherits is the default setting for stack-mode, it will
+	// default to the stack-mode of the parent block. You should never
+	// need to specify this mode in your tests..
+	StackInherits StackMode = "inherits"
 )
 
 func (f FailureMode) combine(other FailureMode) FailureMode {
@@ -164,13 +181,34 @@ var defaultFailureMode FailureMode = FailureHalts
 
 // SetDefaultFailureMode allows you to specify the default failure mode
 // for all Convey blocks. It is meant to be used in an init function to
-// allow the default mode to be changdd across all tests for an entire packgae
+// allow the default mode to be changed across all tests for an entire packgae
 // but it can be used anywhere.
 func SetDefaultFailureMode(mode FailureMode) {
 	if mode == FailureContinues || mode == FailureHalts {
 		defaultFailureMode = mode
 	} else {
 		panic("You may only use the constants named 'FailureContinues' and 'FailureHalts' as default failure modes.")
+	}
+}
+
+func (s StackMode) combine(other StackMode) StackMode {
+	if other == StackInherits {
+		return s
+	}
+	return other
+}
+
+var defaultStackMode StackMode = StackError
+
+// SetDefaultStackMode allows you to specify the default stack mode
+// for all Convey blocks. It is meant to be used in an init function to
+// allow the default mode to be changed across all tests for an entire packgae
+// but it can be used anywhere.
+func SetDefaultStackMode(mode StackMode) {
+	if mode == StackError || mode == StackFail {
+		defaultStackMode = mode
+	} else {
+		panic("You may only use the constants named 'StackError' and 'StackFail' as default stack modes.")
 	}
 }
 
