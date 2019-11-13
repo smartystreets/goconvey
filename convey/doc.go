@@ -24,6 +24,7 @@ type C interface {
 	FocusConvey(items ...interface{})
 
 	So(actual interface{}, assert assertion, expected ...interface{})
+	SoMsg(msg string, actual interface{}, assert assertion, expected ...interface{})
 	SkipSo(stuff ...interface{})
 
 	Reset(action func())
