@@ -1,0 +1,21 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/smartystreets/goconvey
+Upstream-Name: goconvey
+Files-Excluded:
+ Godeps/_workspace
+
+Files:
+ *
+Copyright:
+ 2013 SmartyStreets
+License: TODO
+
+Files:
+ debian/*
+Copyright:
+ 2020 Younes El-karama <TODO>
+License: TODO
+Comment: Debian packaging is licensed under the same terms as upstream
+
+License: TODO
+ TODO
