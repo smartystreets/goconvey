@@ -19,7 +19,15 @@ type Package struct {
 	HasImportCycle bool
 }
 
-func NewPackage(folder *messaging.Folder, name string, hasImportCycle bool) *Package {
+type PackageOption func(p *Package)
+
+func AppendTestArg(a string) PackageOption {
+	return func(p *Package) {
+		p.TestArguments= append(p.TestArguments, a)
+	}
+}
+
+func NewPackage(folder *messaging.Folder, name string, hasImportCycle bool,opts ...PackageOption) *Package {
 	self := new(Package)
 	self.Path = folder.Path
 	self.Name = name
@@ -29,6 +37,9 @@ func NewPackage(folder *messaging.Folder, name string, hasImportCycle bool) *Pac
 	self.BuildTags = folder.BuildTags
 	self.TestArguments = folder.TestArguments
 	self.HasImportCycle = hasImportCycle
+	for _, opt := range opts {
+		opt(self)
+	}
 	return self
 }
 
