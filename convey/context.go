@@ -79,6 +79,7 @@ type context struct {
 
 	focus       bool
 	failureMode FailureMode
+	stackMode   StackMode
 }
 
 // rootConvey is the main entry point to a test suite. This is called when
@@ -101,6 +102,7 @@ func rootConvey(items ...interface{}) {
 
 		focus:       entry.Focus,
 		failureMode: defaultFailureMode.combine(entry.FailMode),
+		stackMode:   defaultStackMode.combine(entry.StackMode),
 	}
 	ctxMgr.SetValues(gls.Values{nodeKey: ctx}, func() {
 		ctx.reporter.BeginStory(reporting.NewStoryReport(entry.Test))
@@ -154,6 +156,7 @@ func (ctx *context) Convey(items ...interface{}) {
 
 			focus:       entry.Focus,
 			failureMode: ctx.failureMode.combine(entry.FailMode),
+			stackMode:   ctx.stackMode.combine(entry.StackMode),
 		}
 		ctx.children[entry.Situation] = inner_ctx
 	}
@@ -173,7 +176,7 @@ func (ctx *context) So(actual interface{}, assert assertion, expected ...interfa
 	if result := assert(actual, expected...); result == assertionSuccess {
 		ctx.assertionReport(reporting.NewSuccessReport())
 	} else {
-		ctx.assertionReport(reporting.NewFailureReport(result))
+		ctx.assertionReport(reporting.NewFailureReport(result, ctx.shouldShowStack()))
 	}
 }
 
@@ -204,6 +207,10 @@ func (ctx *context) Printf(format string, items ...interface{}) (int, error) {
 // we may not traverse it on a subsequent pass.
 func (c *context) shouldVisit() bool {
 	return !c.complete && *c.expectChildRun
+}
+
+func (c *context) shouldShowStack() bool {
+	return c.stackMode == StackFail
 }
 
 // conveyInner is the function which actually executes the user's anonymous test
