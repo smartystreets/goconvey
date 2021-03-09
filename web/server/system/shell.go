@@ -52,10 +52,6 @@ func findGoConvey(directory, gobin, packageName, tagsArg string) Command {
 	return NewCommand(directory, gobin, "list", "-f", "'{{.TestImports}}{{.XTestImports}}'", tagsArg, packageName)
 }
 
-func compile(directory, gobin, tagsArg string) Command {
-	return NewCommand(directory, gobin, "test", "-i", tagsArg)
-}
-
 func runWithCoverage(compile, goconvey Command, coverage bool, reportPath, directory, gobin, defaultTimeout, tagsArg string, customArguments []string) Command {
 	if compile.Error != nil || goconvey.Error != nil {
 		return compile
