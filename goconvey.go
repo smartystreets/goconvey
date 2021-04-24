@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -19,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/otiai10/copy"
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/executor"
@@ -45,6 +47,7 @@ func flags() {
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched.")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory).")
 	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser.")
+	flag.BoolVar(&cleanupTmpFolder, "cleanupTemp", false, "cleanup tmp folder with reports and static web files")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -52,8 +55,64 @@ func flags() {
 func folders() {
 	_, file, _, _ := runtime.Caller(0)
 	here := filepath.Dir(file)
-	static = filepath.Join(here, "/web/client")
-	reports = filepath.Join(static, "reports")
+	localStatic := filepath.Join(here, "web", "client")
+
+	currentUser, err := user.Current()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tmpDest := filepath.Join(os.TempDir(), fmt.Sprintf("/goconvey-%v", currentUser.Uid))
+
+	mkdir := func(folder string) {
+		if err := os.MkdirAll(folder, 0700); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	cleanupAndMkdir := func(folder string) {
+		if stat, err := os.Stat(folder); err == nil && stat != nil {
+			if !stat.IsDir() {
+				if err = os.Remove(folder); err != nil {
+					log.Fatal(err)
+				}
+
+				mkdir(folder)
+			} else {
+				if cleanupTmpFolder {
+					if err = os.RemoveAll(folder); err != nil {
+						log.Fatal(err)
+					}
+
+					mkdir(folder)
+				}
+			}
+		} else {
+			if err != nil && stat == nil {
+				mkdir(folder)
+			} else {
+				log.Fatal(strings.Join([]string{
+					"Please force remove the",
+					tmpDest,
+					"folder",
+				}, " "))
+			}
+		}
+	}
+
+	tmpStaticPath := filepath.Join(tmpDest, "web", "client")
+	cleanupAndMkdir(tmpStaticPath)
+	tmpReportsPath := filepath.Join(tmpDest, "reports")
+	cleanupAndMkdir(tmpReportsPath)
+
+	if err := copy.Copy(localStatic, tmpStaticPath); err != nil {
+		log.Fatal(err)
+	}
+
+	static = tmpStaticPath
+	reports = tmpReportsPath
+	tmpDir = tmpDest
 }
 
 func main() {
@@ -160,6 +219,7 @@ func serveHTTP(server contract.Server, listener net.Listener) {
 }
 
 func serveStaticResources() {
+	http.Handle("/reports/", http.FileServer(http.Dir(tmpDir)))
 	http.Handle("/", http.FileServer(http.Dir(static)))
 }
 
@@ -275,12 +335,13 @@ var (
 	watchedSuffixes   string
 	excludedDirs      string
 	autoLaunchBrowser bool
+	cleanupTmpFolder  bool
+	static            string
+	reports           string
+	tmpDir            string
 
-	static  string
-	reports string
-
-	quarterSecond = time.Millisecond * 250
-	workDir       string
+	quarterSecond     = time.Millisecond * 250
+	workDir           string
 )
 
 const (
