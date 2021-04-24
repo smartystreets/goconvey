@@ -91,12 +91,6 @@ func folders() {
 		} else {
 			if err != nil && stat == nil {
 				mkdir(folder)
-			} else {
-				log.Fatal(strings.Join([]string{
-					"Please force remove the",
-					tmpDest,
-					"folder",
-				}, " "))
 			}
 		}
 	}
