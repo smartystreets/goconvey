@@ -20,7 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/otiai10/copy"
 	"github.com/smartystreets/goconvey/web/server/api"
 	"github.com/smartystreets/goconvey/web/server/contract"
 	"github.com/smartystreets/goconvey/web/server/executor"
@@ -63,18 +62,20 @@ func folders() {
 		log.Fatal(err)
 	}
 
-	tmpDest := filepath.Join(os.TempDir(), fmt.Sprintf("/goconvey-%v", currentUser.Uid))
+	tmpDest := filepath.Join(os.TempDir(), fmt.Sprintf("goconvey-%v", currentUser.Uid))
 
 	mkdir := func(folder string) {
 		if err := os.MkdirAll(folder, 0700); err != nil {
-			log.Fatal(err)
+			if !os.IsExist(err) {
+				log.Fatal(err)
+			}
 		}
 	}
 
 	cleanupAndMkdir := func(folder string) {
 		if stat, err := os.Stat(folder); err == nil && stat != nil {
 			if !stat.IsDir() {
-				if err = os.Remove(folder); err != nil {
+				if err = os.RemoveAll(folder); err != nil {
 					log.Fatal(err)
 				}
 
@@ -90,21 +91,19 @@ func folders() {
 			}
 		} else {
 			if err != nil && stat == nil {
-				mkdir(folder)
+				if os.IsNotExist(err) {
+					mkdir(folder)
+				} else {
+					log.Fatal(err)
+				}
 			}
 		}
 	}
 
-	tmpStaticPath := filepath.Join(tmpDest, "web", "client")
-	cleanupAndMkdir(tmpStaticPath)
 	tmpReportsPath := filepath.Join(tmpDest, "reports")
 	cleanupAndMkdir(tmpReportsPath)
 
-	if err := copy.Copy(localStatic, tmpStaticPath); err != nil {
-		log.Fatal(err)
-	}
-
-	static = tmpStaticPath
+	static = localStatic
 	reports = tmpReportsPath
 	tmpDir = tmpDest
 }
