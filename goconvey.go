@@ -75,7 +75,7 @@ func folders() {
 	cleanupAndMkdir := func(folder string) {
 		if stat, err := os.Stat(folder); err == nil && stat != nil {
 			if !stat.IsDir() {
-				if err = os.RemoveAll(folder); err != nil {
+				if err = os.Remove(folder); err != nil {
 					log.Fatal(err)
 				}
 
