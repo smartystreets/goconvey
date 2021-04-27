@@ -23,7 +23,7 @@ type C interface {
 	SkipConvey(items ...interface{})
 	FocusConvey(items ...interface{})
 
-	So(actual interface{}, assert assertion, expected ...interface{})
+	So(actual interface{}, assert Assertion, expected ...interface{})
 	SkipSo(stuff ...interface{})
 
 	Reset(action func())
@@ -104,11 +104,11 @@ func Reset(action func()) {
 
 /////////////////////////////////// Assertions ///////////////////////////////////
 
-// assertion is an alias for a function with a signature that the convey.So()
+// Assertion is an alias for a function with a signature that the convey.So()
 // method can handle. Any future or custom assertions should conform to this
 // method signature. The return value should be an empty string if the assertion
 // passes and a well-formed failure message if not.
-type assertion func(actual interface{}, expected ...interface{}) string
+type Assertion func(actual interface{}, expected ...interface{}) string
 
 const assertionSuccess = ""
 
@@ -121,7 +121,7 @@ const assertionSuccess = ""
 // documentation on specific assertion methods. A failing assertion will
 // cause t.Fail() to be invoked--you should never call this method (or other
 // failure-inducing methods) in your test code. Leave that to GoConvey.
-func So(actual interface{}, assert assertion, expected ...interface{}) {
+func So(actual interface{}, assert Assertion, expected ...interface{}) {
 	mustGetCurrentContext().So(actual, assert, expected...)
 }
 
