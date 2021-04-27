@@ -100,7 +100,7 @@ input[type=text] {
 }
 
 .overall {
-	padding: 30px 0 15px;
+	padding: 15px;
 	position: relative;
 	z-index: 50;
 }
@@ -112,7 +112,7 @@ input[type=text] {
 }
 
 .overall .status {
-	font-size: 46px;
+	font-size: 36px;
 	letter-spacing: 5px;
 	text-transform: uppercase;
 	white-space: nowrap;
