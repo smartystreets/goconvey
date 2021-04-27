@@ -177,7 +177,7 @@ func (ctx *context) So(actual interface{}, assert Assertion, expected ...interfa
 	}
 }
 
-func (ctx *context) SoMsg(msg string, actual interface{}, assert assertion, expected ...interface{}) {
+func (ctx *context) SoMsg(msg string, actual interface{}, assert Assertion, expected ...interface{}) {
 	if result := assert(actual, expected...); result == assertionSuccess {
 		ctx.assertionReport(reporting.NewSuccessReport())
 		return

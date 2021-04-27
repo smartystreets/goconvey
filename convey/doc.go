@@ -127,7 +127,7 @@ func So(actual interface{}, assert Assertion, expected ...interface{}) {
 }
 
 // SoMsg is an extension of So that allows you to specify a message to report on error.
-func SoMsg(msg string, actual interface{}, assert assertion, expected ...interface{}) {
+func SoMsg(msg string, actual interface{}, assert Assertion, expected ...interface{}) {
 	mustGetCurrentContext().SoMsg(msg, actual, assert, expected...)
 }
 
