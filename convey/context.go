@@ -169,7 +169,7 @@ func (ctx *context) SkipSo(stuff ...interface{}) {
 	ctx.assertionReport(reporting.NewSkipReport())
 }
 
-func (ctx *context) So(actual interface{}, assert assertion, expected ...interface{}) {
+func (ctx *context) So(actual interface{}, assert Assertion, expected ...interface{}) {
 	if result := assert(actual, expected...); result == assertionSuccess {
 		ctx.assertionReport(reporting.NewSuccessReport())
 	} else {
