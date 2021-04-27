@@ -24,6 +24,7 @@ type C interface {
 	FocusConvey(items ...interface{})
 
 	So(actual interface{}, assert Assertion, expected ...interface{})
+	SoMsg(msg string, actual interface{}, assert Assertion, expected ...interface{})
 	SkipSo(stuff ...interface{})
 
 	Reset(action func())
@@ -123,6 +124,11 @@ const assertionSuccess = ""
 // failure-inducing methods) in your test code. Leave that to GoConvey.
 func So(actual interface{}, assert Assertion, expected ...interface{}) {
 	mustGetCurrentContext().So(actual, assert, expected...)
+}
+
+// SoMsg is an extension of So that allows you to specify a message to report on error.
+func SoMsg(msg string, actual interface{}, assert assertion, expected ...interface{}) {
+	mustGetCurrentContext().SoMsg(msg, actual, assert, expected...)
 }
 
 // SkipSo is analogous to So except that the assertion that would have been passed
