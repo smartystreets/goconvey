@@ -19,7 +19,7 @@ func TestNoopProblemReporterActions(t *testing.T) {
 
 func TestReporterPrintsFailuresAndErrorsAtTheEndOfTheStory(t *testing.T) {
 	file, reporter := setup()
-	reporter.Report(NewFailureReport("failed"))
+	reporter.Report(NewFailureReport("failed", false))
 	reporter.Report(NewErrorReport("error"))
 	reporter.Report(NewSuccessReport())
 	reporter.EndStory()
