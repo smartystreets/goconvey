@@ -126,6 +126,9 @@ func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, 
 func extractPackages(folderList messaging.Folders) []*contract.Package {
 	packageList := []*contract.Package{}
 	for _, folder := range folderList {
+		if isInsideTestdata(folder) {
+			continue
+		}
 		hasImportCycle := testFilesImportTheirOwnPackage(folder.Path)
 		packageName := resolvePackageName(folder.Path)
 		packageList = append(
@@ -134,6 +137,28 @@ func extractPackages(folderList messaging.Folders) []*contract.Package {
 		)
 	}
 	return packageList
+}
+
+// For packages that operate on Go source code files, such as Go tooling, it is
+// important to have a location that will not be considered part of package
+// source to store those files. The official Go tooling selected the testdata
+// folder for this purpose, so we need to ignore folders inside testdata.
+func isInsideTestdata(folder *messaging.Folder) bool {
+	relativePath, err := filepath.Rel(folder.Root, folder.Path)
+	if err != nil {
+		// There should never be a folder that's not inside the root, but if
+		// there is, we can presumably count it as outside a testdata folder as
+		// well
+		return false
+	}
+
+	for _, directory := range strings.Split(filepath.ToSlash(relativePath), "/") {
+		if directory == "testdata" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func extractRoot(folderList messaging.Folders, packageList []*contract.Package) string {
