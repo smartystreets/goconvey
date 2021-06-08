@@ -45,6 +45,7 @@ func flags() {
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched.")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory).")
 	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser.")
+	flag.StringVar(&runTestArgs, "runTestArgs", "", "additional arguments for exec 'go test' command.")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -62,7 +63,7 @@ func main() {
 
 	working := getWorkDir()
 	cover = coverageEnabled(cover, reports)
-	shell := system.NewShell(gobin, reports, cover, timeout)
+	shell := system.NewShell(gobin, reports, cover, timeout, runTestArgs)
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
@@ -300,6 +301,7 @@ var (
 	watchedSuffixes   string
 	excludedDirs      string
 	autoLaunchBrowser bool
+	runTestArgs       string
 
 	static  string
 	reports string
