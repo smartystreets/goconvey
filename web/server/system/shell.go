@@ -39,7 +39,12 @@ func (self *Shell) GoTest(directory, packageName string, tags, arguments []strin
 
 	// add additional go test arguments
 	if self.runTestArgs != "" {
-		tagsArg = tagsArg + " " + self.runTestArgs
+		if arguments == nil {
+			arguments = make([]string, 1)
+			arguments[0] = self.runTestArgs
+		} else {
+			arguments = append(arguments, self.runTestArgs)
+		}
 	}
 
 	goconvey := findGoConvey(directory, self.gobin, packageName, tagsArg).Execute()
