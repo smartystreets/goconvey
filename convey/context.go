@@ -172,11 +172,22 @@ func (ctx *context) SkipSo(stuff ...interface{}) {
 	ctx.assertionReport(reporting.NewSkipReport())
 }
 
-func (ctx *context) So(actual interface{}, assert assertion, expected ...interface{}) {
+func (ctx *context) So(actual interface{}, assert Assertion, expected ...interface{}) {
 	if result := assert(actual, expected...); result == assertionSuccess {
 		ctx.assertionReport(reporting.NewSuccessReport())
 	} else {
 		ctx.assertionReport(reporting.NewFailureReport(result, ctx.shouldShowStack()))
+	}
+}
+
+func (ctx *context) SoMsg(msg string, actual interface{}, assert Assertion, expected ...interface{}) {
+	if result := assert(actual, expected...); result == assertionSuccess {
+		ctx.assertionReport(reporting.NewSuccessReport())
+		return
+	} else {
+		ctx.reporter.Enter(reporting.NewScopeReport(msg))
+		defer ctx.reporter.Exit()
+		ctx.assertionReport(reporting.NewFailureReport(result))
 	}
 }
 
