@@ -187,7 +187,7 @@ func (ctx *context) SoMsg(msg string, actual interface{}, assert Assertion, expe
 	} else {
 		ctx.reporter.Enter(reporting.NewScopeReport(msg))
 		defer ctx.reporter.Exit()
-		ctx.assertionReport(reporting.NewFailureReport(result))
+		ctx.assertionReport(reporting.NewFailureReport(result, ctx.shouldShowStack()))
 	}
 }
 
