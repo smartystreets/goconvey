@@ -12,7 +12,7 @@ func TestDotReporterAssertionPrinting(t *testing.T) {
 	reporter := NewDotReporter(printer)
 
 	reporter.Report(NewSuccessReport())
-	reporter.Report(NewFailureReport("failed"))
+	reporter.Report(NewFailureReport("failed", false))
 	reporter.Report(NewErrorReport(errors.New("error")))
 	reporter.Report(NewSkipReport())
 

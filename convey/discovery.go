@@ -14,14 +14,16 @@ type suite struct {
 	Focus     bool
 	Func      func(C) // nil means skipped
 	FailMode  FailureMode
+	StackMode StackMode
 }
 
-func newSuite(situation string, failureMode FailureMode, f func(C), test t, specifier actionSpecifier) *suite {
+func newSuite(situation string, failureMode FailureMode, stackMode StackMode, f func(C), test t, specifier actionSpecifier) *suite {
 	ret := &suite{
 		Situation: situation,
 		Test:      test,
 		Func:      f,
 		FailMode:  failureMode,
+		StackMode: stackMode,
 	}
 	switch specifier {
 	case skipConvey:
@@ -36,6 +38,7 @@ func discover(items []interface{}) *suite {
 	name, items := parseName(items)
 	test, items := parseGoTest(items)
 	failure, items := parseFailureMode(items)
+	stack, items := parseStackMode(items)
 	action, items := parseAction(items)
 	specifier, items := parseSpecifier(items)
 
@@ -43,7 +46,7 @@ func discover(items []interface{}) *suite {
 		conveyPanic(parseError)
 	}
 
-	return newSuite(name, failure, action, test, specifier)
+	return newSuite(name, failure, stack, action, test, specifier)
 }
 func item(items []interface{}) interface{} {
 	if len(items) == 0 {
@@ -69,6 +72,12 @@ func parseFailureMode(items []interface{}) (FailureMode, []interface{}) {
 		return mode, items[1:]
 	}
 	return FailureInherits, items
+}
+func parseStackMode(items []interface{}) (StackMode, []interface{}) {
+	if mode, parsed := item(items).(StackMode); parsed {
+		return mode, items[1:]
+	}
+	return StackInherits, items
 }
 func parseAction(items []interface{}) (func(C), []interface{}) {
 	switch x := item(items).(type) {
@@ -100,4 +109,4 @@ type t interface {
 	Fail()
 }
 
-const parseError = "You must provide a name (string), then a *testing.T (if in outermost scope), an optional FailureMode, and then an action (func())."
+const parseError = "You must provide a name (string), then a *testing.T (if in outermost scope), an optional FailureMode and / or StackMode, and then an action (func())."
