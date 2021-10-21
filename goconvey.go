@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
 	"fmt"
@@ -18,6 +19,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
@@ -54,7 +56,8 @@ func init() {
 
 func main() {
 	flag.Parse()
-	log.Printf(initialConfiguration, host, port, nap, cover)
+
+	printHeader()
 
 	tmpDir, err := ioutil.TempDir("", "*.goconvey")
 	if err != nil {
@@ -102,9 +105,25 @@ func main() {
 
 	<-done
 	log.Println("shutting down")
-	if err := srv.Shutdown(nil); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("failed to shutdown: %s\n", err)
 	}
+}
+
+func printHeader() {
+	log.Println("GoConvey server: ")
+	serverVersion := "<unknown>"
+	if binfo, ok := debug.ReadBuildInfo(); ok {
+		serverVersion = binfo.Main.Version
+	}
+	log.Println("  version:", serverVersion)
+	log.Println("  host:", host)
+	log.Println("  port:", port)
+	log.Println("  poll:", nap)
+	log.Println("  cover:", cover)
+	log.Println()
 }
 
 func browserCmd() (string, bool) {
@@ -283,9 +302,8 @@ var (
 )
 
 const (
-	initialConfiguration = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n"
-	separator            = string(filepath.Separator)
-	endGoPath            = separator + "src" + separator
+	separator = string(filepath.Separator)
+	endGoPath = separator + "src" + separator
 )
 
 // This method exists because of a bug in the go cover tool that
