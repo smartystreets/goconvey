@@ -967,7 +967,7 @@ var expectedExampleFunctions = contract.PackageResult{
 
 const inputGolang15 = `
 === RUN   Golang15
---- PASS: Golang15 (0.00s)
+--- PASS: Golang15 (0.01s)
 PASS
 ok  	github.com/smartystreets/goconvey/webserver/examples	0.008s
 `
@@ -979,7 +979,7 @@ var expectedGolang15 = contract.PackageResult{
 	TestResults: []contract.TestResult{
 		contract.TestResult{
 			TestName: "Golang15",
-			Elapsed:  0.00,
+			Elapsed:  0.01,
 			Passed:   true,
 			File:     "",
 			Line:     0,
@@ -997,10 +997,10 @@ const inputGolang17Subtests = `
 === RUN   Test/nested/nested_success
 === RUN   Test/nested/nested_fail
 --- FAIL: Test (0.00s)
-    --- PASS: Test/success (0.00s)
+    --- PASS: Test/success (0.01s)
     --- FAIL: Test/fail (0.00s)
     --- FAIL: Test/nested (0.00s)
-        --- PASS: Test/nested/nested_success (0.00s)
+        --- PASS: Test/nested/nested_success (0.02s)
         --- FAIL: Test/nested/nested_fail (0.00s)
 FAIL
 exit status 1
@@ -1050,7 +1050,7 @@ var expectedGolang17Subtests = contract.PackageResult{
 		},
 		contract.TestResult{
 			TestName: "Test/nested/nested_success",
-			Elapsed:  0.00,
+			Elapsed:  0.02,
 			Passed:   true,
 			File:     "",
 			Line:     0,
@@ -1059,7 +1059,7 @@ var expectedGolang17Subtests = contract.PackageResult{
 		},
 		contract.TestResult{
 			TestName: "Test/success",
-			Elapsed:  0.00,
+			Elapsed:  0.01,
 			Passed:   true,
 			File:     "",
 			Line:     0,
