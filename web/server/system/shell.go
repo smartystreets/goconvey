@@ -17,14 +17,16 @@ type Shell struct {
 	gobin          string
 	reportsPath    string
 	defaultTimeout string
+	runTestArgs    string
 }
 
-func NewShell(gobin, reportsPath string, coverage bool, defaultTimeout string) *Shell {
+func NewShell(gobin, reportsPath string, coverage bool, defaultTimeout string, runTestArgs string) *Shell {
 	return &Shell{
 		coverage:       coverage,
 		gobin:          gobin,
 		reportsPath:    reportsPath,
 		defaultTimeout: defaultTimeout,
+		runTestArgs:    runTestArgs,
 	}
 }
 
@@ -34,6 +36,16 @@ func (self *Shell) GoTest(directory, packageName string, tags, arguments []strin
 	reportData := reportPath + ".txt"
 	reportHTML := reportPath + ".html"
 	tagsArg := "-tags=" + strings.Join(tags, ",")
+
+	// add additional go test arguments
+	if self.runTestArgs != "" {
+		if arguments == nil {
+			arguments = make([]string, 1)
+			arguments[0] = self.runTestArgs
+		} else {
+			arguments = append(arguments, self.runTestArgs)
+		}
+	}
 
 	goconvey := findGoConvey(directory, self.gobin, packageName, tagsArg).Execute()
 	compilation := compile(directory, self.gobin, tagsArg).Execute()
