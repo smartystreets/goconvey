@@ -5,8 +5,10 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -54,8 +56,7 @@ func flags() {
 func folders() {
 	_, file, _, _ := runtime.Caller(0)
 	here := filepath.Dir(file)
-	static = filepath.Join(here, "/web/client")
-	reports = filepath.Join(static, "reports")
+	reports = filepath.Join(filepath.Join(here, "/web/client"), "reports")
 }
 
 func main() {
@@ -186,8 +187,15 @@ func serveHTTP(server contract.Server, listener net.Listener) {
 	activateServer(listener)
 }
 
+//go:embed web/client
+var static embed.FS
+
 func serveStaticResources() {
-	http.Handle("/", http.FileServer(http.Dir(static)))
+	webclient, err := fs.Sub(static, "web/client")
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.Handle("/", http.FileServer(http.FS(webclient)))
 }
 
 func serveAjaxMethods(server contract.Server) {
@@ -303,7 +311,6 @@ var (
 	excludedDirs      string
 	autoLaunchBrowser bool
 
-	static  string
 	reports string
 
 	quarterSecond = time.Millisecond * 250
