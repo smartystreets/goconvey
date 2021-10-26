@@ -7,12 +7,16 @@ GoConvey is awesome Go testing
 
 Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according to your viewing pleasure. **[View full feature tour.](http://goconvey.co)**
 
+GoConvey supports the current versions of Go (see the official Go
+[release policy](https://golang.org/doc/devel/release#policy)). Currently
+this means Go 1.16 and Go 1.17 are supported.
+
 **Features:**
 
 - Directly integrates with `go test`
 - Fully-automatic web UI (works with native Go tests, too)
 - Huge suite of regression tests
-- Shows test coverage (Go 1.2+)
+- Shows test coverage
 - Readable, colorized console output (understandable by any manager, IT or not)
 - Test code generator
 - Desktop notifications (optional)
