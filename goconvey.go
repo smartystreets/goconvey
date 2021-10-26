@@ -9,14 +9,17 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"golang.org/x/tools/go/packages"
@@ -31,38 +34,50 @@ import (
 )
 
 func init() {
-	flags()
-	folders()
-}
-func flags() {
 	flag.IntVar(&port, "port", 8080, "The port at which to serve http.")
 	flag.StringVar(&host, "host", "127.0.0.1", "The host at which to serve http.")
 	flag.DurationVar(&nap, "poll", quarterSecond, "The interval to wait between polling the file system for changes.")
 	flag.IntVar(&parallelPackages, "packages", 10, "The number of packages to test in parallel. Higher == faster but more costly in terms of computing.")
 	flag.StringVar(&gobin, "gobin", "go", "The path to the 'go' binary (default: search on the PATH).")
-	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics. Requires Go 1.2+ and the go cover tool.")
+	flag.BoolVar(&cover, "cover", true, "Enable package-level coverage statistics.")
 	flag.IntVar(&depth, "depth", -1, "The directory scanning depth. If -1, scan infinitely deep directory structures. 0: scan working directory. 1+: Scan into nested directories, limited to value.")
 	flag.StringVar(&timeout, "timeout", "0", "The test execution timeout if none is specified in the *.goconvey file (default is '0', which is the same as not providing this option).")
 	flag.StringVar(&watchedSuffixes, "watchedSuffixes", ".go", "A comma separated list of file suffixes to watch for modifications.")
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched.")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory).")
 	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser.")
+	flag.BoolVar(&leakTemp, "leakTemp", false, "leak temp dir with coverage reports.")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-}
-func folders() {
-	_, file, _, _ := runtime.Caller(0)
-	here := filepath.Dir(file)
-	reports = filepath.Join(filepath.Join(here, "/web/client"), "reports")
 }
 
 func main() {
 	flag.Parse()
 	log.Printf(initialConfiguration, host, port, nap, cover)
 
+	tmpDir, err := ioutil.TempDir("", "*.goconvey")
+	if err != nil {
+		log.Fatal(err)
+	}
+	reports := filepath.Join(tmpDir, "coverage_out")
+	if err := os.Mkdir(reports, 0700); err != nil {
+		log.Fatal(err)
+	}
+	if leakTemp {
+		log.Printf("leaking temporary directory %q\n", tmpDir)
+	} else {
+		defer func() {
+			if err := os.RemoveAll(tmpDir); err != nil {
+				log.Printf("failed to clean temporary directory %q: %s\n", tmpDir, err)
+			}
+		}()
+	}
+
+	done := make(chan os.Signal)
+	signal.Notify(done, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
 	working := getWorkDir()
-	cover = coverageEnabled(cover, reports)
 	shell := system.NewShell(gobin, reports, cover, timeout)
 
 	watcherInput := make(chan messaging.WatcherCommand)
@@ -83,7 +98,13 @@ func main() {
 	if autoLaunchBrowser {
 		go launchBrowser(listener.Addr().String())
 	}
-	serveHTTP(server, listener)
+	srv := serveHTTP(reports, server, listener)
+
+	<-done
+	log.Println("shutting down")
+	if err := srv.Shutdown(nil); err != nil {
+		log.Printf("failed to shutdown: %s\n", err)
+	}
 }
 
 func browserCmd() (string, bool) {
@@ -179,24 +200,16 @@ func createListener() net.Listener {
 	return l
 }
 
-func serveHTTP(server contract.Server, listener net.Listener) {
-	serveStaticResources()
-	serveAjaxMethods(server)
-	activateServer(listener)
-}
-
 //go:embed web/client
 var static embed.FS
 
-func serveStaticResources() {
+func serveHTTP(reports string, server contract.Server, listener net.Listener) *http.Server {
 	webclient, err := fs.Sub(static, "web/client")
 	if err != nil {
 		log.Fatal(err)
 	}
 	http.Handle("/", http.FileServer(http.FS(webclient)))
-}
 
-func serveAjaxMethods(server contract.Server) {
 	http.HandleFunc("/watch", server.Watch)
 	http.HandleFunc("/ignore", server.Ignore)
 	http.HandleFunc("/reinstate", server.Reinstate)
@@ -205,36 +218,18 @@ func serveAjaxMethods(server contract.Server) {
 	http.HandleFunc("/status", server.Status)
 	http.HandleFunc("/status/poll", server.LongPollStatus)
 	http.HandleFunc("/pause", server.TogglePause)
-}
 
-func activateServer(listener net.Listener) {
+	http.Handle("/reports", http.FileServer(http.Dir(reports)))
+
 	log.Printf("Serving HTTP at: http://%s\n", listener.Addr())
-	err := http.Serve(listener, nil)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func coverageEnabled(cover bool, reports string) bool {
-	return (cover &&
-		ensureReportDirectoryExists(reports))
-}
-
-func ensureReportDirectoryExists(reports string) bool {
-	result, err := exists(reports)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if result {
-		return true
-	}
-
-	if err := os.Mkdir(reports, 0755); err == nil {
-		return true
-	}
-
-	log.Printf(reportDirectoryUnavailable, reports)
-	return false
+	ret := &http.Server{}
+	go func() {
+		err := http.Serve(listener, nil)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+	return ret
 }
 
 func exists(path string) (bool, error) {
@@ -281,20 +276,16 @@ var (
 	watchedSuffixes   string
 	excludedDirs      string
 	autoLaunchBrowser bool
-
-	reports string
+	leakTemp          bool
 
 	quarterSecond = time.Millisecond * 250
 	workDir       string
 )
 
 const (
-	initialConfiguration       = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n"
-	pleaseUpgradeGoVersion     = "Go version is less that 1.2 (%s), please upgrade to the latest stable version to enable coverage reporting.\n"
-	coverToolMissing           = "Go cover tool is not installed or not accessible: for Go < 1.5 run`go get golang.org/x/tools/cmd/cover`\n For >= Go 1.5 run `go install $GOROOT/src/cmd/cover`\n"
-	reportDirectoryUnavailable = "Could not find or create the coverage report directory (at: '%s'). You probably won't see any coverage statistics...\n"
-	separator                  = string(filepath.Separator)
-	endGoPath                  = separator + "src" + separator
+	initialConfiguration = "Initial configuration: [host: %s] [port: %d] [poll: %v] [cover: %v]\n"
+	separator            = string(filepath.Separator)
+	endGoPath            = separator + "src" + separator
 )
 
 // This method exists because of a bug in the go cover tool that
