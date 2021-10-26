@@ -15,9 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
@@ -219,38 +217,9 @@ func activateServer(listener net.Listener) {
 
 func coverageEnabled(cover bool, reports string) bool {
 	return (cover &&
-		goMinVersion(1, 2) &&
-		coverToolInstalled() &&
 		ensureReportDirectoryExists(reports))
 }
-func goMinVersion(wanted ...int) bool {
-	version := runtime.Version() // 'go1.2....'
-	s := regexp.MustCompile(`go([\d]+)\.([\d]+)\.?([\d]+)?`).FindAllStringSubmatch(version, 1)
-	if len(s) == 0 {
-		log.Printf("Cannot determine if newer than go1.2, disabling coverage.")
-		return false
-	}
-	for idx, str := range s[0][1:] {
-		if len(wanted) == idx {
-			break
-		}
-		if v, _ := strconv.Atoi(str); v < wanted[idx] {
-			log.Printf(pleaseUpgradeGoVersion, version)
-			return false
-		}
-	}
-	return true
-}
-func coverToolInstalled() bool {
-	working := getWorkDir()
-	command := system.NewCommand(working, "go", "tool", "cover").Execute()
-	installed := strings.Contains(command.Output, "Usage of 'go tool cover':")
-	if !installed {
-		log.Print(coverToolMissing)
-		return false
-	}
-	return true
-}
+
 func ensureReportDirectoryExists(reports string) bool {
 	result, err := exists(reports)
 	if err != nil {
@@ -267,6 +236,7 @@ func ensureReportDirectoryExists(reports string) bool {
 	log.Printf(reportDirectoryUnavailable, reports)
 	return false
 }
+
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -277,6 +247,7 @@ func exists(path string) (bool, error) {
 	}
 	return false, err
 }
+
 func getWorkDir() string {
 	working := ""
 	var err error
