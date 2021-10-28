@@ -219,12 +219,12 @@ func serveHTTP(reports string, server contract.Server, listener net.Listener) *h
 	http.HandleFunc("/status/poll", server.LongPollStatus)
 	http.HandleFunc("/pause", server.TogglePause)
 
-	http.Handle("/reports", http.FileServer(http.Dir(reports)))
+	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir(reports))))
 
 	log.Printf("Serving HTTP at: http://%s\n", listener.Addr())
 	ret := &http.Server{}
 	go func() {
-		err := http.Serve(listener, nil)
+		err := ret.Serve(listener)
 		if err != nil {
 			log.Println(err)
 		}
