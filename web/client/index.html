@@ -287,7 +287,7 @@
 							<div class="panic-story">
 							<div class="panic-file">
 								{{if File|notempty}}
-								<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}">{{File|relativePath}}{{if Line|more>0}}:{{Line}}{{/if}}&nbsp; <i class="fa fa-external-link"></i></a>
+								<a href="goconvey://open/?url=file://{{PackageName}}&line={{Line}}">{{PackageName}}/{{File|relativePath}}{{if Line|more>0}}:{{Line}}{{/if}}&nbsp; <i class="fa fa-external-link"></i></a>
 								{{else}}
 								<b>{{TestName}}</b>
 								{{/if}}
