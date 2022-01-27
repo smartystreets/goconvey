@@ -61,7 +61,6 @@ func main() {
 	flag.Parse()
 	log.Printf(initialConfiguration, host, port, nap, cover)
 
-	workDir = "D:\\code\\tools"
 	working := getWorkDir()
 	cover = coverageEnabled(cover, reports)
 	shell := system.NewShell(gobin, reports, cover, timeout)
