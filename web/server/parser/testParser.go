@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/smartystreets/goconvey/convey/reporting"
-	"github.com/smartystreets/goconvey/web/server/contract"
+	"github.com/luchuanbing123/goconvey/convey/reporting"
+	"github.com/luchuanbing123/goconvey/web/server/contract"
 )
 
 type testParser struct {
@@ -164,7 +164,7 @@ func panicLineShouldBeIndented(index int, line string) bool {
 const bugReportRequest = `
 Uh-oh! Looks like something went wrong. Please copy the following text and file a bug report at: 
 
-https://github.com/smartystreets/goconvey/issues?state=open
+https://github.com/luchuanbing123/goconvey/issues?state=open
 
 ======= BEGIN BUG REPORT =======
 

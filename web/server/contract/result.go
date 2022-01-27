@@ -1,8 +1,8 @@
 package contract
 
 import (
-	"github.com/smartystreets/goconvey/convey/reporting"
-	"github.com/smartystreets/goconvey/web/server/messaging"
+	"github.com/luchuanbing123/goconvey/convey/reporting"
+	"github.com/luchuanbing123/goconvey/web/server/messaging"
 )
 
 type Package struct {
@@ -23,11 +23,11 @@ type PackageOption func(p *Package)
 
 func AppendTestArg(a string) PackageOption {
 	return func(p *Package) {
-		p.TestArguments= append(p.TestArguments, a)
+		p.TestArguments = append(p.TestArguments, a)
 	}
 }
 
-func NewPackage(folder *messaging.Folder, name string, hasImportCycle bool,opts ...PackageOption) *Package {
+func NewPackage(folder *messaging.Folder, name string, hasImportCycle bool, opts ...PackageOption) *Package {
 	self := new(Package)
 	self.Path = folder.Path
 	self.Name = name

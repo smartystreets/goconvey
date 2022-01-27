@@ -3,7 +3,7 @@ package parser
 import (
 	"log"
 
-	"github.com/smartystreets/goconvey/web/server/contract"
+	"github.com/luchuanbing123/goconvey/web/server/contract"
 )
 
 type Parser struct {

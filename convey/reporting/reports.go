@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/smartystreets/goconvey/convey/gotest"
+	"github.com/luchuanbing123/goconvey/convey/gotest"
 )
 
 ////////////////// ScopeReport ////////////////////
@@ -67,7 +67,7 @@ func NewStoryReport(test T) *StoryReport {
 	return self
 }
 
-// name comes in looking like "github.com/smartystreets/goconvey/examples.TestName".
+// name comes in looking like "github.com/luchuanbing123/goconvey/examples.TestName".
 // We only want the stuff after the last '.', which is the name of the test function.
 func removePackagePath(name string) string {
 	parts := strings.Split(name, ".")

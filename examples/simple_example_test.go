@@ -3,7 +3,7 @@ package examples
 import (
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	. "github.com/luchuanbing123/goconvey/convey"
 )
 
 func TestIntegerManipulation(t *testing.T) {
