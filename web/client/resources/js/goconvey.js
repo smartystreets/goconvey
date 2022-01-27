@@ -667,6 +667,7 @@ function process(data, status, jqxhr)
 					test._status = convey.statuses.fail;
 					pkg._failed++;
 					test._failed++;
+					test.PackageName=pkg.PackageName.replaceAll("\\","/")
 					current().assertions.failed.push(test);
 				}
 				else if (test.Skipped)
@@ -1318,9 +1319,11 @@ function customMarkupPipes()
 	// MARKUP.JS custom pipes
 	Mark.pipes.relativePath = function(str)
 	{
+		console.log("str:",str)
 		basePath = new RegExp($('#path').val()+'[\\/]', 'gi');
 		return str.replace(basePath, '');
 	};
+
 	Mark.pipes.htmlSafe = function(str)
 	{
 		return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");

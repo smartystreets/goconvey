@@ -45,7 +45,7 @@ func flags() {
 	flag.StringVar(&excludedDirs, "excludedDirs", "vendor,node_modules", "A comma separated list of directories that will be excluded from being watched.")
 	flag.StringVar(&workDir, "workDir", "", "set goconvey working directory (default current directory).")
 	flag.BoolVar(&autoLaunchBrowser, "launchBrowser", true, "toggle auto launching of browser.")
-	flag.StringVar(&run,"run","^Test","same with standard  test flag -run regexp")
+	flag.StringVar(&run, "run", "^Test", "same with standard  test flag -run regexp")
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -61,6 +61,7 @@ func main() {
 	flag.Parse()
 	log.Printf(initialConfiguration, host, port, nap, cover)
 
+	workDir = "D:\\code\\tools"
 	working := getWorkDir()
 	cover = coverageEnabled(cover, reports)
 	shell := system.NewShell(gobin, reports, cover, timeout)
@@ -131,7 +132,7 @@ func extractPackages(folderList messaging.Folders) []*contract.Package {
 		packageName := resolvePackageName(folder.Path)
 		packageList = append(
 			packageList,
-			contract.NewPackage(folder, packageName, hasImportCycle,contract.AppendTestArg("-run="+run)),
+			contract.NewPackage(folder, packageName, hasImportCycle, contract.AppendTestArg("-run="+run)),
 		)
 	}
 	return packageList
@@ -276,15 +277,13 @@ var (
 	watchedSuffixes   string
 	excludedDirs      string
 	autoLaunchBrowser bool
-	run string
+	run               string
 
 	static  string
 	reports string
 
 	quarterSecond = time.Millisecond * 250
 	workDir       string
-
-
 )
 
 const (

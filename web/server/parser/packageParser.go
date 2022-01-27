@@ -126,7 +126,7 @@ func (self *outputParser) recordPackageMetadata() {
 func (self *outputParser) recordTestingOutcome(outcome string) {
 	self.result.Outcome = outcome
 	fields := strings.Split(self.line, "\t")
-	self.result.PackageName = strings.TrimSpace(fields[1])
+	//self.result.PackageName = strings.TrimSpace(fields[1])
 	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
 }
 func (self *outputParser) recordCoverageSummary(summary string) {

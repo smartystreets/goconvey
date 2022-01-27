@@ -321,7 +321,7 @@
 								<div class="failure-story">
 									<div class="failure-file">
 										{{if File|notempty}}
-										<a href="goconvey://open/?url=file://{{File|url}}&line={{Line}}">{{File|relativePath}}{{if Line|more>0}}:{{Line}}{{/if}}&nbsp; <i class="fa fa-external-link"></i></a>
+										<a href="goconvey://open/?url=file://{{PackageName}}/{{File|url}}&line={{Line}}">{{PackageName}}/{{File|relativePath}}{{if Line|more>0}}:{{Line}}{{/if}}&nbsp; <i class="fa fa-external-link"></i></a>
 										{{else}}
 										<b class="test-name-link"><a href="#test-{{_id}}">{{TestName}}</a></b>
 										{{/if}}
