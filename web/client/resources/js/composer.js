@@ -90,7 +90,7 @@ Mark.pipes.showImports = function(item)
 {
 	console.log(item);
 	if (root.title === "(root)" && root.stories.length > 0)
-		return 'import (\n\t"testing"\n\t. "github.com/smartystreets/goconvey/convey"\n)\n';
+		return 'import (\n\t"testing"\n\t. "github.com/luchuanbing123/goconvey/convey"\n)\n';
 	else
 		return "";
 }
@@ -102,7 +102,7 @@ function generate(input)
 	var root = parseInput(input);
 	$('#output').text(Mark.up(composer.template, root.stories));
 	if (root.stories.length > 0 && root.stories[0].title.substr(0, 4) === "Test")
-		$('#output').prepend('import (\n\t"testing"\n\t. "github.com/smartystreets/goconvey/convey"\n)\n\n');
+		$('#output').prepend('import (\n\t"testing"\n\t. "github.com/luchuanbing123/goconvey/convey"\n)\n\n');
 }
 
 function parseInput(input)
