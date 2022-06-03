@@ -117,18 +117,24 @@ func LimitDepth(folders messaging.Folders, depth int) {
 func AttachProfiles(folders messaging.Folders, items []*FileSystemItem) {
 	var rootProfile *FileSystemItem
 	for _, profile := range items {
-		path, _ := path.Split(profile.Path)
+		path := path.Dir(profile.Path)
 		if path == profile.Root && profile.Name == "main.goconvey" {
 			rootProfile = profile
 			break
 		}
 	}
 
+	// put root profile to all folders
+	if rootProfile != nil {
+		for _, folder := range folders {
+			folder.Disabled, folder.BuildTags, folder.TestArguments = rootProfile.ProfileDisabled, rootProfile.ProfileTags, rootProfile.ProfileArguments
+		}
+	}
+
+	// use folder profile to replace root profile
 	for _, profile := range items {
 		if folder, exists := folders[filepath.Dir(profile.Path)]; exists {
 			folder.Disabled, folder.BuildTags, folder.TestArguments = profile.ProfileDisabled, profile.ProfileTags, profile.ProfileArguments
-		} else if rootProfile != nil {
-			folder.Disabled, folder.BuildTags, folder.TestArguments = rootProfile.ProfileDisabled, rootProfile.ProfileTags, rootProfile.ProfileArguments
 		}
 	}
 }

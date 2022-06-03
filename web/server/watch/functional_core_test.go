@@ -356,13 +356,17 @@ func TestAttachMainProfiles(t *testing.T) {
 
 		profiles := []*FileSystemItem{
 			{
+				Root:             "/root",
+				Name:             "main.goconvey",
 				Path:             "/root/main.goconvey",
-				ProfileDisabled:  true,
+				ProfileDisabled:  false,
 				ProfileArguments: []string{"1"},
 			},
 			{
+				Root:             "/root",
+				Name:             "hi.goconvey",
 				Path:             "/root/1/2/hi.goconvey",
-				ProfileDisabled:  true,
+				ProfileDisabled:  false,
 				ProfileArguments: []string{"1", "2"},
 			},
 		}
@@ -371,15 +375,15 @@ func TestAttachMainProfiles(t *testing.T) {
 			AttachProfiles(folders, profiles)
 
 			Convey("Main profiles matched the all other folder", func() {
-				So(folders["/root"].Disabled, ShouldBeTrue)
+				So(folders["/root"].Disabled, ShouldBeFalse)
 				So(folders["/root"].TestArguments, ShouldResemble, []string{"1"})
 
-				So(folders["/root/1"].Disabled, ShouldBeTrue)
+				So(folders["/root/1"].Disabled, ShouldBeFalse)
 				So(folders["/root/1"].TestArguments, ShouldResemble, []string{"1"})
 			})
 
 			Convey("The second folder should match the first profile", func() {
-				So(folders["/root/1/2"].Disabled, ShouldBeTrue)
+				So(folders["/root/1/2"].Disabled, ShouldBeFalse)
 				So(folders["/root/1/2"].TestArguments, ShouldResemble, []string{"1", "2"})
 			})
 		})
