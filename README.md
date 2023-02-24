@@ -7,7 +7,7 @@ GoConvey is awesome Go testing
 [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.svg)](http://godoc.org/github.com/smartystreets/goconvey)
 
 
-Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according to your viewing pleasure. **[View full feature tour.](http://goconvey.co)**
+Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according to your viewing pleasure.
 
 GoConvey supports the current versions of Go (see the official Go
 [release policy](https://golang.org/doc/devel/release#policy)). Currently
@@ -118,11 +118,6 @@ Check out the
 - [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki),
 - [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.png)](http://godoc.org/github.com/smartystreets/goconvey)
 - and the *_test.go files scattered throughout this project.
-
-[Screenshots](http://goconvey.co)
------------
-
-For web UI and terminal screenshots, check out [the full feature tour](http://goconvey.co).
 
 Contributors
 ----------------------
