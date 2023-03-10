@@ -8,11 +8,6 @@ var convey = {
 	}
 };
 
-// Stop using the github path, gee whiz
-if (window.location.host == "smartystreets.github.io")
-	window.location = "http://goconvey.co";
-
-
 // Wait until elements of page, including images, finish loading
 $(window).load(function()
 {
