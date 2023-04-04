@@ -248,7 +248,7 @@ func TestEmbeddedContextHelperReported(t *testing.T) {
 	expectEqual(t, "Begin|A|Embedded|Success|Exit|Exit|End", myReporter.wholeStory())
 }
 
-func expectEqual(t *testing.T, expected interface{}, actual interface{}) {
+func expectEqual(t *testing.T, expected any, actual any) {
 	if expected != actual {
 		_, file, line, _ := runtime.Caller(1)
 		t.Errorf("Expected '%v' to be '%v' but it wasn't. See '%s' at line %d.",
@@ -312,6 +312,6 @@ func (self *fakeReporter) wholeStory() string {
 type fakeGoTest struct{}
 
 func (self *fakeGoTest) Fail()                                     {}
-func (self *fakeGoTest) Fatalf(format string, args ...interface{}) {}
+func (self *fakeGoTest) Fatalf(format string, args ...any) {}
 
 var test t = new(fakeGoTest)
