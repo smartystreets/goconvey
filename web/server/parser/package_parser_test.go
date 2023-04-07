@@ -150,7 +150,7 @@ func TestParsePackage_Golang17Subtests_ReturnsPackageResult(t *testing.T) {
 	assertEqual(t, expectedGolang17Subtests, *actual)
 }
 
-func assertEqual(t *testing.T, expected, actual interface{}) {
+func assertEqual(t *testing.T, expected, actual any) {
 	a, _ := json.Marshal(expected)
 	b, _ := json.Marshal(actual)
 	if string(a) != string(b) {

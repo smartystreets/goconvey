@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func expectPanic(t *testing.T, f string) interface{} {
+func expectPanic(t *testing.T, f string) any {
 	r := recover()
 	if r != nil {
 		if cp, ok := r.(*conveyErr); ok {
