@@ -337,6 +337,59 @@ func TestAttachProfiles(t *testing.T) {
 	})
 }
 
+func TestAttachMainProfiles(t *testing.T) {
+	Convey("Subject: Attaching profile information to a folder", t, func() {
+		folders := map[string]*messaging.Folder{
+			"/root": {
+				Path: "/root",
+				Root: "/root",
+			},
+			"/root/1": {
+				Path: "/root/1",
+				Root: "/root",
+			},
+			"/root/1/2": {
+				Path: "/root/1/2",
+				Root: "/root",
+			},
+		}
+
+		profiles := []*FileSystemItem{
+			{
+				Root:             "/root",
+				Name:             "main.goconvey",
+				Path:             "/root/main.goconvey",
+				ProfileDisabled:  false,
+				ProfileArguments: []string{"1"},
+			},
+			{
+				Root:             "/root",
+				Name:             "hi.goconvey",
+				Path:             "/root/1/2/hi.goconvey",
+				ProfileDisabled:  false,
+				ProfileArguments: []string{"1", "2"},
+			},
+		}
+
+		Convey("Main profiles at root should be merged with all folders without folder profile", func() {
+			AttachProfiles(folders, profiles)
+
+			Convey("Main profiles matched the all other folder", func() {
+				So(folders["/root"].Disabled, ShouldBeFalse)
+				So(folders["/root"].TestArguments, ShouldResemble, []string{"1"})
+
+				So(folders["/root/1"].Disabled, ShouldBeFalse)
+				So(folders["/root/1"].TestArguments, ShouldResemble, []string{"1"})
+			})
+
+			Convey("The second folder should match the first profile", func() {
+				So(folders["/root/1/2"].Disabled, ShouldBeFalse)
+				So(folders["/root/1/2"].TestArguments, ShouldResemble, []string{"1", "2"})
+			})
+		})
+	})
+}
+
 func TestMarkIgnored(t *testing.T) {
 	Convey("Subject: folders that have been ignored should be marked as such", t, func() {
 		folders := map[string]*messaging.Folder{
