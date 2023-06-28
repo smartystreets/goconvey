@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/jtolds/gls v4.20.0+incompatible
-	github.com/smartystreets/assertions v1.13.1
+	github.com/smarty/assertions v1.15.0
 	golang.org/x/tools v0.7.0
 )
 

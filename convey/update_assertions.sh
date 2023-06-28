@@ -3,8 +3,8 @@
 cd "$(dirname $(realpath $0))"
 
 ASSERTIONS=($(
-  go tool nm "$(go list -export -f '{{.Export}}' github.com/smartystreets/assertions)" |\
-    awk '/ T github\.com\/smartystreets\/assertions\.Should/{split($3, a, "."); print a[3]}' |\
+  go tool nm "$(go list -export -f '{{.Export}}' github.com/smarty/assertions)" |\
+    awk '/ T github\.com\/smarty\/assertions\.Should/{split($3, a, "."); print a[3]}' |\
     sort | uniq))
 
 (
@@ -14,9 +14,9 @@ ASSERTIONS=($(
   echo
   echo "//go:generate ./update_assertions.sh"
   echo
-  echo "import \"github.com/smartystreets/assertions\""
+  echo "import \"github.com/smarty/assertions\""
   echo
-  echo "// These assertions are forwarded from github.com/smartystreets/assertions"
+  echo "// These assertions are forwarded from github.com/smarty/assertions"
   echo "// in order to make convey self-contained."
   echo "var ("
 

@@ -4,9 +4,9 @@ package convey
 
 //go:generate ./update_assertions.sh
 
-import "github.com/smartystreets/assertions"
+import "github.com/smarty/assertions"
 
-// These assertions are forwarded from github.com/smartystreets/assertions
+// These assertions are forwarded from github.com/smarty/assertions
 // in order to make convey self-contained.
 var (
 	ShouldAlmostEqual            = assertions.ShouldAlmostEqual

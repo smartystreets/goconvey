@@ -63,7 +63,7 @@ func TestComparisonFailureDeserializedAndReported(t *testing.T) {
 		So("hi", ShouldEqual, "bye")
 	})
 
-	expectEqual(t, "Begin|A|Failure(bye/hi)|Exit|End", myReporter.wholeStory())
+	expectEqual(t, `Begin|A|Failure("bye"/"hi")|Exit|End`, myReporter.wholeStory())
 }
 
 func TestNestedFailureReported(t *testing.T) {
@@ -311,7 +311,7 @@ func (self *fakeReporter) wholeStory() string {
 
 type fakeGoTest struct{}
 
-func (self *fakeGoTest) Fail()                                     {}
+func (self *fakeGoTest) Fail()                             {}
 func (self *fakeGoTest) Fatalf(format string, args ...any) {}
 
 var test t = new(fakeGoTest)
