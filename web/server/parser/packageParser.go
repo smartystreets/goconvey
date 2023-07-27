@@ -138,11 +138,15 @@ func (self *outputParser) recordTestingOutcome(outcome string) {
 	self.result.PackageName = strings.TrimSpace(fields[1])
 	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
 }
+
+var coverageStatementRE = regexp.MustCompile(`coverage: (\d+\.\d)% of statements`)
+
 func (self *outputParser) recordCoverageSummary(summary string) {
-	start := len("coverage: ")
-	end := strings.Index(summary, "%")
-	value := summary[start:end]
-	parsed, err := strconv.ParseFloat(value, 64)
+	matches := coverageStatementRE.FindStringSubmatch(summary)
+	if len(matches) == 0 {
+		panic("recordCoverageSummary")
+	}
+	parsed, err := strconv.ParseFloat(matches[1], 64)
 	if err != nil {
 		self.result.Coverage = -1
 	} else {
