@@ -294,7 +294,7 @@
 						</div>
 					{{if _path|notempty}}
 						{{_path}}
-							<div class="story-links{{if Depth|more>-1}} depth-{{Depth}}{{/if}}"><a href="#test-{{_id}}">{{Title}}</a></div>
+							<div class="story-links{{if Depth|more>-1}} depth-{{Depth}}{{/if}}"><a href="#test-{{_id}}">{{Title|htmlSafe|ansiColours}}</a></div>
 						{{/_path}}
 					{{/if}}
 							{{if StackTrace|notempty}}<div class="depth-{{_maxDepth}} panic-summary">{{Error}}</div>{{/if}}
@@ -328,7 +328,7 @@
 									</div>
 							{{if _path|notempty}}
 								{{_path}}
-									<div class="story-links{{if Depth|more>-1}} depth-{{Depth}}{{/if}}"><a href="#test-{{_id}}">{{Title}}</a></div>
+									<div class="story-links{{if Depth|more>-1}} depth-{{Depth}}{{/if}}"><a href="#test-{{_id}}">{{Title|htmlSafe|ansiColours}}</a></div>
 								{{/_path}}
 							{{/if}}
 								</div>
