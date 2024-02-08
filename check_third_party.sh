@@ -2,7 +2,7 @@
 
 cd "$(dirname $(realpath $0))"
 
-sh ./web/client/resources/js/lib/update.sh
+bash ./web/client/resources/js/lib/update.sh
 
 if ! (git diff-files --quiet web/client/resources/js/lib); then
   echo "Third party libraries don't match their .url files."
