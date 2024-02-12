@@ -9,14 +9,14 @@ import (
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
 
-var goroutineCounter = regexp.MustCompile(`goroutine \d+ \[`)
+var goroutineRE = regexp.MustCompile(`goroutine \d+ \[`)
 
 // countGoroutines takes a test output file and counts the number of goroutines
 // that were mentioned inside it. This does this by hunting for lines such as
 // "goroutine 42 [running]", while excluding secondary mentions of already-counted
 // goroutines.
 func countGoroutines(testOutput string) int {
-	return len(goroutineCounter.FindAllStringSubmatch(testOutput, -1))
+	return len(goroutineRE.FindAllStringSubmatch(testOutput, -1))
 }
 
 func TestStackTrace(t *testing.T) {

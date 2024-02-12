@@ -144,7 +144,7 @@ var coverageStatementRE = regexp.MustCompile(`coverage: (\d+\.\d)%%? of statemen
 func (self *outputParser) recordCoverageSummary(summary string) {
 	matches := coverageStatementRE.FindStringSubmatch(summary)
 
-	coverage := float64(-1)
+	coverage := -1.0
 	// if there were no matches, or if matches[1] doesn't parse as a float, then we'll return -1
 	if len(matches) != 0 {
 		coverage, _ = strconv.ParseFloat(matches[1], 64)
