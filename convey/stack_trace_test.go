@@ -2,11 +2,22 @@ package convey
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey/reporting"
 )
+
+var goroutineCounter = regexp.MustCompile(`goroutine \d+ \[`)
+
+// countGoroutines takes a test output file and counts the number of goroutines
+// that were mentioned inside it. This does this by hunting for lines such as
+// "goroutine 42 [running]", while excluding secondary mentions of already-counted
+// goroutines.
+func countGoroutines(testOutput string) int {
+	return len(goroutineCounter.FindAllStringSubmatch(testOutput, -1))
+}
 
 func TestStackTrace(t *testing.T) {
 	file, test := setupFileReporter()
@@ -57,8 +68,7 @@ func TestStackModeMultipleInvocationInheritance(t *testing.T) {
 			So(1, ShouldEqual, 2)
 		})
 	})
-
-	stackCount := strings.Count(file.String(), "goroutine ")
+	stackCount := countGoroutines(file.String())
 	if stackCount != 1 {
 		t.Errorf("Expected 1 stack trace, found %d.", stackCount)
 		fmt.Printf("RESULT: %s \n", file.String())
@@ -78,7 +88,7 @@ func TestStackModeMultipleInvocationInheritance2(t *testing.T) {
 		})
 	})
 
-	stackCount := strings.Count(file.String(), "goroutine ")
+	stackCount := countGoroutines(file.String())
 	if stackCount != 2 {
 		t.Errorf("Expected 2 stack traces, found %d.", stackCount)
 	}
@@ -97,7 +107,7 @@ func TestStackModeMultipleInvocationInheritance3(t *testing.T) {
 		})
 	})
 
-	stackCount := strings.Count(file.String(), "goroutine ")
+	stackCount := countGoroutines(file.String())
 	if stackCount != 1 {
 		t.Errorf("Expected 1 stack trace1, found %d.", stackCount)
 	}
@@ -119,13 +129,13 @@ type memoryFile struct {
 	buffer string
 }
 
-func (self *memoryFile) Write(p []byte) (n int, err error) {
-	self.buffer += string(p)
+func (mf *memoryFile) Write(p []byte) (n int, err error) {
+	mf.buffer += string(p)
 	return len(p), nil
 }
 
-func (self *memoryFile) String() string {
-	return self.buffer
+func (mf *memoryFile) String() string {
+	return mf.buffer
 }
 
 func newMemoryFile() *memoryFile {

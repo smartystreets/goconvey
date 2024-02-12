@@ -31,13 +31,13 @@ type outputParser struct {
 }
 
 func newOutputParser(result *contract.PackageResult, rawOutput string) *outputParser {
-	self := new(outputParser)
-	self.raw = strings.TrimSpace(rawOutput)
-	self.lines = strings.Split(self.raw, "\n")
-	self.result = result
-	self.tests = []*contract.TestResult{}
-	self.testMap = make(map[string]*contract.TestResult)
-	return self
+	raw := strings.TrimSpace(rawOutput)
+	return &outputParser{
+		raw:     raw,
+		lines:   strings.Split(raw, "\n"),
+		result:  result,
+		testMap: make(map[string]*contract.TestResult),
+	}
 }
 
 func (self *outputParser) parse() {
@@ -139,19 +139,17 @@ func (self *outputParser) recordTestingOutcome(outcome string) {
 	self.result.Elapsed = parseDurationInSeconds(fields[2], 3)
 }
 
-var coverageStatementRE = regexp.MustCompile(`coverage: (\d+\.\d)% of statements`)
+var coverageStatementRE = regexp.MustCompile(`coverage: (\d+\.\d)%%? of statements`)
 
 func (self *outputParser) recordCoverageSummary(summary string) {
 	matches := coverageStatementRE.FindStringSubmatch(summary)
-	if len(matches) == 0 {
-		panic("recordCoverageSummary")
+
+	coverage := float64(-1)
+	// if there were no matches, or if matches[1] doesn't parse as a float, then we'll return -1
+	if len(matches) != 0 {
+		coverage, _ = strconv.ParseFloat(matches[1], 64)
 	}
-	parsed, err := strconv.ParseFloat(matches[1], 64)
-	if err != nil {
-		self.result.Coverage = -1
-	} else {
-		self.result.Coverage = parsed
-	}
+	self.result.Coverage = coverage
 }
 func (self *outputParser) saveLineForParsingLater() {
 	self.line = strings.TrimLeft(self.line, "\t")
