@@ -2,7 +2,6 @@ package watch
 
 import (
 	"bytes"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -22,13 +21,13 @@ func TestWatcher(t *testing.T) {
 	}
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmicroseconds)
-	output := new(bytes.Buffer)
-	log.SetOutput(output)
-	defer func() { t.Log(output.String()) }()
+	outBuf := new(bytes.Buffer)
+	log.SetOutput(outBuf)
+	defer func() { t.Log(outBuf.String()) }()
 
 	_, filename, _, _ := runtime.Caller(0)
 	originalRoot := filepath.Join(filepath.Dir(filename), "integration_testing")
-	temporary, err := ioutil.TempDir("/tmp", "goconvey")
+	temporary, err := os.MkdirTemp("", "goconvey")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,20 +65,22 @@ func TestWatcher(t *testing.T) {
 	Convey("Subject: Watcher operations", t, func() {
 		input := make(chan messaging.WatcherCommand)
 		output := make(chan messaging.Folders)
-		excludedDirs := []string{}
+		var excludedDirs []string
 		watcher := NewWatcher(root, -1, time.Millisecond, input, output, ".go", excludedDirs)
 
 		go watcher.Listen()
 
 		Convey("Initial scan results", func() {
-			go func() { input <- stop }()
+			go func() {
+				input <- stop
+			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 1)
+			So(results, ShouldHaveLength, 1)
 		})
 
 		Convey("Manual execution produces additional results", func() {
@@ -88,14 +89,14 @@ func TestWatcher(t *testing.T) {
 				input <- stop
 			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 2)
-			So(len(results[0]), ShouldEqual, 2)
-			So(len(results[1]), ShouldEqual, 2)
+			So(results, ShouldHaveLength, 2)
+			So(results[0], ShouldHaveLength, 2)
+			So(results[1], ShouldHaveLength, 2)
 		})
 
 		Convey("Ignore and Reinstate commands are not reflected in the scan results", func() {
@@ -105,12 +106,12 @@ func TestWatcher(t *testing.T) {
 				input <- stop
 			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 1)
+			So(results, ShouldHaveLength, 1)
 			So(results[0][sub].Ignored, ShouldBeFalse) // initial
 		})
 
@@ -121,15 +122,17 @@ func TestWatcher(t *testing.T) {
 				input <- stop
 			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 3)
-			So(len(results[0]), ShouldEqual, 2) // initial
-			So(len(results[1]), ShouldEqual, 1) // root moved to sub
-			So(len(results[2]), ShouldEqual, 2) // root moved back to original location
+			So(results, ShouldHaveLength, 5)
+			So(results[0], ShouldHaveLength, 2) // initial
+			So(results[1], ShouldHaveLength, 1) // root moved to sub
+			So(results[2], ShouldHaveLength, 1) // additional scan happens
+			So(results[3], ShouldHaveLength, 2) // root moved back to original location
+			So(results[4], ShouldHaveLength, 2) // additional scan happens
 		})
 
 		Convey("A bogus command does not cause any additional scanning beyond the initial scan", func() {
@@ -138,7 +141,7 @@ func TestWatcher(t *testing.T) {
 				input <- stop
 			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
@@ -154,12 +157,12 @@ func TestWatcher(t *testing.T) {
 				input <- stop
 			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 2)
+			So(results, ShouldHaveLength, 2)
 		})
 
 		Convey("Scanning does not occur as a result of resuming after a pause", func() {
@@ -169,12 +172,12 @@ func TestWatcher(t *testing.T) {
 				input <- stop
 			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 1)
+			So(results, ShouldHaveLength, 1)
 		})
 
 		Convey("Scanning should not occur when the watcher is paused", func() {
@@ -182,19 +185,22 @@ func TestWatcher(t *testing.T) {
 				input <- pause
 				for x := 0; x < 2; x++ {
 					time.Sleep(time.Millisecond * 250)
-					exec.Command("touch", filepath.Join(root, "main.go")).Run()
+					err := exec.Command("touch", filepath.Join(root, "main.go")).Run()
+					if err != nil {
+						t.Error(err)
+					}
 					time.Sleep(time.Millisecond * 250)
 				}
 				input <- resume
 				input <- stop
 			}()
 
-			results := []messaging.Folders{}
+			var results []messaging.Folders
 			for result := range output {
 				results = append(results, result)
 			}
 
-			So(len(results), ShouldEqual, 2)
+			So(results, ShouldHaveLength, 2)
 		})
 	})
 }
