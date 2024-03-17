@@ -85,7 +85,7 @@ func main() {
 
 	watcherInput := make(chan messaging.WatcherCommand)
 	watcherOutput := make(chan messaging.Folders)
-	excludedDirItems := strings.Split(excludedDirs, `,`)
+	excludedDirItems := checkExcludedDirs(excludedDirs, working)
 	watcher := watch.NewWatcher(working, depth, nap, watcherInput, watcherOutput, watchedSuffixes, excludedDirItems)
 
 	parser := parser.NewParser(parser.ParsePackageResults)
@@ -94,6 +94,7 @@ func main() {
 
 	longpollChan := make(chan chan string)
 	executor := executor.NewExecutor(tester, parser, longpollChan)
+
 	server := api.NewHTTPServer(working, watcherInput, executor, longpollChan)
 	listener := createListener()
 	go runTestOnUpdates(watcherOutput, executor, server)
@@ -124,6 +125,21 @@ func printHeader() {
 	log.Println("  poll:", nap)
 	log.Println("  cover:", cover)
 	log.Println()
+}
+
+//checkExcludedDirs checks whether the working directory is contained in the list of excluded
+//if is, then drop it from the excludedDirs
+func checkExcludedDirs(excludedDirs string, working string) []string {
+	var items []string
+	dirname := filepath.Base(working)
+
+	for _, item := range strings.Split(excludedDirs, `,`) {
+		if item != dirname {
+			items = append(items, item)
+		}
+	}
+
+	return items
 }
 
 func browserCmd() (string, bool) {
@@ -158,6 +174,13 @@ func runTestOnUpdates(queue chan messaging.Folders, executor contract.Executor, 
 	for update := range queue {
 		log.Println("Received request from watcher to execute tests...")
 		packages := extractPackages(update)
+
+		//if extractPackages does not return packages
+		if len(packages) == 0 {
+			log.Println("Nothing to test, check the working directory")
+			continue
+		}
+
 		output := executor.ExecuteTests(packages)
 		root := extractRoot(update, packages)
 		server.ReceiveUpdate(root, output)
