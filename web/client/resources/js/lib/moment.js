@@ -1440,7 +1440,7 @@
         this._days = +days +
             weeks * 7;
         // It is impossible translate months into days without knowing
-        // which months you are are talking about, so we have to store
+        // which months you are talking about, so we have to store
         // it separately.
         this._months = +months +
             quarters * 3 +
