@@ -2,7 +2,6 @@ package watch
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -75,7 +74,7 @@ func ReadContents(path string) string {
 	}
 	defer file.Close()
 	reader := io.LimitReader(file, 1024*4)
-	content, _ := ioutil.ReadAll(reader)
+	content, _ := io.ReadAll(reader)
 	return string(content)
 }
 

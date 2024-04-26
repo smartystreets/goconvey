@@ -3,7 +3,7 @@ package executor
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"testing"
 	"time"
@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 }
 
 func TestConcurrentTester(t *testing.T) {

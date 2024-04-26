@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -59,7 +58,7 @@ func main() {
 
 	printHeader()
 
-	tmpDir, err := ioutil.TempDir("", "*.goconvey")
+	tmpDir, err := os.MkdirTemp("", "*.goconvey")
 	if err != nil {
 		log.Fatal(err)
 	}
