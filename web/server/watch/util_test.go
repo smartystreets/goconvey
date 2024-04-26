@@ -1,10 +1,11 @@
 // Credits: https://gist.github.com/jaybill/2876519
 package watch
 
-import "os"
-import "io"
-import "io/ioutil"
-import "log"
+import (
+	"io"
+	"log"
+	"os"
+)
 
 // Copies original source to destination destination.
 func CopyFile(source string, destination string) (err error) {
@@ -58,7 +59,7 @@ func CopyDir(source string, destination string) (err error) {
 		return err
 	}
 
-	entries, err := ioutil.ReadDir(source)
+	entries, err := os.ReadDir(source)
 
 	for _, entry := range entries {
 
