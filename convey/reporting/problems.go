@@ -44,7 +44,7 @@ func (self *problem) showErrors() {
 			self.out.Println("\nErrors:\n")
 			self.out.Indent()
 		}
-		self.out.Println(errorTemplate, e.File, e.Line, e.Error, e.StackTrace)
+		self.out.Println(errorTemplate, e.File, e.Line, e.Line, e.Error, e.StackTrace)
 	}
 }
 func (self *problem) showFailures() {
@@ -53,7 +53,7 @@ func (self *problem) showFailures() {
 			self.out.Println("\nFailures:\n")
 			self.out.Indent()
 		}
-		self.out.Println(failureTemplate, f.File, f.Line, f.Failure)
+		self.out.Println(failureTemplate, f.File, f.Line, f.Line, f.Failure)
 		if f.StackTrace != "" {
 			self.out.Println(stackTemplate, f.StackTrace)
 		}
