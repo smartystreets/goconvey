@@ -66,6 +66,28 @@ func TestComparisonFailureDeserializedAndReported(t *testing.T) {
 	expectEqual(t, `Begin|A|Failure("bye"/"hi")|Exit|End`, myReporter.wholeStory())
 }
 
+// shouldBeEven is a custom assertion, which the public Assertion type supports.
+// It returns an empty string on success and a failure message otherwise. The
+// failure message it returns is valid JSON but is not a FailureView (it has no
+// 'Message' field), so it must not be mistaken for a passing assertion.
+func shouldBeEven(actual any, expected ...any) string {
+	if actual.(int)%2 == 0 {
+		return ""
+	}
+	return `{"Expected":"even","Actual":"odd"}`
+}
+
+func TestCustomAssertionFailureHaltsScopeExecution(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+
+	Convey("A", test, func() {
+		So(3, shouldBeEven, 2)
+		So(1, ShouldEqual, 1)
+	})
+
+	expectEqual(t, "Begin|A|Failure|Exit|End", myReporter.wholeStory())
+}
+
 func TestNestedFailureReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
