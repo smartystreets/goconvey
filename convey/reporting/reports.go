@@ -109,7 +109,11 @@ func NewFailureReport(failure string, showStack bool) *AssertionResult {
 func parseFailure(failure string, report *AssertionResult) {
 	view := new(FailureView)
 	err := json.Unmarshal([]byte(failure), view)
-	if err == nil {
+	// Only treat the failure as a FailureView if it actually carries a message.
+	// A custom assertion may return any failure message, including valid JSON
+	// which is not a FailureView; reducing those to an empty message would turn
+	// a failing assertion into a silent pass.
+	if err == nil && view.Message != "" {
 		report.Failure = view.Message
 		report.Expected = view.Expected
 		report.Actual = view.Actual
